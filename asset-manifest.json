@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/riesgosapp/static/css/main.e6c13ad2.css",
-    "main.js": "/riesgosapp/static/js/main.c026a285.js",
+    "main.css": "/riesgosapp/static/css/main.323d7611.css",
+    "main.js": "/riesgosapp/static/js/main.8008b720.js",
     "static/js/453.4acd48e0.chunk.js": "/riesgosapp/static/js/453.4acd48e0.chunk.js",
     "index.html": "/riesgosapp/index.html",
-    "main.e6c13ad2.css.map": "/riesgosapp/static/css/main.e6c13ad2.css.map",
-    "main.c026a285.js.map": "/riesgosapp/static/js/main.c026a285.js.map",
+    "main.323d7611.css.map": "/riesgosapp/static/css/main.323d7611.css.map",
+    "main.8008b720.js.map": "/riesgosapp/static/js/main.8008b720.js.map",
     "453.4acd48e0.chunk.js.map": "/riesgosapp/static/js/453.4acd48e0.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.e6c13ad2.css",
-    "static/js/main.c026a285.js"
+    "static/css/main.323d7611.css",
+    "static/js/main.8008b720.js"
   ]
 }
