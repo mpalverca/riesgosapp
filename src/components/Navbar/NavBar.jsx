@@ -19,7 +19,7 @@ import { NavLink } from 'react-router-dom';
 const pages = [
     { name: 'inicio', path: '/' },
     { name: 'alerta', path: '/alertmap' },
-    { name: 'riesgos', path: '/riesgosmapa' },
+    { name: 'Susceptibilidad', path: '/riesgosmapa' },
     { name: 'Plan Familiar', path: '/planfamiliar' },
     { name: 'Plan de Contingencia', path: '/plancontingencia' },
     { name: 'COE', path: '/coe' }
