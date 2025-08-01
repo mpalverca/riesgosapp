@@ -2,7 +2,7 @@
   "name": "riesgosapp",
   "version": "0.1.0",
   "private": true,
-   "homepage": "https://tunombredeusuario.github.io/mi-app-react",
+   "homepage": "https://mpalverca.github.io/riesgosapp",
 
   "dependencies": {
     "@testing-library/dom": "^10.4.1",
