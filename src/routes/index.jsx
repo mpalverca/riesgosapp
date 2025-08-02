@@ -18,7 +18,8 @@ export default class index extends Component {
       <BrowserRouter>
       <NavBar/>
       <Routes>
-        <Route path='/' element={<Home/>}  />
+        <Route path='/riesgosapp' element={<Home/>}  />
+        <Route path='/inicio' element={<Home/>}  />
         <Route path='/alertmap' element={<Alerts/>} />
         <Route path='/riesgosmapa' element={<Dangermap/> }  />
         <Route path='/planfamiliar' element={<PlanFamiliar/>} />
