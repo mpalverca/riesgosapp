@@ -24,11 +24,14 @@ const pages = [
     { name: 'Análsis', path: '/riesgosapp/riesgosmapa' },
     { name: 'Preparación', path: '/riesgosapp/planfamiliar' },
     { name: 'Respuesta', path: '/riesgosapp/Evin' },
-      { name: 'Geologia', path: '/riesgosapp/geologia' },
+    { name: 'Geologia', path: '/riesgosapp/geologia' },
     { name: 'COE', path: '/riesgosapp/coe' }
 ];
 
-const settings = ['Perfil', 'Cuenta', 'Panel', 'Cerrar Sesión'];
+const settings = [{ name: 'Perfil', path: '/riesgosapp/perfil' },
+{ name: 'Cuenta', path: '/riesgosapp/cuenta' },
+{ name: 'Panel', path: '/riesgosapp/panel' },
+{ name: 'Cerrar Sesión', path: '/riesgosapp/' }];
 
 export default function ResponsiveNavBar() {
     const theme = useTheme();
@@ -53,7 +56,7 @@ export default function ResponsiveNavBar() {
     };
 
     return (
-        <AppBar position="static" style={{ background: 'linear-gradient(45deg, #FF5733 30%, #FFD700 90%)' }}>
+        <AppBar position="static" style={{ background: 'linear-gradient(45deg, #FF5733 20%, #FFD700 90%)' }}>
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
                     {/* Logo - visible en todas las pantallas */}
@@ -66,7 +69,7 @@ export default function ResponsiveNavBar() {
                         variant="h6"
                         noWrap
                         component="a"
-                        href="/"
+                        href="/riesgosapp"
                         sx={{
                             mr: 2,
                             display: { xs: 'none', md: 'flex' },
@@ -77,7 +80,7 @@ export default function ResponsiveNavBar() {
                             textDecoration: 'none',
                         }}
                     >
-                        GESTIÓN DE RIESGOS
+                        GESTIÓN DE RIESGOS DE DESASTRES
                     </Typography>
 
                     {/* Menú hamburguesa - versión mobile */}
@@ -129,7 +132,7 @@ export default function ResponsiveNavBar() {
                             variant="h5"
                             noWrap
                             component="a"
-                            href="/"
+                            href="/riesgosapp"
                             sx={{
                                 mr: 2,
                                 fontFamily: 'monospace',
@@ -140,7 +143,7 @@ export default function ResponsiveNavBar() {
                                 fontSize: '1rem'
                             }}
                         >
-                            GESTIÓN DE RIESGOS
+                            CGRD
                         </Typography>
                     </Box>
 
@@ -191,7 +194,10 @@ export default function ResponsiveNavBar() {
                         >
                             {settings.map((setting) => (
                                 <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                                    <Typography textAlign="center">{setting}</Typography>
+                                    <NavLink to={setting.path} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                        <Typography textAlign="center">{setting.name}</Typography>
+                                    </NavLink>
+
                                 </MenuItem>
                             ))}
                         </Menu>
