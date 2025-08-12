@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
 import {
     AppBar,
     Box,
@@ -12,10 +12,10 @@ import {
     Tooltip,
     MenuItem,
     useMediaQuery,
-    useTheme
+    useTheme,
+    Avatar
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import AdbIcon from '@mui/icons-material/Person';
 import logo1 from './logo_riesgos2.png';
 
 const pages = [
@@ -28,16 +28,27 @@ const pages = [
     { name: 'COE', path: '/riesgosapp/coe' }
 ];
 
-const settings = [{ name: 'Perfil', path: '/riesgosapp/perfil' },
-{ name: 'Cuenta', path: '/riesgosapp/cuenta' },
-{ name: 'Panel', path: '/riesgosapp/panel' },
-{ name: 'Cerrar Sesión', path: '/riesgosapp/' }];
+const userSettings = [
+    { name: 'Perfil', path: '/riesgosapp/perfil' },
+    { name: 'Cuenta', path: '/riesgosapp/cuenta' },
+    { name: 'Panel', path: '/riesgosapp/panel' },
+    { name: 'Cerrar Sesión', path: '/riesgosapp/logout' }
+];
 
 export default function ResponsiveNavBar() {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const [anchorElNav, setAnchorElNav] = useState(null);
     const [anchorElUser, setAnchorElUser] = useState(null);
+    const [user, setUser] = useState(null);
+   const navegate= useNavigate( );
+    // Verificar localStorage al cargar el componente
+    useEffect(() => {
+        const userData = localStorage.getItem('user');
+        if (userData) {
+            setUser(JSON.parse(userData));
+        }
+    }, []);
 
     const handleOpenNavMenu = (event) => {
         setAnchorElNav(event.currentTarget);
@@ -53,6 +64,29 @@ export default function ResponsiveNavBar() {
 
     const handleCloseUserMenu = () => {
         setAnchorElUser(null);
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem('user');
+        setUser(null);
+        handleCloseUserMenu();
+        // Redirigir a la página de inicio o login si es necesario
+        window.location.href = '/riesgosapp/';
+    };
+
+    const handleLogin = () => {
+        // Simular login - en una app real esto vendría de un formulario o API
+        const fakeUser = {
+            name: 'Usuario Ejemplo',
+            email: 'usuario@ejemplo.com',
+            role: 'admin'
+        };
+     
+            navegate('/riesgosapp/userauth')
+        
+
+       // localStorage.setItem('user', JSON.stringify(fakeUser));
+       // setUser(fakeUser);
     };
 
     return (
@@ -171,36 +205,71 @@ export default function ResponsiveNavBar() {
 
                     {/* Menú de usuario */}
                     <Box sx={{ flexGrow: 0 }}>
-                        <Tooltip title="Abrir configuración">
-                            <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                                <AdbIcon sx={{ color: 'white' }} />
-                            </IconButton>
-                        </Tooltip>
-                        <Menu
-                            sx={{ mt: '45px' }}
-                            id="menu-appbar"
-                            anchorEl={anchorElUser}
-                            anchorOrigin={{
-                                vertical: 'top',
-                                horizontal: 'right',
-                            }}
-                            keepMounted
-                            transformOrigin={{
-                                vertical: 'top',
-                                horizontal: 'right',
-                            }}
-                            open={Boolean(anchorElUser)}
-                            onClose={handleCloseUserMenu}
-                        >
-                            {settings.map((setting) => (
-                                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                                    <NavLink to={setting.path} style={{ textDecoration: 'none', color: 'inherit' }}>
-                                        <Typography textAlign="center">{setting.name}</Typography>
-                                    </NavLink>
-
-                                </MenuItem>
-                            ))}
-                        </Menu>
+                        {user ? (
+                            <>
+                                <Tooltip title="Abrir menú de usuario">
+                                    <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                                        <Avatar 
+                                            alt={user.name} 
+                                            src="/static/images/avatar/2.jpg" 
+                                            sx={{ width: 32, height: 32, bgcolor: 'white', color: '#FF5733' }}
+                                        >
+                                            {user.name.charAt(0)}
+                                        </Avatar>
+                                    </IconButton>
+                                </Tooltip>
+                                <Menu
+                                    sx={{ mt: '45px' }}
+                                    id="menu-appbar"
+                                    anchorEl={anchorElUser}
+                                    anchorOrigin={{
+                                        vertical: 'top',
+                                        horizontal: 'right',
+                                    }}
+                                    keepMounted
+                                    transformOrigin={{
+                                        vertical: 'top',
+                                        horizontal: 'right',
+                                    }}
+                                    open={Boolean(anchorElUser)}
+                                    onClose={handleCloseUserMenu}
+                                >
+                                    <MenuItem>
+                                        <Typography textAlign="center" sx={{ fontWeight: 'bold' }}>
+                                            {user.name}
+                                        </Typography>
+                                    </MenuItem>
+                                    {userSettings.map((setting) => (
+                                        <MenuItem 
+                                            key={setting.name} 
+                                            onClick={setting.name === 'Cerrar Sesión' ? handleLogout : handleCloseUserMenu}
+                                        >
+                                            <NavLink 
+                                                to={setting.path} 
+                                                style={{ textDecoration: 'none', color: 'inherit', width: '100%' }}
+                                            >
+                                                <Typography textAlign="center">{setting.name}</Typography>
+                                            </NavLink>
+                                        </MenuItem>
+                                    ))}
+                                </Menu>
+                            </>
+                        ) : (
+                            <Button
+                               // variant="contained"
+                             
+                                onClick={handleLogin}
+                                sx={{
+                                    backgroundColor: 'white',
+                                    color: '#FF5733',
+                                    '&:hover': {
+                                        backgroundColor: '#f5f5f5',
+                                    }
+                                }}
+                            >
+                                Iniciar Sesión
+                            </Button>
+                        )}
                     </Box>
                 </Toolbar>
             </Container>

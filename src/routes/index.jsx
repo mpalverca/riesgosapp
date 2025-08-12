@@ -14,6 +14,8 @@ import Coe from './coe';
 import Geologia from './geologia';
 import Cooper from './cooper';
 import EVIN from './EVIN'
+import Auth from './user/auth';
+import Login from './login/login';
 
 export default class index extends Component {
   render() {
@@ -32,6 +34,11 @@ export default class index extends Component {
           <Route path='*' element={<NotFoud />} />
           <Route path='/planContingencia' element={<PlanContingencia />} />
           <Route path='/riesgosapp/coe' element={<Coe />} />
+       {/*    //auth*/}
+          <Route path='/riesgosapp/userauth' element={<Login/>} />
+          <Route path='/riesgosapp/userSettings' element={<Auth/>} />
+          <Route path='/riesgosapp/auth' element={<Coe />} />
+        <Route path='/riesgosapp/auth' element={<Coe />} />
         </Routes>
       </BrowserRouter>
     )

@@ -10,7 +10,6 @@ export default class Alerts extends Component {
       <Typography variant="h4">
         Afectaciones a Nivel cantonal
       </Typography>
-
       <alertMap/>
     </div>
   
