@@ -1,18 +1,14 @@
 // src/components/ProtectedRoute.js
-import { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { supabase } from '../lib/supabaseClient'
+// src/components/ProtectedRoute.js
+import { Navigate } from "react-router-dom";
+import { client } from "../utils/authkey";
 
 export default function ProtectedRoute({ children }) {
-  const navigate = useNavigate()
+  const user = client.auth.getUser();
+  
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
 
-  useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) navigate('/login')
-    }
-    checkSession()
-  }, [navigate])
-
-  return children
+  return children;
 }

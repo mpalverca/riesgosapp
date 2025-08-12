@@ -63,7 +63,7 @@ const InfoPanel = () => {
     <Container 
       maxWidth="md" 
       sx={{ 
-        height: '75vh',
+        height: '80vh',
         py: 2,
         overflow: 'hidden',
         display: 'flex',

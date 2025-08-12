@@ -102,7 +102,7 @@ const MapViewer = () => {
     <MapContainer
       center={position}
       zoom={14}
-      style={{ height: "600px", width: "100%" }}
+      style={{ height: "80vh", width: "100%" }}
     >
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

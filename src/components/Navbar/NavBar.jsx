@@ -20,7 +20,7 @@ import logo1 from './logo_riesgos2.png';
 
 const pages = [
     { name: 'Inicio', path: '/riesgosapp/' },
-    { name: 'Visor Territorial', path: '/riesgosapp/alertmap' },
+    { name: 'Visor', path: '/riesgosapp/alertmap' },
     { name: 'Análsis', path: '/riesgosapp/riesgosmapa' },
     { name: 'Preparación', path: '/riesgosapp/planfamiliar' },
     { name: 'Respuesta', path: '/riesgosapp/Evin' },
@@ -94,9 +94,9 @@ export default function ResponsiveNavBar() {
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
                     {/* Logo - visible en todas las pantallas */}
-                    <IconButton sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} edge="start" color="inherit">
+                    {/* <IconButton sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} edge="start" color="inherit">
                         <img src={logo1} alt="Logo" style={{ width: '30px', height: '30px' }} />
-                    </IconButton>
+                    </IconButton> */}
 
                     {/* Título - versión desktop */}
                     <Typography
@@ -109,7 +109,7 @@ export default function ResponsiveNavBar() {
                             display: { xs: 'none', md: 'flex' },
                             fontFamily: 'monospace',
                             fontWeight: 700,
-                            letterSpacing: '.3rem',
+                            letterSpacing: '.1rem',
                             color: 'inherit',
                             textDecoration: 'none',
                         }}
@@ -168,7 +168,7 @@ export default function ResponsiveNavBar() {
                             component="a"
                             href="/riesgosapp"
                             sx={{
-                                mr: 2,
+                                mr: 1,
                                 fontFamily: 'monospace',
                                 fontWeight: 700,
                                 letterSpacing: '.1rem',
@@ -189,7 +189,7 @@ export default function ResponsiveNavBar() {
                                 component={NavLink}
                                 to={page.path}
                                 sx={{
-                                    my: 2,
+                                    my: 0.5,
                                     color: 'white',
                                     display: 'block',
                                     mx: 1,
@@ -256,8 +256,7 @@ export default function ResponsiveNavBar() {
                             </>
                         ) : (
                             <Button
-                               // variant="contained"
-                             
+                               // variant="contained"                             
                                 onClick={handleLogin}
                                 sx={{
                                     backgroundColor: 'white',
@@ -267,7 +266,7 @@ export default function ResponsiveNavBar() {
                                     }
                                 }}
                             >
-                                Iniciar Sesión
+                                REGISTRO DE USUARIO
                             </Button>
                         )}
                     </Box>
