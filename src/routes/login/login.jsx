@@ -71,7 +71,8 @@ const LoginForm = ({ switchToRegister, onLoginSuccess }) => {
         email: user.email,
         name: user.user_metadata?.name || '',
         phone: user.user_metadata?.phone || '',
-        ci: user.user_metadata?.ci || ''
+        ci: user.user_metadata?.ci || '',
+        rol:user.role
       };
       
       localStorage.setItem('user', JSON.stringify(userData));
