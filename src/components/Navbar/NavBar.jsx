@@ -105,7 +105,7 @@ export default function ResponsiveNavBar() {
                         component="a"
                         href="/riesgosapp"
                         sx={{
-                            mr: 2,
+                            mr: 1,
                             display: { xs: 'none', md: 'flex' },
                             fontFamily: 'monospace',
                             fontWeight: 700,
