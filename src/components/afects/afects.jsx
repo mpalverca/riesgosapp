@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup} from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { divIcon } from 'leaflet';
@@ -28,8 +28,8 @@ const color_prioridad = {
   DEFAULT: "#007bff",
 };
 
-const MapAfects = ({afectData,loading,error}) => {
-
+const MapAfects = ({afectData,loading,error,coords }) => {
+console.log(coords)
   // Estado para controlar qué imagen está expandida
   const [expandedImage, setExpandedImage] = useState(null);
   const position = [-3.9939, -79.2042];
