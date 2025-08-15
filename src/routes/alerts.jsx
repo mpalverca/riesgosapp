@@ -10,6 +10,8 @@ export default function Alerts() {
   const [coords, setCoords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [priority, setPriority] = useState("Todos");
+  const [estado, setEstado] = useState("Todos");
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -33,17 +35,39 @@ export default function Alerts() {
   }, []);
 
   const addvar = (lat, long) => {
-    setCoords([...coords,  lat, long ]);
+    setCoords([...coords, lat, long]);
+  };
+  const select = (value) => {
+    setPriority(value);
+  };
+  const state = (value) => {
+    setEstado(value);
   };
 
   return (
     <div style={{ margin: "10px" }}>
       <Grid container spacing={2}>
-        <Grid size={{ xs: 12, md: 3 }}>
-          <Panel addbar={addvar} />
+        <Grid
+          size={{ xs: 12, md: 3 }}
+          style={{ height: "500px", overflowY: "auto" }}
+        >
+          <Panel
+            addbar={addvar}
+            prioridad={select}
+            selectPriority={priority}
+            estado={estado}
+            setestado={state}
+          />
         </Grid>
         <Grid size={{ xs: 12, md: 9 }}>
-          <MapAfects afectData={afectData} error={error} loading={loading} coords={coords} />
+          <MapAfects
+            afectData={afectData}
+            error={error}
+            loading={loading}
+            coords={coords}
+            priority={priority}
+            estado={estado}
+          />
         </Grid>
       </Grid>
     </div>

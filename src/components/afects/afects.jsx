@@ -28,10 +28,10 @@ const color_prioridad = {
   DEFAULT: "#007bff",
 };
 
-const MapAfects = ({afectData,loading,error,coords }) => {
-console.log(coords)
+const MapAfects = ({afectData,loading,error,coords,priority,estado }) => {
   // Estado para controlar qué imagen está expandida
   const [expandedImage, setExpandedImage] = useState(null);
+  
   const position = [-3.9939, -79.2042];
   const extractCoordinates = (geom) => {
     if (!geom || !geom.coordinates) return null;
@@ -78,7 +78,16 @@ console.log(coords)
     }
   };
   const renderAfect = () => {
-    return afectData
+    // Filtra por prioridad
+     const filteredData = priority === "Todos"
+    ? afectData
+    : afectData.filter(item => item.PRIORIDAD === priority);
+// Filtra por estado
+     const filteredpriority = estado === "Todos"
+    ? afectData
+    : afectData.filter(item => item.PRIORIDAD === estado);
+
+    return filteredpriority
       .map((item, index) => {
         try {
           const coords = extractCoordinates(item.geom);
@@ -198,7 +207,8 @@ console.log(coords)
 
   return (
     <MapContainer
-      center={position}
+      center={[coords && coords[0] ? parseFloat(coords[0]) : position[0],
+  coords && coords[1] ? parseFloat(coords[1]) : position[1],]}
       zoom={14}
       style={{ height: "80vh", width: "100%" }}
     >
@@ -206,9 +216,10 @@ console.log(coords)
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution="&copy; OpenStreetMap contributors"
       />
-      {/* <Marker position={position}>
+      <Marker position={ [coords && coords[0] ? parseFloat(coords[0]) : 0,
+  coords && coords[1] ? parseFloat(coords[1]) : 0,]}>
         <Popup>Ubicación central de referencia</Popup>
-      </Marker> */}
+      </Marker>
       {renderAfect()}
       {/* Modal para imagen expandida */}
       {expandedImage && (

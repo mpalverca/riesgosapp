@@ -1,18 +1,43 @@
 import { useState } from "react";
+import {
+  Typography,
+  TextField,
+  Button,
+  FormControl,
+  Select,
+  InputLabel,
+  MenuItem,
+} from "@mui/material";
 
-import { Typography, TextField, Button } from "@mui/material";
-export default function Panel({ addbar }) {
+export default function Panel({
+  addbar,
+  prioridad,
+  selectedPriority,
+  estado,
+  setestado,
+}) {
   const [form, setForm] = useState({ latitud: "", longitud: "" });
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
-  };console.log(form)
+  };
+  const handlePriorityChange = (e) => {
+    prioridad(e.target.value);
+    console.log(e.target.value);
+    // Llama la función pasada por props
+  };
+
+  const handleStateChange = (e) => {
+    setestado(e.target.value);
+    console.log(e.target.value);
+    // Llama la función pasada por props
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Aquí puedes usar los datos ingresados
     addbar(form.latitud, form.longitud);
   };
+
   return (
     <div>
       <Typography variant="h6">Visor Territorial de Afectaciones</Typography>
@@ -23,7 +48,6 @@ export default function Panel({ addbar }) {
           borderLeft: "5px solid #020202ff",
           borderRadius: "4px",
           color: "#856404",
-
           margin: "2px 0",
         }}
       >
@@ -33,39 +57,37 @@ export default function Panel({ addbar }) {
         sanciones contempladas en la LOGIRD.
       </div>
       <Typography variant="subtitle1">Ubicación</Typography>
-      <form>
+      <form onSubmit={handleSubmit}>
         <TextField
           fullWidth
-          padding={2}
-          marginTop={2}
           type="number"
-          id="latitude"
+          name="latitud"
           label="Latitud"
           value={form.latitud}
           onChange={handleChange}
           placeholder="Ej: -3.99313"
           variant="outlined"
+          margin="normal"
         />
         <TextField
-          padding={2}
-          marginTop={2}
-          type="number"
           fullWidth
-          id="longitud"
+          type="number"
+          name="longitud"
           label="Longitud"
           value={form.longitud}
           onChange={handleChange}
-          placeholder="Ej: -3.99313"
+          placeholder="Ej: -79.20422"
           variant="outlined"
+          margin="normal"
         />
         <Button
           id="search-btn"
           variant="contained"
-          onClick={handleSubmit}
-          marginTop={2}
-          padding={2}
+          type="submit"
           style={{
             background: "linear-gradient(45deg, #FF5733 20%, #FFD700 90%)",
+            marginTop: "16px",
+            padding: "10px 0",
           }}
           fullWidth
           size="large"
@@ -86,6 +108,37 @@ export default function Panel({ addbar }) {
         sistemas sociales y el ambiente, causado por fenómenos de origen natural
         o provocado por los seres humanos (Lit. 8, art. 5 de la LOGIRD)
       </div>
+      <Typography variant="subtitle1">Prioridad</Typography>
+      <FormControl fullWidth margin="normal">
+        <InputLabel id="priority-label">Prioridad</InputLabel>
+        <Select
+          labelId="priority-label"
+          id="priority-select"
+          value={selectedPriority}
+          label="Prioridad"
+          onChange={handlePriorityChange}
+        >
+          <MenuItem value="Alta">Alta</MenuItem>
+          <MenuItem value="Media">Media</MenuItem>
+          <MenuItem value="Baja">Baja</MenuItem>
+          <MenuItem value="Todos">Todos</MenuItem>
+        </Select>
+      </FormControl>
+      <Typography variant="subtitle1">Estado</Typography>
+      <FormControl fullWidth margin="normal">
+        <InputLabel id="priority-label">Estado</InputLabel>
+        <Select
+          labelId="priority-label"
+          id="priority-select"
+          value={estado}
+          label="Prioridad"
+          onChange={handleStateChange}
+        >
+          <MenuItem value="Alta">Pendiente</MenuItem>
+          <MenuItem value="Media">Atendido</MenuItem>          
+          <MenuItem value="Todos">Todos</MenuItem>
+        </Select>
+      </FormControl>
     </div>
   );
 }
