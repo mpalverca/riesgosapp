@@ -23,13 +23,12 @@ export default function Panel({
   };
   const handlePriorityChange = (e) => {
     prioridad(e.target.value);
-    console.log(e.target.value);
     // Llama la función pasada por props
   };
 
   const handleStateChange = (e) => {
     setestado(e.target.value);
-    console.log(e.target.value);
+
     // Llama la función pasada por props
   };
 

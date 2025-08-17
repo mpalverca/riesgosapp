@@ -89,4 +89,3 @@ export const cargarDatosafec = async () => {
     throw error; // Relanza el error para manejo externo
   }
 };
-

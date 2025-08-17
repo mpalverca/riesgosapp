@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup} from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
+import { Slider, Typography,Box } from "@mui/material";
+// ...otros imports...
 import "leaflet/dist/leaflet.css";
-import { divIcon } from 'leaflet';
-import { renderToString } from 'react-dom/server';
+import { divIcon } from "leaflet";
+import { renderToString } from "react-dom/server";
 import {
   FaWater,
   FaMountain,
@@ -28,10 +30,10 @@ const color_prioridad = {
   DEFAULT: "#007bff",
 };
 
-const MapAfects = ({afectData,loading,error,coords,priority,estado }) => {
+const MapAfects = ({ afectData, loading, error, coords, priority, estado }) => {
   // Estado para controlar qué imagen está expandida
   const [expandedImage, setExpandedImage] = useState(null);
-  
+  const [selectedDate, setSelectedDate] = useState(null);
   const position = [-3.9939, -79.2042];
   const extractCoordinates = (geom) => {
     if (!geom || !geom.coordinates) return null;
@@ -77,17 +79,47 @@ const MapAfects = ({afectData,loading,error,coords,priority,estado }) => {
       return null;
     }
   };
+
+  const fechas = afectData.map((item) => new Date(item.FECHA));
+  const minFecha = fechas.length
+    ? Math.min(...fechas.map((f) => f.getTime()))
+    : null;
+  const maxFecha = fechas.length
+    ? Math.max(...fechas.map((f) => f.getTime()))
+    : null;
+  console.log(fechas);
+    console.log(minFecha,maxFecha);
+  // Función para comparar fechas ignorando la hora
+  const isSameDate = (date1, date2) => {
+    if (!date1 || !date2) return false;
+    return (
+      date1.getFullYear() === date2.getFullYear() &&
+      date1.getMonth() === date2.getMonth() &&
+      date1.getDate() === date2.getDate()
+    );
+  };
   const renderAfect = () => {
     // Filtra por prioridad
-     const filteredData = priority === "Todos"
-    ? afectData
-    : afectData.filter(item => item.PRIORIDAD === priority);
-// Filtra por estado
-     const filteredpriority = estado === "Todos"
-    ? afectData
-    : afectData.filter(item => item.PRIORIDAD === estado);
-
-    return filteredpriority
+    console.log(priority);
+    const filteredData =
+      priority === "Todos"
+        ? afectData
+        : afectData.filter((item) => item.PRIORIDAD === priority);
+    // Filtra por estado
+    const filteredpriority =
+      estado === "Todos"
+        ? filteredData
+        : filteredData.filter((item) => item.PRIORIDAD === estado);
+    //filter bydate
+    const filteredByDate = selectedDate
+  ? filteredpriority.filter((item) => {
+      const itemTime = new Date(item.FECHA).setHours(0, 0, 0, 0);
+      const selectedTime = new Date(selectedDate).setHours(0, 0, 0, 0);
+      return itemTime <= selectedTime;
+    })
+  : filteredpriority;
+      console.log(filteredByDate)
+    return filteredByDate
       .map((item, index) => {
         try {
           const coords = extractCoordinates(item.geom);
@@ -104,12 +136,12 @@ const MapAfects = ({afectData,loading,error,coords,priority,estado }) => {
           const getEventIcon = (eventType) => {
             const iconComponent =
               eventType === "Movimiento en masas" ? (
-                <FaMountain color="#FF5733"/>
+                <FaMountain color="#FF5733" />
               ) : eventType === "Inundación" ? (
-                <FaWater color="Blue"  />
+                <FaWater color="Blue" />
               ) : eventType === "Colapso estructural" ? (
-                <FaBuilding color="Blue"  />
-              ): (
+                <FaBuilding color="Blue" />
+              ) : (
                 <FaExclamationTriangle />
               );
 
@@ -127,7 +159,6 @@ const MapAfects = ({afectData,loading,error,coords,priority,estado }) => {
               position={[coords.lat, coords.lng]}
               //icon={createCustomIcon(priority, eventType)}
               icon={getEventIcon(eventType)}
-              
             >
               {" "}
               <Popup>
@@ -206,82 +237,143 @@ const MapAfects = ({afectData,loading,error,coords,priority,estado }) => {
     return <div className="no-data-message">No hay datos de afectaciones</div>;
 
   return (
-    <MapContainer
-      center={[coords && coords[0] ? parseFloat(coords[0]) : position[0],
-  coords && coords[1] ? parseFloat(coords[1]) : position[1],]}
-      zoom={14}
-      style={{ height: "80vh", width: "100%" }}
-    >
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution="&copy; OpenStreetMap contributors"
-      />
-      <Marker position={ [coords && coords[0] ? parseFloat(coords[0]) : 0,
-  coords && coords[1] ? parseFloat(coords[1]) : 0,]}>
-        <Popup>Ubicación central de referencia</Popup>
-      </Marker>
-      {renderAfect()}
-      {/* Modal para imagen expandida */}
-      {expandedImage && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(0,0,0,0.8)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 9999,
-            padding: "20px",
-          }}
-          onClick={() => setExpandedImage(null)}
+    <div>
+      <MapContainer
+        center={[
+          coords && coords[0] ? parseFloat(coords[0]) : position[0],
+          coords && coords[1] ? parseFloat(coords[1]) : position[1],
+        ]}
+        zoom={14}
+        style={{ height: "75vh", width: "100%" }}
+      >
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution="&copy; OpenStreetMap contributors"
+        />
+        <Marker
+          position={[
+            coords && coords[0] ? parseFloat(coords[0]) : 0,
+            coords && coords[1] ? parseFloat(coords[1]) : 0,
+          ]}
         >
+          <Popup>Ubicación central de referencia</Popup>
+        </Marker>
+        {renderAfect()}
+        {/* Modal para imagen expandida */}
+        {expandedImage && (
           <div
             style={{
-              maxWidth: "90%",
-              maxHeight: "90%",
-              position: "relative",
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: "rgba(0,0,0,0.8)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 9999,
+              padding: "20px",
             }}
-            onClick={(e) => e.stopPropagation()}
+            onClick={() => setExpandedImage(null)}
           >
-            <img
-              src={expandedImage}
-              alt="Imagen expandida"
+            <div
               style={{
-                maxWidth: "100%",
-                maxHeight: "90vh",
-                borderRadius: "8px",
-                boxShadow: "0 4px 20px rgba(0,0,0,0.25)",
+                maxWidth: "90%",
+                maxHeight: "90%",
+                position: "relative",
               }}
-            />
-            <button
-              onClick={() => setExpandedImage(null)}
-              style={{
-                position: "absolute",
-                top: "-15px",
-                right: "-15px",
-                background: "#dc3545",
-                color: "white",
-                border: "none",
-                borderRadius: "50%",
-                width: "30px",
-                height: "30px",
-                fontSize: "16px",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
+              onClick={(e) => e.stopPropagation()}
             >
-              ×
-            </button>
+              <img
+                src={expandedImage}
+                alt="Imagen expandida"
+                style={{
+                  maxWidth: "100%",
+                  maxHeight: "90vh",
+                  borderRadius: "8px",
+                  boxShadow: "0 4px 20px rgba(0,0,0,0.25)",
+                }}
+              />
+              <button
+                onClick={() => setExpandedImage(null)}
+                style={{
+                  position: "absolute",
+                  top: "-15px",
+                  right: "-15px",
+                  background: "#dc3545",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "50%",
+                  width: "30px",
+                  height: "30px",
+                  fontSize: "16px",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                ×
+              </button>
+            </div>
           </div>
+        )}
+      </MapContainer>
+      {minFecha && maxFecha && (
+        <div style={{ width: "90%", margin: "30px auto 0 auto" }}>
+          <Slider
+            value={selectedDate || maxFecha}
+            min={minFecha}
+            max={maxFecha}
+            step={24 * 60 * 60 * 1000} // un día en ms
+            onChange={(_, value) => setSelectedDate(value)}
+            valueLabelDisplay="auto"
+            valueLabelFormat={(v) => new Date(v).toLocaleDateString('es-EC', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    })}
+    sx={{
+      color: 'orange', // Color naranja para la barra
+      height: 8, // Grosor de la barra
+      '& .MuiSlider-thumb': {
+        backgroundColor: '#fff',
+        border: '2px solid orange',
+      },
+      '& .MuiSlider-valueLabel': {
+        backgroundColor: 'orange',
+        color: '#fff',
+        borderRadius: '4px',
+        padding: '4px 8px',
+      },
+    }}
+  />
+  <Box sx={{ 
+    display: 'flex', 
+    justifyContent: 'space-between',
+    marginTop: '-10px',
+    fontSize: '0.75rem',
+    color: 'text.secondary'
+  }}>
+    <span>
+      {new Date(minFecha).toLocaleDateString('es-EC', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      })}
+    </span>
+    <span>
+      {new Date(maxFecha).toLocaleDateString('es-EC', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      })}
+    </span>
+  </Box>
         </div>
       )}
-    </MapContainer>
+    </div>
   );
 };
 

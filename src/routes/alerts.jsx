@@ -49,7 +49,7 @@ export default function Alerts() {
       <Grid container spacing={2}>
         <Grid
           size={{ xs: 12, md: 3 }}
-          style={{ height: "500px", overflowY: "auto" }}
+          style={{ height: "85vh", overflowY: "auto" }}
         >
           <Panel
             addbar={addvar}
