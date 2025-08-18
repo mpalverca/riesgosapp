@@ -15,6 +15,8 @@ export default function Panel({
   selectedPriority,
   estado,
   setestado,
+  afect,
+  setAfect,
 }) {
   const [form, setForm] = useState({ latitud: "", longitud: "" });
 
@@ -31,7 +33,11 @@ export default function Panel({
 
     // Llama la función pasada por props
   };
+  const handleAfectChange = (e) => {
+    setAfect(e.target.value);
 
+    // Llama la función pasada por props
+  };
   const handleSubmit = (e) => {
     e.preventDefault();
     addbar(form.latitud, form.longitud);
@@ -133,11 +139,35 @@ export default function Panel({
           label="Prioridad"
           onChange={handleStateChange}
         >
-          <MenuItem value="Alta">Pendiente</MenuItem>
-          <MenuItem value="Media">Atendido</MenuItem>          
+          <MenuItem value="Pendiente">Pendiente</MenuItem>
+          <MenuItem value="Atendido">Atendido</MenuItem>
           <MenuItem value="Todos">Todos</MenuItem>
         </Select>
       </FormControl>
+      <Typography variant="subtitle1">Afectacción</Typography>
+      <FormControl fullWidth margin="normal">
+        <InputLabel id="priority-label">afectacion</InputLabel>
+        <Select
+          labelId="priority-label"
+          id="priority-select"
+          value={afect}
+          label="Prioridad"
+          onChange={handleAfectChange}
+        >
+          <MenuItem value="Equipamento">Equipamento</MenuItem>
+          <MenuItem value="Infraestructura vial">Vialidad</MenuItem>
+          <MenuItem value="Servicios de AAPP/AALL/AASS">
+            Servicios básicos
+          </MenuItem>
+          <MenuItem value="Vivienda">Vivienda</MenuItem>
+          <MenuItem value="Infraestructura">Infraestructura</MenuItem>
+          <MenuItem value="Predio">Predio</MenuItem>
+          <MenuItem value="Todos">Todos</MenuItem>
+        </Select>
+      </FormControl>
+      <div>
+      
+      </div>
     </div>
   );
 }

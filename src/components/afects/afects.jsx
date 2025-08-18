@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
-import { Slider, Typography,Box } from "@mui/material";
+import { Slider, Typography, Box } from "@mui/material";
 // ...otros imports...
 import "leaflet/dist/leaflet.css";
 import { divIcon } from "leaflet";
@@ -30,7 +30,7 @@ const color_prioridad = {
   DEFAULT: "#007bff",
 };
 
-const MapAfects = ({ afectData, loading, error, coords, priority, estado }) => {
+const MapAfects = ({ afectData, loading, error, coords, priority, estado,afect }) => {
   // Estado para controlar qué imagen está expandida
   const [expandedImage, setExpandedImage] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -87,38 +87,35 @@ const MapAfects = ({ afectData, loading, error, coords, priority, estado }) => {
   const maxFecha = fechas.length
     ? Math.max(...fechas.map((f) => f.getTime()))
     : null;
-  console.log(fechas);
-    console.log(minFecha,maxFecha);
+
   // Función para comparar fechas ignorando la hora
-  const isSameDate = (date1, date2) => {
-    if (!date1 || !date2) return false;
-    return (
-      date1.getFullYear() === date2.getFullYear() &&
-      date1.getMonth() === date2.getMonth() &&
-      date1.getDate() === date2.getDate()
-    );
-  };
   const renderAfect = () => {
     // Filtra por prioridad
-    console.log(priority);
-    const filteredData =
+    const filteredPriority =
       priority === "Todos"
         ? afectData
         : afectData.filter((item) => item.PRIORIDAD === priority);
-    // Filtra por estado
-    const filteredpriority =
+       
+        // Filtra por estado
+    const filteredState =
       estado === "Todos"
-        ? filteredData
-        : filteredData.filter((item) => item.PRIORIDAD === estado);
-    //filter bydate
-    const filteredByDate = selectedDate
-  ? filteredpriority.filter((item) => {
-      const itemTime = new Date(item.FECHA).setHours(0, 0, 0, 0);
-      const selectedTime = new Date(selectedDate).setHours(0, 0, 0, 0);
-      return itemTime <= selectedTime;
-    })
-  : filteredpriority;
-      console.log(filteredByDate)
+        ? filteredPriority
+        : filteredPriority.filter((item) => item.ESTADO === estado);
+      
+        //filter byafectacion
+    const fiterByAfect =
+      afect === "Todos"
+        ? filteredState
+        : filteredState.filter((item) => item.afectacion === afect);
+  
+        const filteredByDate = selectedDate
+      ? fiterByAfect.filter((item) => {
+          const itemTime = new Date(item.FECHA).setHours(0, 0, 0, 0);
+          const selectedTime = new Date(selectedDate).setHours(0, 0, 0, 0);
+          return itemTime <= selectedTime;
+        })
+      : fiterByAfect;
+    console.log(filteredByDate);
     return filteredByDate
       .map((item, index) => {
         try {
@@ -325,52 +322,57 @@ const MapAfects = ({ afectData, loading, error, coords, priority, estado }) => {
           <Slider
             value={selectedDate || maxFecha}
             min={minFecha}
+            
             max={maxFecha}
             step={24 * 60 * 60 * 1000} // un día en ms
             onChange={(_, value) => setSelectedDate(value)}
             valueLabelDisplay="auto"
-            valueLabelFormat={(v) => new Date(v).toLocaleDateString('es-EC', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    })}
-    sx={{
-      color: 'orange', // Color naranja para la barra
-      height: 8, // Grosor de la barra
-      '& .MuiSlider-thumb': {
-        backgroundColor: '#fff',
-        border: '2px solid orange',
-      },
-      '& .MuiSlider-valueLabel': {
-        backgroundColor: 'orange',
-        color: '#fff',
-        borderRadius: '4px',
-        padding: '4px 8px',
-      },
-    }}
-  />
-  <Box sx={{ 
-    display: 'flex', 
-    justifyContent: 'space-between',
-    marginTop: '-10px',
-    fontSize: '0.75rem',
-    color: 'text.secondary'
-  }}>
-    <span>
-      {new Date(minFecha).toLocaleDateString('es-EC', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      })}
-    </span>
-    <span>
-      {new Date(maxFecha).toLocaleDateString('es-EC', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      })}
-    </span>
-  </Box>
+            valueLabelFormat={(v) =>
+              new Date(v).toLocaleDateString("es-EC", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              })
+            }
+            sx={{
+              color: "orange", // Color naranja para la barra
+              height: 8, // Grosor de la barra
+              "& .MuiSlider-thumb": {
+                backgroundColor: "#fff",
+                border: "2px solid orange",
+              },
+              "& .MuiSlider-valueLabel": {
+                backgroundColor: "orange",
+                color: "#fff",
+                borderRadius: "4px",
+                padding: "4px 8px",
+              },
+            }}
+          />
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginTop: "-10px",
+              fontSize: "0.75rem",
+              color: "text.secondary",
+            }}
+          >
+            <span>
+              {new Date(minFecha).toLocaleDateString("es-EC", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              })}
+            </span>
+            <span>
+              {new Date(maxFecha).toLocaleDateString("es-EC", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              })}
+            </span>
+          </Box>
         </div>
       )}
     </div>

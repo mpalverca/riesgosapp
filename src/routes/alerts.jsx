@@ -11,7 +11,8 @@ export default function Alerts() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [priority, setPriority] = useState("Todos");
-  const [estado, setEstado] = useState("Todos");
+  const [estado, setEstado] = useState("Todos");  
+  const [afect, setAfect] = useState("Todos");
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -43,13 +44,18 @@ export default function Alerts() {
   const state = (value) => {
     setEstado(value);
   };
+  const afectview = (value) => {
+    setAfect(value);
+  };
+
+  
 
   return (
     <div style={{ margin: "10px" }}>
       <Grid container spacing={2}>
         <Grid
           size={{ xs: 12, md: 3 }}
-          style={{ height: "85vh", overflowY: "auto" }}
+          style={{ height: "80vh", overflowY: "auto" }}
         >
           <Panel
             addbar={addvar}
@@ -57,6 +63,8 @@ export default function Alerts() {
             selectPriority={priority}
             estado={estado}
             setestado={state}
+            afect={afect}
+            setAfect={afectview}
           />
         </Grid>
         <Grid size={{ xs: 12, md: 9 }}>
@@ -67,6 +75,7 @@ export default function Alerts() {
             coords={coords}
             priority={priority}
             estado={estado}
+            afect={afect}
           />
         </Grid>
       </Grid>
