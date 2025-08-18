@@ -30,93 +30,24 @@ const color_prioridad = {
   DEFAULT: "#007bff",
 };
 
-const MapAfects = ({ afectData, loading, error, coords, priority, estado,afect }) => {
+const MapAfects = ({
+  afectData,
+  loading,
+  error,
+  coords,
+  extractCoordinates,
+  selectedDate,
+  setSelectedDate,
+  minFecha,
+  maxFecha,
+}) => {
   // Estado para controlar qué imagen está expandida
   const [expandedImage, setExpandedImage] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(null);
   const position = [-3.9939, -79.2042];
-  const extractCoordinates = (geom) => {
-    if (!geom || !geom.coordinates) return null;
-    try {
-      // Para Point: [lng, lat]
-      if (geom.type === "Point") {
-        if (
-          geom.coordinates.length >= 2 &&
-          !isNaN(geom.coordinates[0]) &&
-          !isNaN(geom.coordinates[1])
-        ) {
-          return { lat: geom.coordinates[1], lng: geom.coordinates[0] };
-        }
-      }
-      // Para Polygon: coordinates[0][0] = primer punto del primer anillo
-      if (
-        geom.type === "Polygon" &&
-        Array.isArray(geom.coordinates[0]) &&
-        Array.isArray(geom.coordinates[0][0]) &&
-        geom.coordinates[0][0].length >= 2
-      ) {
-        const [lng, lat] = geom.coordinates[0][0];
-        if (!isNaN(lat) && !isNaN(lng)) {
-          return { lat, lng };
-        }
-      }
-      // Para MultiPolygon: coordinates[0][0][0] = primer punto del primer anillo del primer polígono
-      if (
-        geom.type === "MultiPolygon" &&
-        Array.isArray(geom.coordinates[0]) &&
-        Array.isArray(geom.coordinates[0][0]) &&
-        Array.isArray(geom.coordinates[0][0][0]) &&
-        geom.coordinates[0][0][0].length >= 2
-      ) {
-        const [lng, lat] = geom.coordinates[0][0][0];
-        if (!isNaN(lat) && !isNaN(lng)) {
-          return { lat, lng };
-        }
-      }
-      return null;
-    } catch (e) {
-      console.error("Error al procesar geometría:", geom, e);
-      return null;
-    }
-  };
-
-  const fechas = afectData.map((item) => new Date(item.FECHA));
-  const minFecha = fechas.length
-    ? Math.min(...fechas.map((f) => f.getTime()))
-    : null;
-  const maxFecha = fechas.length
-    ? Math.max(...fechas.map((f) => f.getTime()))
-    : null;
 
   // Función para comparar fechas ignorando la hora
   const renderAfect = () => {
-    // Filtra por prioridad
-    const filteredPriority =
-      priority === "Todos"
-        ? afectData
-        : afectData.filter((item) => item.PRIORIDAD === priority);
-       
-        // Filtra por estado
-    const filteredState =
-      estado === "Todos"
-        ? filteredPriority
-        : filteredPriority.filter((item) => item.ESTADO === estado);
-      
-        //filter byafectacion
-    const fiterByAfect =
-      afect === "Todos"
-        ? filteredState
-        : filteredState.filter((item) => item.afectacion === afect);
-  
-        const filteredByDate = selectedDate
-      ? fiterByAfect.filter((item) => {
-          const itemTime = new Date(item.FECHA).setHours(0, 0, 0, 0);
-          const selectedTime = new Date(selectedDate).setHours(0, 0, 0, 0);
-          return itemTime <= selectedTime;
-        })
-      : fiterByAfect;
-    console.log(filteredByDate);
-    return filteredByDate
+    return afectData
       .map((item, index) => {
         try {
           const coords = extractCoordinates(item.geom);
@@ -231,7 +162,18 @@ const MapAfects = ({ afectData, loading, error, coords, priority, estado,afect }
   if (loading) return <div className="loading-message">Cargando mapa...</div>;
   if (error) return <div className="error-message">{error}</div>;
   if (!afectData.length)
-    return <div className="no-data-message">No hay datos de afectaciones</div>;
+    return (
+      <div
+        className="no-data-message"
+        style={{ textAlign: "center", alignContent: "center", alignItems:"center",  }}
+      >
+        <strong>No hay datos de afectaciones </strong>
+        <Typography>
+          La busqueda realizada no ha encontrado datos de afectaciones, por
+          favor intente con otra fecha, Prioridad, estado y afectaciones
+        </Typography>
+      </div>
+    );
 
   return (
     <div>
@@ -244,7 +186,7 @@ const MapAfects = ({ afectData, loading, error, coords, priority, estado,afect }
         style={{ height: "75vh", width: "100%" }}
       >
         <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          url="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
           attribution="&copy; OpenStreetMap contributors"
         />
         <Marker
@@ -256,6 +198,7 @@ const MapAfects = ({ afectData, loading, error, coords, priority, estado,afect }
           <Popup>Ubicación central de referencia</Popup>
         </Marker>
         {renderAfect()}
+
         {/* Modal para imagen expandida */}
         {expandedImage && (
           <div
@@ -322,7 +265,6 @@ const MapAfects = ({ afectData, loading, error, coords, priority, estado,afect }
           <Slider
             value={selectedDate || maxFecha}
             min={minFecha}
-            
             max={maxFecha}
             step={24 * 60 * 60 * 1000} // un día en ms
             onChange={(_, value) => setSelectedDate(value)}

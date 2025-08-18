@@ -17,6 +17,7 @@ export default function Panel({
   setestado,
   afect,
   setAfect,
+  cantAfects
 }) {
   const [form, setForm] = useState({ latitud: "", longitud: "" });
 
@@ -56,10 +57,12 @@ export default function Panel({
           margin: "2px 0",
         }}
       >
-        ⚠️ <strong>Advertencia:</strong> La información presentada es de manera
+        <Typography align="justify" >
+         ⚠️ <strong>Advertencia:</strong> La información presentada es de manera
         referencial y deberá asumirse con el mayor cuidado y responsabilidad ya
         que la divulgación inadecuada de la misma está sujeta a acciones y
         sanciones contempladas en la LOGIRD.
+        </Typography>
       </div>
       <Typography variant="subtitle1">Ubicación</Typography>
       <form onSubmit={handleSubmit}>
@@ -108,11 +111,18 @@ export default function Panel({
           alignContent: "normal",
         }}
       >
-        <strong>Evento Adverso:</strong> Es una situación, suceso o hecho que
+        <Typography align="justify" >
+       <strong>Afectacón:</strong> Es una situación, suceso o hecho que
         produce alteración en la Vida de las personas, de la economía, los
         sistemas sociales y el ambiente, causado por fenómenos de origen natural
-        o provocado por los seres humanos (Lit. 8, art. 5 de la LOGIRD)
+        o provocado por los seres humanos (Lit. 8, art. 5 de la LOGIRD)      
+        </Typography>
       </div>
+      <Typography variant="subtitle1" align="center" style={{border:"1px solid #ccc"}}>
+        <strong>Total de afectaciones:</strong> 
+        {cantAfects}
+        </Typography>
+
       <Typography variant="subtitle1">Prioridad</Typography>
       <FormControl fullWidth margin="normal">
         <InputLabel id="priority-label">Prioridad</InputLabel>
@@ -131,30 +141,31 @@ export default function Panel({
       </FormControl>
       <Typography variant="subtitle1">Estado</Typography>
       <FormControl fullWidth margin="normal">
-        <InputLabel id="priority-label">Estado</InputLabel>
+        <InputLabel id="state-label">Estado</InputLabel>
         <Select
-          labelId="priority-label"
-          id="priority-select"
+          labelId="state-label"
+          id="state-select"
           value={estado}
-          label="Prioridad"
+          label="Estado"
           onChange={handleStateChange}
         >
           <MenuItem value="Pendiente">Pendiente</MenuItem>
           <MenuItem value="Atendido">Atendido</MenuItem>
           <MenuItem value="Todos">Todos</MenuItem>
         </Select>
+        
       </FormControl>
       <Typography variant="subtitle1">Afectacción</Typography>
       <FormControl fullWidth margin="normal">
-        <InputLabel id="priority-label">afectacion</InputLabel>
+        <InputLabel id="afect-label">afectacion</InputLabel>
         <Select
-          labelId="priority-label"
-          id="priority-select"
+          labelId="afect-label"
+          id="afect-select"
           value={afect}
-          label="Prioridad"
+          label="Afectación"
           onChange={handleAfectChange}
         >
-          <MenuItem value="Equipamento">Equipamento</MenuItem>
+          <MenuItem value="Equipamiento">Equipamiento</MenuItem>
           <MenuItem value="Infraestructura vial">Vialidad</MenuItem>
           <MenuItem value="Servicios de AAPP/AALL/AASS">
             Servicios básicos
@@ -165,9 +176,7 @@ export default function Panel({
           <MenuItem value="Todos">Todos</MenuItem>
         </Select>
       </FormControl>
-      <div>
-      
-      </div>
+      <div></div>
     </div>
   );
 }
