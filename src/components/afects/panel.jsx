@@ -19,7 +19,9 @@ export default function Panel({
   afect,
   setAfect,
   cantAfects,
-  radioafect
+  radioafect,
+  parroq,
+  setParroq
 }) {
   const [form, setForm] = useState({ latitud: "", longitud: "" });
 
@@ -41,6 +43,12 @@ export default function Panel({
 
     // Llama la función pasada por props
   };
+
+  const handleParroqChange = (e) => {
+    setParroq(e.target.value);
+
+    // Llama la función pasada por props
+  };
   const handleSubmit = (e) => {
     e.preventDefault();
     addbar(form.latitud, form.longitud);
@@ -59,14 +67,14 @@ export default function Panel({
           margin: "2px 0",
         }}
       >
-        <Typography align="justify" >
-         ⚠️ <strong>Advertencia:</strong> La información presentada es de manera
-        referencial y deberá asumirse con el mayor cuidado y responsabilidad ya
-        que la divulgación inadecuada de la misma está sujeta a acciones y
-        sanciones contempladas en la LOGIRD.
+        <Typography align="justify">
+          ⚠️ <strong>Advertencia:</strong> La información presentada es de
+          manera referencial y deberá asumirse con el mayor cuidado y
+          responsabilidad ya que la divulgación inadecuada de la misma está
+          sujeta a acciones y sanciones contempladas en la LOGIRD.
         </Typography>
       </div>
-            <Divider/>
+      <Divider />
       <Typography variant="subtitle1">Ubicación</Typography>
       <form onSubmit={handleSubmit}>
         <TextField
@@ -106,7 +114,7 @@ export default function Panel({
           Buscar en Mapa
         </Button>
       </form>
-            <Divider/>
+      <Divider />
       <div
         style={{
           padding: "10px",
@@ -115,24 +123,25 @@ export default function Panel({
           alignContent: "normal",
         }}
       >
-        <Typography align="justify" >
-       <strong>Afectación:</strong> Es una situación, suceso o hecho que
-        produce alteración en la Vida de las personas, de la economía, los
-        sistemas sociales y el ambiente, causado por fenómenos de origen natural
-        o provocado por los seres humanos (Lit. 8, art. 5 de la LOGIRD)      
+        <Typography align="justify">
+          <strong>Afectación:</strong> Es una situación, suceso o hecho que
+          produce alteración en la Vida de las personas, de la economía, los
+          sistemas sociales y el ambiente, causado por fenómenos de origen
+          natural o provocado por los seres humanos (Lit. 8, art. 5 de la
+          LOGIRD)
         </Typography>
       </div>
-           <Divider/>
-      <Typography variant="subtitle1" align="center" >
-        <strong>Total de afectaciones:</strong> 
+      <Divider />
+      <Typography variant="subtitle1" align="center">
+        <strong>Total de afectaciones:</strong>
         {cantAfects}
-        </Typography>
-          <Divider/>
-        <Typography variant="subtitle1" align="center">
-        <strong>Eventos criticos:</strong> 
+      </Typography>
+      <Divider />
+      <Typography variant="subtitle1" align="center">
+        <strong>Eventos criticos:</strong>
         {radioafect.length}
-        </Typography>
-      <Divider/>
+      </Typography>
+      <Divider />
       <Typography variant="subtitle1">Prioridad</Typography>
       <FormControl fullWidth margin="normal">
         <InputLabel id="priority-label">Prioridad</InputLabel>
@@ -163,7 +172,6 @@ export default function Panel({
           <MenuItem value="Atendido">Atendido</MenuItem>
           <MenuItem value="Todos">Todos</MenuItem>
         </Select>
-        
       </FormControl>
       <Typography variant="subtitle1">Afectacción</Typography>
       <FormControl fullWidth margin="normal">
@@ -187,7 +195,40 @@ export default function Panel({
         </Select>
       </FormControl>
 
-
+      <Typography variant="subtitle1">Parroquia</Typography>
+      <FormControl fullWidth margin="normal">
+        <InputLabel id="Parroq-label">Parroquia</InputLabel>
+        <Select
+          labelId="Parroq-label"
+          id="Parroq-select"
+          value={parroq}
+          label="Parroquia"
+          onChange={handleParroqChange}
+        >
+          <MenuItem value="Sucre">Sucre</MenuItem>
+          <MenuItem value="Chantaco">Chantaco</MenuItem>
+          <MenuItem value="Taquil">Taquil</MenuItem>
+          <MenuItem value="Vilcabamba">Vilcabamba</MenuItem>
+          <MenuItem value="San Pedro de Vilcabamba">
+            San Pedro de Vilcabamba
+          </MenuItem>
+          <MenuItem value="Malacatos">Malacatos</MenuItem>
+          <MenuItem value="Quinara">Quinara</MenuItem>
+          <MenuItem value="El Cisne">El Cisne</MenuItem>
+          <MenuItem value="Santiago">Santiago</MenuItem>
+          <MenuItem value="Yangana">Yangana</MenuItem>
+          <MenuItem value="Gualel">Gualel</MenuItem>
+          <MenuItem value="Chantaco">Chantaco</MenuItem>
+          <MenuItem value="Chuquiribamba">Chuquiribamba</MenuItem>
+          <MenuItem value="Jimbilla">Jimbilla</MenuItem>
+          <MenuItem value="Loja">Loja</MenuItem>
+          <MenuItem value="San Lucas">San Lucas</MenuItem>
+          <MenuItem value="Valle">Valle</MenuItem>
+          <MenuItem value="Tumbunuma">Tumbunuma</MenuItem>
+          <MenuItem value="Cariamanga">Cariamanga</MenuItem>
+          <MenuItem value="Todos">Todos</MenuItem>
+        </Select>
+      </FormControl>
       <div></div>
     </div>
   );

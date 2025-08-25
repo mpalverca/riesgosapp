@@ -4,9 +4,10 @@ import alertMap from "../components/alerts/alermaps";
 import MapAfects from "../components/afects/afects";
 import { Grid } from "@mui/material";
 import Panel from "../components/afects/panel";
-import { cargarDatosafec } from "../components/afects/script.js";
+import { cargarDatosafec,cargarDatosParroquia } from "../components/afects/script.js";
 export default function Alerts() {
   const [afectData, setAfectData] = useState([]);
+  const [parroquia,setParroquia]=useState([]);
   const [coords, setCoords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -14,11 +15,13 @@ export default function Alerts() {
   const [estado, setEstado] = useState("Todos");
   const [afect, setAfect] = useState("Todos");
   const [selectedDate, setSelectedDate] = useState(null);
+  const [parroq, setParroq]=useState("Todos")
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const data = await cargarDatosafec();
+        const data2=await cargarDatosParroquia();
         // Filtramos solo elementos con geometría válida
         const filteredData = data.filter(
           (item) =>
@@ -27,6 +30,7 @@ export default function Alerts() {
             item.geom.coordinates.length > 0
         );
         setAfectData(filteredData);
+        setParroquia(data2)
       } catch (err) {
         console.error("Error al cargar datos:", err);
         setError("Error al cargar datos de afectaciones");
@@ -52,6 +56,9 @@ export default function Alerts() {
   const selFecha = (value) => {
     setSelectedDate(value);
   };
+  const selParroq=(value)=>{
+    setParroq(value)
+  }
   const extractCoordinates = (geom) => {
     if (!geom || !geom.coordinates) return null;
     try {
@@ -167,11 +174,14 @@ function getRadio(afectData) {
             setAfect={afectview}
             cantAfects={filteredByDate.length}
           radioafect={getRadio(afectData)}
+          parroq={parroq}
+          setParroq={selParroq}
           />
         </Grid>
         <Grid size={{ xs: 12, md: 9 }}>
           <MapAfects
             afectData={filteredByDate}
+            parroquia={parroquia}
             error={error}
             loading={loading}
             coords={coords}

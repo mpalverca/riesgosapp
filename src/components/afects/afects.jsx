@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup, Circle } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  Circle,
+  Polygon
+} from "react-leaflet";
 import L from "leaflet";
 import { Slider, Typography, Box } from "@mui/material";
 // ...otros imports...
@@ -32,6 +39,7 @@ const color_prioridad = {
 
 const MapAfects = ({
   afectData,
+  parroquia,
   loading,
   error,
   coords,
@@ -45,7 +53,7 @@ const MapAfects = ({
   // Estado para controlar qué imagen está expandida
   const [expandedImage, setExpandedImage] = useState(null);
   const position = [-3.9939, -79.2042];
-
+console.log(parroquia)
   // Función para comparar fechas ignorando la hora
   const renderAfect = () => {
     return afectData
@@ -178,13 +186,13 @@ const MapAfects = ({
       })
       .filter(Boolean); // Filtramos cualquier marcador nulo
   };
-
   // Función para comparar fechas ignorando la hora
   const renderRadio = () => {
     return radioAfect
       .map((item, index) => {
         try {
           const coords = item.coords;
+          
           if (!coords) {
             console.warn("Coordenadas inválidas para el item:", item);
             return null;
@@ -202,7 +210,7 @@ const MapAfects = ({
                   pathOptions={{
                     color,
                     fillColor: color,
-                    fillOpacity: 0.2,
+                    fillOpacity: 0.5,
                     weight: 2,
                   }}
                 >
@@ -213,17 +221,17 @@ const MapAfects = ({
                   </Popup>
                 </Circle>
                 {/* Círculo de pulso */}
-               <Circle
-  center={[coords[1], coords[0]]}
-  radius={item.radio * 0.7}
-  pathOptions={{
-    color,
-    fillColor: color,
-    fillOpacity: 0.15,
-    weight: 0,
-  }}
-  className="leaflet-pulse-circle"
-/>
+                <Circle
+                  center={[coords[1], coords[0]]}
+                  radius={item.radio * 0.7}
+                  pathOptions={{
+                    color,
+                    fillColor: color,
+                    fillOpacity: 0.15,
+                    weight: 1,
+                  }}
+                  className="leaflet-pulse-circle"
+                />
               </React.Fragment>
             );
           }
@@ -235,6 +243,38 @@ const MapAfects = ({
       })
       .filter(Boolean);
   };
+
+  const renderParroquia = () => {
+  
+  return parroquia.map((item, index) => {
+     console.log(item)
+    if (item.geom.type === "MultiPolygon") {
+      console.log(item)
+      return item.geom.coordinates.map((poly, polyIdx) => {
+        const polyCoords = poly[0].map(
+          (coord) => [coord[1], coord[0]] // Leaflet usa [lat, lng]
+        );
+        return (
+          <Polygon
+            key={`N° ${item.id || index}-${polyIdx}`}
+            positions={polyCoords}
+            pathOptions={{
+              color:  "#050505ff",
+              fillColor:   "#b6b1b1ff",
+              fillOpacity: 0.2,
+              weight: 2,
+            }}
+          >
+            <Popup>
+              Parroquia: {item.DPA_DESPAR}
+            </Popup>
+          </Polygon>
+        );
+      });
+    }
+    return null;
+  });
+};
 
   if (loading) return <div className="loading-message">Cargando mapa...</div>;
   if (error) return <div className="error-message">{error}</div>;
@@ -262,7 +302,7 @@ const MapAfects = ({
         {`
         .leaflet-pulse-circle {
           animation: pulse 2s infinite;
-          opacity: 0.5;
+          opacity: 0.3;
         }
         @keyframes pulse {
           0% {
@@ -302,6 +342,7 @@ const MapAfects = ({
         </Marker>
         {renderAfect()}
         {renderRadio()}
+        {renderParroquia()}
         {/* Modal para imagen expandida */}
         {expandedImage && (
           <div
