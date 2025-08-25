@@ -112,7 +112,7 @@ export default function Panel({
         }}
       >
         <Typography align="justify" >
-       <strong>Afectacón:</strong> Es una situación, suceso o hecho que
+       <strong>Afectación:</strong> Es una situación, suceso o hecho que
         produce alteración en la Vida de las personas, de la economía, los
         sistemas sociales y el ambiente, causado por fenómenos de origen natural
         o provocado por los seres humanos (Lit. 8, art. 5 de la LOGIRD)      
