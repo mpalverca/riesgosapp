@@ -123,8 +123,6 @@ export default function Alerts() {
       ? filteredState
       : filteredState.filter((item) => item.afectacion === afect);
 
-console.log(fiterByAfect)
-
   const filteredByDate = selectedDate
     ? fiterByAfect.filter((item) => {
         const itemTime = new Date(item.FECHA).setHours(0, 0, 0, 0);
@@ -132,6 +130,26 @@ console.log(fiterByAfect)
         return itemTime <= selectedTime;
       })
     : fiterByAfect;
+
+  // Puedes colocar esta función donde la necesites
+function getRadio(afectData) {
+  return afectData
+    .filter(
+      (item) =>
+        item.PRIORIDAD === "Alta" &&
+        item.radio > 0 &&
+        item.ESTADO === "Pendiente"
+    )
+    .map((item) => ({
+      id: item.id,
+      nombre: item.nombre,
+      PRIORIDAD: item.PRIORIDAD,
+      radio: item.radio,
+      ESTADO: item.ESTADO,
+      coords: item.geom?.coordinates || null,
+      // Agrega aquí otras propiedades que necesites
+    }));
+}
   return (
     <div style={{ margin: "10px" }}>
       <Grid container spacing={2}>
@@ -148,6 +166,7 @@ console.log(fiterByAfect)
             afect={afect}
             setAfect={afectview}
             cantAfects={filteredByDate.length}
+          radioafect={getRadio(afectData)}
           />
         </Grid>
         <Grid size={{ xs: 12, md: 9 }}>
@@ -161,6 +180,7 @@ console.log(fiterByAfect)
             setSelectedDate={selFecha}
             minFecha={minFecha}
             maxFecha={maxFecha}
+            radioAfect={getRadio(afectData)}
           />
         </Grid>
       </Grid>
