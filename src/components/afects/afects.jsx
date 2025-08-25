@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Circle } from "react-leaflet";
 import L from "leaflet";
 import { Slider, Typography, Box } from "@mui/material";
 // ...otros imports...
@@ -40,6 +40,7 @@ const MapAfects = ({
   setSelectedDate,
   minFecha,
   maxFecha,
+  radioAfect,
 }) => {
   // Estado para controlar qué imagen está expandida
   const [expandedImage, setExpandedImage] = useState(null);
@@ -62,6 +63,7 @@ const MapAfects = ({
           const priority = item.PRIORIDAD || "DEFAULT";
           // Dentro de tu componente:
           const getEventIcon = (eventType) => {
+            const color = color_prioridad[priority] || color_prioridad.DEFAULT;
             const iconComponent =
               eventType === "Movimiento en masas" ? (
                 <FaMountain color="#FF5733" />
@@ -72,9 +74,24 @@ const MapAfects = ({
               ) : (
                 <FaExclamationTriangle />
               );
+            // Círculo de color según prioridad
+            const circleStyle = {
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background: color,
+              borderRadius: "50%",
+              width: "20px",
+              height: "20px",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+            };
+
+            const html = renderToString(
+              <div style={circleStyle}>{iconComponent}</div>
+            );
 
             return divIcon({
-              html: renderToString(iconComponent),
+              html,
               className: "custom-leaflet-icon", // Opcional: añade estilos CSS si necesitas
               iconSize: [30, 30],
               iconAnchor: [15, 30], // Ajusta el tamaño según necesites
@@ -82,74 +99,77 @@ const MapAfects = ({
           };
 
           return (
-            <Marker
-              key={`marker-${item.id || index}`}
-              position={[coords.lat, coords.lng]}
-              //icon={createCustomIcon(priority, eventType)}
-              icon={getEventIcon(eventType)}
-            >
-              {" "}
-              <Popup>
-                <div>
-                  <h4>
-                    {item.nombre ||
-                      `${item.id} - ${eventType}` ||
-                      `Evento ${index + 1}`}
-                  </h4>
-                  {/* Sección para mostrar imágenes si existen */}
-                  {item.ANEX_FOT && (
-                    <div style={{ marginTop: "10px" }}>
-                      <img
-                        src={item.ANEX_FOT}
-                        alt={`Imagen de ${item.nombre || "afectación"}`}
+            <div>
+              <Marker
+                key={`marker-${item.id || index}`}
+                position={[coords.lat, coords.lng]}
+                //icon={createCustomIcon(priority, eventType)}
+                icon={getEventIcon(eventType)}
+              >
+                {" "}
+                <Popup>
+                  <div>
+                    <h4>
+                      {item.nombre ||
+                        `${item.id} - ${eventType}` ||
+                        `Evento ${index + 1}`}
+                    </h4>
+                    {/* Sección para mostrar imágenes si existen */}
+                    {item.ANEX_FOT && (
+                      <div style={{ marginTop: "10px" }}>
+                        <img
+                          src={item.ANEX_FOT}
+                          alt={`Imagen de ${item.nombre || "afectación"}`}
+                          style={{
+                            width: "100%",
+                            height: "auto",
+                            borderRadius: "4px",
+                            border: "1px solid #ddd",
+                          }}
+                          onClick={() => setExpandedImage(item.ANEX_FOT)}
+                        />
+                        <p
+                          style={{
+                            fontSize: "0.8em",
+                            color: "#666",
+                            textAlign: "center",
+                          }}
+                        >
+                          Haz clic para ampliar
+                        </p>
+                      </div>
+                    )}
+                    <p>
+                      <strong>fecha:</strong> {item.FECHA}
+                    </p>
+                    <p>
+                      <strong>Sector:</strong> {item.sector_barrio}
+                    </p>
+                    <p>
+                      <strong>ubicación:</strong> {formatCoords(coords.lat)},{" "}
+                      {formatCoords(coords.lng)}
+                    </p>
+                    <p>
+                      <strong>Prioridad:</strong>
+                      <span
                         style={{
-                          width: "100%",
-                          height: "auto",
-                          borderRadius: "4px",
-                          border: "1px solid #ddd",
-                        }}
-                        onClick={() => setExpandedImage(item.ANEX_FOT)}
-                      />
-                      <p
-                        style={{
-                          fontSize: "0.8em",
-                          color: "#666",
-                          textAlign: "center",
+                          color:
+                            color_prioridad[priority] ||
+                            color_prioridad.DEFAULT,
                         }}
                       >
-                        Haz clic para ampliar
-                      </p>
-                    </div>
-                  )}
-                  <p>
-                    <strong>fecha:</strong> {item.FECHA}
-                  </p>
-                  <p>
-                    <strong>Sector:</strong> {item.sector_barrio}
-                  </p>
-                  <p>
-                    <strong>ubicación:</strong> {formatCoords(coords.lat)},{" "}
-                    {formatCoords(coords.lng)}
-                  </p>
-                  <p>
-                    <strong>Prioridad:</strong>
-                    <span
-                      style={{
-                        color:
-                          color_prioridad[priority] || color_prioridad.DEFAULT,
-                      }}
-                    >
-                      {priority}
-                    </span>
-                  </p>
-                  {item.descripcion && (
-                    <p>
-                      <strong>Descripción:</strong> {item.descripcion}
+                        {priority}
+                      </span>
                     </p>
-                  )}
-                </div>
-              </Popup>
-            </Marker>
+                    {item.descripcion && (
+                      <p>
+                        <strong>Descripción:</strong> {item.descripcion}
+                      </p>
+                    )}
+                  </div>
+                </Popup>
+              </Marker>
+            </div>
           );
         } catch (error) {
           console.error("Error al procesar elemento:", item, error);
@@ -159,13 +179,74 @@ const MapAfects = ({
       .filter(Boolean); // Filtramos cualquier marcador nulo
   };
 
+  // Función para comparar fechas ignorando la hora
+  const renderRadio = () => {
+    return radioAfect
+      .map((item, index) => {
+        try {
+          const coords = item.coords;
+          if (!coords) {
+            console.warn("Coordenadas inválidas para el item:", item);
+            return null;
+          }
+          // Usa el color según la prioridad
+          const color =
+            color_prioridad[item.PRIORIDAD] || color_prioridad.DEFAULT;
+          if (item.radio > 0) {
+            return (
+              <React.Fragment key={`circle-group-${item.id || index}`}>
+                {/* Círculo principal */}
+                <Circle
+                  center={[coords[1], coords[0]]}
+                  radius={item.radio}
+                  pathOptions={{
+                    color,
+                    fillColor: color,
+                    fillOpacity: 0.2,
+                    weight: 2,
+                  }}
+                >
+                  <Popup>
+                    <p>
+                      <strong>Radio:</strong> radio de afectación {item.radio}
+                    </p>
+                  </Popup>
+                </Circle>
+                {/* Círculo de pulso */}
+               <Circle
+  center={[coords[1], coords[0]]}
+  radius={item.radio * 0.7}
+  pathOptions={{
+    color,
+    fillColor: color,
+    fillOpacity: 0.15,
+    weight: 0,
+  }}
+  className="leaflet-pulse-circle"
+/>
+              </React.Fragment>
+            );
+          }
+          return null;
+        } catch (error) {
+          console.error("Error al procesar elemento:", item, error);
+          return null;
+        }
+      })
+      .filter(Boolean);
+  };
+
   if (loading) return <div className="loading-message">Cargando mapa...</div>;
   if (error) return <div className="error-message">{error}</div>;
   if (!afectData.length)
     return (
       <div
         className="no-data-message"
-        style={{ textAlign: "center", alignContent: "center", alignItems:"center",  }}
+        style={{
+          textAlign: "center",
+          alignContent: "center",
+          alignItems: "center",
+        }}
       >
         <strong>No hay datos de afectaciones </strong>
         <Typography>
@@ -177,6 +258,28 @@ const MapAfects = ({
 
   return (
     <div>
+      <style>
+        {`
+        .leaflet-pulse-circle {
+          animation: pulse 2s infinite;
+          opacity: 0.5;
+        }
+        @keyframes pulse {
+          0% {
+            transform: scale(0.9);
+            opacity: 0.5;
+          }
+          70% {
+            transform: scale(1.2);
+            opacity: 0.2;
+          }
+          100% {
+            transform: scale(0.9);
+            opacity: 0.5;
+          }
+        }
+      `}
+      </style>
       <MapContainer
         center={[
           coords && coords[0] ? parseFloat(coords[0]) : position[0],
@@ -198,7 +301,7 @@ const MapAfects = ({
           <Popup>Ubicación central de referencia</Popup>
         </Marker>
         {renderAfect()}
-
+        {renderRadio()}
         {/* Modal para imagen expandida */}
         {expandedImage && (
           <div

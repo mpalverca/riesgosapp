@@ -7,6 +7,7 @@ import {
   Select,
   InputLabel,
   MenuItem,
+  Divider,
 } from "@mui/material";
 
 export default function Panel({
@@ -17,7 +18,8 @@ export default function Panel({
   setestado,
   afect,
   setAfect,
-  cantAfects
+  cantAfects,
+  radioafect
 }) {
   const [form, setForm] = useState({ latitud: "", longitud: "" });
 
@@ -64,6 +66,7 @@ export default function Panel({
         sanciones contempladas en la LOGIRD.
         </Typography>
       </div>
+            <Divider/>
       <Typography variant="subtitle1">Ubicación</Typography>
       <form onSubmit={handleSubmit}>
         <TextField
@@ -103,6 +106,7 @@ export default function Panel({
           Buscar en Mapa
         </Button>
       </form>
+            <Divider/>
       <div
         style={{
           padding: "10px",
@@ -118,11 +122,17 @@ export default function Panel({
         o provocado por los seres humanos (Lit. 8, art. 5 de la LOGIRD)      
         </Typography>
       </div>
-      <Typography variant="subtitle1" align="center" style={{border:"1px solid #ccc"}}>
+           <Divider/>
+      <Typography variant="subtitle1" align="center" >
         <strong>Total de afectaciones:</strong> 
         {cantAfects}
         </Typography>
-
+          <Divider/>
+        <Typography variant="subtitle1" align="center">
+        <strong>Eventos criticos:</strong> 
+        {radioafect.length}
+        </Typography>
+      <Divider/>
       <Typography variant="subtitle1">Prioridad</Typography>
       <FormControl fullWidth margin="normal">
         <InputLabel id="priority-label">Prioridad</InputLabel>
@@ -166,7 +176,7 @@ export default function Panel({
           onChange={handleAfectChange}
         >
           <MenuItem value="Equipamiento">Equipamiento</MenuItem>
-          <MenuItem value="Infraestructura vial">Vialidad</MenuItem>
+          <MenuItem value="Vialidad">Vialidad</MenuItem>
           <MenuItem value="Servicios de AAPP/AALL/AASS">
             Servicios básicos
           </MenuItem>
@@ -176,6 +186,8 @@ export default function Panel({
           <MenuItem value="Todos">Todos</MenuItem>
         </Select>
       </FormControl>
+
+
       <div></div>
     </div>
   );
