@@ -1,11 +1,8 @@
-import {
-  FaBuilding,
-  FaHome,
-  FaRoad,
-  FaTree,
-  FaMapMarkerAlt,
-} from "react-icons/fa";
+import { FaHome, FaRoad } from "react-icons/fa";
+import Fondo1 from "../../assets/fondo1.png";
 import { jsPDF } from "jspdf";
+import generateMapImage  from './mapGenerator';
+
 // Configuración Supabase
 const SUPABASE_URL = "https://zpllugprxjqohnmxhizq.supabase.co";
 const SUPABASE_KEY =
@@ -82,20 +79,55 @@ export const cargarDatosParroquia = async () => {
     throw error;
   }
 };
-
 // Función generarPDF actualizada:
 export async function generarPDF(titulo, lat, lng, itemStr, require) {
   try {
     const item = itemStr;
     const doc = new jsPDF();
-
+    const divisoriaLine = () => {
+      // Línea divisoria
+      doc.setDrawColor(200, 200, 200);
+      doc.line(leftMargin, yPosition, pageWidth - rightMargin, yPosition);
+      yPosition += 5;
+    };
+    const formatCoords = (coord) => {
+      return coord.toFixed(6);
+    };
     // Configuración de márgenes
     const leftMargin = 15;
     const rightMargin = 15;
-    const topMargin = 20;
+    const topMargin = 35;
+    const bottomMargin = 20;
     const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
     const maxWidth = pageWidth - leftMargin - rightMargin;
-
+    const maxHeight = pageHeight - topMargin - bottomMargin;
+    // Cargar imagen de fondo desde public
+    async function getImageFondo(url) {
+      return fetch(url)
+        .then((response) => {
+          if (!response.ok) throw new Error("No se pudo descargar la imagen");
+          return response.blob();
+        })
+        .then(
+          (blob) =>
+            new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onloadend = () => resolve(reader.result);
+              reader.onerror = reject;
+              reader.readAsDataURL(blob);
+            })
+        )
+        .catch((err) => {
+          console.error("Error al convertir imagen a base64:", err);
+          return null;
+        });
+    }
+    // Agrega fondo antes de todo el contenido
+    const fondoBase64 = await getImageFondo(Fondo1);
+    if (fondoBase64) {
+      doc.addImage(fondoBase64, "PNG", 0, 0, pageWidth, pageHeight);
+    }
     // Fecha actual de descarga
     const fechaDescarga = new Date().toLocaleDateString("es-ES", {
       day: "2-digit",
@@ -104,57 +136,201 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
       hour: "2-digit",
       minute: "2-digit",
     });
-
-    // Configuración inicial del documento
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(16);
-    doc.text(`Reporte: ${titulo}`, pageWidth / 2, topMargin, {
-      align: "center",
-    });
-
     // Fecha de descarga (más pequeña y en esquina superior derecha)
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
-    doc.text(`Generado: ${fechaDescarga}`, pageWidth - rightMargin, topMargin+5, {
+    doc.text(`Generado: ${fechaDescarga}`, pageWidth - rightMargin, 20, {
       align: "right",
     });
-    let yPosition = topMargin + 7;
-    // Línea divisoria
-    doc.setDrawColor(200, 200, 200);
-    doc.line(leftMargin, yPosition, pageWidth - rightMargin, yPosition);
-    yPosition += 5;
-    //Solicitante
+    // Configuración inicial del documento
     doc.setFont("helvetica", "bold");
-    doc.text("Solicita:", leftMargin, yPosition);
+    doc.setFontSize(12);
+    doc.text(
+      `FICHA TÉCNICA DE RIESGOS Nro. CGR-${item.id}`,
+      pageWidth / 2,
+      topMargin,
+      {
+        align: "center",
+      }
+    );
+    let yPosition = topMargin + 7;
+    // Configuración inicial del documento
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text(
+      `FORMATO PARA EVALUACIÓN INICIAL DE AFECTACION`,
+      pageWidth / 2,
+      topMargin + 5,
+      {
+        align: "center",
+      }
+    );
+    divisoriaLine();
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text(`Información General`, pageWidth / 2, yPosition, {
+      align: "center",
+    });
+    yPosition += 7;
+    // Datos personales
+    doc.setFont("helvetica", "bold");
+    doc.text("Nombre:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
-    doc.text(String(require.name || ""), leftMargin + 30, yPosition);
+    doc.text(String(require.name || ""), leftMargin + 25, yPosition);
+    doc.setFont("helvetica", "bold");
+    doc.text("Cédula:", leftMargin + 90, yPosition);
+    doc.setFont("helvetica", "normal");
+    doc.text(String(require.ci || ""), leftMargin + 110, yPosition);
+    yPosition += 5;
+    doc.setFont("helvetica", "bold");
+    doc.text("Teléfono:", leftMargin, yPosition);
+    doc.setFont("helvetica", "normal");
+    doc.text(String(require.phone || ""), leftMargin + 25, yPosition);
+    doc.setFont("helvetica", "bold");
+    doc.text("Correo:", leftMargin + 90, yPosition);
+    doc.setFont("helvetica", "normal");
+    doc.text(String(require.email || ""), leftMargin + 110, yPosition);
+    yPosition += 5;
+    doc.setFont("helvetica", "bold");
+    doc.text("Parroquia:", leftMargin, yPosition);
+    doc.setFont("helvetica", "normal");
+    doc.text(String(item.PARROQUIA || ""), leftMargin + 25, yPosition);
+    doc.setFont("helvetica", "bold");
+    doc.text("Latitud:", leftMargin + 90, yPosition);
+    doc.setFont("helvetica", "normal");
+    doc.text(String(lat.toFixed(6) || ""), leftMargin + 110, yPosition);
+    yPosition += 5;
+    doc.setFont("helvetica", "bold");
+    doc.text("Sector:", leftMargin, yPosition);
+    doc.setFont("helvetica", "normal");
+    doc.text(String(item.sector_barrio || ""), leftMargin + 26, yPosition);
+    doc.setFont("helvetica", "bold");
+    doc.text("Longitud:", leftMargin + 90, yPosition);
+    doc.setFont("helvetica", "normal");
+    doc.text(String(lng.toFixed(6) || ""), leftMargin + 110, yPosition);
     yPosition += 5;
     // Línea divisoria
     doc.setDrawColor(200, 200, 200);
     doc.line(leftMargin, yPosition, pageWidth - rightMargin, yPosition);
-    yPosition += 10;
-    console.log(require);
-    // Agregar imagen (si existe)
-    function getImageBase64(url) {
-  return fetch(url)
-    .then((response) => {
-      if (!response.ok) throw new Error("No se pudo descargar la imagen");
-      return response.blob();
-    })
-    .then(
-      (blob) =>
-        new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.onerror = reject;
-          reader.readAsDataURL(blob);
-        })
-    )
-    .catch((err) => {
-      console.error("Error al convertir imagen a base64:", err);
-      return null;
+    yPosition += 5;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text(`Descripción del evento`, pageWidth / 2, yPosition, {
+      align: "center",
     });
+    yPosition += 7;
+    doc.setFont("helvetica", "bold");
+    doc.text("Evento:", leftMargin, yPosition);
+    doc.setFont("helvetica", "normal");
+    doc.text(String(titulo || ""), leftMargin + 20, yPosition);
+    doc.setFont("helvetica", "bold");
+    doc.text("Afectación:", leftMargin + 90, yPosition);
+    doc.setFont("helvetica", "normal");
+    doc.text(String(item.afectacion || ""), leftMargin + 120, yPosition);
+    yPosition += 5;
+    doc.setFont("helvetica", "bold");
+    doc.text("Fecha:", leftMargin, yPosition);
+    doc.setFont("helvetica", "normal");
+    doc.text(
+      String(
+        new Date(item.FECHA).toLocaleDateString("es-ES", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }) || ""
+      ),
+      leftMargin + 20,
+      yPosition
+    );
+    doc.setFont("helvetica", "bold");
+    doc.text("Prioridad:", leftMargin + 90, yPosition);
+    doc.setFont("helvetica", "normal");
+    doc.text(String(item.PRIORIDAD || ""), leftMargin + 120, yPosition);
+    yPosition += 5;
+    divisoriaLine();
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text(`Mapa de Ubicación`, pageWidth / 2, yPosition, {
+      align: "center",
+    });
+    yPosition += 5;
+    // Generar y agregar el mapa
+try {
+  // Generar imagen del mapa (ajusta el ancho y alto según necesites)
+  const mapImage = await generateMapImage(lat, lng, maxWidth, 150);
+  if (mapImage) {
+    // Agregar la imagen al PDF
+    doc.addImage(mapImage, "PNG", leftMargin, yPosition, maxWidth, 100);
+    yPosition += 110;
+    // Línea divisoria después del mapa
+    doc.setDrawColor(200, 200, 200);
+    doc.line(leftMargin, yPosition - 5, pageWidth - rightMargin, yPosition - 5);
+    yPosition += 5;
+  } else {
+    doc.setFont("helvetica", "italic");
+    doc.setTextColor(150, 150, 150);
+    doc.text("Mapa no disponible", leftMargin, yPosition);
+    yPosition += 10;
+  }
+} catch (error) {
+  console.error("Error al generar el mapa:", error);
+  doc.setFont("helvetica", "italic");
+  doc.setTextColor(150, 150, 150);
+  doc.text("Error al generar el mapa", leftMargin, yPosition);
+  yPosition += 10;
 }
+doc.setFont("helvetica", "bold");
+    doc.text("Descripción:", leftMargin, yPosition);
+    doc.setFont("helvetica", "normal");
+    const lines = doc.splitTextToSize(String(item.descripcion || "No existe Descripción"), maxWidth - 40);
+    doc.text(lines, leftMargin + 30, yPosition, {
+      align: "justify",
+    });
+    yPosition += Math.max(10, lines.length * 7);
+// Campos principales
+    doc.setFont("helvetica", "bold");
+    doc.text("Información usuarios:", leftMargin, yPosition);
+    doc.setFont("helvetica", "normal");
+    doc.text(String(item.INFORMACION_AFECTADOS || "No existe Personas Afectadas"), leftMargin + 30, yPosition);
+    yPosition += 5;
+divisoriaLine()
+    // Campos principales
+    doc.setFont("helvetica", "bold");
+    doc.text("Atiende:", leftMargin, yPosition);
+    doc.setFont("helvetica", "normal");
+    doc.text(String(item.depen || ""), leftMargin + 30, yPosition);
+    yPosition += 7;
+    // Acciones a desarrollar con manejo de texto largo
+    if (item.accions) {
+      doc.setFont("helvetica", "bold");
+      doc.text("Acciones a desarrollar:", leftMargin, yPosition);
+      yPosition += 7;
+      doc.setFont("helvetica", "normal");
+      const accionesLines = doc.splitTextToSize(item.accions, maxWidth);
+      doc.text(accionesLines, leftMargin, yPosition);
+      yPosition += accionesLines.length * 7 + 10;
+    }
+ // Agregar imagen (si existe)
+    function getImageBase64(url) {
+      return fetch(url)
+        .then((response) => {
+          if (!response.ok) throw new Error("No se pudo descargar la imagen");
+          return response.blob();
+        })
+        .then(
+          (blob) =>
+            new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onloadend = () => resolve(reader.result);
+              reader.onerror = reject;
+              reader.readAsDataURL(blob);
+            })
+        )
+        .catch((err) => {
+          console.error("Error al convertir imagen a base64:", err);
+          return null;
+        });
+    }
     let imgData = `${item.ANEX_FOT}`;
     if (imgData && !imgData.startsWith("data:image")) {
       imgData = await getImageBase64(imgData);
@@ -173,71 +349,6 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
       yPosition += 5;
     }
 
-    // Coordenadas
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "bold");
-    doc.text("Ubicación:", leftMargin, yPosition);
-    doc.setFont("helvetica", "normal");
-    doc.text(
-      `${lat.toFixed(6)}, ${lng.toFixed(6)}`,
-      leftMargin + 30,
-      yPosition
-    );
-    yPosition += 10;
-
-    // Campos principales
-    console.log(item);
-    const camposPrincipales = [
-      "FECHA",
-      "PARROQUIA",
-      "sector_barrio",
-      "afectación",
-      "PRIORIDAD",
-      "descripcion",
-    ];
-    camposPrincipales.forEach((campo) => {
-      console.log(campo)
-      console.log(item[campo])
-      if (item[campo]) {
-        let valor = item[campo];
-        if (campo === "FECHA") {
-          valor = new Date(valor).toLocaleDateString("es-ES", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-          });
-        }
-        console.log(campo);
-        doc.setFont("helvetica", "bold");
-        doc.text(`${campo}:`, leftMargin, yPosition);
-        doc.setFont("helvetica", "normal");
-
-        // Dividir texto largo en múltiples líneas
-        const lines = doc.splitTextToSize(String(valor || ""), maxWidth - 40);
-        if (lines.length > 0) {
-          doc.text(lines, leftMargin + 30, yPosition);
-          yPosition += Math.max(10, lines.length * 7);
-        }
-      }
-    });
-    doc.setFont("helvetica", "bold");
-    doc.text("atiende:", leftMargin, yPosition);
-    doc.setFont("helvetica", "normal");
-    doc.text(String(item.depen || ""), leftMargin + 30, yPosition);
-    yPosition += 7;
-
-    // Acciones a desarrollar con manejo de texto largo
-    if (item.accions) {
-      doc.setFont("helvetica", "bold");
-      doc.text("Acciones a desarrollar:", leftMargin, yPosition);
-      yPosition += 7;
-
-      doc.setFont("helvetica", "normal");
-      const accionesLines = doc.splitTextToSize(item.accions, maxWidth);
-      doc.text(accionesLines, leftMargin, yPosition);
-      yPosition += accionesLines.length * 7 + 10;
-    }
-
     // Pie de página
     doc.setFontSize(10);
     doc.setTextColor(150, 150, 150);
@@ -247,7 +358,6 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
       doc.internal.pageSize.getHeight() - 10,
       { align: "center" }
     );
-
     // Guardar el PDF
     doc.save(
       `reporte_${titulo.replace(/[^a-z0-9]/gi, "_")}_${fechaDescarga.replace(

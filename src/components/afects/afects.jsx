@@ -9,6 +9,7 @@ import {
 } from "react-leaflet";
 import L from "leaflet";
 import { Slider, Typography, Box, Button } from "@mui/material";
+import clustering from "./clustering.js"
 // ...otros imports...
 import "leaflet/dist/leaflet.css";
 import { divIcon } from "leaflet";
@@ -65,6 +66,7 @@ const MapAfects = ({
 
   // Función para comparar fechas ignorando la hora
   const renderAfect = () => {
+    
     return afectData
       .map((item, index) => {
         try {
