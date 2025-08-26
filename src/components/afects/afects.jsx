@@ -5,14 +5,15 @@ import {
   Marker,
   Popup,
   Circle,
-  Polygon
+  Polygon,
 } from "react-leaflet";
 import L from "leaflet";
-import { Slider, Typography, Box } from "@mui/material";
+import { Slider, Typography, Box, Button } from "@mui/material";
 // ...otros imports...
 import "leaflet/dist/leaflet.css";
 import { divIcon } from "leaflet";
 import { renderToString } from "react-dom/server";
+import { generarPDF } from "./script.js";
 import {
   FaWater,
   FaMountain,
@@ -52,8 +53,16 @@ const MapAfects = ({
 }) => {
   // Estado para controlar qué imagen está expandida
   const [expandedImage, setExpandedImage] = useState(null);
+  const [user, setUser] = useState(null);
   const position = [-3.9939, -79.2042];
-console.log(parroquia)
+
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      setUser(JSON.parse(userData));
+    }
+  }, []);
+
   // Función para comparar fechas ignorando la hora
   const renderAfect = () => {
     return afectData
@@ -174,6 +183,30 @@ console.log(parroquia)
                         <strong>Descripción:</strong> {item.descripcion}
                       </p>
                     )}
+                    {user && (
+                      <Button
+                        onClick={() =>
+                          generarPDF(
+                            item.EVENTO,
+                            coords.lat,
+                            coords.lng,
+                            item,
+                            user
+                          )
+                        }
+                        fullWidth
+                        style={{
+                          background:
+                            "linear-gradient(45deg, #FF5733 20%, #FFD700 90%)",
+                          //marginTop: "16px",
+                          //  padding: "10px 0",
+                        }}
+                        //size="large"
+                        variant="contained"
+                      >
+                        <strong>Generar Reporte PDF</strong>
+                      </Button>
+                    )}
                   </div>
                 </Popup>
               </Marker>
@@ -192,7 +225,7 @@ console.log(parroquia)
       .map((item, index) => {
         try {
           const coords = item.coords;
-          
+
           if (!coords) {
             console.warn("Coordenadas inválidas para el item:", item);
             return null;
@@ -245,36 +278,31 @@ console.log(parroquia)
   };
 
   const renderParroquia = () => {
-  
-  return parroquia.map((item, index) => {
-     console.log(item)
-    if (item.geom.type === "MultiPolygon") {
-      console.log(item)
-      return item.geom.coordinates.map((poly, polyIdx) => {
-        const polyCoords = poly[0].map(
-          (coord) => [coord[1], coord[0]] // Leaflet usa [lat, lng]
-        );
-        return (
-          <Polygon
-            key={`N° ${item.id || index}-${polyIdx}`}
-            positions={polyCoords}
-            pathOptions={{
-              color:  "#050505ff",
-              fillColor:   "#b6b1b1ff",
-              fillOpacity: 0.2,
-              weight: 2,
-            }}
-          >
-            <Popup>
-              Parroquia: {item.DPA_DESPAR}
-            </Popup>
-          </Polygon>
-        );
-      });
-    }
-    return null;
-  });
-};
+    return parroquia.map((item, index) => {
+      if (item.geom.type === "MultiPolygon") {
+        return item.geom.coordinates.map((poly, polyIdx) => {
+          const polyCoords = poly[0].map(
+            (coord) => [coord[1], coord[0]] // Leaflet usa [lat, lng]
+          );
+          return (
+            <Polygon
+              key={`N° ${item.id || index}-${polyIdx}`}
+              positions={polyCoords}
+              pathOptions={{
+                color: "#050505ff",
+                fillColor: "#b6b1b1ff",
+                fillOpacity: 0.2,
+                weight: 2,
+              }}
+            >
+              <Popup>Parroquia: {item.DPA_DESPAR}</Popup>
+            </Polygon>
+          );
+        });
+      }
+      return null;
+    });
+  };
 
   if (loading) return <div className="loading-message">Cargando mapa...</div>;
   if (error) return <div className="error-message">{error}</div>;
