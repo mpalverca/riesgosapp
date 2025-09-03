@@ -245,7 +245,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.setFont("helvetica", "bold");
     doc.text("Prioridad:", leftMargin + 90, yPosition);
     doc.setFont("helvetica", "normal");
-    doc.text(String(item.PRIORIDAD || ""), leftMargin + 120, yPosition);
+    doc.text(String(item.prioridad || ""), leftMargin + 120, yPosition);
     yPosition += 5;
     divisoriaLine();
     doc.setFont("helvetica", "bold");

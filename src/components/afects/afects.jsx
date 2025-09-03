@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useCallback } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -9,7 +9,7 @@ import {
 } from "react-leaflet";
 import L from "leaflet";
 import { Slider, Typography, Box, Button } from "@mui/material";
-import clustering from "./clustering.js"
+import Clustering, { createCustomMarker, createCircleMarker } from './clustering';
 // ...otros imports...
 import "leaflet/dist/leaflet.css";
 import { divIcon } from "leaflet";
@@ -64,9 +64,30 @@ const MapAfects = ({
     }
   }, []);
 
+   // Función para renderizar marcadores de afectaciones
+  const renderAfectMarker = useCallback((item) => {
+    if (!item.latitud || !item.longitud) return null;
+    
+    const position = [parseFloat(item.latitud), parseFloat(item.longitud)];
+    
+    // Personaliza según tus necesidades
+    const popupContent = `
+      <div>
+        <h3>${item.tipo || 'Afectación'}</h3>
+        <p>${item.descripcion || 'Sin descripción'}</p>
+        ${item.imagen ? `<img src="${item.imagen}" alt="Imagen" style="max-width: 100px; max-height: 100px; cursor: pointer;" onclick="window.openImage('${item.imagen}')">` : ''}
+      </div>
+    `;
+    
+    return createCustomMarker(position, {
+      iconUrl: '/marker-icon.png', // Ruta a tu icono personalizado
+      popupContent,
+      className: 'custom-marker'
+    });
+  }, []);
+
   // Función para comparar fechas ignorando la hora
   const renderAfect = () => {
-    
     return afectData
       .map((item, index) => {
         try {
@@ -79,7 +100,7 @@ const MapAfects = ({
             return coord.toFixed(6);
           };
           const eventType = item.EVENTO || "DEFAULT";
-          const priority = item.PRIORIDAD || "DEFAULT";
+          const priority = item.prioridad || "DEFAULT";
           // Dentro de tu componente:
           const getEventIcon = (eventType) => {
             const color = color_prioridad[priority] || color_prioridad.DEFAULT;
@@ -234,7 +255,7 @@ const MapAfects = ({
           }
           // Usa el color según la prioridad
           const color =
-            color_prioridad[item.PRIORIDAD] || color_prioridad.DEFAULT;
+            color_prioridad[item.prioridad] || color_prioridad.DEFAULT;
           if (item.radio > 0) {
             return (
               <React.Fragment key={`circle-group-${item.id || index}`}>
@@ -368,9 +389,13 @@ const MapAfects = ({
             coords && coords[1] ? parseFloat(coords[1]) : 0,
           ]}
         >
-          <Popup>Ubicación central de referencia</Popup>
+        <Popup>Ubicación central de referencia</Popup>
         </Marker>
+
         {renderAfect()}
+         
+        {/* Componente de clustering para afectaciones */}
+       {/*  <Clustering data={afectData} renderMarker={renderAfectMarker} /> */}
         {renderRadio()}
         {renderParroquia()}
         {/* Modal para imagen expandida */}
