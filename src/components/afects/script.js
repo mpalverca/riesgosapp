@@ -191,7 +191,13 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.text("Correo:", leftMargin + 90, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(String(require.email || ""), leftMargin + 110, yPosition);
-    yPosition += 5;
+     divisoriaLine();
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text(`Información General`, pageWidth / 2, yPosition, {
+      align: "center",
+    });
+    yPosition += 7;
     doc.setFont("helvetica", "bold");
     doc.text("Parroquia:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
