@@ -24,6 +24,7 @@ import {
 } from "react-icons/fa";
 import { FaHouseDamage } from "@react-icons/all-files/fa/FaHouseDamage";
 import { cargarDatosafec } from "./script.js";
+import { captureMapImage } from "./maptoimage.js";
 
 // Configuración de iconos para Leaflet
 delete L.Icon.Default.prototype._getIconUrl;

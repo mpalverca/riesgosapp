@@ -1,8 +1,9 @@
 import { FaHome, FaRoad } from "react-icons/fa";
 import Fondo1 from "../../assets/fondo1.png";
 import { jsPDF } from "jspdf";
-import generateMapImage  from './mapGenerator';
-
+import generateMapImage from "./mapGenerator";
+import html2canvas from "html2canvas";
+import { captureMap } from "./maptoimage";
 // Configuración Supabase
 const SUPABASE_URL = "https://zpllugprxjqohnmxhizq.supabase.co";
 const SUPABASE_KEY =
@@ -168,7 +169,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     divisoriaLine();
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
-    doc.text(`Información General`, pageWidth / 2, yPosition, {
+    doc.text(`Información Solicitante`, pageWidth / 2, yPosition, {
       align: "center",
     });
     yPosition += 7;
@@ -254,46 +255,38 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
       align: "center",
     });
     yPosition += 5;
-    // Generar y agregar el mapa
-try {
-  // Generar imagen del mapa (ajusta el ancho y alto según necesites)
-  const mapImage = await generateMapImage(lat, lng, maxWidth, 150);
-  if (mapImage) {
-    // Agregar la imagen al PDF
-    doc.addImage(mapImage, "PNG", leftMargin, yPosition, maxWidth, 100);
+    //mapa
+    let imagemap = await captureMap(lat, lng, 15);
+    doc.addImage(
+      imagemap,
+      "PNG",
+      leftMargin, yPosition,
+      pageWidth - leftMargin - rightMargin,
+      yPosition += 5
+    );
     yPosition += 110;
-    // Línea divisoria después del mapa
-    doc.setDrawColor(200, 200, 200);
-    doc.line(leftMargin, yPosition - 5, pageWidth - rightMargin, yPosition - 5);
-    yPosition += 5;
-  } else {
-    doc.setFont("helvetica", "italic");
-    doc.setTextColor(150, 150, 150);
-    doc.text("Mapa no disponible", leftMargin, yPosition);
-    yPosition += 10;
-  }
-} catch (error) {
-  console.error("Error al generar el mapa:", error);
-  doc.setFont("helvetica", "italic");
-  doc.setTextColor(150, 150, 150);
-  doc.text("Error al generar el mapa", leftMargin, yPosition);
-  yPosition += 10;
-}
-doc.setFont("helvetica", "bold");
+    doc.setFont("helvetica", "bold");
     doc.text("Descripción:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
-    const lines = doc.splitTextToSize(String(item.descripcion || "No existe Descripción"), maxWidth - 40);
+    const lines = doc.splitTextToSize(
+      String(item.descripcion || "No existe Descripción"),
+      maxWidth - 40
+    );
     doc.text(lines, leftMargin + 30, yPosition, {
       align: "justify",
     });
     yPosition += Math.max(10, lines.length * 7);
-// Campos principales
+    // Campos principales
     doc.setFont("helvetica", "bold");
     doc.text("Información usuarios:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
-    doc.text(String(item.INFORMACION_AFECTADOS || "No existe Personas Afectadas"), leftMargin + 30, yPosition);
+    doc.text(
+      String(item.INFORMACION_AFECTADOS || "No existe Personas Afectadas"),
+      leftMargin + 30,
+      yPosition
+    );
     yPosition += 5;
-divisoriaLine()
+    divisoriaLine();
     // Campos principales
     doc.setFont("helvetica", "bold");
     doc.text("Atiende:", leftMargin, yPosition);
@@ -310,7 +303,7 @@ divisoriaLine()
       doc.text(accionesLines, leftMargin, yPosition);
       yPosition += accionesLines.length * 7 + 10;
     }
- // Agregar imagen (si existe)
+    // Agregar imagen (si existe)
     function getImageBase64(url) {
       return fetch(url)
         .then((response) => {
