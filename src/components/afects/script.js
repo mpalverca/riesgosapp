@@ -85,15 +85,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
   try {
     const item = itemStr;
     const doc = new jsPDF();
-    const divisoriaLine = () => {
-      // Línea divisoria
-      doc.setDrawColor(200, 200, 200);
-      doc.line(leftMargin, yPosition, pageWidth - rightMargin, yPosition);
-      yPosition += 5;
-    };
-    const formatCoords = (coord) => {
-      return coord.toFixed(6);
-    };
+
     // Configuración de márgenes
     const leftMargin = 15;
     const rightMargin = 15;
@@ -102,33 +94,69 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
     const maxWidth = pageWidth - leftMargin - rightMargin;
-    const maxHeight = pageHeight - topMargin - bottomMargin;
+    const marginBottom = 20;
+    let yPosition = topMargin + 7;
+    
+    // Función para verificar y agregar nueva página si es necesario
+    const checkPageBreak = (requiredSpace) => {
+      if (yPosition + requiredSpace > pageHeight - marginBottom) {
+        addNewPage();
+        return true;
+      }
+      return false;
+    };
+    
+    // Función para agregar nueva página con fondo
+    const addNewPage = () => {
+      doc.addPage();
+      yPosition = topMargin;
+      // Agregar fondo en la nueva página
+      if (fondoBase64) {
+        doc.addImage(fondoBase64, "PNG", 0, 0, pageWidth, pageHeight);
+      }
+    };
+
+    // Función para línea divisoria
+    const divisoriaLine = () => {
+      doc.setDrawColor(200, 200, 200);
+      doc.line(leftMargin, yPosition, pageWidth - rightMargin, yPosition);
+      yPosition += 5;
+    };
+
     // Cargar imagen de fondo desde public
     async function getImageFondo(url) {
-      return fetch(url)
-        .then((response) => {
-          if (!response.ok) throw new Error("No se pudo descargar la imagen");
-          return response.blob();
-        })
-        .then(
-          (blob) =>
-            new Promise((resolve, reject) => {
-              const reader = new FileReader();
-              reader.onloadend = () => resolve(reader.result);
-              reader.onerror = reject;
-              reader.readAsDataURL(blob);
-            })
-        )
-        .catch((err) => {
-          console.error("Error al convertir imagen a base64:", err);
-          return null;
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("No se pudo descargar la imagen");
+        const blob = await response.blob();
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
         });
+      } catch (err) {
+        console.error("Error al convertir imagen a base64:", err);
+        return null;
+      }
     }
+
+    // Función para formatear texto con guiones como lista
+    const formatListText = (text) => {
+      if (!text) return [];
+      // Dividir por guiones y limpiar cada elemento
+      return text.split('-')
+        .map(item => item.trim())
+        .filter(item => item.length > 0)
+        .map(item => `• ${item}`);
+    };
+
     // Agrega fondo antes de todo el contenido
     const fondoBase64 = await getImageFondo(Fondo1);
     if (fondoBase64) {
       doc.addImage(fondoBase64, "PNG", 0, 0, pageWidth, pageHeight);
     }
+
     // Fecha actual de descarga
     const fechaDescarga = new Date().toLocaleDateString("es-ES", {
       day: "2-digit",
@@ -137,12 +165,14 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
       hour: "2-digit",
       minute: "2-digit",
     });
+
     // Fecha de descarga (más pequeña y en esquina superior derecha)
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
     doc.text(`Generado: ${fechaDescarga}`, pageWidth - rightMargin, 20, {
       align: "right",
     });
+
     // Configuración inicial del documento
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
@@ -150,29 +180,26 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
       `FICHA TÉCNICA DE RIESGOS Nro. CGR-${item.id}`,
       pageWidth / 2,
       topMargin,
-      {
-        align: "center",
-      }
+      { align: "center" }
     );
-    let yPosition = topMargin + 7;
-    // Configuración inicial del documento
+
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
     doc.text(
       `FORMATO PARA EVALUACIÓN INICIAL DE AFECTACION`,
       pageWidth / 2,
       topMargin + 5,
-      {
-        align: "center",
-      }
+      { align: "center" }
     );
+    
     divisoriaLine();
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
     doc.text(`Información Solicitante`, pageWidth / 2, yPosition, {
       align: "center",
     });
-    yPosition += 7;
+    yPosition += 5;
+    
     // Datos personales
     doc.setFont("helvetica", "bold");
     doc.text("Nombre:", leftMargin, yPosition);
@@ -183,6 +210,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.setFont("helvetica", "normal");
     doc.text(String(require.ci || ""), leftMargin + 110, yPosition);
     yPosition += 5;
+    
     doc.setFont("helvetica", "bold");
     doc.text("Teléfono:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
@@ -191,13 +219,16 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.text("Correo:", leftMargin + 90, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(String(require.email || ""), leftMargin + 110, yPosition);
-     divisoriaLine();
+    yPosition += 5;
+    
+    divisoriaLine();
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
     doc.text(`Información General`, pageWidth / 2, yPosition, {
       align: "center",
     });
-    yPosition += 7;
+    yPosition += 5;
+    
     doc.setFont("helvetica", "bold");
     doc.text("Parroquia:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
@@ -207,6 +238,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.setFont("helvetica", "normal");
     doc.text(String(lat.toFixed(6) || ""), leftMargin + 110, yPosition);
     yPosition += 5;
+    
     doc.setFont("helvetica", "bold");
     doc.text("Sector:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
@@ -216,16 +248,15 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.setFont("helvetica", "normal");
     doc.text(String(lng.toFixed(6) || ""), leftMargin + 110, yPosition);
     yPosition += 5;
-    // Línea divisoria
-    doc.setDrawColor(200, 200, 200);
-    doc.line(leftMargin, yPosition, pageWidth - rightMargin, yPosition);
-    yPosition += 5;
+    
+    divisoriaLine();
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
     doc.text(`Descripción del evento`, pageWidth / 2, yPosition, {
       align: "center",
     });
     yPosition += 7;
+    
     doc.setFont("helvetica", "bold");
     doc.text("Evento:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
@@ -235,6 +266,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.setFont("helvetica", "normal");
     doc.text(String(item.afectacion || ""), leftMargin + 120, yPosition);
     yPosition += 5;
+    
     doc.setFont("helvetica", "bold");
     doc.text("Fecha:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
@@ -254,6 +286,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.setFont("helvetica", "normal");
     doc.text(String(item.prioridad || ""), leftMargin + 120, yPosition);
     yPosition += 5;
+    
     divisoriaLine();
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
@@ -261,16 +294,22 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
       align: "center",
     });
     yPosition += 5;
-    //mapa
-    let imagemap = await captureMap(lat, lng, 15);
+    
+    // Verificar si necesitamos nueva página para el mapa
+    checkPageBreak(120);
+    
+    // Mapa
+    let imagemap = await captureMap(lat, lng, 18);
     doc.addImage(
       imagemap,
       "PNG",
-      leftMargin, yPosition,
-      pageWidth - leftMargin - rightMargin,
-      yPosition += 5
+      leftMargin,
+      yPosition,
+      maxWidth,
+      100
     );
-    yPosition += 110;
+    yPosition += 105;
+    
     doc.setFont("helvetica", "bold");
     doc.text("Descripción:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
@@ -278,63 +317,90 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
       String(item.descripcion || "No existe Descripción"),
       maxWidth - 40
     );
+    
+    // Verificar si necesitamos nueva página para la descripción
+    checkPageBreak(lines.length * 7);
+    
     doc.text(lines, leftMargin + 30, yPosition, {
       align: "justify",
+      maxWidth: maxWidth - 30,
     });
-    yPosition += Math.max(10, lines.length * 7);
+    yPosition += Math.max(10, lines.length * 5);
     // Campos principales
     doc.setFont("helvetica", "bold");
-    doc.text("Información usuarios:", leftMargin, yPosition);
+    doc.text("Detalle:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(
       String(item.INFORMACION_AFECTADOS || "No existe Personas Afectadas"),
       leftMargin + 30,
-      yPosition
+      yPosition,
+      {maxWidth: maxWidth - 30}
     );
     yPosition += 5;
+    
     divisoriaLine();
+    
+    // Verificar si necesitamos nueva página para el contenido siguiente
+    checkPageBreak(50);
+    
     // Campos principales
     doc.setFont("helvetica", "bold");
     doc.text("Atiende:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(String(item.depen || ""), leftMargin + 30, yPosition);
     yPosition += 7;
+    
     // Acciones a desarrollar con manejo de texto largo
     if (item.accions) {
       doc.setFont("helvetica", "bold");
       doc.text("Acciones a desarrollar:", leftMargin, yPosition);
       yPosition += 7;
+      
+      // Formatear texto con guiones como lista
+      const accionesList = formatListText(item.accions);
+      
+      // Verificar si necesitamos nueva página para las acciones
+      checkPageBreak(accionesList.length * 7);
+      
       doc.setFont("helvetica", "normal");
-      const accionesLines = doc.splitTextToSize(item.accions, maxWidth);
-      doc.text(accionesLines, leftMargin, yPosition);
-      yPosition += accionesLines.length * 7 + 10;
+      for (let i = 0; i < accionesList.length; i++) {
+        // Verificar si necesitamos nueva página para cada línea
+        if (checkPageBreak(7)) {
+          yPosition += 7;
+        }
+        doc.text(accionesList[i], leftMargin + 5, yPosition,{maxWidth: maxWidth - 30});
+        yPosition += 7;
+      }
+      yPosition += 5;
     }
+    
     // Agregar imagen (si existe)
-    function getImageBase64(url) {
-      return fetch(url)
-        .then((response) => {
-          if (!response.ok) throw new Error("No se pudo descargar la imagen");
-          return response.blob();
-        })
-        .then(
-          (blob) =>
-            new Promise((resolve, reject) => {
-              const reader = new FileReader();
-              reader.onloadend = () => resolve(reader.result);
-              reader.onerror = reject;
-              reader.readAsDataURL(blob);
-            })
-        )
-        .catch((err) => {
-          console.error("Error al convertir imagen a base64:", err);
-          return null;
+    async function getImageBase64(url) {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("No se pudo descargar la imagen");
+        const blob = await response.blob();
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
         });
+      } catch (err) {
+        console.error("Error al convertir imagen a base64:", err);
+        return null;
+      }
     }
+    
     let imgData = `${item.ANEX_FOT}`;
     if (imgData && !imgData.startsWith("data:image")) {
       imgData = await getImageBase64(imgData);
     }
+    
     if (imgData) {
+      // Verificar si necesitamos nueva página para la imagen
+      checkPageBreak(110);
+      
       const imgWidth = pageWidth - leftMargin - rightMargin;
       const imgHeight = 100;
       doc.addImage(imgData, "JPEG", leftMargin, yPosition, imgWidth, imgHeight);
@@ -347,7 +413,37 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
       );
       yPosition += 5;
     }
-
+    
+    // Verificar si necesitamos nueva página para las firmas
+    checkPageBreak(60);
+    
+    // Espacio para firmas
+    divisoriaLine();
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text("FIRMAS DE RESPONSABLES", pageWidth / 2, yPosition, {
+      align: "center",
+    });
+    yPosition += 10;
+    
+    // Dibujar cajas para firmas
+    const boxWidth = (pageWidth - leftMargin - rightMargin - 20) / 2;
+    const boxHeight = 40;
+    
+    // Primera firma
+    doc.setDrawColor(0, 0, 0);
+    doc.rect(leftMargin, yPosition, boxWidth, boxHeight);
+    doc.setFontSize(10);
+    doc.text("Nombre:", leftMargin + 5, yPosition + 10);
+    doc.text("Firma:", leftMargin + 5, yPosition + 30);
+    
+    // Segunda firma
+    doc.rect(leftMargin + boxWidth + 20, yPosition, boxWidth, boxHeight);
+    doc.text("Nombre:", leftMargin + boxWidth + 25, yPosition + 10);
+    doc.text("Firma:", leftMargin + boxWidth + 25, yPosition + 30);
+    
+    yPosition += boxHeight + 10;
+    
     // Pie de página
     doc.setFontSize(10);
     doc.setTextColor(150, 150, 150);
@@ -357,6 +453,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
       doc.internal.pageSize.getHeight() - 10,
       { align: "center" }
     );
+    
     // Guardar el PDF
     doc.save(
       `reporte_${titulo.replace(/[^a-z0-9]/gi, "_")}_${fechaDescarga.replace(

@@ -8,7 +8,7 @@ import Alerts from "./alerts";
 import NotFoud from "./NotFoud";
 import NavBar from "../components/Navbar/NavBar";
 import Dangermap from "./Dangermap";
-import PlanFamiliar from "./PlanFamiliar";
+import Planesatender from "./PlanFamiliar";
 import PlanContingencia from "./PlanContingencia";
 import Coe from "./coe";
 import Geologia from "./geologia";
@@ -30,7 +30,7 @@ export default class index extends Component {
           <Route path="/riesgosapp/alertmap" element={<Alerts />} />
           <Route path="/riesgosapp/riesgosmapa" element={<Dangermap />} />
           <Route path="/riesgosapp/geologia" element={<Geologia />} />
-          <Route path="/riesgosapp/planfamiliar" element={<PlanFamiliar />} />
+          <Route path="/riesgosapp/planfamiliar" element={<Planesatender />} />
           <Route path="/riesgosapp/Cooper" element={<Cooper />} />
           <Route path="/riesgosapp/Evin" element={<EVIN />} />
           <Route path="*" element={<NotFoud />} />
