@@ -18,6 +18,7 @@ import Auth from "./user/auth";
 import Login from "./login/login";
 import SingIn from "./login/singin";
 import ProtectedRoute from "./ProtectedRoute";
+import Preparacion from "./preparacion";
 
 export default class index extends Component {
   render() {
@@ -25,19 +26,28 @@ export default class index extends Component {
       <BrowserRouter>
         <NavBar />
         <Routes>
-          <Route path="/riesgosapp" element={ <ProtectedRoute><Home /> </ProtectedRoute>} />
+          <Route
+            path="/riesgosapp"
+            element={
+              <ProtectedRoute>
+                <Home />{" "}
+              </ProtectedRoute>
+            }
+          />
           <Route path="/riesgosapp/inicio" element={<Home />} />
           <Route path="/riesgosapp/alertmap" element={<Alerts />} />
           <Route path="/riesgosapp/riesgosmapa" element={<Dangermap />} />
           <Route path="/riesgosapp/geologia" element={<Geologia />} />
-          <Route path="/riesgosapp/planfamiliar" element={<Planesatender />} />
+          <Route path="/riesgosapp/preparacion/*" element={<Preparacion />}>
+            <Route path="plancontingencia" element={<PlanContingencia />} />
+          </Route>
           <Route path="/riesgosapp/Cooper" element={<Cooper />} />
           <Route path="/riesgosapp/Evin" element={<EVIN />} />
           <Route path="*" element={<NotFoud />} />
           <Route path="/planContingencia" element={<PlanContingencia />} />
           <Route path="/riesgosapp/coe" element={<Coe />} />
           {/*    //auth*/}
-         
+
           <Route path="/riesgosapp/userauth" element={<Login />} />
           <Route path="/riesgosapp/userSettings" element={<Auth />} />
           <Route path="/riesgosapp/auth" element={<Coe />} />

@@ -62,6 +62,7 @@ const Home = () => {
           textAlign: 'center',
           borderRadius: 2,
           mb: 4,
+          height: '200px',
           backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${riskManagementImg})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
@@ -80,12 +81,12 @@ const Home = () => {
         {/* Sección de Introducción */}
        
             <Card elevation={3}>
-              <CardMedia
+             {/*  <CardMedia
                 component="img"
                 height="300"
                 image={disasterImg}
                 alt="Gestión de riesgos"
-              />
+              /> */}
               <CardContent>
                 <Typography variant="h1" component="h2">
                   ¿Qué es la Gestión Integral de Riesgos de Desastres?

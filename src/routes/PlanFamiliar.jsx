@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Box,
   Stepper,
@@ -11,7 +11,6 @@ import {
   TextField,
   Checkbox,
   FormControlLabel,
-  FormGroup,
   Card,
   CardContent,
   Dialog,
@@ -31,8 +30,12 @@ import {
   TableRow,
   Chip,
   IconButton,
-  Divider
-} from '@mui/material';
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  Divider,
+} from "@mui/material";
 import {
   Add as AddIcon,
   Edit as EditIcon,
@@ -40,82 +43,82 @@ import {
   Print as PrintIcon,
   Save as SaveIcon,
   ArrowBack as ArrowBackIcon,
-  ArrowForward as ArrowForwardIcon
-} from '@mui/icons-material';
+  ArrowForward as ArrowForwardIcon,
+} from "@mui/icons-material";
 
 const PlanFamiliar = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [familyData, setFamilyData] = useState({
-    apellidos: '',
-    direccion: '',
-    telefonoCelular: '',
-    telefonoConvencional: '',
-    ubicacion: '',
-    añoPermiso: '',
-    codigoPermiso: '',
-    sinPermiso: false
+    apellidos: "",
+    direccion: "",
+    telefonoCelular: "",
+    telefonoConvencional: "",
+    ubicacion: "",
+    añoPermiso: "",
+    codigoPermiso: "",
+    sinPermiso: false,
   });
   const [selectedRisks, setSelectedRisks] = useState([]);
-  const [otherRisks, setOtherRisks] = useState('');
+  const [otherRisks, setOtherRisks] = useState("");
   const [points, setPoints] = useState([]);
   const [openPointDialog, setOpenPointDialog] = useState(false);
   const [pointForm, setPointForm] = useState({
-    tipo: '',
-    nombre: '',
-    telefono: '',
-    direccion: '',
-    coordenadas: ''
+    tipo: "",
+    nombre: "",
+    telefono: "",
+    direccion: "",
+    coordenadas: "",
   });
   const [familyMembers, setFamilyMembers] = useState([]);
   const [openMemberDialog, setOpenMemberDialog] = useState(false);
   const [memberForm, setMemberForm] = useState({
-    nombre: '',
-    edad: '',
-    sangre: '',
-    parentesco: 'Padre',
-    discapacidad: '',
-    responsabilidad: '',
-    medicamentos: ''
+    nombre: "",
+    edad: "",
+    sangre: "",
+    parentesco: "Padre",
+    discapacidad: "",
+    responsabilidad: "",
+    medicamentos: "",
   });
   const [pets, setPets] = useState([]);
   const [openPetDialog, setOpenPetDialog] = useState(false);
   const [petForm, setPetForm] = useState({
-    nombre: '',
-    especie: 'Perro',
-    edad: '',
-    carnet: '',
-    esterilizado: 'No',
-    notas: ''
+    nombre: "",
+    especie: "Perro",
+    edad: "",
+    carnet: "",
+    esterilizado: "No",
+    notas: "",
   });
   const [emergencyKit, setEmergencyKit] = useState({
     varios: {},
     aseo: {},
-    botiquin: {}
+    botiquin: {},
   });
-  const [otherItems, setOtherItems] = useState('');
+  const [otherItems, setOtherItems] = useState("");
   const [vulnerabilities, setVulnerabilities] = useState([]);
   const [openVulnerabilityDialog, setOpenVulnerabilityDialog] = useState(false);
   const [vulnerabilityForm, setVulnerabilityForm] = useState({
-    espacio: 'Toda la vivienda',
-    vulnerabilidades: '',
-    acciones: '',
-    prioridad: 'Alta'
+    espacio: "Toda la vivienda",
+    vulnerabilidades: "",
+    acciones: "",
+    prioridad: "Alta",
   });
 
   const steps = [
-    'Información Básica',
-    'Identificación de Riesgos',
-    'Mapeo de Ubicaciones',
-    'Integrantes Familiares',
-    'Mascotas de la Familia',
-    'Mochila de Emergencia',
-    'Vulnerabilidad de la Vivienda',
-    'Resumen del Plan'
+    "Información Básica",
+    "Identificación de Riesgos",
+    "Mapeo de Ubicaciones",
+    "Integrantes Familiares",
+    "Mascotas de la Familia",
+    "Mochila de Emergencia",
+    "Vulnerabilidad de la Vivienda",
+    "Resumen del Plan",
   ];
 
   const toggleRisk = (risk) => {
     if (selectedRisks.includes(risk)) {
-      setSelectedRisks(selectedRisks.filter(r => r !== risk));
+      setSelectedRisks(selectedRisks.filter((r) => r !== risk));
     } else {
       setSelectedRisks([...selectedRisks, risk]);
     }
@@ -123,9 +126,9 @@ const PlanFamiliar = () => {
 
   const handleFamilyDataChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFamilyData(prev => ({
+    setFamilyData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
@@ -139,9 +142,9 @@ const PlanFamiliar = () => {
 
   const handlePointFormChange = (e) => {
     const { name, value } = e.target;
-    setPointForm(prev => ({
+    setPointForm((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -149,19 +152,19 @@ const PlanFamiliar = () => {
     setPoints([...points, pointForm]);
     setOpenPointDialog(false);
     setPointForm({
-      tipo: '',
-      nombre: '',
-      telefono: '',
-      direccion: '',
-      coordenadas: ''
+      tipo: "",
+      nombre: "",
+      telefono: "",
+      direccion: "",
+      coordenadas: "",
     });
   };
 
   const handleMemberFormChange = (e) => {
     const { name, value } = e.target;
-    setMemberForm(prev => ({
+    setMemberForm((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -169,21 +172,21 @@ const PlanFamiliar = () => {
     setFamilyMembers([...familyMembers, memberForm]);
     setOpenMemberDialog(false);
     setMemberForm({
-      nombre: '',
-      edad: '',
-      sangre: '',
-      parentesco: 'Padre',
-      discapacidad: '',
-      responsabilidad: '',
-      medicamentos: ''
+      nombre: "",
+      edad: "",
+      sangre: "",
+      parentesco: "Padre",
+      discapacidad: "",
+      responsabilidad: "",
+      medicamentos: "",
     });
   };
 
   const handlePetFormChange = (e) => {
     const { name, value } = e.target;
-    setPetForm(prev => ({
+    setPetForm((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -191,30 +194,30 @@ const PlanFamiliar = () => {
     setPets([...pets, petForm]);
     setOpenPetDialog(false);
     setPetForm({
-      nombre: '',
-      especie: 'Perro',
-      edad: '',
-      carnet: '',
-      esterilizado: 'No',
-      notas: ''
+      nombre: "",
+      especie: "Perro",
+      edad: "",
+      carnet: "",
+      esterilizado: "No",
+      notas: "",
     });
   };
 
   const toggleEmergencyItem = (category, item) => {
-    setEmergencyKit(prev => ({
+    setEmergencyKit((prev) => ({
       ...prev,
       [category]: {
         ...prev[category],
-        [item]: !prev[category][item]
-      }
+        [item]: !prev[category][item],
+      },
     }));
   };
 
   const handleVulnerabilityFormChange = (e) => {
     const { name, value } = e.target;
-    setVulnerabilityForm(prev => ({
+    setVulnerabilityForm((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -222,54 +225,54 @@ const PlanFamiliar = () => {
     setVulnerabilities([...vulnerabilities, vulnerabilityForm]);
     setOpenVulnerabilityDialog(false);
     setVulnerabilityForm({
-      espacio: 'Toda la vivienda',
-      vulnerabilidades: '',
-      acciones: '',
-      prioridad: 'Alta'
+      espacio: "Toda la vivienda",
+      vulnerabilidades: "",
+      acciones: "",
+      prioridad: "Alta",
     });
   };
 
   const saveCompletePlan = () => {
     // Lógica para guardar el plan completo
-    console.log('Plan guardado');
+    console.log("Plan guardado");
   };
 
   const riskOptions = [
-    { value: 'sismo', label: 'Sismos/Terremotos', icon: '🌍' },
-    { value: 'inundacion', label: 'Inundaciones', icon: '🌊' },
-    { value: 'volcan', label: 'Actividad Volcánica', icon: '🌋' },
-    { value: 'deslizamiento', label: 'Movimiento de Ladera', icon: '⛰️' },
-    { value: 'incendio', label: 'Incendios Forestales', icon: '🔥' },
-    { value: 'sequia', label: 'Sequía', icon: '🏜️' },
-    { value: 'tsunami', label: 'Tsunami (zona costera)', icon: '🌊' }
+    { value: "sismo", label: "Sismos/Terremotos", icon: "🌍" },
+    { value: "inundacion", label: "Inundaciones", icon: "🌊" },
+    { value: "volcan", label: "Actividad Volcánica", icon: "🌋" },
+    { value: "deslizamiento", label: "Movimiento de Ladera", icon: "⛰️" },
+    { value: "incendio", label: "Incendios Forestales", icon: "🔥" },
+    { value: "sequia", label: "Sequía", icon: "🏜️" },
+    { value: "tsunami", label: "Tsunami (zona costera)", icon: "🌊" },
   ];
 
   const emergencyItems = {
     varios: [
-      { id: 'linterna', label: 'Linterna' },
-      { id: 'pilas', label: 'Pilas extras' },
-      { id: 'radio', label: 'Radio portátil' },
-      { id: 'silbato', label: 'Silbato' },
-      { id: 'mascarillas', label: 'Mascarillas' }
+      { id: "linterna", label: "Linterna" },
+      { id: "pilas", label: "Pilas extras" },
+      { id: "radio", label: "Radio portátil" },
+      { id: "silbato", label: "Silbato" },
+      { id: "mascarillas", label: "Mascarillas" },
     ],
     aseo: [
-      { id: 'jabon', label: 'Jabón' },
-      { id: 'cepillo', label: 'Cepillo de dientes' },
-      { id: 'pasta', label: 'Pasta dental' },
-      { id: 'toallas', label: 'Toallas higiénicas' },
-      { id: 'papel', label: 'Papel higiénico' }
+      { id: "jabon", label: "Jabón" },
+      { id: "cepillo", label: "Cepillo de dientes" },
+      { id: "pasta", label: "Pasta dental" },
+      { id: "toallas", label: "Toallas higiénicas" },
+      { id: "papel", label: "Papel higiénico" },
     ],
     botiquin: [
-      { id: 'guantes', label: 'Guantes de látex' },
-      { id: 'algodon', label: 'Algodón' },
-      { id: 'alcohol', label: 'Alcohol' },
-      { id: 'vendas', label: 'Vendas' },
-      { id: 'analgesicos', label: 'Analgésicos' }
-    ]
+      { id: "guantes", label: "Guantes de látex" },
+      { id: "algodon", label: "Algodón" },
+      { id: "alcohol", label: "Alcohol" },
+      { id: "vendas", label: "Vendas" },
+      { id: "analgesicos", label: "Analgésicos" },
+    ],
   };
 
   return (
-    <Box sx={{ width: '100%', p: 3 }}>
+    <Box sx={{ width: "100%", p: 3 }}>
       <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
         {steps.map((label) => (
           <Step key={label}>
@@ -285,7 +288,8 @@ const PlanFamiliar = () => {
             Información Básica de la Familia
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            📌 Datos esenciales: Esta información será vital para contactar a tu familia en caso de emergencia.
+            📌 Datos esenciales: Esta información será vital para contactar a tu
+            familia en caso de emergencia.
           </Typography>
 
           <Grid container spacing={3}>
@@ -378,7 +382,7 @@ const PlanFamiliar = () => {
             </Grid>
           </Grid>
 
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
             <Button onClick={handleNext} variant="contained">
               Continuar <ArrowForwardIcon sx={{ ml: 1 }} />
             </Button>
@@ -393,7 +397,8 @@ const PlanFamiliar = () => {
             Identificación de Amenaza
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            📌 Recomendación: Identificar correctamente los riesgos específicos de tu zona reduce en un 70% los daños durante emergencias.
+            📌 Recomendación: Identificar correctamente los riesgos específicos
+            de tu zona reduce en un 70% los daños durante emergencias.
           </Typography>
 
           <Grid container spacing={3}>
@@ -404,16 +409,20 @@ const PlanFamiliar = () => {
               <Grid container spacing={1}>
                 {riskOptions.map((risk) => (
                   <Grid item xs={12} sm={6} key={risk.value}>
-                    <Card 
+                    <Card
                       variant="outlined"
-                      sx={{ 
-                        cursor: 'pointer',
-                        borderColor: selectedRisks.includes(risk.value) ? 'primary.main' : 'divider',
-                        backgroundColor: selectedRisks.includes(risk.value) ? 'primary.light' : 'background.paper'
+                      sx={{
+                        cursor: "pointer",
+                        borderColor: selectedRisks.includes(risk.value)
+                          ? "primary.main"
+                          : "divider",
+                        backgroundColor: selectedRisks.includes(risk.value)
+                          ? "primary.light"
+                          : "background.paper",
                       }}
                       onClick={() => toggleRisk(risk.value)}
                     >
-                      <CardContent sx={{ textAlign: 'center', py: 2 }}>
+                      <CardContent sx={{ textAlign: "center", py: 2 }}>
                         <Typography variant="h6">{risk.icon}</Typography>
                         <Typography variant="body2">{risk.label}</Typography>
                       </CardContent>
@@ -434,14 +443,14 @@ const PlanFamiliar = () => {
               <Typography variant="subtitle1" gutterBottom>
                 Mapa de amenazas locales:
               </Typography>
-              <Box 
-                sx={{ 
-                  height: 300, 
-                  bgcolor: 'grey.100', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center',
-                  borderRadius: 1
+              <Box
+                sx={{
+                  height: 300,
+                  bgcolor: "grey.100",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: 1,
                 }}
               >
                 <Typography variant="body2" color="text.secondary">
@@ -451,11 +460,15 @@ const PlanFamiliar = () => {
             </Grid>
           </Grid>
 
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
+          <Box sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}>
             <Button onClick={handleBack} startIcon={<ArrowBackIcon />}>
               Regresar
             </Button>
-            <Button onClick={handleNext} variant="contained" endIcon={<ArrowForwardIcon />}>
+            <Button
+              onClick={handleNext}
+              variant="contained"
+              endIcon={<ArrowForwardIcon />}
+            >
               Continuar
             </Button>
           </Box>
@@ -469,19 +482,21 @@ const PlanFamiliar = () => {
             Mapeo de Ubicaciones
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            ℹ️ Instrucciones: Haz clic en el mapa para marcar ubicaciones importantes, selecciona el tipo de punto y completa la información requerida.
+            ℹ️ Instrucciones: Haz clic en el mapa para marcar ubicaciones
+            importantes, selecciona el tipo de punto y completa la información
+            requerida.
           </Typography>
 
           <Grid container spacing={3}>
             <Grid item xs={12} md={8}>
-              <Box 
-                sx={{ 
-                  height: 400, 
-                  bgcolor: 'grey.100', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center',
-                  borderRadius: 1
+              <Box
+                sx={{
+                  height: 400,
+                  bgcolor: "grey.100",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: 1,
                 }}
               >
                 <Typography variant="body2" color="text.secondary">
@@ -520,9 +535,9 @@ const PlanFamiliar = () => {
                   </TableBody>
                 </Table>
               </TableContainer>
-              <Button 
-                variant="outlined" 
-                startIcon={<AddIcon />} 
+              <Button
+                variant="outlined"
+                startIcon={<AddIcon />}
                 onClick={() => setOpenPointDialog(true)}
                 sx={{ mt: 2 }}
                 fullWidth
@@ -532,17 +547,26 @@ const PlanFamiliar = () => {
             </Grid>
           </Grid>
 
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
+          <Box sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}>
             <Button onClick={handleBack} startIcon={<ArrowBackIcon />}>
               Regresar
             </Button>
-            <Button onClick={handleNext} variant="contained" endIcon={<ArrowForwardIcon />}>
+            <Button
+              onClick={handleNext}
+              variant="contained"
+              endIcon={<ArrowForwardIcon />}
+            >
               Continuar
             </Button>
           </Box>
 
           {/* Diálogo para agregar puntos */}
-          <Dialog open={openPointDialog} onClose={() => setOpenPointDialog(false)} maxWidth="sm" fullWidth>
+          <Dialog
+            open={openPointDialog}
+            onClose={() => setOpenPointDialog(false)}
+            maxWidth="sm"
+            fullWidth
+          >
             <DialogTitle>Agregar Punto</DialogTitle>
             <DialogContent>
               <Grid container spacing={2} sx={{ mt: 1 }}>
@@ -598,8 +622,12 @@ const PlanFamiliar = () => {
               </Grid>
             </DialogContent>
             <DialogActions>
-              <Button onClick={() => setOpenPointDialog(false)}>Cancelar</Button>
-              <Button onClick={savePoint} variant="contained">Guardar</Button>
+              <Button onClick={() => setOpenPointDialog(false)}>
+                Cancelar
+              </Button>
+              <Button onClick={savePoint} variant="contained">
+                Guardar
+              </Button>
             </DialogActions>
           </Dialog>
         </Paper>
@@ -612,7 +640,8 @@ const PlanFamiliar = () => {
             Integrantes Familiares
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            📌 Importante: Incluye a todos los miembros del hogar, especialmente niños, adultos mayores y personas con discapacidad.
+            📌 Importante: Incluye a todos los miembros del hogar, especialmente
+            niños, adultos mayores y personas con discapacidad.
           </Typography>
 
           <TableContainer component={Paper} variant="outlined">
@@ -653,26 +682,35 @@ const PlanFamiliar = () => {
             </Table>
           </TableContainer>
 
-          <Button 
-            variant="outlined" 
-            startIcon={<AddIcon />} 
+          <Button
+            variant="outlined"
+            startIcon={<AddIcon />}
             onClick={() => setOpenMemberDialog(true)}
             sx={{ mt: 2 }}
           >
             Agregar Familiar
           </Button>
 
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
+          <Box sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}>
             <Button onClick={handleBack} startIcon={<ArrowBackIcon />}>
               Regresar
             </Button>
-            <Button onClick={handleNext} variant="contained" endIcon={<ArrowForwardIcon />}>
+            <Button
+              onClick={handleNext}
+              variant="contained"
+              endIcon={<ArrowForwardIcon />}
+            >
               Continuar
             </Button>
           </Box>
 
           {/* Diálogo para agregar familiares */}
-          <Dialog open={openMemberDialog} onClose={() => setOpenMemberDialog(false)} maxWidth="sm" fullWidth>
+          <Dialog
+            open={openMemberDialog}
+            onClose={() => setOpenMemberDialog(false)}
+            maxWidth="sm"
+            fullWidth
+          >
             <DialogTitle>Agregar Integrante Familiar</DialogTitle>
             <DialogContent>
               <Grid container spacing={2} sx={{ mt: 1 }}>
@@ -771,8 +809,12 @@ const PlanFamiliar = () => {
               </Grid>
             </DialogContent>
             <DialogActions>
-              <Button onClick={() => setOpenMemberDialog(false)}>Cancelar</Button>
-              <Button onClick={saveMember} variant="contained">Guardar</Button>
+              <Button onClick={() => setOpenMemberDialog(false)}>
+                Cancelar
+              </Button>
+              <Button onClick={saveMember} variant="contained">
+                Guardar
+              </Button>
             </DialogActions>
           </Dialog>
         </Paper>
@@ -807,3 +849,4 @@ const PlanFamiliar = () => {
 };
 
 export default PlanFamiliar;
+

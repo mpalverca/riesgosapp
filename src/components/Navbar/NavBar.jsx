@@ -22,7 +22,7 @@ const pages = [
     { name: 'Inicio', path: '/riesgosapp/' },
     { name: 'Visor', path: '/riesgosapp/alertmap' },
     { name: 'Análsis', path: '/riesgosapp/riesgosmapa' },
-    { name: 'Preparación', path: '/riesgosapp/planfamiliar' },
+    { name: 'Preparación', path: '/riesgosapp/preparacion' },
     { name: 'Respuesta', path: '/riesgosapp/Evin' },
     { name: 'Geologia', path: '/riesgosapp/geologia' },
     { name: 'COE', path: '/riesgosapp/coe' }
