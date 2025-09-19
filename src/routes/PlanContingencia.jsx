@@ -20,6 +20,7 @@ import L from 'leaflet';
 import General from '../components/plancontingencia/general';
 import Descripcion from '../components/plancontingencia/descripcion';
 import Cronograma from '../components/plancontingencia/cronograma';
+import RecursosContingencia from '../components/plancontingencia/recursos';
 
 // Solución para iconos de Leaflet en React
 delete L.Icon.Default.prototype._getIconUrl;
@@ -94,6 +95,10 @@ export default function PlanContingencia() {
         case 2:
         return (
           <Cronograma formData={formData}/>
+        );
+        case 3:
+        return (
+          <RecursosContingencia formData={formData}/>
         );
       case 4: // Paso de Ubicación y Planos
         return (

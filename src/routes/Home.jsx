@@ -88,7 +88,7 @@ const Home = () => {
                 alt="Gestión de riesgos"
               /> */}
               <CardContent>
-                <Typography variant="h1" component="h2">
+                <Typography variant="h1" component="h2" align='center'>
                   ¿Qué es la Gestión Integral de Riesgos de Desastres?
                 </Typography>
                 <Typography variant="body1" paragraph>
@@ -102,13 +102,15 @@ const Home = () => {
          
             <Card elevation={3}>
               <CardMedia
+              
+              margin="20px"
                 component="img"
                 height="300"
                 image={preventionImg}
                 alt="Prevención de desastres"
               />
               <CardContent>
-                <Typography variant="h1" component="h2">
+                <Typography variant="h1" component="h2" align='center'>
                   Objetivos de la LOGIRD
                 </Typography>
                 <Typography variant="body1" paragraph>

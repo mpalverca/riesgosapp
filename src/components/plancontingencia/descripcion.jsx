@@ -1,10 +1,10 @@
 import React from 'react';
 import { TextField, Grid, MenuItem } from "@mui/material";
+import { Padding } from '@mui/icons-material';
 export default function Descripcion({ formData, handleChange }) {
   return (
-    <Grid container spacing={3}>
-            <Grid item xs={12}>
-              <TextField
+   <div>
+     <TextField
                 required
                 name="descripcionEvento"
                 label="Descripción del Evento"
@@ -13,9 +13,13 @@ export default function Descripcion({ formData, handleChange }) {
                 fullWidth
                 value={formData.descripcionEvento}
                 onChange={handleChange}
+               // style={Padding='20px'}
+               margin='dense'
+               
               />
-            </Grid>
-            <Grid item xs={12} sm={4}>
+
+     <Grid container spacing={3}>
+            <Grid item xs={12} sm={3}>
               <TextField
                 required
                 name="aforoPermitido"
@@ -26,7 +30,7 @@ export default function Descripcion({ formData, handleChange }) {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid item xs={12} sm={3}>
               <TextField
                 required
                 name="aforoDiaEvento"
@@ -37,7 +41,7 @@ export default function Descripcion({ formData, handleChange }) {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid item xs={12} sm={3}>
               <TextField
                 name="aforoVenta"
                 label="Aforo (Venta)"
@@ -47,7 +51,7 @@ export default function Descripcion({ formData, handleChange }) {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={12} sm={3}>
               <TextField
                 required
                 name="responsableControl"
@@ -58,5 +62,6 @@ export default function Descripcion({ formData, handleChange }) {
               />
             </Grid>
           </Grid>
+   </div>
   );
 }

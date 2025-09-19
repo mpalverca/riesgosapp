@@ -19,6 +19,7 @@ import Login from "./login/login";
 import SingIn from "./login/singin";
 import ProtectedRoute from "./ProtectedRoute";
 import Preparacion from "./preparacion";
+import Analisis from "./analisis/analisis";
 
 export default class index extends Component {
   render() {
@@ -35,9 +36,13 @@ export default class index extends Component {
             }
           />
           <Route path="/riesgosapp/inicio" element={<Home />} />
-          <Route path="/riesgosapp/alertmap" element={<Alerts />} />
-          <Route path="/riesgosapp/riesgosmapa" element={<Dangermap />} />
-          <Route path="/riesgosapp/geologia" element={<Geologia />} />
+
+          <Route path="/riesgosapp/analisis/*" element={<Analisis />}>
+            <Route path="alertmap" element={<Alerts />} />
+            <Route path="threatmap" element={<Dangermap />} />
+            <Route path="geologia" element={<Geologia />} />
+          </Route>
+
           <Route path="/riesgosapp/preparacion/*" element={<Preparacion />}>
             <Route path="plancontingencia" element={<PlanContingencia />} />
           </Route>

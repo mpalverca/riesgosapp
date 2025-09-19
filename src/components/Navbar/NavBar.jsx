@@ -20,11 +20,9 @@ import logo1 from './logo_riesgos2.png';
 
 const pages = [
     { name: 'Inicio', path: '/riesgosapp/' },
-    { name: 'Visor', path: '/riesgosapp/alertmap' },
-    { name: 'Análsis', path: '/riesgosapp/riesgosmapa' },
+    { name: 'Análsis', path: '/riesgosapp/analisis' },
     { name: 'Preparación', path: '/riesgosapp/preparacion' },
     { name: 'Respuesta', path: '/riesgosapp/Evin' },
-    { name: 'Geologia', path: '/riesgosapp/geologia' },
     { name: 'COE', path: '/riesgosapp/coe' }
 ];
 
