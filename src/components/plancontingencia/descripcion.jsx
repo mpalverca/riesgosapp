@@ -1,25 +1,27 @@
 import React from 'react';
-import { TextField, Grid, MenuItem } from "@mui/material";
+import { TextField, Grid, Box, Paper } from "@mui/material";
 import { Padding } from '@mui/icons-material';
 export default function Descripcion({ formData, handleChange }) {
   return (
-   <div>
+     <Box sx={{ p: 2,  }}>
+     <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
      <TextField
                 required
                 name="descripcionEvento"
                 label="Descripción del Evento"
                 multiline
-                rows={4}
+                maxRows={10}
+                rows={5}
+                
                 fullWidth
                 value={formData.descripcionEvento}
                 onChange={handleChange}
                // style={Padding='20px'}
-               margin='dense'
-               
+               margin='dense'               
               />
 
-     <Grid container spacing={3}>
-            <Grid item xs={12} sm={3}>
+     <Grid container spacing={2}>
+            <Grid size={{ xs: 12, md: 3 }} >
               <TextField
                 required
                 name="aforoPermitido"
@@ -30,7 +32,7 @@ export default function Descripcion({ formData, handleChange }) {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid item xs={12} sm={3}>
+            <Grid size={{ xs: 12, md: 3 }}>
               <TextField
                 required
                 name="aforoDiaEvento"
@@ -41,7 +43,7 @@ export default function Descripcion({ formData, handleChange }) {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid item xs={12} sm={3}>
+            <Grid item size={{ xs: 12, md: 3 }}>
               <TextField
                 name="aforoVenta"
                 label="Aforo (Venta)"
@@ -51,7 +53,7 @@ export default function Descripcion({ formData, handleChange }) {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid item xs={12} sm={3}>
+            <Grid item size={{ xs: 12, md: 3 }}>
               <TextField
                 required
                 name="responsableControl"
@@ -62,6 +64,6 @@ export default function Descripcion({ formData, handleChange }) {
               />
             </Grid>
           </Grid>
-   </div>
+   </Paper></Box>
   );
 }

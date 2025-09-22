@@ -100,7 +100,7 @@ const MapAfects = ({
           const formatCoords = (coord) => {
             return coord.toFixed(6);
           };
-          const eventType = item.EVENTO || "DEFAULT";
+          const eventType = item.event || "DEFAULT";
           const priority = item.prioridad || "DEFAULT";
           // Dentro de tu componente:
           const getEventIcon = (eventType) => {
@@ -156,10 +156,10 @@ const MapAfects = ({
                         `Evento ${index + 1}`}
                     </h4>
                     {/* Sección para mostrar imágenes si existen */}
-                    {item.ANEX_FOT && (
+                    {item.anex_foto && (
                       <div style={{ marginTop: "10px" }}>
                         <img
-                          src={item.ANEX_FOT}
+                          src={item.anex_foto}
                           alt={`Imagen de ${item.nombre || "afectación"}`}
                           style={{
                             width: "100%",
@@ -167,7 +167,7 @@ const MapAfects = ({
                             borderRadius: "4px",
                             border: "1px solid #ddd",
                           }}
-                          onClick={() => setExpandedImage(item.ANEX_FOT)}
+                          onClick={() => setExpandedImage(item.anex_foto)}
                         />
                         <p
                           style={{

@@ -17,10 +17,11 @@ import {
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import General from '../components/plancontingencia/general';
-import Descripcion from '../components/plancontingencia/descripcion';
-import Cronograma from '../components/plancontingencia/cronograma';
-import RecursosContingencia from '../components/plancontingencia/recursos';
+import General from '../../components/plancontingencia/general';
+import Descripcion from '../../components/plancontingencia/descripcion';
+import Cronograma from '../../components/plancontingencia/cronograma';
+import RecursosContingencia from '../../components/plancontingencia/recursos';
+import { Padding } from '@mui/icons-material';
 
 // Solución para iconos de Leaflet en React
 delete L.Icon.Default.prototype._getIconUrl;
@@ -102,8 +103,10 @@ export default function PlanContingencia() {
         );
       case 4: // Paso de Ubicación y Planos
         return (
+           <Box sx={{ p: 3, margin: "auto" }}>
+      <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
           <Grid container spacing={3}>
-            <Grid item xs={12}>
+            <Grid item  size={{ xs: 12, md: 6 }}>
               <Typography variant="h6" gutterBottom>
                 Mapa de Ubicación
               </Typography>
@@ -127,7 +130,7 @@ export default function PlanContingencia() {
                 </MapContainer>
               </div>
             </Grid>
-            <Grid item xs={12}>
+            <Grid item  size={{ xs: 12, md: 6 }}>
               <TextField
                 name="observacionesUbicacion"
                 label="Observaciones de Ubicación"
@@ -139,21 +142,28 @@ export default function PlanContingencia() {
               />
             </Grid>
           </Grid>
+          </Paper>
+</Box>
         );
       // Implementar los demás casos para cada paso...
       default:
         return <div>Paso {step + 1} - En desarrollo</div>;
     }
-  };
+  }
+ 
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Paper sx={{ p: 3 }}>
+    
+      <Paper 
+      sx={{ ph: 3 }}
+      >
         <Typography variant="h4" component="h1" gutterBottom align="center">
           Plan de Contingencia para Eventos Públicos
         </Typography>
         
-        <Stepper activeStep={activeStep} sx={{ pt: 3, pb: 5 }}>
+        <Stepper activeStep={activeStep} 
+        sx={{ pt: 2, pb:2, pl:2, pr:2}}
+        >
           {steps.map((label) => (
             <Step key={label}>
               <StepLabel>{label}</StepLabel>
@@ -171,9 +181,9 @@ export default function PlanContingencia() {
             </Typography>
           </div>
         ) : (
-          <div>
+          <div >
             {renderStepContent(activeStep)}
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1 ,padding:2}}>
               <Button
                 disabled={activeStep === 0}
                 onClick={handleBack}
@@ -191,6 +201,5 @@ export default function PlanContingencia() {
           </div>
         )}
       </Paper>
-    </Container>
   );
 };

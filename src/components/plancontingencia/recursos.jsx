@@ -189,7 +189,7 @@ const RecursosContingencia = () => {
   };
 
   return (
-    <Box sx={{ p: 3, maxWidth: 1000, margin: 'auto' }}>
+    <Box sx={{ p: 3, margin: 'auto' }}>
       <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
           <SecurityIcon color="primary" sx={{ mr: 1, fontSize: 32 }} />
@@ -286,7 +286,7 @@ const RecursosContingencia = () => {
             Agregar Nuevo Recurso
           </Typography>
           <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} sm={5}>
+            <Grid item  size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
                 size="small"
@@ -295,7 +295,7 @@ const RecursosContingencia = () => {
                 onChange={(e) => handleNuevoRecursoChange('nombre', e.target.value)}
               />
             </Grid>
-            <Grid item xs={6} sm={2}>
+            <Grid item  size={{ xs: 6, md: 1 }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Checkbox
                   checked={nuevoRecurso.existencia}
@@ -305,7 +305,7 @@ const RecursosContingencia = () => {
                 <Typography variant="body2">Existencia</Typography>
               </Box>
             </Grid>
-            <Grid item xs={6} sm={2}>
+            <Grid item  size={{ xs: 6, md: 1 }}>
               <TextField
                 fullWidth
                 size="small"
@@ -317,7 +317,7 @@ const RecursosContingencia = () => {
                 disabled={!nuevoRecurso.existencia}
               />
             </Grid>
-            <Grid item xs={6} sm={2}>
+            <Grid item  size={{ xs: 12, md: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Checkbox
                   checked={nuevoRecurso.estado}
@@ -328,7 +328,7 @@ const RecursosContingencia = () => {
                 <Typography variant="body2">Buen estado</Typography>
               </Box>
             </Grid>
-            <Grid item xs={6} sm={1}>
+            <Grid item  size={{ xs: 12, md: 2 }}>
               <Button
                 variant="contained"
                 onClick={handleAddRecurso}
@@ -347,7 +347,7 @@ const RecursosContingencia = () => {
             Resumen de Recursos
           </Typography>
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={4}>
+            <Grid item  size={{ xs: 12, md: 4 }}>
               <Paper sx={{ p: 2, textAlign: 'center' }}>
                 <Typography variant="h4" color="primary">
                   {recursos.filter(r => r.existencia).length}
@@ -355,7 +355,7 @@ const RecursosContingencia = () => {
                 <Typography variant="body2">Recursos disponibles</Typography>
               </Paper>
             </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid item  size={{ xs: 12, md: 4 }}>
               <Paper sx={{ p: 2, textAlign: 'center' }}>
                 <Typography variant="h4" color="success">
                   {recursos.filter(r => r.existencia && r.estado).length}
@@ -363,7 +363,7 @@ const RecursosContingencia = () => {
                 <Typography variant="body2">En buen estado</Typography>
               </Paper>
             </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid item  size={{ xs: 12, md: 4 }}>
               <Paper sx={{ p: 2, textAlign: 'center' }}>
                 <Typography variant="h4" color="error">
                   {recursos.filter(r => r.existencia && !r.estado).length}

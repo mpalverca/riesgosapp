@@ -113,13 +113,13 @@ const IdentificacionAmenazas = ({ handleNext, handleBack }) => {
         de tu zona reduce en un 70% los daños durante emergencias.
       </Typography>
       <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
+        <Grid item  size={{ xs: 12, md: 6 }}>
           <Typography variant="subtitle1" gutterBottom>
             Selecciona los riesgos de tu zona:
           </Typography>
           <Grid container spacing={1}>
             {riskOptions.map((risk) => (
-              <Grid item xs={12} sm={6} key={risk.value}>
+              <Grid item  size={{ xs: 12, md: 3 }} key={risk.value}>
                 <Card
                   variant="outlined"
                   sx={{
@@ -164,7 +164,7 @@ const IdentificacionAmenazas = ({ handleNext, handleBack }) => {
                 {selectedRisks.map(risk => {
                   const riskInfo = riskOptions.find(r => r.value === risk);
                   return (
-                    <Grid item xs={6} key={risk}>
+                    <Grid item  size={{ xs: 12, md: 3 }} key={risk}>
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <Box
                           sx={{
@@ -187,9 +187,9 @@ const IdentificacionAmenazas = ({ handleNext, handleBack }) => {
           )}
         </Grid>
 
-        <Grid item xs={12} md={12}>
+        <Grid item  size={{ xs: 12, md: 6 }}>
           <Typography variant="subtitle1" gutterBottom>
-            Mapa de amenazas locales:
+            Mapa de susceptibilidad 
           </Typography>
           <Box
             sx={{

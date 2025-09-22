@@ -104,7 +104,7 @@ export default function Alerts() {
     }
   };
 
-  const fechas = afectData.map((item) => new Date(item.FECHA));
+  const fechas = afectData.map((item) => new Date(item.date));
   const minFecha = fechas.length
     ? Math.min(...fechas.map((f) => f.getTime()))
     : null;
@@ -116,13 +116,13 @@ export default function Alerts() {
   const filteredPriority =
     priority === "Todos"
       ? afectData
-      : afectData.filter((item) => item.PRIORIDAD === priority);
+      : afectData.filter((item) => item.prioridad === priority);
 
   // Filtra por estado
   const filteredState =
     estado === "Todos"
       ? filteredPriority
-      : filteredPriority.filter((item) => item.ESTADO === estado);
+      : filteredPriority.filter((item) => item.estado === estado);
 
   //filter byafectacion
   const fiterByAfect =
@@ -132,7 +132,7 @@ export default function Alerts() {
 
   const filteredByDate = selectedDate
     ? fiterByAfect.filter((item) => {
-        const itemTime = new Date(item.FECHA).setHours(0, 0, 0, 0);
+        const itemTime = new Date(item.date).setHours(0, 0, 0, 0);
         const selectedTime = new Date(selectedDate).setHours(0, 0, 0, 0);
         return itemTime <= selectedTime;
       })
@@ -143,16 +143,16 @@ function getRadio(afectData) {
   return afectData
     .filter(
       (item) =>
-        item.PRIORIDAD === "Alta" &&
+        item.prioridad=== "Alta" &&
         item.radio > 0 &&
-        item.ESTADO === "Pendiente"
+        item.estado === "Pendiente"
     )
     .map((item) => ({
       id: item.id,
       nombre: item.nombre,
-      PRIORIDAD: item.PRIORIDAD,
+      PRIORIDAD: item.prioridad,
       radio: item.radio,
-      ESTADO: item.ESTADO,
+      ESTADO: item.estado,
       coords: item.geom?.coordinates || null,
       // Agrega aquí otras propiedades que necesites
     }));

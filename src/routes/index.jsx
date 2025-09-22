@@ -8,8 +8,8 @@ import Alerts from "./alerts";
 import NotFoud from "./NotFoud";
 import NavBar from "../components/Navbar/NavBar";
 import Dangermap from "./Dangermap";
-import Planesatender from "./PlanFamiliar";
-import PlanContingencia from "./PlanContingencia";
+import Planesatender from "./preparacion/PlanFamiliar";
+import PlanContingencia from "./preparacion/PlanContingencia";
 import Coe from "./coe";
 import Geologia from "./geologia";
 import Cooper from "./cooper";
@@ -18,7 +18,7 @@ import Auth from "./user/auth";
 import Login from "./login/login";
 import SingIn from "./login/singin";
 import ProtectedRoute from "./ProtectedRoute";
-import Preparacion from "./preparacion";
+import Preparacion from "./preparacion/preparacion";
 import Analisis from "./analisis/analisis";
 
 export default class index extends Component {
