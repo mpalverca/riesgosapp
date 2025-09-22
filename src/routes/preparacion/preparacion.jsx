@@ -6,13 +6,11 @@ import {
   Avatar,
   ListItemText,
   IconButton,
-  Typography
-  ,Box
 } from "@mui/material";
 import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
 import EditNoteIcon from "@mui/icons-material/EditNote";
 import PlaylistAddCheckCircleIcon from "@mui/icons-material/PlaylistAddCheckCircle";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+
 import { Outlet, useNavigate,useLocation } from "react-router-dom";
 
 export default function Preparacion() {

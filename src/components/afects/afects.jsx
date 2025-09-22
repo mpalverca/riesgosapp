@@ -1,4 +1,4 @@
-import React, { useEffect, useState,useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -9,12 +9,15 @@ import {
 } from "react-leaflet";
 import L from "leaflet";
 import { Slider, Typography, Box, Button } from "@mui/material";
-import Clustering, { createCustomMarker, createCircleMarker } from './clustering';
+import Clustering, {
+  createCustomMarker,
+  createCircleMarker,
+} from "./clustering";
 // ...otros imports...
 import "leaflet/dist/leaflet.css";
 import { divIcon } from "leaflet";
 import { renderToString } from "react-dom/server";
-import { generarPDF } from "./script.js";
+import { cargardatoformId, generarPDF } from "./script.js";
 import {
   FaWater,
   FaMountain,
@@ -57,6 +60,8 @@ const MapAfects = ({
   const [expandedImage, setExpandedImage] = useState(null);
   const [user, setUser] = useState(null);
   const position = [-3.9939, -79.2042];
+  // Agrega un estado para manejar los datos del item clickeado
+  const [selectedId, setSelectedId] = useState(null);
 
   useEffect(() => {
     const userData = localStorage.getItem("user");
@@ -65,25 +70,46 @@ const MapAfects = ({
     }
   }, []);
 
-   // Función para renderizar marcadores de afectaciones
+  const handleIconClick = async (itemId) => {
+    try {
+      const itemData = await cargardatoformId(itemId);
+      console.log("Datos cargados:", itemData);
+
+      // ¡AGREGA ESTO PARA USAR LOS DATOS!
+      setSelectedId(itemData);
+
+      // Opcional: mostrar alerta o modal
+      /* if (itemData) {
+        alert(`Datos cargados: ${itemData.nombre || "Sin nombre"}`);
+      } */
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  // Función para renderizar marcadores de afectaciones
   const renderAfectMarker = useCallback((item) => {
     if (!item.latitud || !item.longitud) return null;
-    
+
     const position = [parseFloat(item.latitud), parseFloat(item.longitud)];
-    
+
     // Personaliza según tus necesidades
     const popupContent = `
       <div>
-        <h3>${item.tipo || 'Afectación'}</h3>
-        <p>${item.descripcion || 'Sin descripción'}</p>
-        ${item.imagen ? `<img src="${item.imagen}" alt="Imagen" style="max-width: 100px; max-height: 100px; cursor: pointer;" onclick="window.openImage('${item.imagen}')">` : ''}
+        <h3>${item.tipo || "Afectación"}</h3>
+        <p>${item.descripcio || "Sin descripción"}</p>
+        ${
+          item.imagen
+            ? `<img src="${item.imagen}" alt="Imagen" style="max-width: 100px; max-height: 100px; cursor: pointer;" onclick="window.openImage('${item.imagen}')">`
+            : ""
+        }
       </div>
     `;
-    
+
     return createCustomMarker(position, {
-      iconUrl: '/marker-icon.png', // Ruta a tu icono personalizado
+      iconUrl: "/marker-icon.png", // Ruta a tu icono personalizado
       popupContent,
-      className: 'custom-marker'
+      className: "custom-marker",
     });
   }, []);
 
@@ -91,8 +117,8 @@ const MapAfects = ({
   const renderAfect = () => {
     return afectData
       .map((item, index) => {
-        try {
-          const coords = extractCoordinates(item.geom);
+        try {         
+          const coords = extractCoordinates(item.geom);        
           if (!coords) {
             console.warn("Coordenadas inválidas para el item:", item);
             return null;
@@ -103,7 +129,7 @@ const MapAfects = ({
           const eventType = item.event || "DEFAULT";
           const priority = item.prioridad || "DEFAULT";
           // Dentro de tu componente:
-          const getEventIcon = (eventType) => {
+          const getEventIcon = (eventType, item) => {
             const color = color_prioridad[priority] || color_prioridad.DEFAULT;
             const iconComponent =
               eventType === "Movimiento en masas" ? (
@@ -115,6 +141,7 @@ const MapAfects = ({
               ) : (
                 <FaExclamationTriangle />
               );
+     
             // Círculo de color según prioridad
             const circleStyle = {
               display: "flex",
@@ -128,7 +155,12 @@ const MapAfects = ({
             };
 
             const html = renderToString(
-              <div style={circleStyle}>{iconComponent}</div>
+              <div
+                style={circleStyle}
+                // ✅ Ahora funcionaa el click aquí
+              >
+                {iconComponent}
+              </div>
             );
 
             return divIcon({
@@ -140,34 +172,41 @@ const MapAfects = ({
           };
 
           return (
-            <div>
+            
               <Marker
+                eventHandlers={{
+                  click: () => {
+                    console.log("Marker clicked:", item.id);
+                    // Tu lógica aquí
+                  handleIconClick (item.id)
+                  console.log(selectedId)
+                  },
+                }}
                 key={`marker-${item.id || index}`}
                 position={[coords.lat, coords.lng]}
                 //icon={createCustomIcon(priority, eventType)}
-                icon={getEventIcon(eventType)}
+                icon={getEventIcon(eventType, item.id)}
               >
                 {" "}
-                <Popup>
+                {selectedId && (<Popup>
                   <div>
                     <h4>
-                      {item.nombre ||
-                        `${item.id} - ${eventType}` ||
+                      {`${item.id} - ${eventType}` ||
                         `Evento ${index + 1}`}
                     </h4>
-                    {/* Sección para mostrar imágenes si existen */}
-                    {item.anex_foto && (
+             
+                    {selectedId.anex_foto && (
                       <div style={{ marginTop: "10px" }}>
                         <img
-                          src={item.anex_foto}
-                          alt={`Imagen de ${item.nombre || "afectación"}`}
+                          src={selectedId.anex_foto}
+                          alt={`Imagen de ${selectedId.nombre || "afectación"}`}
                           style={{
                             width: "100%",
                             height: "auto",
                             borderRadius: "4px",
                             border: "1px solid #ddd",
                           }}
-                          onClick={() => setExpandedImage(item.anex_foto)}
+                          onClick={() => setExpandedImage(selectedId.anex_foto)}
                         />
                         <p
                           style={{
@@ -181,10 +220,10 @@ const MapAfects = ({
                       </div>
                     )}
                     <p>
-                      <strong>fecha:</strong> {item.FECHA}
+                      <strong>fecha:</strong> {selectedId.date|| ""}
                     </p>
                     <p>
-                      <strong>Sector:</strong> {item.sector_barrio}
+                      <strong>Sector:</strong> {selectedId.sector}
                     </p>
                     <p>
                       <strong>ubicación:</strong> {formatCoords(coords.lat)},{" "}
@@ -202,19 +241,19 @@ const MapAfects = ({
                         {priority}
                       </span>
                     </p>
-                    {item.descripcion && (
+                    {selectedId.descripcio && (
                       <p>
-                        <strong>Descripción:</strong> {item.descripcion}
+                        <strong>Descripción:</strong> {selectedId.descripcio}
                       </p>
                     )}
                     {user && (
                       <Button
                         onClick={() =>
                           generarPDF(
-                            item.EVENTO,
+                            selectedId.event,
                             coords.lat,
                             coords.lng,
-                            item,
+                            selectedId,
                             user
                           )
                         }
@@ -232,9 +271,9 @@ const MapAfects = ({
                       </Button>
                     )}
                   </div>
-                </Popup>
+                </Popup>)}
               </Marker>
-            </div>
+            
           );
         } catch (error) {
           console.error("Error al procesar elemento:", item, error);
@@ -249,7 +288,7 @@ const MapAfects = ({
       .map((item, index) => {
         try {
           const coords = item.coords;
-
+          console.log(item)
           if (!coords) {
             console.warn("Coordenadas inválidas para el item:", item);
             return null;
@@ -390,13 +429,13 @@ const MapAfects = ({
             coords && coords[1] ? parseFloat(coords[1]) : 0,
           ]}
         >
-        <Popup>Ubicación central de referencia</Popup>
+          <Popup>Ubicación central de referencia</Popup>
         </Marker>
 
         {renderAfect()}
-         
+
         {/* Componente de clustering para afectaciones */}
-       {/*  <Clustering data={afectData} renderMarker={renderAfectMarker} /> */}
+        {/*  <Clustering data={afectData} renderMarker={renderAfectMarker} /> */}
         {renderRadio()}
         {renderParroquia()}
         {/* Modal para imagen expandida */}

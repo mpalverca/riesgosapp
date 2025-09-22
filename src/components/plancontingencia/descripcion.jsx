@@ -1,6 +1,6 @@
-import React from 'react';
+
 import { TextField, Grid, Box, Paper } from "@mui/material";
-import { Padding } from '@mui/icons-material';
+
 export default function Descripcion({ formData, handleChange }) {
   return (
      <Box sx={{ p: 2,  }}>

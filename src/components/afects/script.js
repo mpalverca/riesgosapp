@@ -47,24 +47,21 @@ export const cargarDatosafec = async () => {
     throw error;
   }
 };
-export const cargardatoformId = async (id) =>{
-  try{
-    const{data,error}=await supabaseAfect
-    .from("bd_loja_1")
-    .select("*")
-    .eq("id",id)
-    .single;
+export const cargardatoformId = async (id) => {
+  try {
+    const { data, error } = await supabaseAfect
+      .from("bd_loja_1")
+      .select("*")
+      .eq("id", id)
+      .single(); 
 
-    if (error){
-      throw error;
-    }
+    if (error) throw error;
     return data;
-
   } catch (error) {
-    console.error("Error al obtener dato por ID:", error);
+    console.error("Error:", error);
     throw error;
   }
-}
+};
 /* try {
     const afectResponse = await fetch(
       `${SUPABASE_URL}/rest/v1/bd_loja_1?select=id,ST_AsGeoJSON(geom) as geometry,FECHA,prioridad,EVENTO,ESTADO,Parroquia,afectacion`,
@@ -272,7 +269,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.setFont("helvetica", "bold");
     doc.text("Sector:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
-    doc.text(String(item.sector_barrio || ""), leftMargin + 26, yPosition);
+    doc.text(String(item.sector || ""), leftMargin + 26, yPosition);
     doc.setFont("helvetica", "bold");
     doc.text("Longitud:", leftMargin + 90, yPosition);
     doc.setFont("helvetica", "normal");
@@ -337,7 +334,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.text("Descripción:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
     const lines = doc.splitTextToSize(
-      String(item.descripcion || "No existe Descripción"),
+      String(item.descripcio || "No existe Descripción"),
       maxWidth - 40
     );
 

@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Typography } from "@mui/material";
-import alertMap from "../components/alerts/alermaps";
 import MapAfects from "../components/afects/afects";
 import { Grid } from "@mui/material";
 import Panel from "../components/afects/panel";
