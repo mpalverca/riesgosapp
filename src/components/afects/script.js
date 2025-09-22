@@ -259,7 +259,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.setFont("helvetica", "bold");
     doc.text("Parroquia:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
-    doc.text(String(item.PARROQUIA || ""), leftMargin + 25, yPosition);
+    doc.text(String(item.parroq || ""), leftMargin + 25, yPosition);
     doc.setFont("helvetica", "bold");
     doc.text("Latitud:", leftMargin + 90, yPosition);
     doc.setFont("helvetica", "normal");
@@ -351,7 +351,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.text("Detalle:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(
-      String(item.info_afect || "No existe Personas Afectadas"),
+      String(item.info_afect || "No existe personas afectadas, heridas o fallecidas"),
       leftMargin + 30,
       yPosition,
       { maxWidth: maxWidth - 30 }
@@ -380,20 +380,20 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
       const accionesList = formatListText(item.accions);
 
       // Verificar si necesitamos nueva página para las acciones
-      checkPageBreak(accionesList.length * 7);
+      checkPageBreak(accionesList.length * 10);
 
       doc.setFont("helvetica", "normal");
       for (let i = 0; i < accionesList.length; i++) {
         // Verificar si necesitamos nueva página para cada línea
         if (checkPageBreak(7)) {
-          yPosition += 7;
+          yPosition += 10;
         }
         doc.text(accionesList[i], leftMargin + 5, yPosition, {
-          maxWidth: maxWidth - 30,
+          maxWidth: maxWidth - 30, align:"justify"
         });
-        yPosition += 7;
+        yPosition += 10;
       }
-      yPosition += 5;
+      yPosition += 7;
     }
 
     // Agregar imagen (si existe)
