@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import Carousel from '../components/Navbar/carrusel';
 
 // Imágenes de ejemplo (URLs)
 const riskManagementImg = 'https://www.lahora.com.ec/__export/1744870377270/sites/lahora/img/2025/04/17/20250417_121248643_Las_zonas_de_Loja_mxs_vulnerables_a_fuertes_lluvias.jpg_1443152915.jpg';
@@ -51,11 +52,48 @@ const theme = createTheme({
   },
 });
 const Home = () => {
+  const carouselSlides = [
+    {
+      image: 'https://tardeando.com/sitio/wp-content/uploads/2022/02/mitigacion1.jpg',
+      alt: 'Innovación tecnológica',
+      title: 'Predios colindantes a rios y quebradas',
+      description: 'Ordenanza 033-2021-Art 13.- Todos los propietarios de predios que colinden con márgenes de protección de ríos, quebradas y lagunas naturales en el cantón Loja, deberán cuidar la franja de protección correspondiente, y proteger el cauce de las aguas, para este fin el municipio de Loja autorizará la construcción de tajamares, muros u otras estructuras que ofrezcan resistencia a la fuerza de arrastre generada por el agua.',
+      buttonText: 'Ver ordenanza',
+      
+   imageFilter: 'brightness(0.7)'
+    },
+    {
+      image: 'https://tardeando.com/sitio/wp-content/uploads/2022/02/mitigacion1.jpg',
+      alt: 'Planes de contingencia',
+      title: 'Eventos de concentración masiva',
+      description: 'Conocer acerca de los eventos y planes de contingencia que se realizaran en el canton Loja',
+      buttonText: 'Eventos de concentración masiva',
+      buttonLink: '/eventos_concentracion_masiva',
+      imageFilter: 'brightness(0.6)'
+    },
+    {
+      image: 'https://www.kpnsafety.com/wp-content/uploads/2022/05/incendios-forestales-altas-temperaturas.jpg',
+      alt: 'Soporte técnico',
+      title: 'Incendios Forestales',
+      description: 'Conoce como se encuentra tu parroquia el nivel de alerta y que medidas preventivas tomar',
+      buttonText: 'Nivel de alerta',
+      buttonLink: '/contact',
+      imageFilter: 'brightness(0.75)'
+    },
+    
+  ];
     return (
 <ThemeProvider theme={theme}>
       <Container maxWidth="ls">
         {/* Hero Section */}
-        <Box sx={{ 
+        <Carousel
+        slides={carouselSlides}
+                  autoPlay={true}
+                  interval={6000}
+                  height={400}
+                  showIndicators={true}
+                  showNavigation={true}/>
+        {/* <Box sx={{ 
           bgcolor: 'primary.main', 
           color: 'white', 
           py: 8, 
@@ -73,10 +111,10 @@ const Home = () => {
           <Typography variant="h5" component="h2">
             Protegiendo comunidades y construyendo resiliencia
           </Typography>
-          {/* <Button variant="contained" color="secondary" size="large" sx={{ mt: 3 }}>
+          <Button variant="contained" color="secondary" size="large" sx={{ mt: 3 }}>
             Conoce más
-          </Button> */}
-        </Box>
+          </Button>
+        </Box> */}
 
         {/* Sección de Introducción */}
        
