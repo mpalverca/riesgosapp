@@ -59,14 +59,13 @@ const Home = () => {
       title: 'Predios colindantes a rios y quebradas',
       description: 'Ordenanza 033-2021-Art 13.- Todos los propietarios de predios que colinden con márgenes de protección de ríos, quebradas y lagunas naturales en el cantón Loja, deberán cuidar la franja de protección correspondiente, y proteger el cauce de las aguas, para este fin el municipio de Loja autorizará la construcción de tajamares, muros u otras estructuras que ofrezcan resistencia a la fuerza de arrastre generada por el agua.',
       buttonText: 'Ver ordenanza',
-      
-   imageFilter: 'brightness(0.7)'
+      imageFilter: 'brightness(0.7)'
     },
     {
       image: 'https://tardeando.com/sitio/wp-content/uploads/2022/02/mitigacion1.jpg',
       alt: 'Planes de contingencia',
       title: 'Eventos de concentración masiva',
-      description: 'Conocer acerca de los eventos y planes de contingencia que se realizaran en el canton Loja',
+      description: 'Conocer acerca de los evento que se realizaran en el cantón Loja',
       buttonText: 'Eventos de concentración masiva',
       buttonLink: '/eventos_concentracion_masiva',
       imageFilter: 'brightness(0.6)'
@@ -75,9 +74,9 @@ const Home = () => {
       image: 'https://www.kpnsafety.com/wp-content/uploads/2022/05/incendios-forestales-altas-temperaturas.jpg',
       alt: 'Soporte técnico',
       title: 'Incendios Forestales',
-      description: 'Conoce como se encuentra tu parroquia el nivel de alerta y que medidas preventivas tomar',
-      buttonText: 'Nivel de alerta',
-      buttonLink: '/contact',
+      description: 'Conoce como se encuentra el nivel de alerta de cada parroquia parroquia y que medidas preventivas tomar',
+      buttonText: 'Nivel de alerta ',
+      buttonLink: 'analisis/fire_camp',
       imageFilter: 'brightness(0.75)'
     },
     

@@ -20,6 +20,7 @@ import SingIn from "./login/singin";
 import ProtectedRoute from "./ProtectedRoute";
 import Preparacion from "./preparacion/preparacion";
 import Analisis from "./analisis/analisis";
+import FireCamp from "./analisis/fire_camp";
 
 export default class index extends Component {
   render() {
@@ -41,6 +42,7 @@ export default class index extends Component {
             <Route path="alertmap" element={<Alerts />} />
             <Route path="threatmap" element={<Dangermap />} />
             <Route path="geologia" element={<Geologia />} />
+            <Route path="fire_camp" element={<FireCamp/>}/>
           </Route>
 
           <Route path="/riesgosapp/preparacion/*" element={<Preparacion />}>

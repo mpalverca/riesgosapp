@@ -34,6 +34,7 @@ const cooper_icon = {
   3: { icon: <FaRoad />, color: "#ff4500" },
 };
 const supabaseAfect = createClient(SUPABASE_URL, SUPABASE_KEY);
+const parroq =createClient(SUPABASE_O_URL,SUPABASE_O_KEY)
   
 export const cargarDatosafec = async () => {
   try {
@@ -85,7 +86,19 @@ export const cargardatoformId = async (id) => {
   } */
 
 export const cargarDatosParroquia = async () => {
-  try {
+   try {
+    const { data, error } = await parroq
+      .from("parroquial")
+      .select("*")
+      
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error("Error:", error);
+    throw error;
+  }
+  /* try {
     const parrResponse = await fetch(
       `${SUPABASE_O_URL}/rest/v1/parroquial?select=*`,
       {
@@ -104,7 +117,7 @@ export const cargarDatosParroquia = async () => {
   } catch (error) {
     console.log("erro cargar datos de parroquias", error);
     throw error;
-  }
+  } */
 };
 // Función generarPDF actualizada:
 export async function generarPDF(titulo, lat, lng, itemStr, require) {
