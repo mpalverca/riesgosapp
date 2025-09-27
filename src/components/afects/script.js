@@ -34,6 +34,7 @@ const cooper_icon = {
   3: { icon: <FaRoad />, color: "#ff4500" },
 };
 const supabaseAfect = createClient(SUPABASE_URL, SUPABASE_KEY);
+const parroq =createClient(SUPABASE_O_URL,SUPABASE_O_KEY)
   
 export const cargarDatosafec = async () => {
   try {
@@ -47,24 +48,21 @@ export const cargarDatosafec = async () => {
     throw error;
   }
 };
-export const cargardatoformId = async (id) =>{
-  try{
-    const{data,error}=await supabaseAfect
-    .from("bd_loja_1")
-    .select("*")
-    .eq("id",id)
-    .single;
+export const cargardatoformId = async (id) => {
+  try {
+    const { data, error } = await supabaseAfect
+      .from("bd_loja_1")
+      .select("*")
+      .eq("id", id)
+      .single(); 
 
-    if (error){
-      throw error;
-    }
+    if (error) throw error;
     return data;
-
   } catch (error) {
-    console.error("Error al obtener dato por ID:", error);
+    console.error("Error:", error);
     throw error;
   }
-}
+};
 /* try {
     const afectResponse = await fetch(
       `${SUPABASE_URL}/rest/v1/bd_loja_1?select=id,ST_AsGeoJSON(geom) as geometry,FECHA,prioridad,EVENTO,ESTADO,Parroquia,afectacion`,
@@ -88,7 +86,19 @@ export const cargardatoformId = async (id) =>{
   } */
 
 export const cargarDatosParroquia = async () => {
-  try {
+   try {
+    const { data, error } = await parroq
+      .from("parroquial")
+      .select("*")
+      
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error("Error:", error);
+    throw error;
+  }
+  /* try {
     const parrResponse = await fetch(
       `${SUPABASE_O_URL}/rest/v1/parroquial?select=*`,
       {
@@ -107,7 +117,7 @@ export const cargarDatosParroquia = async () => {
   } catch (error) {
     console.log("erro cargar datos de parroquias", error);
     throw error;
-  }
+  } */
 };
 // Función generarPDF actualizada:
 export async function generarPDF(titulo, lat, lng, itemStr, require) {
@@ -262,7 +272,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.setFont("helvetica", "bold");
     doc.text("Parroquia:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
-    doc.text(String(item.PARROQUIA || ""), leftMargin + 25, yPosition);
+    doc.text(String(item.parroq || ""), leftMargin + 25, yPosition);
     doc.setFont("helvetica", "bold");
     doc.text("Latitud:", leftMargin + 90, yPosition);
     doc.setFont("helvetica", "normal");
@@ -272,7 +282,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.setFont("helvetica", "bold");
     doc.text("Sector:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
-    doc.text(String(item.sector_barrio || ""), leftMargin + 26, yPosition);
+    doc.text(String(item.sector || ""), leftMargin + 26, yPosition);
     doc.setFont("helvetica", "bold");
     doc.text("Longitud:", leftMargin + 90, yPosition);
     doc.setFont("helvetica", "normal");
@@ -337,7 +347,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.text("Descripción:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
     const lines = doc.splitTextToSize(
-      String(item.descripcion || "No existe Descripción"),
+      String(item.descripcio || "No existe Descripción"),
       maxWidth - 40
     );
 
@@ -354,7 +364,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.text("Detalle:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(
-      String(item.info_afect || "No existe Personas Afectadas"),
+      String(item.info_afect || "No existe personas afectadas, heridas o fallecidas"),
       leftMargin + 30,
       yPosition,
       { maxWidth: maxWidth - 30 }
@@ -383,20 +393,20 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
       const accionesList = formatListText(item.accions);
 
       // Verificar si necesitamos nueva página para las acciones
-      checkPageBreak(accionesList.length * 7);
+      checkPageBreak(accionesList.length * 10);
 
       doc.setFont("helvetica", "normal");
       for (let i = 0; i < accionesList.length; i++) {
         // Verificar si necesitamos nueva página para cada línea
         if (checkPageBreak(7)) {
-          yPosition += 7;
+          yPosition += 10;
         }
         doc.text(accionesList[i], leftMargin + 5, yPosition, {
-          maxWidth: maxWidth - 30,
+          maxWidth: maxWidth - 30, align:"justify"
         });
-        yPosition += 7;
+        yPosition += 10;
       }
-      yPosition += 5;
+      yPosition += 7;
     }
 
     // Agregar imagen (si existe)

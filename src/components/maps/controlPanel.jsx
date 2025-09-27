@@ -8,7 +8,7 @@ import {
   Table, 
   TableBody, 
   TableCell, 
-  TableHead, 
+  TableHead,
   TableRow,
   Grid,
   Container

@@ -56,7 +56,8 @@ export default function Panel({
 
   return (
     <div>
-      <Typography variant="h6">Visor Territorial de Afectaciones</Typography>
+      <Typography variant="h5"><strong>
+        Visor Territorial de Afectaciones</strong></Typography>
       <div
         style={{
           padding: "10px",
@@ -229,7 +230,7 @@ export default function Panel({
           <MenuItem value="Todos">Todos</MenuItem>
         </Select>
       </FormControl>
-      <div></div>
+    
     </div>
   );
 }

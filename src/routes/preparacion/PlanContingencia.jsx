@@ -6,22 +6,18 @@ import {
   Button,
   Typography,
   Box,
-  Container,
   Paper,
   TextField,
   Grid,
-  FormControlLabel,
-  Checkbox,
-  MenuItem,
-} from "@mui/material";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import L from "leaflet";
-import General from "../../components/plancontingencia/general";
-import Descripcion from "../../components/plancontingencia/descripcion";
-import Cronograma from "../../components/plancontingencia/cronograma";
-import RecursosContingencia from "../../components/plancontingencia/recursos";
-import { Padding } from "@mui/icons-material";
+} from '@mui/material';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+import General from '../../components/plancontingencia/general';
+import Descripcion from '../../components/plancontingencia/descripcion';
+import Cronograma from '../../components/plancontingencia/cronograma';
+import RecursosContingencia from '../../components/plancontingencia/recursos';
+
 
 // Solución para iconos de Leaflet en React
 delete L.Icon.Default.prototype._getIconUrl;
