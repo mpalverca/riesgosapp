@@ -71,8 +71,18 @@ export default function Analisis() {
       badge: "En tiempo real",
       badgeColor: "warning",
       description: "Monitoreo de riesgo de incendios basado en datos INAMHI y Smartland UTPL"
-    }
-  ];
+    },
+     {
+      id: 5,
+      route: "fire_camp",
+      primary: "Analisis de riesgo",
+      secondary: "Los riesgos en canton de loja son de orgien natural o antropico",
+      icon: <LocalFireDepartmentIcon />,
+      avatarColor: "#ff9800",
+      badge: "Nuevo",
+      badgeColor: "warning",
+      description: "Realizar un analisis de riesgos de predio en particular"
+}];
 
   const handleItemClick = (route) => {
     navigate(route);

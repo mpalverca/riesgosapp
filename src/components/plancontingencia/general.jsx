@@ -24,6 +24,7 @@ import {
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+import MapViewer from "./maps/ubiMap";
 
 const InformacionGeneral = () => {
   const [formData, setFormData] = useState({
@@ -46,6 +47,12 @@ const InformacionGeneral = () => {
     otroEspacio: "",
     coordenadas: [-4.007, -79.211], // Coordenadas de Loja, Ecuador por defecto
   });
+  const [drawings, setDrawings] = useState([]);
+  const [drawingMode, setDrawingMode] = useState(null); // 'point', 'polygon', 'line'
+
+  const handleDrawComplete = (drawing) => {
+    setDrawings(prev => [...prev, drawing]);
+  };
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -208,7 +215,7 @@ const InformacionGeneral = () => {
               onChange={handleInputChange}
             />
           </Grid>
-          <Divider/>
+          <Divider />
         </Grid>
         <Grid container spacing={3}>
           <Grid item size={{ xs: 12, md: 4 }}>
@@ -222,7 +229,7 @@ const InformacionGeneral = () => {
               placeholder="Ingrese dirección del evento"
             />
           </Grid>
-            <Grid item size={{ xs: 12, md: 4 }}>
+          <Grid item size={{ xs: 12, md: 4 }}>
             <TextField
               fullWidth
               required
@@ -233,7 +240,7 @@ const InformacionGeneral = () => {
               placeholder="Ingrese nombre del barrio"
             />
           </Grid>
-        <Grid item size={{ xs: 12, md: 4 }}>
+          <Grid item size={{ xs: 12, md: 4 }}>
             <TextField
               fullWidth
               required
@@ -244,13 +251,21 @@ const InformacionGeneral = () => {
               placeholder="Ingrese nombre de la parroquia"
             />
           </Grid>
-
+          <TextField
+            fullWidth
+            required
+            name="des_ub"
+            label="Descripción de ubicación"
+            value={formData.parroquia}
+            onChange={handleInputChange}
+            placeholder="Descripción de ubicación"
+          />
           <Grid item xs={12}>
             <Typography variant="subtitle1" gutterBottom>
               Tipo de Espacio
             </Typography>
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid item size={{ xs: 12, sm: 6, md: 3 }}>
                 <FormControlLabel
                   control={
                     <Checkbox
@@ -262,7 +277,7 @@ const InformacionGeneral = () => {
                   label="Casa Comunal"
                 />
               </Grid>
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid item size={{ xs: 12, sm: 6, md: 3 }}>
                 <FormControlLabel
                   control={
                     <Checkbox
@@ -274,7 +289,7 @@ const InformacionGeneral = () => {
                   label="Uso de la vía Pública"
                 />
               </Grid>
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid item size={{ xs: 12, sm: 6, md: 3 }}>
                 <FormControlLabel
                   control={
                     <Checkbox
@@ -286,7 +301,7 @@ const InformacionGeneral = () => {
                   label="Infraestructura Móvil"
                 />
               </Grid>
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid item size={{ xs: 12, sm: 6, md: 3 }}>
                 <FormControlLabel
                   control={
                     <Checkbox
@@ -313,9 +328,7 @@ const InformacionGeneral = () => {
             </Grid>
           </Grid>
         </Grid>
-
         <Divider sx={{ mb: 3 }} />
-
         <Box>
           <Typography variant="h5" gutterBottom>
             Ubicación en Mapa
@@ -370,18 +383,21 @@ const InformacionGeneral = () => {
               borderColor: "divider",
             }}
           >
+                  <div>
+        <button onClick={() => setDrawingMode('point')}>Punto</button>
+        <button onClick={() => setDrawingMode('polygon')}>Polígono</button>
+        <button onClick={() => setDrawingMode('line')}>Línea</button>
+        <button onClick={() => setDrawingMode(null)}>Cancelar</button>
+      </div>
             <MapViewer
-              center={formData.coordenadas}
-              zoom={15}
-              markers={[
-                {
-                  position: formData.coordenadas,
-                  title: formData.nombreEvento,
-                  description: formData.ubicacion,
-                },
-              ]}
-              onClick={handleMapClick}
-              height="100%"
+              center={[-1.8312, -78.1834]}
+        zoom={10}
+        drawingMode={drawingMode}
+        drawings={drawings}
+        onDrawComplete={handleDrawComplete}
+        drawingColor="#ff0000"
+        height="500px"
+            
             />
           </Box>
 
@@ -418,7 +434,7 @@ function MapClickHandler({ onClick }) {
   return null;
 }
 
-const MapViewer = ({ center, zoom, markers, onClick, height = "400px" }) => {
+const MapViewerUbi = ({ center, zoom, markers, onClick, height = "400px" }) => {
   return (
     <MapContainer
       center={center}
