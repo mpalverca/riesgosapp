@@ -96,7 +96,7 @@ const MapBase = (props) => {
                       alt="Icono de alerta"
                       style={{
                         width: "60px",
-                        height: "100px",
+                        height: "120px",
                         borderRadius: "4px",
                         objectFit: "cover",
                       }}
@@ -133,16 +133,14 @@ const MapBase = (props) => {
   };
   if (props.loading) return <div>Cargando mapa...</div>;
   if (props.error) return <div>{props.error}</div>;
-  /* if (!props.data.length)
-    return <div>No hay datos de polígonos disponibles</div>; */
-  return (
+ return (
     <MapContainer
       center={position}
       zoom={10}
       style={{ height: "80vh", width: "100%" }}
     >
       <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        url="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
         attribution="&copy; OpenStreetMap contributors"
       />
       {renderPolygons()}
