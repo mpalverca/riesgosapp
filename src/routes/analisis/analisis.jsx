@@ -18,12 +18,13 @@ import PlaylistAddCheckCircleIcon from "@mui/icons-material/PlaylistAddCheckCirc
 import TerrainIcon from "@mui/icons-material/Terrain";
 import LocalFireDepartmentIcon from "@mui/icons-material/LocalFireDepartment";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { WarningAmberOutlined } from "@mui/icons-material";
 
 export default function Analisis() {
   const navigate = useNavigate();
   const location = useLocation();
   
-  const subRoutes = ["alertmap", "threatmap", "geologia", "fire_camp"];
+  const subRoutes = ["alertmap", "threatmap", "geologia", "fire_camp","risk"];
   const isAnalisis = subRoutes.some(route => location.pathname.includes(route));
 
   // Datos mejorados con más información
@@ -67,21 +68,21 @@ export default function Analisis() {
       primary: "Susceptibilidad a Incendios Forestales",
       secondary: "La susceptibilidad a incendios forestales muestra el nivel de alerta de cada parroquia del cantón Loja",
       icon: <LocalFireDepartmentIcon />,
-      avatarColor: "#ff9800",
+      avatarColor: "#ff0000ff",
       badge: "En tiempo real",
       badgeColor: "warning",
       description: "Monitoreo de riesgo de incendios basado en datos INAMHI y Smartland UTPL"
     },
      {
       id: 5,
-      route: "fire_camp",
+      route: "risk",
       primary: "Analisis de riesgo",
-      secondary: "Los riesgos en canton de loja son de orgien natural o antropico",
-      icon: <LocalFireDepartmentIcon />,
-      avatarColor: "#ff9800",
+      secondary: "Los riesgos en Canton Loja son de orgien natural o antropico",
+      icon: <WarningAmberOutlined />,
+      avatarColor: "#ffd000ff",
       badge: "Nuevo",
       badgeColor: "warning",
-      description: "Realizar un analisis de riesgos de predio en particular"
+      description: "Realizar un analisis de riesgos de predio particular"
 }];
 
   const handleItemClick = (route) => {
@@ -176,7 +177,7 @@ export default function Analisis() {
                 {item.secondary}
               </Typography>
               
-              <Box sx={{ display: "flex", justifyContent: "flex-end", mt: "auto" }}>
+              {/* <Box sx={{ display: "flex", justifyContent: "flex-end", mt: "auto" }}>
                 <IconButton 
                   color="primary"
                   sx={{
@@ -188,7 +189,7 @@ export default function Analisis() {
                 >
                   <PlaylistAddCheckCircleIcon />
                 </IconButton>
-              </Box>
+              </Box> */}
             </CardContent>
           </Card>
         ))}

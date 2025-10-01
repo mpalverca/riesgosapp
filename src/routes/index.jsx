@@ -11,7 +11,7 @@ import Dangermap from "./Dangermap";
 import Planesatender from "./preparacion/PlanFamiliar";
 import PlanContingencia from "./preparacion/PlanContingencia";
 import Coe from "./coe";
-import Geologia from "./geologia";
+import Geologia from "./analisis/geologia";
 import Cooper from "./cooper";
 import EVIN from "./EVIN";
 import Auth from "./user/auth";
@@ -21,6 +21,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import Preparacion from "./preparacion/preparacion";
 import Analisis from "./analisis/analisis";
 import FireCamp from "./analisis/fire_camp";
+import SectorMap from "./analisis/riesgo";
 
 export default class index extends Component {
   render() {
@@ -43,7 +44,8 @@ export default class index extends Component {
             <Route path="threatmap" element={<Dangermap />} />
             <Route path="geologia" element={<Geologia />} />
             <Route path="fire_camp" element={<FireCamp/>}/>
-          </Route>
+           <Route path="risk" element={<SectorMap/>}/>
+                    </Route>
 
           <Route path="/riesgosapp/preparacion/*" element={<Preparacion />}>
             <Route path="plancontingencia" element={<PlanContingencia />} />
