@@ -21,7 +21,8 @@ import ProtectedRoute from "./ProtectedRoute";
 import Preparacion from "./preparacion/preparacion";
 import Analisis from "./analisis/analisis";
 import FireCamp from "./analisis/fire_camp";
-import SectorMap from "./analisis/riesgo";
+import RiesgosPage from "./analisis/riesgo";
+
 
 export default class index extends Component {
   render() {
@@ -44,7 +45,7 @@ export default class index extends Component {
             <Route path="threatmap" element={<Dangermap />} />
             <Route path="geologia" element={<Geologia />} />
             <Route path="fire_camp" element={<FireCamp/>}/>
-           <Route path="risk" element={<SectorMap/>}/>
+           <Route path="risk" element={<RiesgosPage/>}/>
                     </Route>
 
           <Route path="/riesgosapp/preparacion/*" element={<Preparacion />}>
