@@ -59,17 +59,17 @@ const [tramite, setTramite] = useState('');
           />
           <label htmlFor="Tramite">Trámite:</label>
           <input
-            id="sector"
+            id="tramite"
             type="text"
-            value={sector}
+            value={tramite}
             onChange={(e) => setTramite(e.target.value)}
             placeholder="Ej: 12435-2025, 12345-2024, etc."
           />
           <label htmlFor="Clave catastral">Clave catastral:</label>
           <input
-            id="sector"
+            id="clave"
             type="text"
-            value={sector}
+            value={clave}
             onChange={(e) => setClave(e.target.value)}
             placeholder="Ej: centro, norte, etc."
           />
@@ -78,7 +78,7 @@ const [tramite, setTramite] = useState('');
 
         <button 
           type="submit" 
-          disabled={!parroquia}
+          disabled={!parroquia && !sector && !clave}
           className="search-button"
         >
           Consultar Datos

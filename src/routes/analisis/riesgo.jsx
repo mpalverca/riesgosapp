@@ -19,7 +19,7 @@ import CatastroMap from "../../components/riesgos/panel";
 
 import GeoDataViewer from "../../components/riesgos/GeoDataViewer.js";
 import GeoMap from "../../components/riesgos/viewmap";
-import { useGeoData } from "../../components/riesgos/useGeoData.js";
+import { useApConst, useAPIdata } from "../../components/riesgos/useGeoData.js";
 
 import "./App.css";
 
@@ -27,11 +27,16 @@ function RiesgosPage() {
   const [selectedParroquia, setSelectedParroquia] = useState("");
   const [selectedSector, setSelectedSector] = useState("");
 
-  const { data, loading, error } = useGeoData(
+  const { data, loading, error } = useApConst(
     selectedParroquia,
     selectedSector
   );
 
+  const {DataPugs, load,thorw}=useAPIdata(
+    selectedParroquia,
+    selectedSector
+  )
+console.log(DataPugs)
   // Debug para ver los valores
   console.log("🔄 App State:", {
     selectedParroquia,
@@ -52,14 +57,13 @@ function RiesgosPage() {
       // Extraer valores (considerando diferentes nombres posibles de columnas)
       const aptitud = properties.aptitud || properties.aptitud_original || properties.APTITUD || 'No definido';
       const area = parseFloat(properties.area || properties.area_ha || properties.AREA || properties.shape_area || 0);
-      const amenaza = properties.amenazas || properties.amenaza_original || properties.AMENAZA || properties.tipo_amenaza || 'No definido';
+      //const amenaza = properties.amenazas || properties.amenaza_original || properties.AMENAZA || properties.tipo_amenaza || 'No definido';
       const estudio = properties.estudios || properties.estudio_original || properties.ESTUDIO || properties.tipo_estudio || 'No definido';
       const observaciones = properties.observac_1 || properties.observac_2 || properties.OBSERVACIONES || properties.descripcion || 'Sin observaciones';
 
       // Buscar si ya existe esta combinación de aptitud y amenaza
       const existingIndex = acc.findIndex(item => 
-        item.aptitud === aptitud && 
-        item.amenaza === amenaza
+        item.aptitud === aptitud //&&         item.amenaza === amenaza
       );
 
       if (existingIndex >= 0) {
@@ -76,7 +80,7 @@ function RiesgosPage() {
         // Crear nuevo
         acc.push({
           aptitud,
-          amenaza,
+          //amenaza,
           areaTotal: area,
           estudios: estudio !== 'No definido' ? [estudio] : [],
           observaciones: observaciones !== 'Sin observaciones' ? [observaciones] : [],
@@ -100,13 +104,13 @@ function RiesgosPage() {
   }, [tableData]);
 
   const handleSearch = (parroquia, sector = "") => {
-    console.log("🎯 Handle Search called:", { parroquia, sector });
+    //console.log("🎯 Handle Search called:", { parroquia, sector });
     setSelectedParroquia(parroquia);
     setSelectedSector(sector);
   };
 // Función para formatear área en hectáreas
   const formatArea = (area) => {
-    return `${area.toFixed(2)} ha`;
+    return `${area.toFixed(2)} m2`;
   };
   return (
     <div className="App">
@@ -176,7 +180,7 @@ function RiesgosPage() {
           {data && tableData.length > 0 && (
             <Paper elevation={3} sx={{ p: 2, mt: 2 }}>
               <Typography variant="h6" gutterBottom>
-                Resumen de Aptitud y Amenazas
+                Resumen de Aptitud Constructuva
               </Typography>
               
               <Box sx={{ mb: 2 }}>
@@ -194,7 +198,7 @@ function RiesgosPage() {
                     <TableRow>
                       <TableCell><strong>Aptitud</strong></TableCell>
                       <TableCell><strong>Área</strong></TableCell>
-                      <TableCell><strong>Amenaza</strong></TableCell>
+                     {/* // <TableCell><strong>Amenaza</strong></TableCell> */}
                       <TableCell><strong>Polígonos</strong></TableCell>
                       <TableCell><strong>Estudios</strong></TableCell>
                       <TableCell><strong>Observaciones</strong></TableCell>
@@ -225,7 +229,7 @@ function RiesgosPage() {
                             {formatArea(row.areaTotal)}
                           </Typography>
                         </TableCell>
-                        <TableCell>
+                        {/* <TableCell>
                           <Chip 
                             label={row.amenaza} 
                             size="small"
@@ -236,7 +240,7 @@ function RiesgosPage() {
                               row.amenaza.toLowerCase().includes('baja') ? 'success' : 'default'
                             }
                           />
-                        </TableCell>
+                        </TableCell> */}
                         <TableCell>
                           <Typography variant="body2" textAlign="center">
                             {row.cantidadPoligonos}
