@@ -7,7 +7,7 @@ import GeoDataViewer from "../../components/riesgos/GeoDataViewer.js";
 import GeoMap from "../../components/riesgos/viewmap";
 import {
   useApConst,
-  useAPIdata,
+  useClaveData,
   useSector,
 } from "../../components/riesgos/useGeoData.js";
 
@@ -17,46 +17,32 @@ import TableView from "../../components/riesgos/tableview.jsx";
 function RiesgosPage() {
   const [selectedParroquia, setSelectedParroquia] = useState("");
   const [selectedSector, setSelectedSector] = useState("");
+const [clave, setClaveCatas] = useState("");
 
   const { data, loading, error } = useApConst(
     selectedParroquia,
     selectedSector
   );
 
-  const { DataPugs, pugsL, PugsE } = useAPIdata(
+  const { claveData, claveL,  claveE } = useClaveData(
     selectedParroquia,
-    selectedSector
+    selectedSector,
+    clave
   );
   const { sectorData, sectorL, sectorE } = useSector("", selectedSector);
 
   // Debug para ver los valores
-  console.log("🔄 App State Apttitud Constructiva:", {
-    selectedParroquia,
-    selectedSector,
-    data: data
-      ? `✅ Data loaded with ${data.features?.length} features`
-      : "❌ No data",
-    loading,
-    error,
-  });
+  
   console.log("🔄 App State PIT Urbano:", {
     selectedParroquia,
     selectedSector,
-    data: DataPugs
-      ? `✅ Data loaded with ${data.features?.length} features`
+    data: claveData
+      ? `✅ Data loaded with ${claveData.features?.length} features`
       : "❌ No data",
-    loading,
-    error,
+     claveL,
+     claveE,
   });
-  console.log("🔄 App State Sector:", {
-    selectedParroquia,
-    selectedSector,
-    data: sectorData
-      ? `✅ Data loaded with ${sectorData.features?.length} features`
-      : "❌ No data",
-    loading,
-    error,
-  });
+  
   // ✅ Verificar que los datos existan antes de acceder a features
 
   const handleSearch = (parroquia, sector = "") => {
@@ -68,6 +54,12 @@ function RiesgosPage() {
     //console.log("🎯 Handle Search called:", { parroquia, sector });
     setSelectedParroquia(parroquia);
     setSelectedSector(sector);
+  };
+  const handlePugs = (parroquia, sector = "",clave) => {
+    //console.log("🎯 Handle Search called:", { parroquia, sector });
+    setSelectedParroquia(parroquia);
+    setSelectedSector(sector);
+    setClaveCatas(clave)
   };
   return (
     <div className="App">
@@ -84,6 +76,7 @@ function RiesgosPage() {
           <GeoDataViewer
             onSearch={handleSearch}
             onSearchSector={handleSector}
+            onSearchPugs={handlePugs}
           />
           {error && (
             <div className="error-state">
@@ -93,8 +86,7 @@ function RiesgosPage() {
           )}
         </Grid>
         <Grid item size={{ xs: 12, md: 9 }}>
-          {loading ||
-            (sectorL && (
+          {  sectorL && (
               <div className="loading-state">
                 <div className="spinner"></div>
                 <p>Cargando datos para {selectedParroquia}...</p>
@@ -111,7 +103,7 @@ function RiesgosPage() {
                   }}
                 />
               </div>
-            ))}
+            )}
           {data && (
             <>
               {/* <div className="results-header">

@@ -65,10 +65,10 @@ export const useApConst = (parroquia, sector = "") => {
   return { data, loading, error };
 };
 
-export const useAPIdata = (parroquia, sector = "") => {
-  const [dataPugs, setData] = useState(null);
-  const [pugsL, setLoading] = useState(false);
-  const [PugsE, setError] = useState(null);
+export const useClaveData = (parroquia, sector = "", clave) => {
+  const [claveData, setData] = useState(null);
+  const [claveL, setLoading] = useState(false);
+  const [claveE, setError] = useState(null);
 
   useEffect(() => {
     // No hacer nada si no hay parroquia seleccionada
@@ -84,16 +84,17 @@ export const useAPIdata = (parroquia, sector = "") => {
       setData(null); // Limpiar datos anteriores
 
       try {
-        console.log("🔍 Fetching data for:", { parroquia, sector });
+        console.log("🔍 Fetching data for:", { parroquia, sector, clave });
 
         const params = new URLSearchParams();
         params.append("parroquia", parroquia);
-        if (sector && sector.trim() !== "") {
+       /*  if (sector && sector.trim() !== "") {
           params.append("sector", sector);
-        }
-
+        } */
+        params.append("clave_cata", clave);
         const url = `${API_pugs}?${params.toString()}`;
         const response = await fetch(url);
+        console.log(url);
         if (!response.ok) {
           throw new Error(`Error HTTP: ${response.status}`);
         }
@@ -118,7 +119,7 @@ export const useAPIdata = (parroquia, sector = "") => {
     fetchData();
   }, [parroquia, sector]);
 
-  return { dataPugs, pugsL, PugsE };
+  return { claveData, claveL, claveE };
 };
 
 // Cargar datos GeoJSON solo cuando se solicite
@@ -142,7 +143,7 @@ export const useSector = (parroquia, sector = "") => {
 
       try {
         const params = new URLSearchParams();
-        
+
         // Solo el parámetro que necesita tu API
         params.append("SECTOR", sector);
 

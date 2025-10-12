@@ -13,11 +13,12 @@ import {
   Select,
 } from "@mui/material";
 
-const GeoDataViewer = ({ onSearch, onSearchSector }) => {
+const GeoDataViewer = ({ onSearch, onSearchSector,onSearchPugs }) => {
   const [parroquia, setParroquia] = useState("");
   const [sector, setSector] = useState("");
   const [clave, setClave] = useState("");
   const [tramite, setTramite] = useState("");
+  const [pugs, setPugs]=useState("")
 
   const parroquiasDisponibles = [
     "sucre",
@@ -48,8 +49,10 @@ const handleSector = (e) => {
         sector,
       });
       onSearchSector(parroquia, sector);
+      onSearchPugs(parroquia, sector,clave);
     }
   };
+  
   const handleParroquiaChange = (e) => {
     const nuevaParroquia = e.target.value;
     setParroquia(nuevaParroquia);
@@ -69,6 +72,7 @@ const handleSector = (e) => {
         <Typography variant="h6" component="h2" gutterBottom>
       Ingrese número de trámite para realizar consulta
       </Typography>
+
       <TextField
         fullWidth
         sx={{ paddingTop: 2, paddingBottom: 2 }}
@@ -159,18 +163,7 @@ const handleSector = (e) => {
         >
           Consultar Datos
         </Button>
-         <Button
-          sx={{ paddingTop: 2 }}
-          type="submit"
-          variant="contained"
-          onClick={handleSubmit}
-          //color="primary"
-          disabled={!parroquia && !sector && !clave && !tramite}
-          size="large"
-          fullWidth
-        >
-          Consultar Predio
-        </Button>
+       
       </Box>
 
       {/* Información de búsqueda */}
