@@ -4,6 +4,7 @@ const API_URL =
   "https://script.google.com/macros/s/AKfycbx4E9blUYb95cTL5SeN4BXOnsiwJmCDSHONCiJMtPEd7KGIf_V9AhEKvd2WCoE7RMnj/exec";
 const API_pugs =
   "https://script.google.com/macros/s/AKfycbxQgMzvnEs5LBykZAqSfXv8opFSY9z8HSbiuEjlzh6gzOVpNO9jEQesSs6R6ezUtRij/exec";
+const sector_url = `https://script.google.com/macros/s/AKfycbzj8eXN23mkkdZypf8yBayEMBA7Bt-MM0D_6Jp-34JxQCsg-8UkjZqM9nBoI6dw8nrK/exec`;
 
 export const useApConst = (parroquia, sector = "") => {
   const [data, setData] = useState(null);
@@ -33,7 +34,7 @@ export const useApConst = (parroquia, sector = "") => {
         }
 
         const url = `${API_URL}?${params.toString()}`;
-        // console.log('📡 URL:', url);
+        console.log("📡 URL:", url);
 
         const response = await fetch(url);
 
@@ -66,8 +67,8 @@ export const useApConst = (parroquia, sector = "") => {
 
 export const useAPIdata = (parroquia, sector = "") => {
   const [dataPugs, setData] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [pugsL, setLoading] = useState(false);
+  const [PugsE, setError] = useState(null);
 
   useEffect(() => {
     // No hacer nada si no hay parroquia seleccionada
@@ -117,5 +118,69 @@ export const useAPIdata = (parroquia, sector = "") => {
     fetchData();
   }, [parroquia, sector]);
 
-  return { data: dataPugs, loading, error };
+  return { dataPugs, pugsL, PugsE };
+};
+
+// Cargar datos GeoJSON solo cuando se solicite
+export const useSector = (parroquia, sector = "") => {
+  const [sectorData, setData] = useState(null);
+  const [sectorL, setLoading] = useState(false);
+  const [sectorE, setError] = useState(null);
+
+  useEffect(() => {
+    // Si tu API solo usa SECTOR, entonces solo validamos sector
+    if (!sector || sector.trim() === "") {
+      setData(null);
+      setError(null);
+      return;
+    }
+
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      setData(null);
+
+      try {
+        const params = new URLSearchParams();
+        
+        // Solo el parámetro que necesita tu API
+        params.append("SECTOR", sector);
+
+        const url = `${sector_url}?${params.toString()}`;
+        console.log("📡 Fetching from:", url);
+
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`Error HTTP: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log("📦 Datos recibidos:", result);
+
+        if (result.error) {
+          throw new Error(result.error);
+        }
+
+        if (!result || typeof result !== "object") {
+          throw new Error("Formato de respuesta inválido");
+        }
+
+        setData(result);
+      } catch (err) {
+        console.error("❌ Error:", err);
+        setError(err.message);
+        setData(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [sector]); // Solo dependemos de sector
+
+  return {
+    sectorData,
+    sectorL,
+    sectorE,
+  };
 };

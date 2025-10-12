@@ -9,10 +9,11 @@ import {
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
-const GeoMap = ({ geoData }) => {
+const GeoMap = ({ geoData, sector }) => {
   if (!geoData || !geoData.features || geoData.features.length === 0) {
     return <div>No hay datos geoespaciales para mostrar</div>;
   }
+  console.log(sector)
   /* console.log(geoData);
   // Estilo para las geometrías
   const geoJsonStyle = {
@@ -94,7 +95,44 @@ const GeoMap = ({ geoData }) => {
       }
     });
   };
+const renderSector = () => {
+    return sector.features.map((item) => {
+      try {
+        const coordinates = item.geometry.coordinates;
+        let leafletCoords = [];
 
+        // Convertir coordenadas GeoJSON (MultiPolygon) a formato Leaflet
+        return coordinates.map((polygon, index) => {
+          const polyCoords = polygon[0].map((coord) => [coord[1], coord[0]]);
+
+          return (
+            <Polygon
+              key={`N° ${item.id}-${index}`}
+              positions={polyCoords}
+              pathOptions={{
+                color:
+                  "#030303ff",
+                fillColor: "#535151ff",
+                fillOpacity: 0.2,
+                weight: 8,
+              }}
+            >
+              <Popup>
+                <strong>Sector:</strong> {item.properties.SECTOR}
+                <br />
+                <strong>Presidente:</strong> {item.properties.PRESIDENTE}
+                <br />
+                
+              </Popup>
+            </Polygon>
+          );
+        });
+      } catch (error) {
+        console.error("Error al procesar polígono:", item, error);
+        return null;
+      }
+    });
+  };
   return (
     <div className="geo-map">
       <MapContainer
@@ -107,6 +145,7 @@ const GeoMap = ({ geoData }) => {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
         {renderPolygons()}
+        {renderSector()}
         {/* <GeoJSON
           data={geoData}
           style={geoJsonStyle}
