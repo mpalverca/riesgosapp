@@ -6,19 +6,22 @@ import {
   TextField,
   MenuItem,
   Button,
-  Paper,
+  Radio,
+  FormLabel,
   Grid,
+  RadioGroup,
+  FormControlLabel,
   FormControl,
   InputLabel,
   Select,
 } from "@mui/material";
 
-const GeoDataViewer = ({ onSearch, onSearchSector,onSearchPugs }) => {
+const GeoDataViewer = ({ onSearch, onSearchSector, onSearchPugs }) => {
   const [parroquia, setParroquia] = useState("");
   const [sector, setSector] = useState("");
   const [clave, setClave] = useState("");
   const [tramite, setTramite] = useState("");
-  const [pugs, setPugs]=useState("")
+  const [pugs, setPugs] = useState("");
 
   const parroquiasDisponibles = [
     "sucre",
@@ -41,7 +44,7 @@ const GeoDataViewer = ({ onSearch, onSearchSector,onSearchPugs }) => {
       onSearch(parroquia, sector, clave, tramite);
     }
   };
-const handleSector = (e) => {
+  const handleSector = (e) => {
     e.preventDefault();
     if (parroquia || sector) {
       console.log("🔍 Iniciando búsqueda:", {
@@ -49,10 +52,10 @@ const handleSector = (e) => {
         sector,
       });
       onSearchSector(parroquia, sector);
-      onSearchPugs(parroquia, sector,clave);
+      onSearchPugs(parroquia, sector, clave);
     }
   };
-  
+
   const handleParroquiaChange = (e) => {
     const nuevaParroquia = e.target.value;
     setParroquia(nuevaParroquia);
@@ -69,8 +72,8 @@ const handleSector = (e) => {
       <Typography variant="h4" component="h2" gutterBottom>
         Análisis de Riesgos
       </Typography>
-        <Typography variant="h6" component="h2" gutterBottom>
-      Ingrese número de trámite para realizar consulta
+      <Typography variant="h6" component="h2" gutterBottom>
+        Ingrese número de trámite para realizar consulta
       </Typography>
 
       <TextField
@@ -87,7 +90,7 @@ const handleSector = (e) => {
         type="submit"
         variant="contained"
         color="primary"
-       // disabled={!parroquia && !sector && !clave && !tramite}
+        // disabled={!parroquia && !sector && !clave && !tramite}
         size="large"
         fullWidth
       >
@@ -119,7 +122,7 @@ const handleSector = (e) => {
 
         {/* Sector */}
         <TextField
-          sx={{ paddingTop: 2,  paddingBottom:2}}
+          sx={{ paddingTop: 2, paddingBottom: 2 }}
           fullWidth
           id="sector"
           label="Sector"
@@ -127,6 +130,19 @@ const handleSector = (e) => {
           onChange={(e) => setSector(e.target.value)}
           placeholder="Ej: centro, norte, etc."
         />
+
+        {/* Clave catastral */}
+        <TextField
+          fullWidth
+          sx={{ paddingTop: 2, paddingBottom: 2 }}
+          id="clave"
+          type="number"
+          label="Clave catastral"
+          value={clave}
+          onChange={(e) => setClave(e.target.value)}
+          placeholder="Ej: 123-456-789"
+        />
+        {/* Botón de consulta */}
         <Button
           sx={{ paddingTop: 2 }}
           type="submit"
@@ -139,20 +155,7 @@ const handleSector = (e) => {
         >
           Buscar Sector
         </Button>
-        {/* Clave catastral */}
-        <TextField
-          fullWidth
-          sx={{ paddingTop: 2,  paddingBottom:2}}
-          id="clave"
-          type="number"
-          label="Clave catastral"
-          value={clave}
-          onChange={(e) => setClave(e.target.value)}
-          placeholder="Ej: 123-456-789"
-        />
-
-        {/* Botón de consulta */}
-        <Button
+        {/* <Button
           sx={{ paddingTop: 2, paddingBottom:2 }}
           type="submit"
           variant="contained"
@@ -163,26 +166,60 @@ const handleSector = (e) => {
           fullWidth
         >
           Consultar Datos
-        </Button>
-       
+        </Button> */}
+        <Box sx={{ mt: 3, p: 2, bgcolor: "grey.100", borderRadius: 1 }}>
+          <Typography variant="subtitle1" gutterBottom>
+            <strong>Parroquia seleccionada:</strong>{" "}
+            {parroquia ? formatParroquiaName(parroquia) : "Ninguna"}
+          </Typography>
+          <Typography variant="subtitle1" gutterBottom>
+            <strong>Sector:</strong> {sector || "Todos"}
+          </Typography>
+          <Typography variant="subtitle1" gutterBottom>
+            <strong>Trámite:</strong> {tramite || "Ninguno"}
+          </Typography>
+          <Typography variant="subtitle1">
+            <strong>Clave catastral:</strong> {clave || "Ninguna"}
+          </Typography>
+        </Box>
+        <FormControl>
+          <Typography align="center">
+            <strong> Capas de Análisis</strong>
+          </Typography>
+          <RadioGroup
+            aria-labelledby="demo-radio-buttons-group-label"
+            defaultValue="female"
+            name="radio-buttons-group"
+          >
+            <FormControlLabel
+              value="pit"
+              control={<Radio />}
+              label="Poligono de intervención terriorial (Urbano)"
+            />
+            <FormControlLabel
+              value="atc"
+              control={<Radio />}
+              label="Actitud Constructuva"
+            />
+            <FormControlLabel
+              value="vialidad"
+              control={<Radio />}
+              label="Vialidad"
+            />
+            <FormControlLabel
+              value="red_aapp"
+              control={<Radio />}
+              label="Red de AAPP"
+            />
+            <FormControlLabel
+              value="red_aall"
+              control={<Radio />}
+              label="Red de AALL"
+            />
+          </RadioGroup>
+        </FormControl>
       </Box>
-
       {/* Información de búsqueda */}
-      <Box sx={{ mt: 3, p: 2, bgcolor: "grey.100", borderRadius: 1 }}>
-        <Typography variant="subtitle1" gutterBottom>
-          <strong>Parroquia seleccionada:</strong>{" "}
-          {parroquia ? formatParroquiaName(parroquia) : "Ninguna"}
-        </Typography>
-        <Typography variant="subtitle1" gutterBottom>
-          <strong>Sector:</strong> {sector || "Todos"}
-        </Typography>
-        <Typography variant="subtitle1" gutterBottom>
-          <strong>Trámite:</strong> {tramite || "Ninguno"}
-        </Typography>
-        <Typography variant="subtitle1">
-          <strong>Clave catastral:</strong> {clave || "Ninguna"}
-        </Typography>
-      </Box>
     </Box>
   );
 };

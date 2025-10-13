@@ -14,6 +14,7 @@ import {
 import "./App.css";
 import TableView from "../../components/riesgos/tableview.jsx";
 import { type } from "@testing-library/user-event/dist/cjs/utility/type.js";
+import BasicTabs from "../../components/riesgos/tapsR.jsx";
 
 function RiesgosPage() {
   const [selectedParroquia, setSelectedParroquia] = useState("");
@@ -138,7 +139,7 @@ function RiesgosPage() {
 
               <div className="map-section">
                 {/* <h3>Visualización en Mapa</h3> */}
-                <GeoMap geoData={data} sector={sectorData} predio={claveData} />
+                <GeoMap geoData={data} sector={sectorData} predio={claveData} clave={clave} />
               </div>
 
               {/* <div className="data-preview">
@@ -163,7 +164,7 @@ function RiesgosPage() {
             </>
           )}
           {/* TABLA DE RESUMEN */}
-          {data && <TableView data={data} />}
+          <BasicTabs tabsOne={data && <TableView data={data} />}/>
           {!data && !loading && !error && (
             <div className="empty-state">
               <p>Selecciona una parroquia para cargar los datos</p>
