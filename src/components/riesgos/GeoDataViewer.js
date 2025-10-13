@@ -7,8 +7,6 @@ import {
   MenuItem,
   Button,
   Radio,
-  FormLabel,
-  Grid,
   RadioGroup,
   FormControlLabel,
   FormControl,
@@ -21,7 +19,6 @@ const GeoDataViewer = ({ onSearch, onSearchSector, onSearchPugs }) => {
   const [sector, setSector] = useState("");
   const [clave, setClave] = useState("");
   const [tramite, setTramite] = useState("");
-  const [pugs, setPugs] = useState("");
 
   const parroquiasDisponibles = [
     "sucre",
@@ -32,7 +29,7 @@ const GeoDataViewer = ({ onSearch, onSearchSector, onSearchPugs }) => {
     "carigan",
   ];
 
-  const handleSubmit = (e) => {
+  /* const handleSubmit = (e) => {
     e.preventDefault();
     if (parroquia || sector || clave || tramite) {
       console.log("🔍 Iniciando búsqueda:", {
@@ -43,7 +40,7 @@ const GeoDataViewer = ({ onSearch, onSearchSector, onSearchPugs }) => {
       });
       onSearch(parroquia, sector, clave, tramite);
     }
-  };
+  }; */
   const handleSector = (e) => {
     e.preventDefault();
     if (parroquia || sector) {
@@ -126,14 +123,14 @@ const GeoDataViewer = ({ onSearch, onSearchSector, onSearchPugs }) => {
           fullWidth
           id="sector"
           label="Sector"
+          required
           value={sector}
           onChange={(e) => setSector(e.target.value)}
           placeholder="Ej: centro, norte, etc."
         />
-
-        {/* Clave catastral */}
         <TextField
           fullWidth
+          required
           sx={{ paddingTop: 2, paddingBottom: 2 }}
           id="clave"
           type="number"
@@ -142,31 +139,17 @@ const GeoDataViewer = ({ onSearch, onSearchSector, onSearchPugs }) => {
           onChange={(e) => setClave(e.target.value)}
           placeholder="Ej: 123-456-789"
         />
-        {/* Botón de consulta */}
         <Button
           sx={{ paddingTop: 2 }}
           type="submit"
           variant="contained"
           onClick={handleSector}
-          //color="primary"
           disabled={!parroquia && !sector}
           size="large"
           fullWidth
         >
           Buscar Sector
         </Button>
-        {/* <Button
-          sx={{ paddingTop: 2, paddingBottom:2 }}
-          type="submit"
-          variant="contained"
-          onClick={handleSubmit}
-          //color="primary"
-          disabled={!parroquia && !sector && !clave && !tramite}
-          size="large"
-          fullWidth
-        >
-          Consultar Datos
-        </Button> */}
         <Box sx={{ mt: 3, p: 2, bgcolor: "grey.100", borderRadius: 1 }}>
           <Typography variant="subtitle1" gutterBottom>
             <strong>Parroquia seleccionada:</strong>{" "}
@@ -199,7 +182,7 @@ const GeoDataViewer = ({ onSearch, onSearchSector, onSearchPugs }) => {
             <FormControlLabel
               value="atc"
               control={<Radio />}
-              label="Actitud Constructuva"
+              label="Actitud Constructiva"
             />
             <FormControlLabel
               value="vialidad"

@@ -45,8 +45,7 @@ export default function BasicTabs({tabsOne,tabsTwo}) {
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
           <Tab label="Información Sector" {...a11yProps(0)} />
-          <Tab label="Información Predio" {...a11yProps(1)} />
-          
+          <Tab label="Información Predio" {...a11yProps(1)} />          
         </Tabs>
       </Box>
       <CustomTabPanel value={value} index={0}>

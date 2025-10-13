@@ -1,15 +1,8 @@
 // components/GeoMap.jsx
-import React, { useState } from "react";
-import {
-  MapContainer,
-  TileLayer,
-  GeoJSON,
-  Polygon,
-  Popup,
-} from "react-leaflet";
+import { MapContainer, TileLayer, Polygon, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
-const GeoMap = ({ geoData, sector, predio, clave }) => {
+const GeoMap = ({ geoData, sector, predio }) => {
   if (!geoData || !geoData.features || geoData.features.length === 0) {
     return <div>No hay datos geoespaciales para mostrar</div>;
   }
@@ -25,17 +18,12 @@ const GeoMap = ({ geoData, sector, predio, clave }) => {
 
   // Calcular centro del mapa basado en los datos
   const calculateCenter = () => {
-    // Aquí podrías calcular el centro basado en las geometrías
-    // Por ahora usamos un centro por defecto de Loja
     return [-3.99313, -79.20422];
   };
-
   const renderPolygons = () => {
     return geoData.features.map((item) => {
       try {
         const coordinates = item.geometry.coordinates;
-        let leafletCoords = [];
-
         // Convertir coordenadas GeoJSON (MultiPolygon) a formato Leaflet
         return coordinates.map((polygon, index) => {
           const polyCoords = polygon[0].map((coord) => [coord[1], coord[0]]);
@@ -99,7 +87,7 @@ const GeoMap = ({ geoData, sector, predio, clave }) => {
     return sector.features.map((item) => {
       try {
         const coordinates = item.geometry.coordinates;
-        let leafletCoords = [];
+        
 
         // Convertir coordenadas GeoJSON (MultiPolygon) a formato Leaflet
         return coordinates.map((polygon, index) => {
@@ -132,19 +120,14 @@ const GeoMap = ({ geoData, sector, predio, clave }) => {
     });
   };
   const renderPredio = () => {
-    const prediosFiltrados = predio.features.filter(
-      (predio) => predio.properties.clave_cata === clave
-    );
-    console.log(prediosFiltrados)
-    return prediosFiltrados.map((item) => {
+    console.log(predio)    
+    return predio.map((item) => {
       try {
         const coordinates = item.geometry.coordinates;
-        let leafletCoords = [];
-
+      
         // Convertir coordenadas GeoJSON (MultiPolygon) a formato Leaflet
         return coordinates.map((polygon, index) => {
           const polyCoords = polygon[0].map((coord) => [coord[1], coord[0]]);
-
           return (
             <Polygon
               key={`N° ${item.id}-${index}`}
@@ -160,7 +143,7 @@ const GeoMap = ({ geoData, sector, predio, clave }) => {
                 <strong>Clave_catastral:</strong> {item.properties.clave_cata}
                 <br />
                 <strong>Posee Edificación:</strong>{" "}
-                {item.properties.edif == 1 ? "SI" : "NO"}
+                {item.properties.edif === 1 ? "SI" : "NO"}
                 <br />
                 <strong>Area de edificacion:</strong>{" "}
                 {item.properties.area_construccion}
@@ -172,7 +155,6 @@ const GeoMap = ({ geoData, sector, predio, clave }) => {
                 <br />
                 <strong>Detalle de intervención:</strong>{" "}
                 {item.properties.detalle_intervencion_pisos}
-                
               </Popup>
             </Polygon>
           );
@@ -196,7 +178,6 @@ const GeoMap = ({ geoData, sector, predio, clave }) => {
         />
         {renderPolygons()}
         {renderSector()}
-
         {renderPredio()}
         {/* <GeoJSON
           data={geoData}

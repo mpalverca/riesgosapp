@@ -24,7 +24,6 @@ export const useApConst = (parroquia, sector = "") => {
       setData(null); // Limpiar datos anteriores
 
       try {
-        console.log("🔍 Fetching data for:", { parroquia, sector });
 
         const params = new URLSearchParams();
         params.append("parroquia", parroquia);
@@ -72,8 +71,7 @@ export const useClaveData = (parroquia, sector = "", clave) => {
   useEffect(() => {
     // Validar que tengamos parroquia Y clave
     if (!parroquia || parroquia.trim() === "" || !clave || clave.trim() === "") {
-      console.log('⏸️ No fetching: parroquia o clave vacía');
-      setData(null);
+            setData(null);
       setError(null);
       return;
     }
@@ -82,15 +80,8 @@ export const useClaveData = (parroquia, sector = "", clave) => {
       setLoading(true);
       setError(null);
       setData(null);
-
       try {
-        console.log("🔍 Fetching data for:", { 
-          parroquia, 
-          sector, 
-          clave,
-          tipo_clave: typeof clave
-        });
-
+        
         const params = new URLSearchParams();
         params.append("parroquia", parroquia);
         if (sector && sector.trim() !== "") {
@@ -99,23 +90,19 @@ export const useClaveData = (parroquia, sector = "", clave) => {
         params.append("clave_cata", clave);
 
         const url = `${predio_url}?${params.toString()}`;
-        console.log("📡 URL completa:", url);
-
+  
         const response = await fetch(url);
-        console.log("📞 Response status:", response.status);
-
+        
         if (!response.ok) {
           throw new Error(`Error HTTP: ${response.status}`);
         }
 
         const result = await response.json();
-        console.log("📦 Response completa:", result);
-
+        
         if (result.error) {
           throw new Error(result.error);
         }
 
-        console.log(`✅ Encontrados ${result.features.length} features`);
         setData(result);
       } catch (err) {
         console.error("❌ Error fetching data:", err);
@@ -158,16 +145,14 @@ export const useSector = (parroquia, sector = "") => {
         params.append("SECTOR", sector);
 
         const url = `${sector_url}?${params.toString()}`;
-        console.log("📡 Fetching from:", url);
-
+        
         const response = await fetch(url);
         if (!response.ok) {
           throw new Error(`Error HTTP: ${response.status}`);
         }
 
         const result = await response.json();
-        console.log("📦 Datos recibidos:", result);
-
+   
         if (result.error) {
           throw new Error(result.error);
         }

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Grid } from "@mui/material";
-import SectorMap from "../../components/riesgos/mapsview";
-import CatastroMap from "../../components/riesgos/panel";
+//import SectorMap from "../../components/riesgos/mapsview";
+//import CatastroMap from "../../components/riesgos/panel";
 import loadIcon from "../../assets/loading.gif";
 import GeoDataViewer from "../../components/riesgos/GeoDataViewer.js";
 import GeoMap from "../../components/riesgos/viewmap";
@@ -12,8 +12,8 @@ import {
 } from "../../components/riesgos/useGeoData.js";
 
 import "./App.css";
-import TableView from "../../components/riesgos/tableview.jsx";
-import { type } from "@testing-library/user-event/dist/cjs/utility/type.js";
+import TableView, { ViewPredio } from "../../components/riesgos/tableview.jsx";
+//import { type } from "@testing-library/user-event/dist/cjs/utility/type.js";
 import BasicTabs from "../../components/riesgos/tapsR.jsx";
 
 function RiesgosPage() {
@@ -31,11 +31,11 @@ function RiesgosPage() {
     selectedSector,
     clave
   );
-  const { sectorData, sectorL, sectorE } = useSector("", selectedSector);
+  const { sectorData, sectorL } = useSector("", selectedSector);
 
   // Debug para ver los valores
 
-  console.log("🔄 App State PIT Urbano:", {
+  /* console.log("🔄 App State PIT Urbano:", {
     selectedParroquia,
     selectedSector,
     data: claveData
@@ -43,27 +43,17 @@ function RiesgosPage() {
       : "❌ No data",
     claveL,
     claveE,
-    detail:claveData
-    ?typeof claveData.features[0].properties.clave_cata ==='string'
-    ? 'Es un string':"no es string"
-    :"❌ No data",
-    
-  });
-
+  }); */
   // ✅ Verificar que los datos existan antes de acceder a features
-
   const handleSearch = (parroquia, sector = "") => {
-    //console.log("🎯 Handle Search called:", { parroquia, sector });
     setSelectedParroquia(parroquia);
     setSelectedSector(sector);
   };
   const handleSector = (parroquia, sector = "") => {
-    //console.log("🎯 Handle Search called:", { parroquia, sector });
     setSelectedParroquia(parroquia);
     setSelectedSector(sector);
   };
-  const handlePugs = (parroquia, sector = "", clave) => {
-    //console.log("🎯 Handle Search called:", { parroquia, sector });
+  const handleClave = (parroquia, sector = "", clave) => {
     setSelectedParroquia(parroquia);
     setSelectedSector(sector);
     setClaveCatas(clave);
@@ -76,14 +66,10 @@ function RiesgosPage() {
           size={{ xs: 12, md: 3 }}
           style={{ height: "80vh", overflowY: "auto" }}
         >
-          {/* <header className="App-header">
-        <h1>Sistema de Consulta Geoespacial data</h1>
-      </header> */}
-          {/* ✅ Pasar onSearch como prop */}
           <GeoDataViewer
             onSearch={handleSearch}
             onSearchSector={handleSector}
-            onSearchPugs={handlePugs}
+            onSearchPugs={handleClave}
           />
           {error && (
             <div className="error-state">
@@ -93,7 +79,7 @@ function RiesgosPage() {
           )}
         </Grid>
         <Grid item size={{ xs: 12, md: 9 }}>
-          {sectorL && (
+          {sectorL && loading && claveL && (
             <div className="loading-state">
               <div className="spinner"></div>
               <p>Cargando datos para {selectedParroquia}...</p>
@@ -101,28 +87,6 @@ function RiesgosPage() {
                 src={loadIcon}
                 alt="Icono de alerta"
                 style={{
-                  // width: "60px",
-                  //height: "120px",
-                  //borderRadius: "4px",
-                  objectFit: "cover",
-                  alignContent: "center",
-                  alignItems: "center",
-                }}
-              />
-            </div>
-          )}
-          {loading && (
-            <div className="loading-state">
-              <div className="spinner"></div>
-              <p>Cargando datos para {selectedParroquia}...</p>
-              <img
-                src={loadIcon}
-                alt="Icono de alerta"
-                style={{
-                  // width: "60px",
-                  //height: "120px",
-                  //borderRadius: "4px",
-                  objectFit: "cover",
                   alignContent: "center",
                   alignItems: "center",
                 }}
@@ -131,46 +95,38 @@ function RiesgosPage() {
           )}
           {data && (
             <>
-              {/* <div className="results-header">
-              <h2>Resultados para: {selectedParroquia}</h2>
-              {selectedSector && <p>Sector: {selectedSector}</p>}
-              <p>Total de elementos: {data.metadata?.total_features || 0}</p>
-            </div> */}
-
               <div className="map-section">
-                {/* <h3>Visualización en Mapa</h3> */}
-                <GeoMap geoData={data} sector={sectorData} predio={claveData} clave={clave} />
+                <GeoMap
+                  geoData={data}
+                  sector={sectorData}
+                  predio={claveData.features.filter(
+                    (predio) => predio.properties.clave_cata === clave
+                  )}
+                 
+                />
               </div>
-
-              {/* <div className="data-preview">
-              <h3>Vista Previa de Datos</h3>
-              <div className="features-count">
-                <strong>Features encontrados:</strong>{" "}
-                {data.features?.length || 0}
-              </div>
-
-              {data.features &&
-                data.features.slice(0, 3).map((feature, index) => (
-                  <div key={index} className="feature-preview">
-                    <h4>Feature {index + 1}</h4>
-                    <pre>{JSON.stringify(feature.properties, null, 2)}</pre>
-                  </div>
-                ))}
-
-              {data.features && data.features.length > 3 && (
-                <p>... y {data.features.length - 3} features más</p>
-              )}
-            </div> */}
             </>
           )}
           {/* TABLA DE RESUMEN */}
-          <BasicTabs tabsOne={data && <TableView data={data} />}/>
+          <BasicTabs
+            tabsOne={data && <TableView data={data} />}
+            tabsTwo={
+              data &&
+              claveData && (
+                <ViewPredio
+                  data={data}
+                  predio={claveData.features.filter(
+                    (predio) => predio.properties.clave_cata === clave
+                  )}
+                />
+              )
+            }
+          />
           {!data && !loading && !error && (
             <div className="empty-state">
               <p>Selecciona una parroquia para cargar los datos</p>
             </div>
           )}
-          {/* <SectorMap/> */}
         </Grid>
       </Grid>
     </div>
