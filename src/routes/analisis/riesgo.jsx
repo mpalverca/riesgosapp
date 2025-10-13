@@ -13,18 +13,19 @@ import {
 
 import "./App.css";
 import TableView from "../../components/riesgos/tableview.jsx";
+import { type } from "@testing-library/user-event/dist/cjs/utility/type.js";
 
 function RiesgosPage() {
   const [selectedParroquia, setSelectedParroquia] = useState("");
   const [selectedSector, setSelectedSector] = useState("");
-const [clave, setClaveCatas] = useState("");
+  const [clave, setClaveCatas] = useState("");
 
   const { data, loading, error } = useApConst(
     selectedParroquia,
     selectedSector
   );
 
-  const { claveData, claveL,  claveE } = useClaveData(
+  const { claveData, claveL, claveE } = useClaveData(
     selectedParroquia,
     selectedSector,
     clave
@@ -32,17 +33,22 @@ const [clave, setClaveCatas] = useState("");
   const { sectorData, sectorL, sectorE } = useSector("", selectedSector);
 
   // Debug para ver los valores
-  
+
   console.log("🔄 App State PIT Urbano:", {
     selectedParroquia,
     selectedSector,
     data: claveData
       ? `✅ Data loaded with ${claveData.features?.length} features`
       : "❌ No data",
-     claveL,
-     claveE,
+    claveL,
+    claveE,
+    detail:claveData
+    ?typeof claveData.features[0].properties.clave_cata ==='string'
+    ? 'Es un string':"no es string"
+    :"❌ No data",
+    
   });
-  
+
   // ✅ Verificar que los datos existan antes de acceder a features
 
   const handleSearch = (parroquia, sector = "") => {
@@ -55,11 +61,11 @@ const [clave, setClaveCatas] = useState("");
     setSelectedParroquia(parroquia);
     setSelectedSector(sector);
   };
-  const handlePugs = (parroquia, sector = "",clave) => {
+  const handlePugs = (parroquia, sector = "", clave) => {
     //console.log("🎯 Handle Search called:", { parroquia, sector });
     setSelectedParroquia(parroquia);
     setSelectedSector(sector);
-    setClaveCatas(clave)
+    setClaveCatas(clave);
   };
   return (
     <div className="App">
@@ -86,24 +92,42 @@ const [clave, setClaveCatas] = useState("");
           )}
         </Grid>
         <Grid item size={{ xs: 12, md: 9 }}>
-          {  sectorL && (
-              <div className="loading-state">
-                <div className="spinner"></div>
-                <p>Cargando datos para {selectedParroquia}...</p>
-                <img
-                  src={loadIcon}
-                  alt="Icono de alerta"
-                  style={{
-                    // width: "60px",
-                    //height: "120px",
-                    //borderRadius: "4px",
-                    objectFit: "cover",
-                    alignContent: "center",
-                    alignItems: "center",
-                  }}
-                />
-              </div>
-            )}
+          {sectorL && (
+            <div className="loading-state">
+              <div className="spinner"></div>
+              <p>Cargando datos para {selectedParroquia}...</p>
+              <img
+                src={loadIcon}
+                alt="Icono de alerta"
+                style={{
+                  // width: "60px",
+                  //height: "120px",
+                  //borderRadius: "4px",
+                  objectFit: "cover",
+                  alignContent: "center",
+                  alignItems: "center",
+                }}
+              />
+            </div>
+          )}
+          {loading && (
+            <div className="loading-state">
+              <div className="spinner"></div>
+              <p>Cargando datos para {selectedParroquia}...</p>
+              <img
+                src={loadIcon}
+                alt="Icono de alerta"
+                style={{
+                  // width: "60px",
+                  //height: "120px",
+                  //borderRadius: "4px",
+                  objectFit: "cover",
+                  alignContent: "center",
+                  alignItems: "center",
+                }}
+              />
+            </div>
+          )}
           {data && (
             <>
               {/* <div className="results-header">
@@ -114,7 +138,7 @@ const [clave, setClaveCatas] = useState("");
 
               <div className="map-section">
                 {/* <h3>Visualización en Mapa</h3> */}
-                <GeoMap geoData={data} sector={sectorData} />
+                <GeoMap geoData={data} sector={sectorData} predio={claveData} />
               </div>
 
               {/* <div className="data-preview">

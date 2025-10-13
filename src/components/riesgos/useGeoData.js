@@ -2,8 +2,7 @@ import { useState, useEffect } from "react";
 
 const API_URL =
   "https://script.google.com/macros/s/AKfycbx4E9blUYb95cTL5SeN4BXOnsiwJmCDSHONCiJMtPEd7KGIf_V9AhEKvd2WCoE7RMnj/exec";
-const API_pugs =
-  "https://script.google.com/macros/s/AKfycbxQgMzvnEs5LBykZAqSfXv8opFSY9z8HSbiuEjlzh6gzOVpNO9jEQesSs6R6ezUtRij/exec";
+const predio_url ="https://script.google.com/macros/s/AKfycbytTtS5g25PCnGLqfTgV_iFPCyur5FqEVGk2FV0s7x-UW6iV7ue-BcI0rGiWDRMPrNL/exec"
 const sector_url = `https://script.google.com/macros/s/AKfycbzj8eXN23mkkdZypf8yBayEMBA7Bt-MM0D_6Jp-34JxQCsg-8UkjZqM9nBoI6dw8nrK/exec`;
 
 export const useApConst = (parroquia, sector = "") => {
@@ -71,8 +70,9 @@ export const useClaveData = (parroquia, sector = "", clave) => {
   const [claveE, setError] = useState(null);
 
   useEffect(() => {
-    // No hacer nada si no hay parroquia seleccionada
-    if (!parroquia || parroquia.trim() === "") {
+    // Validar que tengamos parroquia Y clave
+    if (!parroquia || parroquia.trim() === "" || !clave || clave.trim() === "") {
+      console.log('⏸️ No fetching: parroquia o clave vacía');
       setData(null);
       setError(null);
       return;
@@ -81,31 +81,41 @@ export const useClaveData = (parroquia, sector = "", clave) => {
     const fetchData = async () => {
       setLoading(true);
       setError(null);
-      setData(null); // Limpiar datos anteriores
+      setData(null);
 
       try {
-        console.log("🔍 Fetching data for:", { parroquia, sector, clave });
+        console.log("🔍 Fetching data for:", { 
+          parroquia, 
+          sector, 
+          clave,
+          tipo_clave: typeof clave
+        });
 
         const params = new URLSearchParams();
         params.append("parroquia", parroquia);
-       /*  if (sector && sector.trim() !== "") {
+        if (sector && sector.trim() !== "") {
           params.append("sector", sector);
-        } */
+        }
         params.append("clave_cata", clave);
-        const url = `${API_pugs}?${params.toString()}`;
+
+        const url = `${predio_url}?${params.toString()}`;
+        console.log("📡 URL completa:", url);
+
         const response = await fetch(url);
-        console.log(url);
+        console.log("📞 Response status:", response.status);
+
         if (!response.ok) {
           throw new Error(`Error HTTP: ${response.status}`);
         }
 
         const result = await response.json();
-        console.log("📦 Response data:", result);
+        console.log("📦 Response completa:", result);
 
         if (result.error) {
           throw new Error(result.error);
         }
 
+        console.log(`✅ Encontrados ${result.features.length} features`);
         setData(result);
       } catch (err) {
         console.error("❌ Error fetching data:", err);
@@ -117,7 +127,7 @@ export const useClaveData = (parroquia, sector = "", clave) => {
     };
 
     fetchData();
-  }, [parroquia, sector]);
+  }, [parroquia, sector, clave]);
 
   return { claveData, claveL, claveE };
 };

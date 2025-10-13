@@ -144,6 +144,7 @@ const handleSector = (e) => {
           fullWidth
           sx={{ paddingTop: 2,  paddingBottom:2}}
           id="clave"
+          type="number"
           label="Clave catastral"
           value={clave}
           onChange={(e) => setClave(e.target.value)}

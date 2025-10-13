@@ -9,11 +9,11 @@ import {
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
-const GeoMap = ({ geoData, sector }) => {
+const GeoMap = ({ geoData, sector, predio }) => {
   if (!geoData || !geoData.features || geoData.features.length === 0) {
     return <div>No hay datos geoespaciales para mostrar</div>;
   }
-  console.log(sector)
+
   /* console.log(geoData);
   // Estilo para las geometrías
   const geoJsonStyle = {
@@ -54,7 +54,7 @@ const GeoMap = ({ geoData, sector }) => {
                     : item.properties.aptitud ===
                       "APTO CON EXTREMAS LIMITACIONES"
                     ? "#fde407ff"
-                    :item.properties.aptitud === "NO APTO"
+                    : item.properties.aptitud === "NO APTO"
                     ? "#ff0000ff"
                     : "#ff0000ff",
                 fillColor:
@@ -66,7 +66,7 @@ const GeoMap = ({ geoData, sector }) => {
                     : item.properties.aptitud ===
                       "APTO CON EXTREMAS LIMITACIONES"
                     ? "#f9fd07ff"
-                    :item.properties.aptitud === "NO APTO"
+                    : item.properties.aptitud === "NO APTO"
                     ? "#ff0000ff"
                     : "#ff0000ff",
                 fillOpacity: 0.2,
@@ -95,7 +95,7 @@ const GeoMap = ({ geoData, sector }) => {
       }
     });
   };
-const renderSector = () => {
+  const renderSector = () => {
     return sector.features.map((item) => {
       try {
         const coordinates = item.geometry.coordinates;
@@ -110,9 +110,8 @@ const renderSector = () => {
               key={`N° ${item.id}-${index}`}
               positions={polyCoords}
               pathOptions={{
-                color:
-                  "#030303ff",
-                fillColor: "#535151ff",
+                color: "#030303ff",
+                fillColor: "#c5c1c1ff",
                 fillOpacity: 0.2,
                 weight: 8,
               }}
@@ -122,6 +121,52 @@ const renderSector = () => {
                 <br />
                 <strong>Presidente:</strong> {item.properties.PRESIDENTE}
                 <br />
+              </Popup>
+            </Polygon>
+          );
+        });
+      } catch (error) {
+        console.error("Error al procesar polígono:", item, error);
+        return null;
+      }
+    });
+  };
+  const renderPredio = () => {
+    return predio.features.map((item) => {
+      try {
+        const coordinates = item.geometry.coordinates;
+        let leafletCoords = [];
+
+        // Convertir coordenadas GeoJSON (MultiPolygon) a formato Leaflet
+        return coordinates.map((polygon, index) => {
+          const polyCoords = polygon[0].map((coord) => [coord[1], coord[0]]);
+
+          return (
+            <Polygon
+              key={`N° ${item.id}-${index}`}
+              positions={polyCoords}
+              pathOptions={{
+                color: "#030303ff",
+                fillColor: "#1b1a1aff",
+                fillOpacity: 0.2,
+                weight: 3,
+              }}
+            >
+              <Popup>
+                <strong>Clave_catastral:</strong> {item.properties.clave_cata}
+                <br />
+                <strong>Posee Edificación:</strong>{" "}
+                {item.properties.edif == 1 ? "SI" : "NO"}
+                <br />
+                <strong>Area de edificacion:</strong>{" "}
+                {item.properties.area_construccion}
+                <br />
+                  <strong>Permiso de construcción:</strong>{" "}
+                {item.properties.permiso_numero}- {item.properties.fecha_permiso}
+                <br />
+                <br />
+                  <strong>Detalle de intervención:</strong>{" "}
+                {item.properties.permiso_numero}- {item.properties.fecha_permiso}
                 
               </Popup>
             </Polygon>
@@ -146,6 +191,8 @@ const renderSector = () => {
         />
         {renderPolygons()}
         {renderSector()}
+
+        {renderPredio()}
         {/* <GeoJSON
           data={geoData}
           style={geoJsonStyle}
