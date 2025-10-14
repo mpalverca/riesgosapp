@@ -129,9 +129,9 @@ export default function TableView({ data }) {
                   <strong>Área</strong>
                 </TableCell>
                 {/* // <TableCell><strong>Amenaza</strong></TableCell> */}
-                <TableCell>
+                {/* <TableCell>
                   <strong>Polígonos</strong>
-                </TableCell>
+                </TableCell> */}
                 <TableCell>
                   <strong>Estudios</strong>
                 </TableCell>
@@ -182,12 +182,12 @@ export default function TableView({ data }) {
                             }
                           />
                         </TableCell> */}
-                  <TableCell>
+                {/*   <TableCell>
                     <Typography variant="body2" textAlign="center">
                       {row.cantidadPoligonos}
                     </Typography>
-                  </TableCell>
-                  <TableCell sx={{ maxWidth: 150 }}>
+                  </TableCell> */}
+                  <TableCell sx={{ maxWidth: 250 }}>
                     <Box
                       sx={{
                         display: "flex",
@@ -211,7 +211,7 @@ export default function TableView({ data }) {
                       )}
                     </Box>
                   </TableCell>
-                  <TableCell sx={{ maxWidth: 150 }}>
+                  <TableCell sx={{ maxWidth: 250 }}>
                     <Box
                       sx={{
                         display: "flex",
@@ -253,212 +253,210 @@ export default function TableView({ data }) {
 export function ViewPredio({ data, predio }) {
   // Procesar los datos para la tabla con intersecciones
 
-  const predioCoords = predio[0].geometry.coordinates;
-  console.log("Coordenadas del predio:", predioCoords);
   // Validar que las coordenadas sean válidas
 
   const tableData = useMemo(() => {
-  console.log("Iniciando procesamiento de datos...");
-  console.log("Data:", data);
-  console.log("Predio:", predio);
+  
 
-  if (!data || !data.features || !predio || !predio[0] || !predio[0].geometry) {
-    console.log("Datos insuficientes - retornando array vacío");
-    return [];
-  }
+    if (
+      !data ||
+      !data.features ||
+      !predio ||
+      !predio[0] ||
+      !predio[0].geometry
+    ) {
 
-  try {
-    // 1. Crear polígono del predio - CORREGIDO para la estructura anidada
-    const predioCoords = predio[0].geometry.coordinates;
-    console.log("Coordenadas del predio crudas:", predioCoords);
-
-    // Aplanar la estructura de coordenadas
-    let coordenadasAplanadas = predioCoords;
-    
-    if (Array.isArray(predioCoords) && 
-        predioCoords.length === 1 && 
-        Array.isArray(predioCoords[0]) &&
-        predioCoords[0].length === 1 &&
-        Array.isArray(predioCoords[0][0])) {
-      
-      coordenadasAplanadas = [predioCoords[0][0]];
-      console.log("Coordenadas aplanadas:", coordenadasAplanadas);
-    }
-
-    // Validar que tengamos coordenadas válidas
-    if (!Array.isArray(coordenadasAplanadas) || 
-        coordenadasAplanadas.length === 0 || 
-        !Array.isArray(coordenadasAplanadas[0]) ||
-        coordenadasAplanadas[0].length < 4) {
-      console.error("Coordenadas del predio no válidas después de aplanar");
       return [];
     }
 
-    const predioPolygon = turf.polygon(coordenadasAplanadas);
-    console.log("Polígono del predio creado exitosamente");
+    try {
+      // 1. Crear polígono del predio - CORREGIDO para la estructura anidada
+      const predioCoords = predio[0].geometry.coordinates;
+      //console.log("Coordenadas del predio crudas:", predioCoords);
 
-    // 2. Procesar cada feature
-    const processedData = [];
-    let featuresConInterseccion = 0;
-    let featuresConAreaValida = 0;
+      // Aplanar la estructura de coordenadas
+      let coordenadasAplanadas = predioCoords;
 
-    data.features.forEach((feature, index) => {
-      try {
-        //console.log(`Procesando feature ${index}:`, feature);
+      if (
+        Array.isArray(predioCoords) &&
+        predioCoords.length === 1 &&
+        Array.isArray(predioCoords[0]) &&
+        predioCoords[0].length === 1 &&
+        Array.isArray(predioCoords[0][0])
+      ) {
+        coordenadasAplanadas = [predioCoords[0][0]];
+        //console.log("Coordenadas aplanadas:", coordenadasAplanadas);
+      }
 
-        // Validar feature básica
-        if (!feature.geometry || !feature.geometry.coordinates) {
-          console.log(`Feature ${index} sin geometría válida`);
-          return;
-        }
+      // Validar que tengamos coordenadas válidas
+      if (
+        !Array.isArray(coordenadasAplanadas) ||
+        coordenadasAplanadas.length === 0 ||
+        !Array.isArray(coordenadasAplanadas[0]) ||
+        coordenadasAplanadas[0].length < 4
+      ) {
+       // console.error("Coordenadas del predio no válidas después de aplanar");
+        return [];
+      }
 
-        // Procesar coordenadas de la feature de la misma manera
-        let featureCoords = feature.geometry.coordinates;
-        //console.log(`Coordenadas feature ${index} crudas:`, featureCoords);
+      const predioPolygon = turf.polygon(coordenadasAplanadas);
+      //console.log("Polígono del predio creado exitosamente");
 
-        // Aplanar estructura de la feature si es necesario
-        if (Array.isArray(featureCoords) && 
-            featureCoords.length === 1 && 
+      // 2. Procesar cada feature
+      const processedData = [];
+      let featuresConInterseccion =0
+      let featuresConAreaValida = 0
+
+      data.features.forEach((feature, index) => {
+        try {
+          //console.log(`Procesando feature ${index}:`, feature);
+
+          // Validar feature básica
+          if (!feature.geometry || !feature.geometry.coordinates) {
+            //console.log(`Feature ${index} sin geometría válida`);
+            return;
+          }
+
+          // Procesar coordenadas de la feature de la misma manera
+          let featureCoords = feature.geometry.coordinates;
+          //console.log(`Coordenadas feature ${index} crudas:`, featureCoords);
+
+          // Aplanar estructura de la feature si es necesario
+          if (
+            Array.isArray(featureCoords) &&
+            featureCoords.length === 1 &&
             Array.isArray(featureCoords[0]) &&
             featureCoords[0].length === 1 &&
-            Array.isArray(featureCoords[0][0])) {
-          
-          featureCoords = [featureCoords[0][0]];
-         // console.log(`Coordenadas feature ${index} aplanadas:`, featureCoords);
-        }
+            Array.isArray(featureCoords[0][0])
+          ) {
+            featureCoords = [featureCoords[0][0]];
+            // console.log(`Coordenadas feature ${index} aplanadas:`, featureCoords);
+          }
 
-        // Validar coordenadas de la feature
-        if (!Array.isArray(featureCoords) || 
-            featureCoords.length === 0 || 
+          // Validar coordenadas de la feature
+          if (
+            !Array.isArray(featureCoords) ||
+            featureCoords.length === 0 ||
             !Array.isArray(featureCoords[0]) ||
-            featureCoords[0].length < 4) {
-          //console.log(`Feature ${index} con coordenadas insuficientes después de aplanar`);
-          return;
-        }
-
-        // Crear polígono de la feature
-        const featurePolygon = turf.polygon(featureCoords);
-
-        // Verificar si intersecta con el predio
-        const intersects = turf.booleanIntersects(featurePolygon, predioPolygon);
-        if(intersects==true){
-          console.log(`Feature ${index} intersecta:`, intersects);
-        }
-
-        if (!intersects) {
-          return;
-        }
-
-        featuresConInterseccion++;
-
-        // Calcular intersección exacta
-        const intersection = turf.intersect(featurePolygon, predioPolygon);
-        console.log(intersection)
-        if (!intersection) {
-          console.log(`Feature ${index} sin intersección calculable`);
-          return;
-        }
-
-        // Calcular área de la intersección
-        const area = turf.area(intersection);
-        console.log(`Feature ${index} - área intersectada:`, area);
-
-        if (area < 0.01) {
-          console.log(`Feature ${index} - área muy pequeña, omitiendo`);
-          return;
-        }
-
-        featuresConAreaValida++;
-
-        const properties = feature.properties || {};
-        console.log(`Feature ${index} - propiedades:`, properties);
-
-        // Extraer valores con más alternativas
-        const aptitud =
-          properties.aptitud ||
-          properties.aptitud_original ||
-          properties.APTITUD ||
-          properties.Aptitud ||
-          properties.tipo_aptitud ||
-          "No definido";
-
-        const estudio =
-          properties.estudios ||
-          properties.estudio_original ||
-          properties.ESTUDIO ||
-          properties.Estudio ||
-          properties.tipo_estudio ||
-          "No definido";
-
-        const observaciones =
-          properties.observac_1 ||
-          properties.observac_2 ||
-          properties.OBSERVACIONES ||
-          properties.Observaciones ||
-          properties.observacion ||
-          properties.descripcion ||
-          "Sin observaciones";
-
-        console.log(`Feature ${index} - aptitud: ${aptitud}, estudio: ${estudio}`);
-
-        // Buscar si ya existe esta aptitud en processedData
-        const existingIndex = processedData.findIndex(
-          (item) => item.aptitud === aptitud
-        );
-
-        if (existingIndex >= 0) {
-          // Actualizar existente
-          processedData[existingIndex].areaTotal += area;
-          processedData[existingIndex].cantidadPoligonos += 1;
-
-          if (
-            estudio !== "No definido" &&
-            !processedData[existingIndex].estudios.includes(estudio)
+            featureCoords[0].length < 4
           ) {
-            processedData[existingIndex].estudios.push(estudio);
+            //console.log(`Feature ${index} con coordenadas insuficientes después de aplanar`);
+            return;
           }
 
-          if (
-            observaciones !== "Sin observaciones" &&
-            !processedData[existingIndex].observaciones.includes(observaciones)
-          ) {
-            processedData[existingIndex].observaciones.push(observaciones);
+          // Crear polígono de la feature
+          const featurePolygon = turf.polygon(featureCoords);
+
+          // Verificar si intersecta con el predio
+          const intersects = turf.booleanIntersects(
+            featurePolygon,
+            predioPolygon
+          );
+
+          if (intersects === true) {
+           
+          }
+          featuresConInterseccion++;
+
+          // Calcular intersección exacta
+             const intersection = turf.intersect(turf.featureCollection([featurePolygon, predioPolygon]));
+   
+          // Calcular área de la intersección
+          const area = turf.area(intersection);
+       
+          if (area < 0.01) {
+            return;
           }
 
-          console.log(`Feature ${index} - actualizado grupo existente para aptitud: ${aptitud}`);
-        } else {
-          // Crear nuevo
-          processedData.push({
-            aptitud,
-            areaTotal: area,
-            cantidadPoligonos: 1,
-            estudios: estudio !== "No definido" ? [estudio] : [],
-            observaciones:
-              observaciones !== "Sin observaciones" ? [observaciones] : [],
-          });
-          console.log(`Feature ${index} - creado nuevo grupo para aptitud: ${aptitud}`);
+          featuresConAreaValida++;
+
+          const properties = feature.properties || {};
+         
+          // Extraer valores con más alternativas
+          const aptitud =
+            properties.aptitud ||
+            properties.aptitud_original ||
+            properties.APTITUD ||
+            properties.Aptitud ||
+            properties.tipo_aptitud ||
+            "No definido";
+
+          const estudio =
+            properties.estudios ||
+            properties.estudio_original ||
+            properties.ESTUDIO ||
+            properties.Estudio ||
+            properties.tipo_estudio ||
+            "No definido";
+
+          const observaciones =
+            properties.observac_1 ||
+            properties.observac_2 ||
+            properties.OBSERVACIONES ||
+            properties.Observaciones ||
+            properties.observacion ||
+            properties.descripcion ||
+            "Sin observaciones";
+
+       
+
+          // Buscar si ya existe esta aptitud en processedData
+          const existingIndex = processedData.findIndex(
+            (item) => item.aptitud === aptitud
+          );
+
+          if (existingIndex >= 0) {
+            // Actualizar existente
+            processedData[existingIndex].areaTotal += area;
+            processedData[existingIndex].cantidadPoligonos += 1;
+
+            if (
+              estudio !== "No definido" &&
+              !processedData[existingIndex].estudios.includes(estudio)
+            ) {
+              processedData[existingIndex].estudios.push(estudio);
+            }
+
+            if (
+              observaciones !== "Sin observaciones" &&
+              !processedData[existingIndex].observaciones.includes(
+                observaciones
+              )
+            ) {
+              processedData[existingIndex].observaciones.push(observaciones);
+            }
+
+           
+          } else {
+            // Crear nuevo
+            processedData.push({
+              aptitud,
+              areaTotal: area,
+              cantidadPoligonos: 1,
+              estudios: estudio !== "No definido" ? [estudio] : [],
+              observaciones:
+                observaciones !== "Sin observaciones" ? [observaciones] : [],
+            });
+           
+          }
+        } catch (featureError) {
+          // console.warn(`Error procesando feature ${index}:`, featureError);
         }
-      } catch (featureError) {
-        console.warn(`Error procesando feature ${index}:`, featureError);
-      }
-    });
+      });
 
-    console.log("Resumen del procesamiento:");
-    console.log("- Features con intersección:", featuresConInterseccion);
-    console.log("- Features con área válida:", featuresConAreaValida);
-    console.log("- Grupos creados en processedData:", processedData.length);
-    console.log("- Datos procesados:", processedData);
-
-    // Ordenar por área total
-    const resultadoOrdenado = processedData.sort((a, b) => b.areaTotal - a.areaTotal);
-    console.log("- Datos ordenados:", resultadoOrdenado);
     
-    return resultadoOrdenado;
-  } catch (error) {
-    console.error("Error general en tableData:", error);
-    return [];
-  }
-}, [data, predio]);
+      // Ordenar por área total
+      const resultadoOrdenado = processedData.sort(
+        (a, b) => b.areaTotal - a.areaTotal
+      );
+     
+
+      return resultadoOrdenado;
+    } catch (error) {
+      console.error("Error general en tableData:", error);
+      return [];
+    }
+  }, [data, predio]);
 
   // Calcular totales
   const totals = useMemo(() => {
@@ -470,7 +468,7 @@ export function ViewPredio({ data, predio }) {
       },
       { totalArea: 0, totalPoligonos: 0 }
     );
-    console.log("Totales calculados:", result);
+
     return result;
   }, [tableData]);
 
@@ -481,9 +479,7 @@ export function ViewPredio({ data, predio }) {
     }
     return `${area.toFixed(2)} m²`;
   };
-
-  console.log("Renderizando componente - tableData:", tableData);
-  console.log("Renderizando componente - totals:", totals);
+;
 
   return (
     <div>
@@ -513,9 +509,9 @@ export function ViewPredio({ data, predio }) {
                   <TableCell>
                     <strong>Área dentro del Predio</strong>
                   </TableCell>
-                  <TableCell>
+                {/*   <TableCell>
                     <strong>Segmentos</strong>
-                  </TableCell>
+                  </TableCell> */}
                   <TableCell>
                     <strong>Estudios</strong>
                   </TableCell>
@@ -543,7 +539,7 @@ export function ViewPredio({ data, predio }) {
                             ? "success"
                             : row.aptitud.toLowerCase().includes("no apto")
                             ? "error"
-                            : row.aptitud.toLowerCase().includes("moderado")
+                            : row.aptitud.toLowerCase().includes("medianas")
                             ? "warning"
                             : "default"
                         }
@@ -554,12 +550,12 @@ export function ViewPredio({ data, predio }) {
                         {formatArea(row.areaTotal)}
                       </Typography>
                     </TableCell>
-                    <TableCell>
+                  {/*   <TableCell>
                       <Typography variant="body2" textAlign="center">
                         {row.cantidadPoligonos}
                       </Typography>
-                    </TableCell>
-                    <TableCell sx={{ maxWidth: 150 }}>
+                    </TableCell> */}
+                    <TableCell sx={{ maxWidth: 250 }}>
                       <Box
                         sx={{
                           display: "flex",
@@ -583,7 +579,7 @@ export function ViewPredio({ data, predio }) {
                         )}
                       </Box>
                     </TableCell>
-                    <TableCell sx={{ maxWidth: 150 }}>
+                    <TableCell sx={{ maxWidth: 250 }}>
                       <Box
                         sx={{
                           display: "flex",

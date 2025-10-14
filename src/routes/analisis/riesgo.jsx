@@ -20,7 +20,8 @@ function RiesgosPage() {
   const [selectedParroquia, setSelectedParroquia] = useState("");
   const [selectedSector, setSelectedSector] = useState("");
   const [clave, setClaveCatas] = useState("");
-
+    const [selectedOption, setSelectedOption] = useState(""); //seleccionar estado
+  
   const { data, loading, error } = useApConst(
     selectedParroquia,
     selectedSector
