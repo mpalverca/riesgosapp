@@ -119,7 +119,7 @@ const GeoMap = ({ geoData, sector, predio, clave }) => {
     });
   };
   const renderPredio = () => {
-    console.log(predio);
+    
     return predio.map((item) => {
       try {
         const coordinates = item.geometry.coordinates;

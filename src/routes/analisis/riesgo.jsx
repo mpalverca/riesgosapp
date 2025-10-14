@@ -20,11 +20,11 @@ function RiesgosPage() {
   const [selectedParroquia, setSelectedParroquia] = useState("");
   const [selectedSector, setSelectedSector] = useState("");
   const [clave, setClaveCatas] = useState("");
-    const [selectedOption, setSelectedOption] = useState(""); //seleccionar estado
-  
-  const { data, loading, error } = useApConst(
-    selectedParroquia,
-    selectedSector
+  const [selectedDataType, setSelectedDataType] = useState("aptconst"); //seleccionar estado
+
+  const { aptcData, aptcL, aptcE } = useApConst(
+    selectedDataType === "aptconst" ? selectedParroquia : "",
+    selectedDataType === "aptconst" ? selectedSector : ""
   );
 
   const { claveData, claveL, claveE } = useClaveData(
@@ -46,6 +46,31 @@ function RiesgosPage() {
     claveE,
   }); */
   // ✅ Verificar que los datos existan antes de acceder a features
+
+  // Función para obtener los datos activos según el tipo seleccionado
+  const getActiveData = () => {
+    switch (selectedDataType) {
+      case "aptconst":
+        return { data: aptcData, loading: aptcL, error: aptcE };
+      default:
+        return { data: aptcData, loading: aptcL, error: aptcE };
+    }
+  };
+
+  const activeData = getActiveData();
+
+  // Debug para ver los valores
+  console.log("🔄 App State:", {
+    selectedDataType,
+    selectedParroquia,
+    selectedSector,
+    data: activeData.data
+      ? `✅ ${selectedDataType} data loaded with ${activeData.data.features?.length} features`
+      : "❌ No data",
+    loading: activeData.loading,
+    error: activeData.error,
+  });
+
   const handleSearch = (parroquia, sector = "") => {
     setSelectedParroquia(parroquia);
     setSelectedSector(sector);
@@ -59,6 +84,16 @@ function RiesgosPage() {
     setSelectedSector(sector);
     setClaveCatas(clave);
   };
+
+  // Nueva función para manejar cambio de tipo de datos
+  const handleDataTypeChange = (dataType) => {
+    setSelectedDataType(dataType);
+    // Limpiar datos anteriores si es necesario
+    setSelectedParroquia("");
+    setSelectedSector("");
+    setClaveCatas("");
+  };
+
   return (
     <div className="App">
       <Grid container spacing={2}>
@@ -71,16 +106,24 @@ function RiesgosPage() {
             onSearch={handleSearch}
             onSearchSector={handleSector}
             onSearchPugs={handleClave}
+            onDataTypeChange={handleDataTypeChange}
+            selectedDataType={selectedDataType}
           />
-          {error && (
+          {aptcE && (
             <div className="error-state">
               <h3>Error</h3>
-              <p>{error}</p>
+              <p>{aptcE}</p>
+            </div>
+          )}
+          {activeData.error && (
+            <div className="error-state">
+              <h3>Error</h3>
+              <p>{activeData.error}</p>
             </div>
           )}
         </Grid>
         <Grid item size={{ xs: 12, md: 9 }}>
-          {sectorL && loading && claveL && (
+          {sectorL && aptcL && claveL && (
             <div className="loading-state">
               <div className="spinner"></div>
               <p>Cargando datos para {selectedParroquia}...</p>
@@ -94,27 +137,26 @@ function RiesgosPage() {
               />
             </div>
           )}
-          {data && (
+          {aptcData && (
             <>
               <div className="map-section">
                 <GeoMap
-                  geoData={data}
+                  geoData={aptcData}
                   sector={sectorData}
                   predio={claveData.features}
                   clave={clave}
-                 
                 />
               </div>
             </>
           )}
           {/* TABLA DE RESUMEN */}
           <BasicTabs
-            tabsOne={data && <TableView data={data} />}
+            tabsOne={activeData.data && <TableView data={activeData.data} />}
             tabsTwo={
-              data &&
+              activeData.data &&
               claveData && (
                 <ViewPredio
-                  data={data}
+                  data={activeData.data}
                   predio={claveData.features.filter(
                     (predio) => predio.properties.clave_cata === clave
                   )}
@@ -122,7 +164,7 @@ function RiesgosPage() {
               )
             }
           />
-          {!data && !loading && !error && (
+          {!aptcData && !aptcL && !aptcE && (
             <div className="empty-state">
               <p>Selecciona una parroquia para cargar los datos</p>
             </div>

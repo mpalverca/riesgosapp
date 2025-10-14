@@ -14,7 +14,7 @@ import {
   Select,
 } from "@mui/material";
 
-const GeoDataViewer = ({ onSearch, onSearchSector, onSearchPugs }) => {
+const GeoDataViewer = ({ onSearch, onSearchSector, onSearchPugs,onDataTypeChange, selectedDataType }) => {
   const [parroquia, setParroquia] = useState("");
   const [sector, setSector] = useState("");
   const [clave, setClave] = useState("");
@@ -28,6 +28,11 @@ const GeoDataViewer = ({ onSearch, onSearchSector, onSearchPugs }) => {
     "sagrario",
     "carigan",
   ];
+
+  const handleDataTypeChange = (event) => {
+    const newDataType = event.target.value;
+    onDataTypeChange(newDataType);
+  };
 
   /* const handleSubmit = (e) => {
     e.preventDefault();
@@ -170,36 +175,15 @@ const GeoDataViewer = ({ onSearch, onSearchSector, onSearchPugs }) => {
             <strong> Capas de Análisis</strong>
           </Typography>
           <RadioGroup
-            aria-labelledby="demo-radio-buttons-group-label"
-            defaultValue="female"
-            name="radio-buttons-group"
-          >
-            <FormControlLabel
-              value="pit"
-              control={<Radio />}
-              label="Poligono de intervención terriorial (Urbano)"
-            />
-            <FormControlLabel
-              value="atc"
-              control={<Radio />}
-              label="Actitud Constructiva"
-            />
-            <FormControlLabel
-              value="vialidad"
-              control={<Radio />}
-              label="Vialidad"
-            />
-            <FormControlLabel
-              value="red_aapp"
-              control={<Radio />}
-              label="Red de AAPP"
-            />
-            <FormControlLabel
-              value="red_aall"
-              control={<Radio />}
-              label="Red de AALL"
-            />
-          </RadioGroup>
+          value={selectedDataType}
+          onChange={handleDataTypeChange}
+        >
+          <FormControlLabel value="aptconst" control={<Radio />} label="Aptitud Constructiva" />
+          <FormControlLabel value="pugs" control={<Radio />} label="Uso de suelo (PIT)" />
+          <FormControlLabel value="vialidad" control={<Radio />} label="Vialidad" />
+          <FormControlLabel value="aapp" control={<Radio />} label="Dotación de Agua Potable" />          
+          <FormControlLabel value="aall" control={<Radio />} label="Alcantarillado"/>
+        </RadioGroup>
         </FormControl>
       </Box>
       {/* Información de búsqueda */}

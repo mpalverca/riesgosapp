@@ -6,9 +6,9 @@ const predio_url ="https://script.google.com/macros/s/AKfycbytTtS5g25PCnGLqfTgV_
 const sector_url = `https://script.google.com/macros/s/AKfycbzj8eXN23mkkdZypf8yBayEMBA7Bt-MM0D_6Jp-34JxQCsg-8UkjZqM9nBoI6dw8nrK/exec`;
 
 export const useApConst = (parroquia, sector = "") => {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [aptcData, setData] = useState(null);
+  const [aptcL, setLoading] = useState(false);
+  const [aptcE, setError] = useState(null);
 
   useEffect(() => {
     // No hacer nada si no hay parroquia seleccionada
@@ -60,7 +60,7 @@ export const useApConst = (parroquia, sector = "") => {
     fetchData();
   }, [parroquia, sector]);
 
-  return { data, loading, error };
+  return { aptcData,  aptcL, aptcE };
 };
 
 export const useClaveData = (parroquia, sector = "", clave) => {

@@ -101,10 +101,11 @@ export default function TableView({ data }) {
   const formatArea = (area) => {
     return `${area.toFixed(2)} m2`;
   };
+  
 
   return (
     <div>
-      <Paper elevation={3} sx={{ p: 2, mt: 2 }}>
+      <Paper elevation={3} sx={{ p: 1, mt: 1 }}>
         <Typography variant="h6" gutterBottom>
           Resumen de Aptitud Constructuva
         </Typography>
@@ -479,11 +480,14 @@ export function ViewPredio({ data, predio }) {
     }
     return `${area.toFixed(2)} m²`;
   };
+  const formatporc = (area) => {
+    return `${area.toFixed(2)} %`;
+  };
 ;
 
   return (
     <div>
-      <Paper elevation={3} sx={{ p: 2, mt: 2 }}>
+      <Paper elevation={3} sx={{ p: 1, mt: 1 }}>
         <Typography variant="h6" gutterBottom>
           Resumen de Aptitud Constructiva - Áreas Dentro del Predio
         </Typography>
@@ -499,7 +503,7 @@ export function ViewPredio({ data, predio }) {
         </Box>
 
         {tableData.length > 0 ? (
-          <TableContainer sx={{ maxHeight: 400 }}>
+          <TableContainer sx={{ maxHeight: 300 }}>
             <Table stickyHeader size="small">
               <TableHead>
                 <TableRow>
@@ -509,9 +513,9 @@ export function ViewPredio({ data, predio }) {
                   <TableCell>
                     <strong>Área dentro del Predio</strong>
                   </TableCell>
-                {/*   <TableCell>
-                    <strong>Segmentos</strong>
-                  </TableCell> */}
+                  <TableCell>
+                    <strong>% área</strong>
+                  </TableCell>
                   <TableCell>
                     <strong>Estudios</strong>
                   </TableCell>
@@ -550,11 +554,11 @@ export function ViewPredio({ data, predio }) {
                         {formatArea(row.areaTotal)}
                       </Typography>
                     </TableCell>
-                  {/*   <TableCell>
+                    <TableCell>
                       <Typography variant="body2" textAlign="center">
-                        {row.cantidadPoligonos}
+                        {formatporc(row.areaTotal/totals.totalArea*100)}
                       </Typography>
-                    </TableCell> */}
+                    </TableCell>
                     <TableCell sx={{ maxWidth: 250 }}>
                       <Box
                         sx={{
