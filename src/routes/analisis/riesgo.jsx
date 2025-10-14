@@ -100,9 +100,8 @@ function RiesgosPage() {
                 <GeoMap
                   geoData={data}
                   sector={sectorData}
-                  predio={claveData.features.filter(
-                    (predio) => predio.properties.clave_cata === clave
-                  )}
+                  predio={claveData.features}
+                  clave={clave}
                  
                 />
               </div>

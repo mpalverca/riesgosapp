@@ -2,7 +2,7 @@
 import { MapContainer, TileLayer, Polygon, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
-const GeoMap = ({ geoData, sector, predio }) => {
+const GeoMap = ({ geoData, sector, predio, clave }) => {
   if (!geoData || !geoData.features || geoData.features.length === 0) {
     return <div>No hay datos geoespaciales para mostrar</div>;
   }
@@ -87,7 +87,6 @@ const GeoMap = ({ geoData, sector, predio }) => {
     return sector.features.map((item) => {
       try {
         const coordinates = item.geometry.coordinates;
-        
 
         // Convertir coordenadas GeoJSON (MultiPolygon) a formato Leaflet
         return coordinates.map((polygon, index) => {
@@ -120,15 +119,14 @@ const GeoMap = ({ geoData, sector, predio }) => {
     });
   };
   const renderPredio = () => {
-    console.log(predio)    
+    console.log(predio);
     return predio.map((item) => {
       try {
         const coordinates = item.geometry.coordinates;
-      
         // Convertir coordenadas GeoJSON (MultiPolygon) a formato Leaflet
         return coordinates.map((polygon, index) => {
           const polyCoords = polygon[0].map((coord) => [coord[1], coord[0]]);
-          return (
+          return item.properties.clave_cata === clave ? (
             <Polygon
               key={`N° ${item.id}-${index}`}
               positions={polyCoords}
@@ -136,7 +134,7 @@ const GeoMap = ({ geoData, sector, predio }) => {
                 color: "#f70303ff",
                 fillColor: "#1b1a1aff",
                 fillOpacity: 0.2,
-                weight: 4,
+                weight: 8,
               }}
             >
               <Popup>
@@ -155,6 +153,21 @@ const GeoMap = ({ geoData, sector, predio }) => {
                 <br />
                 <strong>Detalle de intervención:</strong>{" "}
                 {item.properties.detalle_intervencion_pisos}
+              </Popup>
+            </Polygon>
+          ) : (
+            <Polygon
+              key={`N° ${item.id}-${index}`}
+              positions={polyCoords}
+              pathOptions={{
+                color: "#131212ff",
+                fillColor: "#1b1a1aff",
+                fillOpacity: 0.2,
+                weight: 2,
+              }}
+            >
+              <Popup>
+                <strong>Clave_catastral:</strong> {item.properties.clave_cata}
               </Popup>
             </Polygon>
           );
