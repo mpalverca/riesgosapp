@@ -182,7 +182,7 @@ const GeoDataViewer = ({ onSearch, onSearchSector, onSearchPugs,onDataTypeChange
           <FormControlLabel value="pugs" control={<Radio />} label="Uso de suelo (PIT)" />
           <FormControlLabel value="vialidad" control={<Radio />} label="Vialidad" />
           <FormControlLabel value="aapp" control={<Radio />} label="Dotación de Agua Potable" />          
-          <FormControlLabel value="aall" control={<Radio />} label="Alcantarillado"/>
+          <FormControlLabel value="aass" control={<Radio />} label="Alcantarillado"/>
         </RadioGroup>
         </FormControl>
       </Box>

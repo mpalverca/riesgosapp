@@ -6,9 +6,11 @@ import loadIcon from "../../assets/loading.gif";
 import GeoDataViewer from "../../components/riesgos/GeoDataViewer.js";
 import GeoMap from "../../components/riesgos/viewmap";
 import {
+  useAASS,
   useApConst,
   useClaveData,
   useSector,
+  useVial,
 } from "../../components/riesgos/useGeoData.js";
 
 import "./App.css";
@@ -26,7 +28,14 @@ function RiesgosPage() {
     selectedDataType === "aptconst" ? selectedParroquia : "",
     selectedDataType === "aptconst" ? selectedSector : ""
   );
-
+ const { aassData, aassL, aassE } = useAASS(
+    selectedDataType === "aass" ? selectedParroquia : "",
+    selectedDataType === "aass" ? selectedSector : ""
+  );
+   const { vialData, vialL, vialE } = useVial(
+    selectedDataType === "vialidad" ? selectedParroquia : "",
+    selectedDataType === "vialidad" ? selectedSector : ""
+  );
   const { claveData, claveL, claveE } = useClaveData(
     selectedParroquia,
     selectedSector,
@@ -52,7 +61,11 @@ function RiesgosPage() {
     switch (selectedDataType) {
       case "aptconst":
         return { data: aptcData, loading: aptcL, error: aptcE };
-      default:
+      case "aass":
+           return { data: aassData, loading: aassL, error: aassE };
+        case "vialidad":
+           return { data: vialData, loading: vialL, error: vialE };
+        default:
         return { data: aptcData, loading: aptcL, error: aptcE };
     }
   };
@@ -69,6 +82,7 @@ function RiesgosPage() {
       : "❌ No data",
     loading: activeData.loading,
     error: activeData.error,
+    vew:activeData
   });
 
   const handleSearch = (parroquia, sector = "") => {
