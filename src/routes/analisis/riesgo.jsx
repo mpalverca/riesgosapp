@@ -1,10 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Grid } from "@mui/material";
-//import SectorMap from "../../components/riesgos/mapsview";
-//import CatastroMap from "../../components/riesgos/panel";
 import loadIcon from "../../assets/loading.gif";
 import GeoDataViewer from "../../components/riesgos/GeoDataViewer.js";
-import GeoMap from "../../components/riesgos/viewmap";
+import PoligonMap, { PolylineMap, SectorMap } from "../../components/riesgos/viewmap";
 import {
   useAASS,
   useApConst,
@@ -15,62 +13,114 @@ import {
 
 import "./App.css";
 import TableView, { ViewPredio } from "../../components/riesgos/tableview.jsx";
-//import { type } from "@testing-library/user-event/dist/cjs/utility/type.js";
 import BasicTabs from "../../components/riesgos/tapsR.jsx";
 
 function RiesgosPage() {
   const [selectedParroquia, setSelectedParroquia] = useState("");
   const [selectedSector, setSelectedSector] = useState("");
   const [clave, setClaveCatas] = useState("");
-  const [selectedDataType, setSelectedDataType] = useState("aptconst"); //seleccionar estado
+  const [selectedDataType, setSelectedDataType] = useState("sector");
 
+  // Estados para controlar la transición
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [previousData, setPreviousData] = useState(null);
+
+  // Hooks para cada tipo de datos - ahora siempre activos pero con parámetros condicionales
   const { aptcData, aptcL, aptcE } = useApConst(
     selectedDataType === "aptconst" ? selectedParroquia : "",
     selectedDataType === "aptconst" ? selectedSector : ""
   );
- const { aassData, aassL, aassE } = useAASS(
+
+  const { aassData, aassL, aassE } = useAASS(
     selectedDataType === "aass" ? selectedParroquia : "",
     selectedDataType === "aass" ? selectedSector : ""
   );
-   const { vialData, vialL, vialE } = useVial(
+
+  const { vialData, vialL, vialE } = useVial(
     selectedDataType === "vialidad" ? selectedParroquia : "",
     selectedDataType === "vialidad" ? selectedSector : ""
   );
+
   const { claveData, claveL, claveE } = useClaveData(
     selectedParroquia,
     selectedSector,
     clave
   );
+
   const { sectorData, sectorL } = useSector("", selectedSector);
 
-  // Debug para ver los valores
-
-  /* console.log("🔄 App State PIT Urbano:", {
-    selectedParroquia,
-    selectedSector,
-    data: claveData
-      ? `✅ Data loaded with ${claveData.features?.length} features`
-      : "❌ No data",
-    claveL,
-    claveE,
-  }); */
-  // ✅ Verificar que los datos existan antes de acceder a features
-
-  // Función para obtener los datos activos según el tipo seleccionado
+  // Función para obtener los datos activos
   const getActiveData = () => {
     switch (selectedDataType) {
       case "aptconst":
-        return { data: aptcData, loading: aptcL, error: aptcE };
+        return {
+          data: aptcData,
+          loading: aptcL,
+          error: aptcE,
+          type: "aptconst",
+        };
       case "aass":
-           return { data: aassData, loading: aassL, error: aassE };
-        case "vialidad":
-           return { data: vialData, loading: vialL, error: vialE };
-        default:
-        return { data: aptcData, loading: aptcL, error: aptcE };
+        return {
+          data: aassData,
+          loading: aassL,
+          error: aassE,
+          type: "aass",
+        };
+      case "vialidad":
+        return {
+          data: vialData,
+          loading: vialL,
+          error: vialE,
+          type: "vialidad",
+        };
+      case "sector":
+        return {
+          data: sectorData,
+          loading: sectorL,
+          error: null,
+          type: "sector",
+        };
+      default:
+        return {
+          data: null,
+          loading: false,
+          error: null,
+          type: selectedDataType,
+        };
     }
   };
 
   const activeData = getActiveData();
+
+  // Efecto para manejar transiciones suaves
+  useEffect(() => {
+    if (activeData.data && !activeData.loading && !isTransitioning) {
+      setPreviousData(activeData);
+    }
+  }, [activeData.data, activeData.loading, isTransitioning]);
+
+  const handleDataTypeChange = (dataType) => {
+    // Iniciar transición
+    setIsTransitioning(true);
+    
+    // Cambiar tipo de datos inmediatamente
+    setSelectedDataType(dataType);
+    
+    // NO limpiar filtros automáticamente - mantener los filtros actuales
+    // El usuario puede decidir si quiere cambiar los filtros después
+
+    // Finalizar transición después de un breve delay
+    setTimeout(() => {
+      setIsTransitioning(false);
+    }, 300);
+  };
+
+  // Función para limpiar filtros si el usuario lo desea
+  const handleClearFilters = () => {
+    setSelectedParroquia("");
+    setSelectedSector("");
+    setClaveCatas("");
+  };
 
   // Debug para ver los valores
   console.log("🔄 App State:", {
@@ -78,34 +128,40 @@ function RiesgosPage() {
     selectedParroquia,
     selectedSector,
     data: activeData.data
-      ? `✅ ${selectedDataType} data loaded with ${activeData.data.features?.length} features`
+      ? `✅ ${selectedDataType} data loaded with ${activeData.data.features?.length || 0} features`
       : "❌ No data",
     loading: activeData.loading,
     error: activeData.error,
-    vew:activeData
+    transitioning: isTransitioning,
+    view: activeData.data
   });
 
   const handleSearch = (parroquia, sector = "") => {
     setSelectedParroquia(parroquia);
     setSelectedSector(sector);
   };
+  
   const handleSector = (parroquia, sector = "") => {
     setSelectedParroquia(parroquia);
     setSelectedSector(sector);
   };
+  
   const handleClave = (parroquia, sector = "", clave) => {
     setSelectedParroquia(parroquia);
     setSelectedSector(sector);
     setClaveCatas(clave);
   };
 
-  // Nueva función para manejar cambio de tipo de datos
-  const handleDataTypeChange = (dataType) => {
-    setSelectedDataType(dataType);
-    // Limpiar datos anteriores si es necesario
-    setSelectedParroquia("");
-    setSelectedSector("");
-    setClaveCatas("");
+  // Datos a mostrar - durante transición mostrar previousData, sino activeData
+  const displayData = isTransitioning && previousData ? previousData : activeData;
+
+  // Función para obtener datos seguros (evita null)
+  const getSafeSectorData = () => {
+    return sectorData || { features: [] };
+  };
+
+  const getSafePredioData = () => {
+    return claveData?.features || [];
   };
 
   return (
@@ -121,26 +177,23 @@ function RiesgosPage() {
             onSearchSector={handleSector}
             onSearchPugs={handleClave}
             onDataTypeChange={handleDataTypeChange}
+            onClearFilters={handleClearFilters} // Nueva prop para limpiar filtros
             selectedDataType={selectedDataType}
+            selectedParroquia={selectedParroquia}
+            selectedSector={selectedSector}
           />
-          {aptcE && (
+          {displayData.error && (
             <div className="error-state">
               <h3>Error</h3>
-              <p>{aptcE}</p>
-            </div>
-          )}
-          {activeData.error && (
-            <div className="error-state">
-              <h3>Error</h3>
-              <p>{activeData.error}</p>
+              <p>{displayData.error}</p>
             </div>
           )}
         </Grid>
         <Grid item size={{ xs: 12, md: 9 }}>
-          {sectorL && aptcL && claveL && (
+          {displayData.loading || claveL && (
             <div className="loading-state">
               <div className="spinner"></div>
-              <p>Cargando datos para {selectedParroquia}...</p>
+              <p>Cargando datos {selectedDataType}...</p>
               <img
                 src={loadIcon}
                 alt="Icono de alerta"
@@ -151,26 +204,52 @@ function RiesgosPage() {
               />
             </div>
           )}
-          {aptcData && (
-            <>
-              <div className="map-section">
-                <GeoMap
-                  geoData={aptcData}
-                  sector={sectorData}
-                  predio={claveData.features}
-                  clave={clave}
-                />
-              </div>
-            </>
+          
+          {selectedDataType === "sector" ? (
+            <SectorMap
+              sector={getSafeSectorData()}
+              predio={getSafePredioData()}
+              clave={clave}
+            />
+          ) : selectedDataType ==="vialidad"?(
+            displayData.data && (
+              <>
+                <div className="map-section">
+                  <PolylineMap
+                    geoData={displayData.data}
+                    sector={getSafeSectorData()}
+                    predio={getSafePredioData()}
+                    type={selectedDataType}
+                    clave={clave}
+                  />
+                </div>
+              </>
+            )
+          ):
+          (
+            displayData.data && (
+              <>
+                <div className="map-section">
+                  <PoligonMap
+                    geoData={displayData.data}
+                    sector={getSafeSectorData()}
+                    predio={getSafePredioData()}
+                    type={selectedDataType}
+                    clave={clave}
+                  />
+                </div>
+              </>
+            )
           )}
+          
           {/* TABLA DE RESUMEN */}
           <BasicTabs
-            tabsOne={activeData.data && <TableView data={activeData.data} />}
+            tabsOne={displayData.data && <TableView data={displayData.data} />}
             tabsTwo={
-              activeData.data &&
+              displayData.data &&
               claveData && (
                 <ViewPredio
-                  data={activeData.data}
+                  data={displayData.data}
                   predio={claveData.features.filter(
                     (predio) => predio.properties.clave_cata === clave
                   )}
@@ -178,9 +257,23 @@ function RiesgosPage() {
               )
             }
           />
-          {!aptcData && !aptcL && !aptcE && (
+          
+          {!displayData.data && !displayData.loading && selectedDataType !== "sector" && (
             <div className="empty-state">
-              <p>Selecciona una parroquia para cargar los datos</p>
+              <p>
+                {selectedParroquia 
+                  ? `No hay datos de ${selectedDataType} para ${selectedParroquia}${selectedSector ? ` - ${selectedSector}` : ''}`
+                  : `Selecciona una parroquia para cargar los datos de ${selectedDataType}`
+                }
+              </p>
+              {selectedParroquia && (
+                <button 
+                  onClick={handleClearFilters}
+                  style={{ marginTop: '10px', padding: '5px 10px' }}
+                >
+                  Limpiar filtros
+                </button>
+              )}
             </div>
           )}
         </Grid>

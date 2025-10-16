@@ -48,10 +48,11 @@ const GeoDataViewer = ({ onSearch, onSearchSector, onSearchPugs,onDataTypeChange
   }; */
   const handleSector = (e) => {
     e.preventDefault();
-    if (parroquia || sector) {
+    if (parroquia || sector || clave) {
       console.log("🔍 Iniciando búsqueda:", {
         parroquia,
         sector,
+        clave
       });
       onSearchSector(parroquia, sector);
       onSearchPugs(parroquia, sector, clave);
@@ -80,7 +81,7 @@ const GeoDataViewer = ({ onSearch, onSearchSector, onSearchPugs,onDataTypeChange
 
       <TextField
         fullWidth
-        sx={{ paddingTop: 2, paddingBottom: 2 }}
+        sx={{ marginY: 2 }}
         id="tramite"
         label="Trámite"
         value={tramite}
@@ -100,7 +101,7 @@ const GeoDataViewer = ({ onSearch, onSearchSector, onSearchPugs,onDataTypeChange
       </Button>
 
       {/* agregar condicionante que si no existe numero de tramite no se puede hacer la consulta eso despues */}
-      <Box sx={{ paddingTop: 2 }} component="form">
+      <Box sx={{ marginY: 2 }} component="form">
         {/* Parroquia */}
         <FormControl fullWidth required>
           <InputLabel id="parroquia-label">Parroquia</InputLabel>
@@ -124,7 +125,7 @@ const GeoDataViewer = ({ onSearch, onSearchSector, onSearchPugs,onDataTypeChange
 
         {/* Sector */}
         <TextField
-          sx={{ paddingTop: 2, paddingBottom: 2 }}
+          sx={{ marginY: 2 }}
           fullWidth
           id="sector"
           label="Sector"
@@ -132,11 +133,12 @@ const GeoDataViewer = ({ onSearch, onSearchSector, onSearchPugs,onDataTypeChange
           value={sector}
           onChange={(e) => setSector(e.target.value)}
           placeholder="Ej: centro, norte, etc."
+          helperText="Redactar en minusculas"
         />
         <TextField
           fullWidth
           required
-          sx={{ paddingTop: 2, paddingBottom: 2 }}
+          sx={{ marginY: 2 }}
           id="clave"
           type="number"
           label="Clave catastral"
@@ -145,7 +147,7 @@ const GeoDataViewer = ({ onSearch, onSearchSector, onSearchPugs,onDataTypeChange
           placeholder="Ej: 123-456-789"
         />
         <Button
-          sx={{ paddingTop: 2 }}
+          sx={{ marginY: 2 }}
           type="submit"
           variant="contained"
           onClick={handleSector}
@@ -154,6 +156,18 @@ const GeoDataViewer = ({ onSearch, onSearchSector, onSearchPugs,onDataTypeChange
           fullWidth
         >
           Buscar Sector
+        </Button>
+{/* agregar texto en de busqueda una vez se cumpla la parroquia */}
+         <Button
+          sx={{ marginY: 1 }}
+          type="submit"
+          variant="contained"
+          onClick={handleSector}
+          disabled={!parroquia && !sector}
+          size="large"
+          fullWidth
+        >
+          realizar análisis
         </Button>
         <Box sx={{ mt: 3, p: 2, bgcolor: "grey.100", borderRadius: 1 }}>
           <Typography variant="subtitle1" gutterBottom>
