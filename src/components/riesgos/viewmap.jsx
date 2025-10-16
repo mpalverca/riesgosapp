@@ -6,7 +6,6 @@ const PoligonMap = ({ geoData, sector, predio, clave }) => {
   if (!geoData || !geoData.features || geoData.features.length === 0) {
     return <div>No hay datos geoespaciales para mostrar</div>;
   }
-
   /* console.log(geoData);
   // Estilo para las geometrías
   const geoJsonStyle = {
@@ -15,8 +14,8 @@ const PoligonMap = ({ geoData, sector, predio, clave }) => {
     opacity: 0.7,
     fillOpacity: 0.1,
   }; */
-
   // Calcular centro del mapa basado en los datos
+  
   const calculateCenter = () => {
     return [-3.99313, -79.20422];
   };
@@ -616,8 +615,8 @@ export const PolylineMap = ({ geoData, sector, predio, clave }) => {
         ))}
         
         {/* Renderizar capas adicionales */}
-        {renderSector()}
-        {renderPredio()}
+        {/* {renderSector()}
+        {renderPredio()} */}
       </MapContainer>
     </div>
   );

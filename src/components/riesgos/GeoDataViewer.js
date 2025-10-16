@@ -10,11 +10,20 @@ import {
   RadioGroup,
   FormControlLabel,
   FormControl,
+  Checkbox,
   InputLabel,
   Select,
 } from "@mui/material";
 
-const GeoDataViewer = ({ onSearch, onSearchSector, onSearchPugs,onDataTypeChange, selectedDataType }) => {
+const GeoDataViewer = ({
+  onSearch,
+  onSearchSector,
+  onSearchPugs,
+  onDataTypeChange,
+  selectedDataType,
+  controlSector,
+  controlClave,
+}) => {
   const [parroquia, setParroquia] = useState("");
   const [sector, setSector] = useState("");
   const [clave, setClave] = useState("");
@@ -52,7 +61,7 @@ const GeoDataViewer = ({ onSearch, onSearchSector, onSearchPugs,onDataTypeChange
       console.log("🔍 Iniciando búsqueda:", {
         parroquia,
         sector,
-        clave
+        clave,
       });
       onSearchSector(parroquia, sector);
       onSearchPugs(parroquia, sector, clave);
@@ -157,8 +166,8 @@ const GeoDataViewer = ({ onSearch, onSearchSector, onSearchPugs,onDataTypeChange
         >
           Buscar Sector
         </Button>
-{/* agregar texto en de busqueda una vez se cumpla la parroquia */}
-         <Button
+        {/* agregar texto en de busqueda una vez se cumpla la parroquia */}
+        <Button
           sx={{ marginY: 1 }}
           type="submit"
           variant="contained"
@@ -186,18 +195,50 @@ const GeoDataViewer = ({ onSearch, onSearchSector, onSearchPugs,onDataTypeChange
         </Box>
         <FormControl>
           <Typography align="center">
+            <strong> Capas de control</strong>
+          </Typography>
+          <FormControlLabel
+            control={<Checkbox defaultChecked />}
+            label="Sector"
+            value={controlSector}
+          />
+          <FormControlLabel
+            control={<Checkbox defaultChecked />}
+            label= {` predio ${clave}`}
+            value={controlClave}
+          />
+        </FormControl>
+        <FormControl>
+          <Typography align="center">
             <strong> Capas de Análisis</strong>
           </Typography>
-          <RadioGroup
-          value={selectedDataType}
-          onChange={handleDataTypeChange}
-        >
-          <FormControlLabel value="aptconst" control={<Radio />} label="Aptitud Constructiva" />
-          <FormControlLabel value="pugs" control={<Radio />} label="Uso de suelo (PIT)" />
-          <FormControlLabel value="vialidad" control={<Radio />} label="Vialidad" />
-          <FormControlLabel value="aapp" control={<Radio />} label="Dotación de Agua Potable" />          
-          <FormControlLabel value="aass" control={<Radio />} label="Alcantarillado"/>
-        </RadioGroup>
+          <RadioGroup value={selectedDataType} onChange={handleDataTypeChange}>
+            <FormControlLabel
+              value="aptconst"
+              control={<Radio />}
+              label="Aptitud Constructiva"
+            />
+            <FormControlLabel
+              value="pugs"
+              control={<Radio />}
+              label="Uso de suelo (PIT)"
+            />
+            <FormControlLabel
+              value="vialidad"
+              control={<Radio />}
+              label="Vialidad"
+            />
+            <FormControlLabel
+              value="aapp"
+              control={<Radio />}
+              label="Dotación de Agua Potable"
+            />
+            <FormControlLabel
+              value="aass"
+              control={<Radio />}
+              label="Alcantarillado"
+            />
+          </RadioGroup>
         </FormControl>
       </Box>
       {/* Información de búsqueda */}
