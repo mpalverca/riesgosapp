@@ -304,7 +304,7 @@ export const SectorMap = ({ sector, predio, clave }) => {
   );
 };
 
-export const PolylineMap = ({ geoData, sector, predio, clave }) => {
+export const PolylineMap = ({ geoData, sector, predio, clave, capa }) => {
   if (!geoData || !geoData.features || geoData.features.length === 0) {
     return <div>No hay datos geoespaciales para mostrar</div>;
   }
@@ -615,8 +615,8 @@ export const PolylineMap = ({ geoData, sector, predio, clave }) => {
         ))}
         
         {/* Renderizar capas adicionales */}
-        {/* {renderSector()}
-        {renderPredio()} */}
+         {capa[0] && renderSector()}
+        {capa[1] && renderPredio()} 
       </MapContainer>
     </div>
   );

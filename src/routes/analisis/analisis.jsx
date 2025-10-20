@@ -76,14 +76,26 @@ export default function Analisis() {
      {
       id: 5,
       route: "risk",
-      primary: "Analisis de riesgo",
+      primary: "Analisis de riesgo de desastres",
       secondary: "Los riesgos en Canton Loja son de orgien natural o antropico",
       icon: <WarningAmberOutlined />,
       avatarColor: "#ffd000ff",
       badge: "Nuevo",
       badgeColor: "warning",
       description: "Realizar un analisis de riesgos de predio particular"
-}];
+},
+ {
+      id: 6,
+      route: "risk",
+      primary: "Analisis de riesgo de desastres (parroquias)",
+      secondary: "Los riesgos en Canton Loja son de orgien natural o antropico",
+      icon: <WarningAmberOutlined />,
+      avatarColor: "#ffd000ff",
+      badge: "Nuevo",
+      badgeColor: "warning",
+      description: "Realizar un analisis de riesgos de predio particular"
+}
+];
 
   const handleItemClick = (route) => {
     navigate(route);
@@ -94,7 +106,7 @@ export default function Analisis() {
   }
 
   return (
-    <Box sx={{ p: 3, minHeight: "100vh", bgcolor: "background.default" }}>
+    <Box sx={{ p: 1, minHeight: "100vh", bgcolor: "background.default" }}>
       {/* Header */}
       <Box sx={{ textAlign: "center", mb: 6 }}>
         <Typography 
@@ -102,7 +114,7 @@ export default function Analisis() {
           sx={{ 
             fontWeight: "bold",
             color: "primary.main",
-            mb: 2
+            mb: 1
           }}
         >
           Sistema de Análisis de Riesgos

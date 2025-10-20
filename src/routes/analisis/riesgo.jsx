@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Grid } from "@mui/material";
+import { Grid, Typography } from "@mui/material";
 import loadIcon from "../../assets/loading.gif";
 import GeoDataViewer from "../../components/riesgos/GeoDataViewer.js";
 import PoligonMap, {
@@ -23,8 +23,7 @@ function RiesgosPage() {
   const [selectedSector, setSelectedSector] = useState("");
   const [clave, setClaveCatas] = useState("");
   const [selectedDataType, setSelectedDataType] = useState("sector");
-  const [controlSector, setControlSector] = useState(true);
-  const [controlClave, setControlClave] = useState(true);
+  const [controlCheck, setControlCheck] = useState([true, false]);
 
   // Estados para controlar la transición
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -171,6 +170,7 @@ function RiesgosPage() {
   const getSafePredioData = () => {
     return claveData?.features || [];
   };
+  //checkbock controller
 
   return (
     <div className="App">
@@ -189,8 +189,8 @@ function RiesgosPage() {
             selectedDataType={selectedDataType}
             selectedParroquia={selectedParroquia}
             selectedSector={selectedSector}
-            controlSector={setControlSector}
-            controlClave={setControlClave}
+            controlCheck={controlCheck}
+            setControlCheck={setControlCheck}
           />
           {displayData.error && (
             <div className="error-state">
@@ -216,7 +216,7 @@ function RiesgosPage() {
               </div>
             ))}
 
-          {selectedDataType === "sector" ? (
+          {/* selectedDataType === "sector" ? (
             <SectorMap
               sector={getSafeSectorData()}
               predio={getSafePredioData()}
@@ -236,8 +236,7 @@ function RiesgosPage() {
                 </div>
               </>
             )
-          ) : (
-            displayData.data && (
+          ) : displayData.data && (
               <>
                 <div className="map-section">
                   <PoligonMap
@@ -250,23 +249,60 @@ function RiesgosPage() {
                 </div>
               </>
             )
-          )}
+          */}
+
+          <BasicTabs
+            tabsOne={{
+              title: "Mapa de Predio",
+              body: displayData.data && (
+                <>
+                  <div className="map-section">
+                    <PolylineMap
+                      geoData={displayData.data}
+                      sector={getSafeSectorData()}
+                      predio={getSafePredioData()}
+                      type={selectedDataType}
+                      clave={clave}
+                      capa={controlCheck}
+                    />
+                    <BasicTabs
+                      tabsOne={{
+                        title: "Información Sector",
+                        body: displayData.data && (
+                          <TableView data={displayData.data} />
+                        ),
+                      }}
+                      tabsTwo={{
+                        title: "Información Predio",
+                        body: displayData.data && claveData && (
+                          <ViewPredio
+                            data={displayData.data}
+                            predio={claveData.features.filter(
+                              (predio) => predio.properties.clave_cata === clave
+                            )}
+                          />
+                        ),
+                      }}
+                    />
+                  </div>
+                </>
+              ),
+            }}
+            tabsTwo={{
+              title: "Detalle de predio",
+              body: (
+                claveData && <div>
+                  <Typography>
+                    Aqui va Información del predio agregar informaction de tipo
+                    información del predio, bASE, como edificación, estado de
+                    edificación, estado de
+                  </Typography>
+                </div>
+              ),
+            }}
+          />
 
           {/* TABLA DE RESUMEN */}
-          <BasicTabs
-            tabsOne={displayData.data && <TableView data={displayData.data} />}
-            tabsTwo={
-              displayData.data &&
-              claveData && (
-                <ViewPredio
-                  data={displayData.data}
-                  predio={claveData.features.filter(
-                    (predio) => predio.properties.clave_cata === clave
-                  )}
-                />
-              )
-            }
-          />
 
           {!displayData.data &&
             !displayData.loading &&
