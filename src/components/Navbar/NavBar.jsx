@@ -19,11 +19,11 @@ import MenuIcon from '@mui/icons-material/Menu';
 import logo1 from './logo_riesgos2.png';
 
 const pages = [
-    { name: 'Inicio', path: '/riesgosapp/' },
-    { name: 'Análisis', path: '/riesgosapp/analisis' },
-    { name: 'Preparación', path: '/riesgosapp/preparacion' },
-    { name: 'Respuesta', path: '/riesgosapp/Evin' },
-    { name: 'COE', path: '/riesgosapp/coe' }
+    { name: 'Inicio', path: '' },
+    { name: 'Análisis', path: '/analisis' },
+    { name: 'Preparación', path: '/preparacion' },
+    { name: 'Respuesta', path: 'Evin' },
+    { name: 'COE', path: '/coe' }
 ];
 
 const userSettings = [

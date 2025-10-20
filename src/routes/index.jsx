@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { HashRouter as Router, Route, Routes } from "react-router-dom";
 import Home from "./Home";
 import Alerts from "./alerts";
 
@@ -8,7 +8,7 @@ import Alerts from "./alerts";
 import NotFoud from "./NotFoud";
 import NavBar from "../components/Navbar/NavBar";
 import Dangermap from "./Dangermap";
-import Planesatender from "./preparacion/PlanFamiliar";
+// import Planesatender from "./preparacion/PlanFamiliar";
 import PlanContingencia from "./preparacion/PlanContingencia";
 import Coe from "./coe";
 import Geologia from "./analisis/geologia";
@@ -27,20 +27,20 @@ import RiesgosPage from "./analisis/riesgo";
 export default class index extends Component {
   render() {
     return (
-      <BrowserRouter>
+      <Router>
         <NavBar />
         <Routes>
           <Route
-            path="/riesgosapp"
+            path=""
             element={
               <ProtectedRoute>
                 <Home />{" "}
               </ProtectedRoute>
             }
           />
-          <Route path="/riesgosapp/inicio" element={<Home />} />
+          <Route path="/inicio" element={<Home />} />
 
-          <Route path="/riesgosapp/analisis/*" element={<Analisis />}>
+          <Route path="/analisis/*" element={<Analisis />}>
             <Route path="alertmap" element={<Alerts />} />
             <Route path="threatmap" element={<Dangermap />} />
             <Route path="geologia" element={<Geologia />} />
@@ -48,7 +48,7 @@ export default class index extends Component {
            <Route path="risk" element={<RiesgosPage/>}/>
                     </Route>
 
-          <Route path="/riesgosapp/preparacion/*" element={<Preparacion />}>
+          <Route path="/preparacion/*" element={<Preparacion />}>
             <Route path="plancontingencia" element={<PlanContingencia />} />
           </Route>
           <Route path="/riesgosapp/Cooper" element={<Cooper />} />
@@ -64,7 +64,7 @@ export default class index extends Component {
           <Route path="/riesgosapp/usersignin" element={<SingIn />} />
           <Route path="/riesgosapp/auth" element={<Coe />} />
         </Routes>
-      </BrowserRouter>
+      </Router>
     );
   }
 }
