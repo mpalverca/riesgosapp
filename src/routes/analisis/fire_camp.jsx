@@ -12,6 +12,7 @@ export default function FireCamp() {
   const [selectedParroq, setSelectedParroq] = useState(null);
   const [parroqData, setParroqData] = useState(null);
   const [loadingParroq, setLoadingParroq] = useState(false);
+  const [eventInfo, setDataEvent]=useState()
 
   // Cargar datos iniciales
   useEffect(() => {
@@ -94,12 +95,18 @@ export default function FireCamp() {
             onSelectParroq={setSelectedParroq}
             onGetParroqData={getParroqData}
             selectedParroq={selectedParroq}
+            setEvent={setDataEvent}
+            dataEvent={eventInfo}
             mapConfig={{
               center: [-79.2, -3.99], // Coordenadas de Loja, Ecuador
               zoom: 10,
             }}
           />
+           <div>
+        Here date from firemaps events
+        </div>
         </Grid>
+       
       </Grid>
     </div>
   );

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Polygon } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import urku from "../../assets/Urku_el_puma.png";
+import { fetchData } from "../fire/FireSearch";
 const n_color = {
   ALTA: "#dc3545",
   MEDIA: "#ffc107",
@@ -10,6 +11,7 @@ const n_color = {
 };
 const MapBase = (props) => {
   let position = [-3.9939, -79.2042];
+  console.log(props.dataEvent);
   const renderPolygons = () => {
     return props.data.map((item) => {
       try {
@@ -62,6 +64,7 @@ const MapBase = (props) => {
                     // Tu lógica aquí
                     props.onSelectParroq(item.id);
                     props.onGetParroqData(item.id);
+                    fetchData(item.DPA_DESPAR, props.setEvent);
                   },
                 }}
                 key={`N° ${item.id}-${index}`}
@@ -131,9 +134,78 @@ const MapBase = (props) => {
       }
     });
   };
+  const renderMarker = () => {
+    // Verificar que props.dataEvent existe y es un array
+    if (!props.dataEvent || !Array.isArray(props.dataEvent)) {
+        console.warn("dataEvent no es un array válido:", props.dataEvent);
+        return null;
+    }
+
+    return props.dataEvent.map((item) => {
+        try {
+            // Verificar que item existe y tiene las propiedades necesarias
+            if (!item || item.lat == null || item.lng == null) {
+                console.warn("Item inválido o sin coordenadas:", item);
+                return null;
+            }
+
+            // Convertir a números por si acaso vienen como strings
+            const lat = parseFloat(item.lat);
+            const lng = parseFloat(item.lng);
+            
+            // Verificar que las coordenadas son números válidos
+            if (isNaN(lat) || isNaN(lng)) {
+                console.warn("Coordenadas inválidas:", item);
+                return null;
+            }
+
+            const leafletCoords = [lat, lng];
+
+            return (
+                <Marker
+                    key={item.id || `marker-${Math.random()}`} // Fallback para key
+                    position={leafletCoords} // ¡CORRECCIÓN: es 'position', no 'positions'!
+                    pathOptions={{
+                        color:
+                            item.n_alert == "Alto"
+                                ? n_color.ALTA
+                                : item.n_alert == "Medio"
+                                ? n_color.BAJA
+                                : n_color.BAJA,
+                        fillColor:
+                            item.n_alert == "Alto"
+                                ? n_color.ALTA
+                                : item.n_alert == "Medio"
+                                ? n_color.BAJA
+                                : n_color.BAJA,
+                        fillOpacity: 0.2,
+                        weight: 2,
+                    }}
+                >
+                    <Popup>
+                        <div>
+                            <h3>{item.fecha} - {item.sector}</h3>
+                            <p>
+                                <strong>Descripción:</strong> {item.detail || "No disponible"}
+                            </p>
+                            <br/>
+                            <p>
+                                <strong>Observaciones:</strong> {item.obs || "No disponible"}
+                            </p>
+                            <br/>
+                        </div>
+                    </Popup>
+                </Marker>
+            );
+        } catch (error) {
+            console.error("Error al procesar marcador:", item, error);
+            return null;
+        }
+    }).filter(Boolean); // Filtrar elementos null/undefined
+};
   if (props.loading) return <div>Cargando mapa...</div>;
   if (props.error) return <div>{props.error}</div>;
- return (
+  return (
     <MapContainer
       center={position}
       zoom={10}
@@ -144,6 +216,7 @@ const MapBase = (props) => {
         attribution="&copy; OpenStreetMap contributors"
       />
       {renderPolygons()}
+     {props.dataEvent && renderMarker()} 
     </MapContainer>
   );
 };
