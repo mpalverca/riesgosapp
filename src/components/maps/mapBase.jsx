@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Polygon } from "react-leaflet";
+import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import fireIconL from "../../assets/fire.png";
 import urku from "../../assets/Urku_el_puma.png";
 import { fetchData } from "../fire/FireSearch";
 const n_color = {
@@ -137,72 +139,96 @@ const MapBase = (props) => {
   const renderMarker = () => {
     // Verificar que props.dataEvent existe y es un array
     if (!props.dataEvent || !Array.isArray(props.dataEvent)) {
-        console.warn("dataEvent no es un array válido:", props.dataEvent);
-        return null;
+      console.warn("dataEvent no es un array válido:", props.dataEvent);
+      return null;
     }
 
-    return props.dataEvent.map((item) => {
+    // Crear el icono de fuego
+    const fireIcon = new L.Icon({
+      //iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+      iconUrl: fireIconL,
+      iconSize: [25, 30],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41],
+    });
+
+    const formatDate = (dateString) => {
+      if (!dateString) return "Fecha no disponible";
+
+      const date = new Date(dateString);
+      const day = date.getDate().toString().padStart(2, "0");
+      const month = (date.getMonth() + 1).toString().padStart(2, "0");
+      const year = date.getFullYear();
+      const hours = date.getHours().toString().padStart(2, "0");
+      const minutes = date.getMinutes().toString().padStart(2, "0");
+
+      return `${day}/${month}/${year} ${hours}:${minutes}`;
+    };
+    // Opcional: Icono personalizado de fuego (puedes reemplazar la URL)
+    // const fireIcon = new L.Icon({
+    //     iconUrl: 'https://cdn-icons-png.flaticon.com/512/606/606797.png',
+    //     iconSize: [30, 30],
+    //     iconAnchor: [15, 30],
+    //     popupAnchor: [0, -30]
+    // });
+
+    return props.dataEvent
+      .map((item) => {
         try {
-            // Verificar que item existe y tiene las propiedades necesarias
-            if (!item || item.lat == null || item.lng == null) {
-                console.warn("Item inválido o sin coordenadas:", item);
-                return null;
-            }
-
-            // Convertir a números por si acaso vienen como strings
-            const lat = parseFloat(item.lat);
-            const lng = parseFloat(item.lng);
-            
-            // Verificar que las coordenadas son números válidos
-            if (isNaN(lat) || isNaN(lng)) {
-                console.warn("Coordenadas inválidas:", item);
-                return null;
-            }
-
-            const leafletCoords = [lat, lng];
-
-            return (
-                <Marker
-                    key={item.id || `marker-${Math.random()}`} // Fallback para key
-                    position={leafletCoords} // ¡CORRECCIÓN: es 'position', no 'positions'!
-                    pathOptions={{
-                        color:
-                            item.n_alert == "Alto"
-                                ? n_color.ALTA
-                                : item.n_alert == "Medio"
-                                ? n_color.BAJA
-                                : n_color.BAJA,
-                        fillColor:
-                            item.n_alert == "Alto"
-                                ? n_color.ALTA
-                                : item.n_alert == "Medio"
-                                ? n_color.BAJA
-                                : n_color.BAJA,
-                        fillOpacity: 0.2,
-                        weight: 2,
-                    }}
-                >
-                    <Popup>
-                        <div>
-                            <h3>{item.fecha} - {item.sector}</h3>
-                            <p>
-                                <strong>Descripción:</strong> {item.detail || "No disponible"}
-                            </p>
-                            <br/>
-                            <p>
-                                <strong>Observaciones:</strong> {item.obs || "No disponible"}
-                            </p>
-                            <br/>
-                        </div>
-                    </Popup>
-                </Marker>
-            );
-        } catch (error) {
-            console.error("Error al procesar marcador:", item, error);
+          // Verificar que item existe y tiene las propiedades necesarias
+          if (!item || item.lat == null || item.lng == null) {
+            console.warn("Item inválido o sin coordenadas:", item);
             return null;
+          }
+
+          // Convertir a números por si acaso vienen como strings
+          const lat = parseFloat(item.lat);
+          const lng = parseFloat(item.lng);
+
+          // Verificar que las coordenadas son números válidos
+          if (isNaN(lat) || isNaN(lng)) {
+            console.warn("Coordenadas inválidas:", item);
+            return null;
+          }
+
+          const leafletCoords = [lat, lng]; // CORREGIDO: [lat, lng]
+
+          return (
+            <Marker
+              key={item.id || `marker-${Math.random()}`}
+              position={leafletCoords}
+              icon={fireIcon} // Agregado el icono de fuego
+              // pathOptions={{ color:'#ff0000'     }}
+            >
+              <Popup>
+                <div>
+                  <h3>
+                    {formatDate(item.fecha)} - {item.sector}
+                  </h3>
+                  <p>
+                    <strong>Descripción:</strong>{" "}
+                    {item.detail || "No disponible"}
+                  </p>
+                  <p>
+                    <strong>Observaciones:</strong>{" "}
+                    {item.obs || "No disponible"}
+                  </p>
+                  <p>
+                    <strong>Afectacion:</strong>{" "}
+                    {item.afect || "No disponible"}
+                  </p>
+                </div>
+              </Popup>
+            </Marker>
+          );
+        } catch (error) {
+          console.error("Error al procesar marcador:", item, error);
+          return null;
         }
-    }).filter(Boolean); // Filtrar elementos null/undefined
-};
+      })
+      .filter(Boolean); // Filtrar elementos null/undefined
+  };
   if (props.loading) return <div>Cargando mapa...</div>;
   if (props.error) return <div>{props.error}</div>;
   return (
@@ -216,7 +242,7 @@ const MapBase = (props) => {
         attribution="&copy; OpenStreetMap contributors"
       />
       {renderPolygons()}
-     {props.dataEvent && renderMarker()} 
+      {props.dataEvent && renderMarker()}
     </MapContainer>
   );
 };

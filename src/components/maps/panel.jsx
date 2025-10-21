@@ -29,6 +29,7 @@ const BulletPoint = styled(Box)(({ theme }) => ({
 }));
 
 export default function Panel(props) {
+  console.log(props.fireData);
   const n_color = {
     ALTA: "#dc3545",
     MEDIA: "#ffc107",
@@ -71,24 +72,23 @@ export default function Panel(props) {
   };
 
   const alertActions = getAlertActions();
-  
-    // Dividir los eventos por puntos y crear array de líneas
+
+  // Dividir los eventos por puntos y crear array de líneas
   const getEventLines = () => {
     if (!props.data?.event_reg) return [];
-    
+
     // Dividir por puntos y limpiar espacios en blanco
     return props.data.event_reg
-      .split('.')
-      .map(event => event.trim())
-      .filter(event => event.length > 0);
+      .split(".")
+      .map((event) => event.trim())
+      .filter((event) => event.length > 0);
   };
 
   const eventLines = getEventLines();
 
-
   return (
     <div>
-      <Typography variant="h4"align="center" >
+      <Typography variant="h4" align="center">
         <strong>{props.title}</strong>
       </Typography>
       <div
@@ -138,22 +138,22 @@ export default function Panel(props) {
             <Typography variant="h5" gutterBottom>
               Acciones a desarrollar
             </Typography>
-            <Box sx={{pl:2}}>
+            <Box sx={{ pl: 2 }}>
               {alertActions.map((action, index) => (
-                  <Typography variant="body1" sx={{ lineHeight: 1.5 }}>
-                    {action}
-                  </Typography>
+                <Typography variant="body1" sx={{ lineHeight: 1.5 }}>
+                  {action}
+                </Typography>
               ))}
             </Box>
             <Divider sx={{ mt: 1 }} />
           </Box>
           <Divider />
           {/* Eventos Relacionados */}
-          <Box >
+          <Box>
             <Typography variant="h5" gutterBottom>
-              Eventos Relacionados
+              Eventos Relacionados : {props.fireData.length}
             </Typography>
-           <Box>
+            {/* <Box>
               {eventLines.map((event, index) => (
                 <Typography 
                   key={index} 
@@ -168,6 +168,35 @@ export default function Panel(props) {
                   • {event.trim()}.
                 </Typography>
               ))}
+            </Box> */}
+            <Box>
+              {props.fireData &&
+                props.fireData.map((event, index) => {
+                  const formatDate = (dateString) => {
+                    if (!dateString) return "Fecha no disponible";
+
+                    const date = new Date(dateString);
+                    const day = date.getDate().toString().padStart(2, "0");
+                    const month = (date.getMonth() + 1)
+                      .toString()
+                      .padStart(2, "0");
+                    const year = date.getFullYear();
+                    const hours = date.getHours().toString().padStart(2, "0");
+                    const minutes = date
+                      .getMinutes()
+                      .toString()
+                      .padStart(2, "0");
+
+                    return `${day}/${month}/${year} ${hours}:${minutes}`;
+                  };
+                  return (
+                    <div>
+                      <p>
+                        <strong>{event.sector}</strong>-{formatDate(event.fecha)}
+                      </p>                  
+                    </div>
+                  );
+                })}
             </Box>
           </Box>
         </div>

@@ -85,6 +85,7 @@ export default function FireCamp() {
             data={parroqData}
             selectedParroq={selectedParroq}
             loading={loadingParroq}
+            fireData={eventInfo}
           />
         </Grid>
         <Grid item size={{ xs: 12, md: 9 }}>
