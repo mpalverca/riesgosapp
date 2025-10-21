@@ -151,7 +151,7 @@ export default function Panel(props) {
           {/* Eventos Relacionados */}
           <Box>
             <Typography variant="h5" gutterBottom>
-              Eventos Relacionados : {props.fireData.length}
+              Eventos Relacionados : {props.fireData && props.fireData.length}
             </Typography>
             {/* <Box>
               {eventLines.map((event, index) => (
