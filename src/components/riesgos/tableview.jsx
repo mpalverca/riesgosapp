@@ -102,7 +102,6 @@ export default function TableView({ data }) {
     return `${area.toFixed(2)} m2`;
   };
   
-
   return (
     <div>
       <Paper elevation={3} sx={{ p: 1, mt: 1 }}>

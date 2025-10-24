@@ -1,16 +1,8 @@
-// URL de tu Apps Script (reemplaza con tu URL)
-const SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbwZW7Zl5Wjqaus8GngAJSUu7bQlj8WRqXELybuuQHceLxkeZPx6wCyHIXTRFbS7pGM/exec";
+SCRIPT_URL =
+  "https://script.google.com/macros/s/AKfycbyj_AoSImfbZzgvtXrHUdQlGL-ttZWSWAIMSqi0YlxmKxi4NG7qHZt_ehpgpCSAKJA/exec";
 
 // Obtener datos del spreadsheet
-export const fetchData = async (
-  tramite = "",
-  setData,
-  setParroquia,
-  setSector,
-  setClave,
-  setLoading
-) => {
+export const fetchData = async (sector,setData) => {
   try {
     // setLoading(true);
     let url = `${SCRIPT_URL}?action=getData`;
@@ -18,17 +10,14 @@ export const fetchData = async (
     if (tramite) {
       url += `&tramite=${encodeURIComponent(tramite)}`;
     }
-
     const response = await fetch(url);
- 
+    console.log(response);
     const result = await response.json();
-   
+    console.log(result);
+
     if (result.status === "success") {
       setData(result.data[0]);
-      setParroquia(result.data[0].parroq);
-      setSector(result.data[0].sector);
-      setClave(result.data[0].clave_c);
-      setLoading(true);
+   
     } else {
       console.error("Error al obtener datos:", result.data);
     }

@@ -2,10 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Grid, Typography } from "@mui/material";
 import loadIcon from "../../assets/loading.gif";
 import GeoDataViewer from "../../components/riesgos/GeoDataViewer.js";
-import PoligonMap, {
-  PolylineMap,
-  SectorMap,
-} from "../../components/riesgos/viewmap";
+import { PolylineMap } from "../../components/riesgos/viewmap";
 import {
   useAASS,
   useApConst,
@@ -13,10 +10,10 @@ import {
   useSector,
   useVial,
 } from "../../components/riesgos/useGeoData.js";
-
 import "./App.css";
 import TableView, { ViewPredio } from "../../components/riesgos/tableview.jsx";
 import BasicTabs from "../../components/riesgos/tapsR.jsx";
+//import Vias from "../../components/riesgos/vial/vias.jsx";
 
 function RiesgosPage() {
   const [selectedParroquia, setSelectedParroquia] = useState("");
@@ -269,9 +266,14 @@ function RiesgosPage() {
                     <BasicTabs
                       tabsOne={{
                         title: "Información Sector",
-                        body: displayData.data && (
-                          <TableView data={displayData.data} />
-                        ),
+                        body:
+                          displayData.data &&
+                          (selectedDataType == "vialidad" ? (
+                            <div>Ver data from </div>
+                            
+                          ) : (
+                            <TableView data={displayData.data} />
+                          )),
                       }}
                       tabsTwo={{
                         title: "Información Predio",
@@ -302,9 +304,7 @@ function RiesgosPage() {
               ),
             }}
           />
-
           {/* TABLA DE RESUMEN */}
-
           {!displayData.data &&
             !displayData.loading &&
             selectedDataType !== "sector" && (

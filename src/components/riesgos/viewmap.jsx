@@ -322,14 +322,9 @@ export const PolylineMap = ({
   if (!geoData || !geoData.features || geoData.features.length === 0) {
     return <div>No hay datos geoespaciales para mostrar</div>;
   }
-  console.log("aqui va la geo data", geoData);
-
-  console.log("aqui va el load", loading);
-
   const calculateCenter = () => {
     return [-3.99313, -79.20422];
   };
-
   // Función para determinar el tipo de geometría y renderizar adecuadamente
   const renderGeometry = (item) => {
     const geometryType = item.geometry.type;
