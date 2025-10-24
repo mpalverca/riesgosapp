@@ -200,7 +200,7 @@ function RiesgosPage() {
           )}
         </Grid>
         <Grid item size={{ xs: 12, md: 9 }}>
-          {displayData.loading ||
+          {/* {displayData.loading ||
             (claveL && (
               <div className="loading-state">
                 <div className="spinner"></div>
@@ -214,7 +214,7 @@ function RiesgosPage() {
                   }}
                 />
               </div>
-            ))}
+            ))} */}
 
           {/* selectedDataType === "sector" ? (
             <SectorMap
@@ -253,12 +253,13 @@ function RiesgosPage() {
 
           <BasicTabs
             tabsOne={{
-              title: "Mapa de Predio",
-              body: displayData.data && (
+              title: "Mapa de Predio Sector",
+              body: (
                 <>
                   <div className="map-section">
                     <PolylineMap
                       geoData={displayData.data}
+                      loading={displayData.loading}
                       sector={getSafeSectorData()}
                       predio={getSafePredioData()}
                       type={selectedDataType}
@@ -290,8 +291,8 @@ function RiesgosPage() {
             }}
             tabsTwo={{
               title: "Detalle de predio",
-              body: (
-                claveData && <div>
+              body: claveData && (
+                <div>
                   <Typography>
                     Aqui va Información del predio agregar informaction de tipo
                     información del predio, bASE, como edificación, estado de
