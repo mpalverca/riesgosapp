@@ -1,53 +1,69 @@
-import { useState, useRef, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Polygon, Polyline, useMapEvents } from 'react-leaflet';
-import L from 'leaflet';
+import { useState, useRef, useEffect } from "react";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  Polygon,
+  Polyline,
+  useMapEvents,
+} from "react-leaflet";
+import L from "leaflet";
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
 
 // Componente para detectar clics en el mapa y dibujar
-function DrawingHandler({ mode, onDrawComplete, color = "#3388ff" }) {
+function DrawingHandler({ mode, onDrawComplete, color = "#3388ff",setOpenD }) {
   const [points, setPoints] = useState([]);
   const map = useMapEvents({
     click(e) {
-      if (mode === 'point') {
+      if (mode === "point") {
         // Dibujar punto individual
         onDrawComplete({
-          type: 'point',
+          type: "point",
           position: [e.latlng.lat, e.latlng.lng],
-          color: color
+          color: color,
         });
-      } else if (mode === 'polygon' || mode === 'line') {
+      } else if (mode === "polygon" || mode === "line") {
         // Agregar punto al polígono o línea
-        setPoints(prev => [...prev, [e.latlng.lat, e.latlng.lng]]);
+        setPoints((prev) => [...prev, [e.latlng.lat, e.latlng.lng]]);
       }
     },
     keydown(e) {
       // Finalizar dibujo con Enter o Escape
-      if ((e.key === 'Enter' || e.key === 'Escape') && points.length > 0) {
-        if (mode === 'polygon' && points.length >= 3) {
+   // Usar e.originalEvent.key para obtener la tecla
+      const key = e.originalEvent.key;
+      console.log("Tecla presionada:", key);
+      if ((key === "Enter" || key === "Escape") && points.length > 0) {
+        if (mode === "polygon" && points.length >= 3) {
+          setOpenD(true)
           onDrawComplete({
-            type: 'polygon',
+            type: "polygon",
+            tipo:"Polígono",
             positions: [...points, points[0]], // Cerrar el polígono
-            color: color
+            color: color,
           });
-        } else if (mode === 'line' && points.length >= 2) {
+        } else if (mode === "line" && points.length >= 2) {
+             setOpenD(true)
           onDrawComplete({
-            type: 'line',
+            type: "line",
+            tipo:"Linea",
             positions: points,
-            color: color
+            color: color,
           });
         }
         setPoints([]);
       }
-      
+
       // Cancelar dibujo con Escape
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         setPoints([]);
       }
-      
+
       // Eliminar último punto con Backspace
-      if (e.key === 'Backspace' && points.length > 0) {
-        setPoints(prev => prev.slice(0, -1));
+      if (e.key === "Backspace" && points.length > 0) {
+        setPoints((prev) => prev.slice(0, -1));
       }
-    }
+    },
   });
 
   // Limpiar puntos cuando cambia el modo
@@ -59,19 +75,19 @@ function DrawingHandler({ mode, onDrawComplete, color = "#3388ff" }) {
     <>
       {/* Mostrar puntos temporales durante el dibujo */}
       {points.map((point, index) => (
-        <Marker 
-          key={`temp-${index}`} 
+        <Marker
+          key={`temp-${index}`}
           position={point}
           icon={L.divIcon({
-            className: 'temporary-point',
+            className: "temporary-point",
             html: `<div style="background-color: ${color}; width: 8px; height: 8px; border-radius: 50%; border: 2px solid white;"></div>`,
-            iconSize: [12, 12]
+            iconSize: [12, 12],
           })}
         />
       ))}
-      
+
       {/* Mostrar línea temporal durante el dibujo */}
-      {mode === 'line' && points.length > 1 && (
+      {mode === "line" && points.length > 1 && (
         <Polyline
           positions={points}
           color={color}
@@ -80,9 +96,9 @@ function DrawingHandler({ mode, onDrawComplete, color = "#3388ff" }) {
           dashArray="5, 5"
         />
       )}
-      
+
       {/* Mostrar polígono temporal durante el dibujo */}
-      {mode === 'polygon' && points.length > 2 && (
+      {mode === "polygon" && points.length > 2 && (
         <Polygon
           positions={[...points, points[0]]}
           color={color}
@@ -96,19 +112,21 @@ function DrawingHandler({ mode, onDrawComplete, color = "#3388ff" }) {
   );
 }
 
-const MapViewer = ({ 
-  center, 
-  zoom, 
-  markers = [], 
-  drawings = [], 
-  onDrawComplete, 
-  drawingMode = null, // 'point', 'polygon', 'line', o null para desactivar
+const MapViewer = ({
+  center,
+  zoom,
+  markers = [],
+  drawings = [],
+  onDrawComplete,
+  drawingMode, // 'point', 'polygon', 'line', o null para desactivar
   drawingColor = "#3388ff",
   onClick,
-  height = "400px" 
+  height = "800px",
 }) => {
+  const [openD,setOpenD]=useState(false)
   return (
-    <MapContainer
+    <Box>
+      <MapContainer
       center={center}
       zoom={zoom}
       style={{ height, width: "100%" }}
@@ -120,14 +138,13 @@ const MapViewer = ({
       />
 
       {/* Handler para clics normales del mapa */}
-      {onClick && (
-        <MapClickHandler onClick={onClick} />
-      )}
+      {onClick && <MapClickHandler onClick={onClick} />}
 
       {/* Handler para dibujo cuando hay un modo activo */}
       {drawingMode && onDrawComplete && (
-        <DrawingHandler 
-          mode={drawingMode} 
+        <DrawingHandler
+        setOpenD={setOpenD}
+          mode={drawingMode}
           onDrawComplete={onDrawComplete}
           color={drawingColor}
         />
@@ -147,7 +164,7 @@ const MapViewer = ({
       {/* Dibujos existentes (polígonos, líneas, puntos personalizados) */}
       {drawings.map((drawing, index) => {
         switch (drawing.type) {
-          case 'polygon':
+          case "polygon":
             return (
               <Polygon
                 key={`drawing-${index}`}
@@ -164,8 +181,8 @@ const MapViewer = ({
                 </Popup>
               </Polygon>
             );
-          
-          case 'line':
+
+          case "line":
             return (
               <Polyline
                 key={`drawing-${index}`}
@@ -181,31 +198,52 @@ const MapViewer = ({
                 </Popup>
               </Polyline>
             );
-          
-          case 'point':
+
+          case "point":
             return (
-              <Marker 
-                key={`drawing-${index}`} 
+              <Marker
+                key={`drawing-${index}`}
                 position={drawing.position}
                 icon={L.divIcon({
-                  className: 'custom-point',
-                  html: `<div style="background-color: ${drawing.color || drawingColor}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>`,
-                  iconSize: [16, 16]
+                  className: "custom-point",
+                  html: `<div style="background-color: ${
+                    drawing.color || drawingColor
+                  }; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>`,
+                  iconSize: [16, 16],
                 })}
               >
                 <Popup>
                   <strong>Punto personalizado</strong>
                   <br />
-                  Lat: {drawing.position[0].toFixed(4)}, Lng: {drawing.position[1].toFixed(4)}
+                  Lat: {drawing.position[0].toFixed(4)}, Lng:{" "}
+                  {drawing.position[1].toFixed(4)}
                 </Popup>
               </Marker>
             );
-          
+
           default:
             return null;
         }
       })}
     </MapContainer>
+    <Dialog
+    open={openD}
+    >
+      <DialogTitle>
+        Agrege Detalle
+      </DialogTitle>
+      <DialogContent>
+        Aquí va el formulario o contenido adicional para el detalle del dibujo.
+        <TextField
+        fullWidth
+        label="Detalle"
+        />
+      </DialogContent>
+      <DialogActions>
+      <Button onClick={()=>setOpenD(false)}>Cerrar</Button>
+      </DialogActions>
+    </Dialog>
+    </Box>
   );
 };
 
