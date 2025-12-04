@@ -15,8 +15,19 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-const InfoPanel = () => {
+const InfoPanel = ({coords,setCoords}) => {
   // Estilos personalizados
+
+  //Edit coord in array
+  const handleCoordChange = (index, value) => {
+    const nuevoValor = parseFloat(value) || 0;
+    setCoords(prev => {
+      const nuevasCoords = [...prev];
+      nuevasCoords[index] = nuevoValor;
+      return nuevasCoords;
+    });
+  };
+
   const RiskIndicator = styled("span")(({ theme }) => ({
     display: "inline-block",
     width: "16px",
@@ -120,19 +131,26 @@ const InfoPanel = () => {
             <Grid item size={{xs:12}}>
               <TextField
                 fullWidth
+                defaultValue={coords[0]}
+                onChange={(e) => handleCoordChange(0, e.target.value)}
                 id="latitude"
                 label="Latitud"
                 placeholder="Ej: -3.99313"
                 variant="outlined"
+                type="number"
+          
               />
             </Grid>
             <Grid item size={{xs:12}}>
               <TextField
                 fullWidth
                 id="longitude"
+                onChange={(e) => handleCoordChange(1, e.target.value)}
+                defaultValue={coords[1]}
                 label="Longitud"
                 placeholder="Ej: -79.20422"
                 variant="outlined"
+                type="number"
               />
             </Grid>
             <Grid item size={{xs:12}}>

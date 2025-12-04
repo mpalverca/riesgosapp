@@ -3,8 +3,12 @@ import { Box, Typography, Link, Container } from "@mui/material";
 export default function Footer() {
   return (
      <Box
-        component="footer"
+       component="footer"
         sx={{
+          position:"fixed",
+          bottom: 0,
+        left: 0,
+        right: 0,
           py: 1,
           px: 2,
           mt: "auto",

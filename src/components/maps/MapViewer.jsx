@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup, Polygon, } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Polygon } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-
+import imageLoad from "../../assets/loading_map_3.gif";
 import { cargarDatosPol } from "./script/script.js";
+import { Box } from "@mui/material";
 
-const MapViewer = () => {
+const MapViewer = ({ coord }) => {
   const [map, setMap] = useState(null);
   const [polygonData, setPolygonData] = useState();
   const [loading, setLoading] = useState(true);
@@ -23,7 +24,7 @@ const MapViewer = () => {
     };
     fetchData();
   }, []);
-  let position = [-3.9939, -79.2042];
+  let position = [coord[0], coord[1]];
   const renderPolygons = () => {
     return polygonData.map((item) => {
       try {
@@ -94,7 +95,17 @@ const MapViewer = () => {
       }
     });
   };
-  if (loading) return <div>Cargando mapa...</div>;
+  if (loading)
+    return (
+      <Box
+    display="flex"
+    justifyContent="center"
+    alignItems="center"
+    minHeight="60vh" // Ajusta según tu diseño
+  >
+        <img src={imageLoad} alt="Descripción de la imagen" />
+      </Box>
+    );
   if (error) return <div>{error}</div>;
   if (!polygonData.length)
     return <div>No hay datos de polígonos disponibles</div>;
