@@ -8,6 +8,8 @@ import {
   Polygon,
 } from "react-leaflet";
 import L from "leaflet";
+
+import imageLoad from "../../assets/loading_map_3.gif";
 import { Slider, Typography, Box, Button } from "@mui/material";
 import Clustering, {
   createCustomMarker,
@@ -367,7 +369,17 @@ const MapAfects = ({
     });
   };
 
-  if (loading) return <div className="loading-message">Cargando mapa...</div>;
+  if (loading)
+    return (
+      <Box
+    display="flex"
+    justifyContent="center"
+    alignItems="center"
+    minHeight="60vh" // Ajusta según tu diseño
+  >
+        <img src={imageLoad} alt="Descripción de la imagen" />
+      </Box>
+    );
   if (error) return <div className="error-message">{error}</div>;
   if (!afectData.length)
     return (

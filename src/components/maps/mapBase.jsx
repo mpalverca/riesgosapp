@@ -3,8 +3,13 @@ import { MapContainer, TileLayer, Marker, Popup, Polygon } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import fireIconL from "../../assets/fire.png";
+
+
+import imageLoad from "../../assets/loading_map_3.gif";
 import urku from "../../assets/Urku_el_puma.png";
 import { fetchData } from "../fire/FireSearch";
+import { Box } from "@mui/material";
+console.log("aqui es incendios")
 const n_color = {
   ALTA: "#dc3545",
   MEDIA: "#ffc107",
@@ -229,7 +234,16 @@ const MapBase = (props) => {
       })
       .filter(Boolean); // Filtrar elementos null/undefined
   };
-  if (props.loading) return <div>Cargando mapa...</div>;
+  if (props.loading)  return (
+      <Box
+    display="flex"
+    justifyContent="center"
+    alignItems="center"
+    minHeight="60vh" // Ajusta según tu diseño
+  >
+        <img src={imageLoad} alt="Descripción de la imagen" />
+      </Box>
+    );
   if (props.error) return <div>{props.error}</div>;
   return (
     <MapContainer
