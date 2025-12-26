@@ -22,7 +22,7 @@ import Preparacion from "./preparacion/preparacion";
 import Analisis from "./analisis/analisis";
 import FireCamp from "./analisis/fire_camp";
 import RiesgosPage from "./analisis/riesgo";
-
+import InfoPage from "./info/infoPage";
 
 export default class index extends Component {
   render() {
@@ -44,10 +44,9 @@ export default class index extends Component {
             <Route path="alertmap" element={<Alerts />} />
             <Route path="threatmap" element={<Dangermap />} />
             <Route path="geologia" element={<Geologia />} />
-            <Route path="fire_camp" element={<FireCamp/>}/>
-           <Route path="risk" element={<RiesgosPage/>}/>
-                    </Route>
-
+            <Route path="fire_camp" element={<FireCamp />} />
+            <Route path="risk" element={<RiesgosPage />} />
+          </Route>
           <Route path="/preparacion/*" element={<Preparacion />}>
             <Route path="plancontingencia" element={<PlanContingencia />} />
           </Route>
@@ -56,8 +55,8 @@ export default class index extends Component {
           <Route path="*" element={<NotFoud />} />
           <Route path="/planContingencia" element={<PlanContingencia />} />
           <Route path="/riesgosapp/coe" element={<Coe />} />
-          {/*    //auth*/}
-
+          {/*//auth*/}
+          <Route path="/info" element={<InfoPage />} />
           <Route path="/riesgosapp/userauth" element={<Login />} />
           <Route path="/riesgosapp/userSettings" element={<Auth />} />
           <Route path="/riesgosapp/auth" element={<Coe />} />

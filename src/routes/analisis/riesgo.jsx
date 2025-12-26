@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Grid, Typography } from "@mui/material";
-import loadIcon from "../../assets/loading.gif";
 import GeoDataViewer from "../../components/riesgos/GeoDataViewer.js";
 import { PolylineMap } from "../../components/riesgos/viewmap";
 import {
@@ -14,42 +13,34 @@ import "./App.css";
 import TableView, { ViewPredio } from "../../components/riesgos/tableview.jsx";
 import BasicTabs from "../../components/riesgos/tapsR.jsx";
 //import Vias from "../../components/riesgos/vial/vias.jsx";
-
 function RiesgosPage() {
   const [selectedParroquia, setSelectedParroquia] = useState("");
   const [selectedSector, setSelectedSector] = useState("");
   const [clave, setClaveCatas] = useState("");
   const [selectedDataType, setSelectedDataType] = useState("sector");
   const [controlCheck, setControlCheck] = useState([true, false]);
-
   // Estados para controlar la transición
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [previousData, setPreviousData] = useState(null);
-
   // Hooks para cada tipo de datos - ahora siempre activos pero con parámetros condicionales
   const { aptcData, aptcL, aptcE } = useApConst(
     selectedDataType === "aptconst" ? selectedParroquia : "",
     selectedDataType === "aptconst" ? selectedSector : ""
   );
-
   const { aassData, aassL, aassE } = useAASS(
     selectedDataType === "aass" ? selectedParroquia : "",
     selectedDataType === "aass" ? selectedSector : ""
   );
-
   const { vialData, vialL, vialE } = useVial(
     selectedDataType === "vialidad" ? selectedParroquia : "",
     selectedDataType === "vialidad" ? selectedSector : ""
   );
-
   const { claveData, claveL, claveE } = useClaveData(
     selectedParroquia,
     selectedSector,
     clave
   );
-
   const { sectorData, sectorL } = useSector("", selectedSector);
-
   // Función para obtener los datos activos
   const getActiveData = () => {
     switch (selectedDataType) {
@@ -186,8 +177,8 @@ function RiesgosPage() {
             selectedDataType={selectedDataType}
             selectedParroquia={selectedParroquia}
             selectedSector={selectedSector}
-            controlCheck={controlCheck}
-            setControlCheck={setControlCheck}
+            checked={controlCheck}
+            setChecked={setControlCheck}
           />
           {displayData.error && (
             <div className="error-state">

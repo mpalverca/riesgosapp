@@ -23,7 +23,8 @@ const pages = [
     { name: 'Análisis', path: '/analisis' },
     { name: 'Preparación', path: '/preparacion' },
     { name: 'Respuesta', path: 'Evin' },
-    { name: 'COE', path: '/coe' }
+    { name: 'COE', path: '/coe' },
+    { name: 'Información', path: '/info' }
 ];
 
 const userSettings = [
