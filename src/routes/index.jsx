@@ -10,6 +10,7 @@ import NavBar from "../components/Navbar/NavBar";
 import Dangermap from "./Dangermap";
 // import Planesatender from "./preparacion/PlanFamiliar";
 import PlanContingencia from "./preparacion/PlanContingencia";
+
 import Coe from "./coe";
 import Geologia from "./analisis/geologia";
 import Cooper from "./cooper";
@@ -23,6 +24,7 @@ import Analisis from "./analisis/analisis";
 import FireCamp from "./analisis/fire_camp";
 import RiesgosPage from "./analisis/riesgo";
 import InfoPage from "./info/infoPage";
+import ComiteComunitario from "./preparacion/ComiteComu";
 
 export default class index extends Component {
   render() {
@@ -49,6 +51,7 @@ export default class index extends Component {
           </Route>
           <Route path="/preparacion/*" element={<Preparacion />}>
             <Route path="plancontingencia" element={<PlanContingencia />} />
+            <Route path="comite_comunitario" element={<ComiteComunitario />} />
           </Route>
           <Route path="/riesgosapp/Cooper" element={<Cooper />} />
           <Route path="/riesgosapp/Evin" element={<EVIN />} />
