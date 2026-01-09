@@ -13,7 +13,7 @@ import PlanContingencia from "./preparacion/PlanContingencia";
 import Coe from "./coe";
 import Geologia from "./analisis/geologia";
 import Cooper from "./cooper";
-import EVIN from "./EVIN";
+
 import Auth from "./user/auth";
 import Login from "./login/login";
 import SingIn from "./login/singin";
@@ -23,6 +23,9 @@ import Analisis from "./analisis/analisis";
 import FireCamp from "./analisis/fire_camp";
 import RiesgosPage from "./analisis/riesgo";
 import InfoPage from "./info/infoPage";
+import Respuesta from "./respuesta/respuesta";
+import EvinCode from "./respuesta/Evin";
+
 
 export default class index extends Component {
   render() {
@@ -51,10 +54,13 @@ export default class index extends Component {
             <Route path="plancontingencia" element={<PlanContingencia />} />
           </Route>
           <Route path="/riesgosapp/Cooper" element={<Cooper />} />
-          <Route path="/riesgosapp/Evin" element={<EVIN />} />
+          {/* <Route path="/riesgosapp/Evin" element={<EVIN />} /> */}
           <Route path="*" element={<NotFoud />} />
           <Route path="/planContingencia" element={<PlanContingencia />} />
           <Route path="/riesgosapp/coe" element={<Coe />} />
+          <Route path="/respuesta/*" element={<Respuesta />}>
+            <Route path="evin" element={<EvinCode/>} />
+          </Route>
           {/*//auth*/}
           <Route path="/info" element={<InfoPage />} />
           <Route path="/riesgosapp/userauth" element={<Login />} />

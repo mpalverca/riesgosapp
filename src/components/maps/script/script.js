@@ -71,3 +71,4 @@ export const cargarDatosFireID = async (id) => {
     throw error;
   }
 }
+

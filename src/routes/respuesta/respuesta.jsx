@@ -12,15 +12,12 @@ import EditNoteIcon from "@mui/icons-material/EditNote";
 import PlaylistAddCheckCircleIcon from "@mui/icons-material/PlaylistAddCheckCircle";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 
-export default function Preparacion() {
+export default function Respuesta() {
   const navigate = useNavigate();
   const location = useLocation();
 
   const subRoutes = [
-    "plancontingencia",
-    "planfamiliar",
-    "geologia",
-    "fire_camp",
+    "evin","comite"
   ];
   const isAnalisis = subRoutes.some((route) =>
     location.pathname.includes(route)
@@ -29,61 +26,28 @@ export default function Preparacion() {
   const analisisItems = [
     {
       id: 1,
-      route: "plancontingencia",
-      primary: "Plan de contingencia",
+      route: "evin",
+      primary: "Formulario EVIN",
       secondary:
-        "El plan contingencia es un manual de actividades a realizar por el organizador de un evento de concentración masiva, contiene tanto a los actores, como a la locación donde se realizara el evento, los recursos humanos y materiales a utilizar",
-      icon: <EditNoteIcon />,
+        "El evin es una herramienta que permite identificar familias afectadas por u evento adverso y redistribuir ayuda necesaria",
+         icon: <EditNoteIcon />,
       avatarColor: "#2196f3",
       badge: "Actualizado",
       badgeColor: "success",
-      description: "Elaboración de plan de contingencia para eventos masivos",
+      description: "Atención familias afectadas",
     },
     {
       id: 2,
-      route: "planfamiliar",
-      primary: "Plan Familiar de emergencia",
+      route: "comites",
+      primary: "Comites Comunitarios",
       secondary:
-        "El Plan Familiar de Emergencias es un conjunto de actividades que deben realizar las familias, nos permite identificar y reducir riesgos que se generan en la familia, en el entorno social o natural.",
-      icon: <EditNoteIcon />,
+        "Permite identificar lugares donde se ubican comites comunitarios", icon: <EditNoteIcon />,
       avatarColor: "#2196f3",
-      badge: "Actualizado",
+      badge: "nuevo",
       badgeColor: "success",
       description: "Elaboración de plan familiar de emergencia",
     },
-    {
-      id: 3,
-      route: "planfamiliar",
-      primary: "Zonas seguras",
-      secondary:
-        "zonas seguras son ubicaciones o espacios dodne se tiene o se peude realizar concentracion publico",
-      icon: <EditNoteIcon />,
-      avatarColor: "#2196f3",
-      badge: "Actualizado",
-      badgeColor: "success",
-      description: "revisar zonas seguras",
-    },
-    {
-      id: 5,
-      route: "planfamiliar",
-      primary: "Alojamientos Temporales",
-      secondary:
-        "los lojamientos temporales son espacios para persoans que han sido afectadas por un evento natural o antropico",
-      avatarColor: "#2196f3",
-      badge: "Actualizado",
-      badgeColor: "success",
-      description: "zonas destinadas a alojamientos temporales",
-    },
-        {
-      id: 5,
-      route: "planfamiliar",
-      primary: "Comites Comunitarios",
-      secondary:
-        "Los comites comunitarios son espacios de personas",   avatarColor: "#2196f3",
-      badge: "Nuevo",
-      badgeColor: "success",
-      description: "organizaciones comunitarias para atender una situación",
-    },
+    
   ];
   const handleItemClick = (route) => {
     navigate(route);
@@ -96,7 +60,7 @@ export default function Preparacion() {
   return (
     <Box sx={{ p: 1, minHeight: "100vh", bgcolor: "background.default" }}>
       {/* Header */}
-      <Box sx={{ textAlign: "center", mb: 6 }}>
+      <Box sx={{ textAlign: "center", mb: 2 }}>
         <Typography
           variant="h3"
           sx={{
@@ -105,7 +69,7 @@ export default function Preparacion() {
             mb: 2,
           }}
         >
-          Preparación ante Aventos Adversos
+          Respuesta Ante eventos
         </Typography>
         <Typography
           variant="h6"
@@ -116,8 +80,7 @@ export default function Preparacion() {
             lineHeight: 1.6,
           }}
         >
-          Plataforma integral para el monitoreo y análisis de riesgos naturales
-          en el cantón Loja
+          Plataforma integral para respuesta a riesgos de desastre en el cantón Loja
         </Typography>
       </Box>
 

@@ -22,7 +22,7 @@ const pages = [
     { name: 'Inicio', path: '' },
     { name: 'Análisis', path: '/analisis' },
     { name: 'Preparación', path: '/preparacion' },
-    { name: 'Respuesta', path: 'Evin' },
+    { name: 'Respuesta', path: 'respuesta' },
     { name: 'COE', path: '/coe' },
     { name: 'Información', path: '/info' }
 ];

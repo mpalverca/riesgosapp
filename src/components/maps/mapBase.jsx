@@ -3,13 +3,11 @@ import { MapContainer, TileLayer, Marker, Popup, Polygon } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import fireIconL from "../../assets/fire.png";
-
-
 import imageLoad from "../../assets/loading_map_3.gif";
 import urku from "../../assets/Urku_el_puma.png";
 import { fetchData } from "../fire/FireSearch";
 import { Box } from "@mui/material";
-console.log("aqui es incendios")
+
 const n_color = {
   ALTA: "#dc3545",
   MEDIA: "#ffc107",
