@@ -2,6 +2,7 @@ import { Box, Typography, Grid } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import Panel from "./comiteC/panel";
 import MapBase from "./comiteC/mapBase";
+import imageLoad from "../../assets/loading_map_3.gif";
 //const SCRIPT_URL="https://script.google.com/macros/s/AKfycbyxm-B9P0mM_KSGboPz6E4hAVGd3xEt-PNpaW5UmsGA84hstMrlMX2ELh-lFQxg_Mg/exec"
 const SCRIPT_URL =
   "https://script.google.com/macros/s/AKfycbzj8eXN23mkkdZypf8yBayEMBA7Bt-MM0D_6Jp-34JxQCsg-8UkjZqM9nBoI6dw8nrK/exec";
@@ -9,60 +10,50 @@ export default function ComiteComunitario() {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [selectedParroq, setSelectedParroq] = useState(null);
-  const [parroqData, setParroqData] = useState(null);
+  const [selectedvalue, setSelectedValue] = useState(null);
+  const [barData, setBarData] = useState(null);
   const [loadingParroq, setLoadingParroq] = useState(false);
   const [eventInfo, setDataEvent] = useState();
-console.log(parroqData)
   // Cargar datos iniciales
   useEffect(() => {
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      // 1. Obtener datos
-      const dataP = await dataSector();
-      // 2. Guardar datos completos
-      setData(dataP);
-      // 3. Extraer barrios 
-      if (dataP) {
-        const barrios = dataP
-          .map(feature => {
-            // Acceder a las propiedades de CADA feature
-            if (feature?.properties) {
-              // Buscar barrio en diferentes posibles nombres de campo
-              return feature.properties.BARRIO 
-            }
-            return null;
-          })
-          .filter(barrio => barrio && typeof barrio === "string")
-          .map(barrio => barrio.trim())
-          .filter((barrio, index, array) => array.indexOf(barrio) === index) // Únicos
-          .sort();
-        setParroqData(barrios);
-        
-        // Log para depuración: mostrar primeros 5 features
-        if (dataP.length > 0) {
-          console.log("📋 Primer feature para referencia:", {
-            properties: dataP[0].properties,
-            keys: Object.keys(dataP[0].properties || {})
-          });
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        // 1. Obtener datos
+        const dataP = await dataSector();
+        // 2. Guardar datos completos
+        setData(dataP);
+        // 3. Extraer barrios
+        if (dataP) {
+          const barrios = dataP
+            .map((feature) => {
+              // Acceder a las propiedades de CADA feature
+              if (feature?.properties) {
+                // Buscar barrio en diferentes posibles nombres de campo
+                return feature.properties.BARRIO;
+              }
+              return null;
+            })
+            .filter((barrio) => barrio && typeof barrio === "string")
+            .map((barrio) => barrio.trim())
+            .filter((barrio, index, array) => array.indexOf(barrio) === index) // Únicos
+            .sort();
+          setBarData(barrios);
+        } else {
+          console.warn("⚠️ No hay features en los datos:", dataP);
+          setBarData([]);
         }
-      } else {
-        console.warn("⚠️ No hay features en los datos:", dataP);
-        setParroqData([]);
+      } catch (err) {
+        console.error("❌ Error al cargar sectores:", err);
+        setError(`Error al cargar datos: ${err.message}`);
+      } finally {
+        setLoading(false);
       }
-      
-    } catch (err) {
-      console.error("❌ Error al cargar sectores:", err);
-      setError(`Error al cargar datos: ${err.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  fetchData();
-}, []);
+    };
+
+    fetchData();
+  }, []);
   // Cargar datos de parroquia específica
   const getParroqData = async (id) => {
     if (!id) return;
@@ -72,7 +63,7 @@ console.log(parroqData)
       setError(null);
       //const data = await cargarDatosFireID(id);
       //setParroqData(data);
-      setSelectedParroq(id);
+      setSelectedValue(id);
     } catch (err) {
       console.error("Error al cargar datos de parroquia:", err);
       setError("Error al cargar datos de la parroquia seleccionada");
@@ -85,7 +76,7 @@ console.log(parroqData)
     return (
       <>
         <Typography
-          variant="h2"
+          variant="h3"
           display="flex"
           align="center"
           alignContent="center"
@@ -96,8 +87,10 @@ console.log(parroqData)
           display="flex"
           justifyContent="center"
           alignItems="center"
-          minHeight="60vh" // Ajusta según tu diseño
-        ></Box>
+          minHeight="40vh" // Ajusta según tu diseño
+        >
+          <img src={imageLoad} alt="Descripción de la imagen" />
+        </Box>
       </>
     );
   }
@@ -127,8 +120,9 @@ console.log(parroqData)
         >
           <Panel
             title="Comites Comunitarios"
-            data={parroqData}
-            selectedParroq={selectedParroq}
+            data={barData}
+            selectedValue={selectedvalue}
+            setSelectedValue={setSelectedValue}
             loading={loadingParroq}
             fireData={eventInfo}
           />
@@ -138,9 +132,9 @@ console.log(parroqData)
             data={data}
             loading={loading}
             error={error}
-            onSelectParroq={setSelectedParroq}
+           // onSelectParroq={setSelectedValue}
             onGetParroqData={getParroqData}
-            selectedParroq={selectedParroq}
+            selectedParroq={selectedvalue}
             setEvent={setDataEvent}
             dataEvent={eventInfo}
             mapConfig={{

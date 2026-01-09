@@ -6,81 +6,85 @@ import "leaflet/dist/leaflet.css";
 import { Box } from "@mui/material";
 
 const n_color = {
-  ALTA: "#dc3545",
+  ALTA:"#3538dcff",
+  //ALTA: "#dc3545",
   MEDIA: "#ffc107",
   BAJA: "#28a745",
   DEFAULT: "#a9a9aaff",
 };
 const MapBase = (props) => {
+  console.log(props.selectedParroq)
   let position = [-3.9939, -79.2042];
- // console.log(props);
+  // console.log(props);
   const renderPolygons = () => {
     return props.data.map((item) => {
       try {
         const coordinates = item.geometry.coordinates;
         let leafletCoords = [];
-        const sect=item.properties
-          // Convertir coordenadas GeoJSON (MultiPolygon) a formato Leaflet
-          return coordinates.map((polygon, index) => {
-            const polyCoords = polygon[0].map((coord) => [coord[1], coord[0]]);
-            return (
-              <Polygon
-                eventHandlers={{
-                  click: () => {
-                    console.log("Marker clicked:", sect.ID);
-                    // Tu lógica aquí
-                    props.onSelectParroq(item.id);
-                    props.onGetParroqData(item.id);
-                   
-                  },
-                }}
-                key={`N° ${item.id}-${index}`}
-                positions={polyCoords}
-                pathOptions={{
-                  color:
-                    item.n_alert == "Alto"
-                      ? n_color.ALTA
-                      : item.n_alert == "Medio"
-                      ? n_color.MEDIA
-                      : n_color.DEFAULT,
-                  fillColor:
-                    item.n_alert == "Alto"
-                      ? n_color.ALTA
-                      : item.n_alert == "Medio"
-                      ? n_color.MEDIA
-                      : n_color.DEFAULT,
-                  fillOpacity: 0.2,
-                  weight: 2,
-                }}
-              >
-                <Popup>
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "15px",
-                      alignItems: "flex-start",
-                    }}
-                  >
-                    <div>
-                      <h4 style={{ marginTop: 0 }}>
-                        {sect.ID} - {sect.SECTOR}
-                      </h4>
-                      <p>
-                        <strong>Parroquia:</strong> {sect.PARROQUIA}
-                      </p>
-                      <p>
-                        <strong>Barrio:</strong> {sect.BARRIO} 
-                      </p>
-                       <p>
-                        <strong>Dirigente:</strong> {sect.PRESIDENTE} 
-                      </p>
-                    </div>
+        const sect = item.properties;
+        // Convertir coordenadas GeoJSON (MultiPolygon) a formato Leaflet
+        return coordinates.map((polygon, index) => {
+          const polyCoords = polygon[0].map((coord) => [coord[1], coord[0]]);
+          return (
+            <Polygon
+              eventHandlers={{
+                click: () => {
+                  console.log("Marker clicked:", sect.ID);
+                  // Tu lógica aquí
+                 // props.onSelectParroq(item.id);
+                  props.onGetParroqData(item.id);
+                },
+              }}
+              key={`N° ${item.id}-${index}`}
+              positions={polyCoords}
+              pathOptions={{
+                color:
+                  sect.BARRIO == props.selectedParroq
+                    ? n_color.ALTA
+                    : n_color.DEFAULT,
+                fillColor:
+                  sect.BARRIO == props.selectedParroq
+                    ? n_color.ALTA
+                    : n_color.DEFAULT,
+                fillOpacity: sect.BARRIO == props.selectedParroq ? 0.4 : 0.2,
+                weight: sect.BARRIO == props.selectedParroq ? 3 : 2,
+                // Opcional: agregar sombra o efectos
+                shadow: sect.BARRIO == props.selectedParroq,
+                shadowColor:
+                  sect.BARRIO == props.selectedParroq
+                    ? n_color.ALTA
+                    : "transparent",
+                shadowOpacity: 0.5,
+                shadowRadius: 10,
+              }}
+            >
+              <Popup>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "15px",
+                    alignItems: "flex-start",
+                  }}
+                >
+                  <div>
+                    <h4 style={{ marginTop: 0 }}>
+                      {sect.ID} - {sect.SECTOR}
+                    </h4>
+                    <p>
+                      <strong>Parroquia:</strong> {sect.PARROQUIA}
+                    </p>
+                    <p>
+                      <strong>Barrio:</strong> {sect.BARRIO}
+                    </p>
+                    <p>
+                      <strong>Dirigente:</strong> {sect.PRESIDENTE}
+                    </p>
                   </div>
-                </Popup>
-              </Polygon>
-            );
-          });
-        
+                </div>
+              </Popup>
+            </Polygon>
+          );
+        });
       } catch (error) {
         console.error("Error al procesar polígono:", item, error);
         return null;
@@ -105,7 +109,6 @@ const MapBase = (props) => {
 
       return `${day}/${month}/${year} ${hours}:${minutes}`;
     };
-
 
     return props.dataEvent
       .map((item) => {
@@ -132,7 +135,7 @@ const MapBase = (props) => {
             <Marker
               key={item.id || `marker-${Math.random()}`}
               position={leafletCoords}
-            
+
               // pathOptions={{ color:'#ff0000'     }}
             >
               <Popup>
@@ -149,8 +152,7 @@ const MapBase = (props) => {
                     {item.obs || "No disponible"}
                   </p>
                   <p>
-                    <strong>Afectacion:</strong>{" "}
-                    {item.afect || "No disponible"}
+                    <strong>Afectacion:</strong> {item.afect || "No disponible"}
                   </p>
                 </div>
               </Popup>
@@ -163,15 +165,14 @@ const MapBase = (props) => {
       })
       .filter(Boolean); // Filtrar elementos null/undefined
   };
-  if (props.loading)  return (
+  if (props.loading)
+    return (
       <Box
-    display="flex"
-    justifyContent="center"
-    alignItems="center"
-    minHeight="60vh" // Ajusta según tu diseño
-  >
-        
-      </Box>
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="60vh" // Ajusta según tu diseño
+      ></Box>
     );
   if (props.error) return <div>{props.error}</div>;
   return (
