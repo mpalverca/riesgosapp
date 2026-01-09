@@ -21,6 +21,7 @@ export default function Preparacion() {
     "planfamiliar",
     "geologia",
     "fire_camp",
+    "comite_comunitario"
   ];
   const isAnalisis = subRoutes.some((route) =>
     location.pathname.includes(route)
@@ -76,10 +77,11 @@ export default function Preparacion() {
     },
         {
       id: 5,
-      route: "planfamiliar",
+      route: "comite_comunitario",
       primary: "Comites Comunitarios",
       secondary:
-        "Los comites comunitarios son espacios de personas",   avatarColor: "#2196f3",
+        "Los comites comunitarios son espacios de personas",
+      avatarColor: "#2196f3",
       badge: "Nuevo",
       badgeColor: "success",
       description: "organizaciones comunitarias para atender una situación",
