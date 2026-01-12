@@ -10,7 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import React from "react";
-import { AlertText } from "../../panels/Panels";
+import { AlertText } from "../../../../components/panels/Panels";
 
 export default function InfoBase({ formData, handleInputChange }) {
   return (

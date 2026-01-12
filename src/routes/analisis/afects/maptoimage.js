@@ -1,4 +1,4 @@
-import { jsPDF } from 'jspdf';
+//import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 
 // Función para capturar un mapa basado en coordenadas y generar un PDF

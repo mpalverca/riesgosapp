@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { MapContainer, TileLayer, Marker, Popup, Polygon } from "react-leaflet";
-import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 //import { fetchData } from "../fire/FireSearch";
 import { Box } from "@mui/material";
@@ -20,7 +19,7 @@ const MapBase = (props) => {
     return props.data.map((item) => {
       try {
         const coordinates = item.geometry.coordinates;
-        let leafletCoords = [];
+        //let leafletCoords = [];
         const sect = item.properties;
         // Convertir coordenadas GeoJSON (MultiPolygon) a formato Leaflet
         return coordinates.map((polygon, index) => {
@@ -38,19 +37,19 @@ const MapBase = (props) => {
               positions={polyCoords}
               pathOptions={{
                 color:
-                  sect.BARRIO == props.selectedParroq
+                  sect.BARRIO === props.selectedParroq
                     ? n_color.ALTA
                     : n_color.DEFAULT,
                 fillColor:
-                  sect.BARRIO == props.selectedParroq
+                  sect.BARRIO === props.selectedParroq
                     ? n_color.ALTA
                     : n_color.DEFAULT,
-                fillOpacity: sect.BARRIO == props.selectedParroq ? 0.4 : 0.2,
-                weight: sect.BARRIO == props.selectedParroq ? 3 : 2,
+                fillOpacity: sect.BARRIO === props.selectedParroq ? 0.4 : 0.2,
+                weight: sect.BARRIO === props.selectedParroq ? 3 : 2,
                 // Opcional: agregar sombra o efectos
-                shadow: sect.BARRIO == props.selectedParroq,
+                shadow: sect.BARRIO === props.selectedParroq,
                 shadowColor:
-                  sect.BARRIO == props.selectedParroq
+                  sect.BARRIO === props.selectedParroq
                     ? n_color.ALTA
                     : "transparent",
                 shadowOpacity: 0.5,

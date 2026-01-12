@@ -10,9 +10,9 @@ import {
 import L from "leaflet";
 import imageLoad from "../../../assets/loading_map_3.gif";
 import { Slider, Typography, Box, Button } from "@mui/material";
-import Clustering, {
+import  {
   createCustomMarker,
-  createCircleMarker,
+
 } from "./clustering";
 // ...otros imports...
 import "leaflet/dist/leaflet.css";
@@ -23,12 +23,12 @@ import {
   FaWater,
   FaMountain,
   FaBuilding,
-  FaFire,
+  
   FaExclamationTriangle,
 } from "react-icons/fa";
-import { FaHouseDamage } from "@react-icons/all-files/fa/FaHouseDamage";
+/* import { FaHouseDamage } from "@react-icons/all-files/fa/FaHouseDamage";
 import { cargarDatosafec } from "./script.js";
-import { captureMapImage } from "./maptoimage.js";
+import { captureMapImage } from "./maptoimage.js"; */
 
 // Configuración de iconos para Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -89,7 +89,7 @@ const MapAfects = ({
   };
 
   // Función para renderizar marcadores de afectaciones
-  const renderAfectMarker = useCallback((item) => {
+  /* const renderAfectMarker = useCallback((item) => {
     if (!item.latitud || !item.longitud) return null;
 
     const position = [parseFloat(item.latitud), parseFloat(item.longitud)];
@@ -112,7 +112,7 @@ const MapAfects = ({
       popupContent,
       className: "custom-marker",
     });
-  }, []);
+  }, []); */
 
   // Función para comparar fechas ignorando la hora
   const renderAfect = () => {

@@ -11,7 +11,7 @@ import {
 import EditNoteIcon from "@mui/icons-material/EditNote";
 import PlaylistAddCheckCircleIcon from "@mui/icons-material/PlaylistAddCheckCircle";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
-import { People, Person2 } from "@mui/icons-material";
+import { People } from "@mui/icons-material";
 
 export default function Respuesta() {
   const navigate = useNavigate();

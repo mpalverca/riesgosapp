@@ -11,13 +11,13 @@ const SUPABASE_O_URL = "https://strvklqwxyenoobrqtis.supabase.co";
 const SUPABASE_O_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0cnZrbHF3eHllbm9vYnJxdGlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI0NTU2MzQsImV4cCI6MjA2ODAzMTYzNH0.tBX7U1Bsq5de9man6iCDmq-AudmYr-NC86v62tz4IKg";
 // Colores para marcadores según prioridad
-const PRIORITY_COLORS = {
+/* const PRIORITY_COLORS = {
   ALTA: "#dc3545",
   MEDIA: "#ffc107",
   BAJA: "#28a745",
   DEFAULT: "#007bff",
-};
-const DAMAGE_COOPER = {
+}; */
+/* const DAMAGE_COOPER = {
   7: "#dc3545",
   6: "#dc3545",
   5: "#dc3545",
@@ -26,13 +26,13 @@ const DAMAGE_COOPER = {
   2: "#28a745",
   1: "#28a745",
   DEFAULT: "#007bff",
-};
+}; */
 
-const cooper_icon = {
+/* const cooper_icon = {
   1: { icon: <FaHome />, color: "#1e90ff" },
   2: { icon: <FaRoad />, color: "#8b4513" },
   3: { icon: <FaRoad />, color: "#ff4500" },
-};
+}; */
 const supabaseAfect = createClient(SUPABASE_URL, SUPABASE_KEY);
 const parroq =createClient(SUPABASE_O_URL,SUPABASE_O_KEY)
   
@@ -129,7 +129,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     const leftMargin = 15;
     const rightMargin = 15;
     const topMargin = 35;
-    const bottomMargin = 20;
+    //const bottomMargin = 20;
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
     const maxWidth = pageWidth - leftMargin - rightMargin;

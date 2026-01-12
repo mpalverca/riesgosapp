@@ -11,8 +11,7 @@ import {
 import EditNoteIcon from "@mui/icons-material/EditNote";
 import PlaylistAddCheckCircleIcon from "@mui/icons-material/PlaylistAddCheckCircle";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
-import { icon } from "leaflet";
-import { Apartment, BuildTwoTone, Flag, House, People } from "@mui/icons-material";
+import { Apartment, Flag, House, People } from "@mui/icons-material";
 
 export default function Preparacion() {
   const navigate = useNavigate();
