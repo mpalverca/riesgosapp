@@ -21,7 +21,7 @@ export default function Panel({
   cantAfects,
   radioafect,
   parroq,
-  setParroq
+  setParroq,
 }) {
   const [form, setForm] = useState({ latitud: "", longitud: "" });
 
@@ -56,23 +56,24 @@ export default function Panel({
 
   return (
     <div>
-      <Typography variant="h5"><strong>
-        Visor Territorial de Afectaciones</strong></Typography>
+      <Typography variant="h4">
+        <strong>Visor Territorial de Afectaciones</strong>
+      </Typography>
       <div
         style={{
           padding: "10px",
           backgroundColor: "#fff3cd",
-          borderLeft: "5px solid #020202ff",
+          borderLeft: "8px solid rgb(54, 17, 221)",
           borderRadius: "4px",
           color: "#856404",
           margin: "2px 0",
         }}
       >
-        <Typography align="justify">
-          ⚠️ <strong>Advertencia:</strong> La información presentada es de
-          manera referencial y deberá asumirse con el mayor cuidado y
-          responsabilidad ya que la divulgación inadecuada de la misma está
-          sujeta a acciones y sanciones contempladas en la LOGIRD.
+        <Typography align="justify" variant="body2">
+          ⚠️ <strong>Importante:</strong> La información presentada es de manera
+          referencial y deberá asumirse con el mayor cuidado y responsabilidad
+          ya que la divulgación inadecuada de la misma está sujeta a acciones y
+          sanciones contempladas en la LOGIRD.
         </Typography>
       </div>
       <Divider />
@@ -124,7 +125,7 @@ export default function Panel({
           alignContent: "normal",
         }}
       >
-        <Typography align="justify">
+        <Typography align="justify" variant="subtitle2">
           <strong>Afectación:</strong> Es una situación, suceso o hecho que
           produce alteración en la Vida de las personas, de la economía, los
           sistemas sociales y el ambiente, causado por fenómenos de origen
@@ -143,7 +144,7 @@ export default function Panel({
         {radioafect.length}
       </Typography>
       <Divider />
-      <Typography variant="subtitle1">Prioridad</Typography>
+
       <FormControl fullWidth margin="normal">
         <InputLabel id="priority-label">Prioridad</InputLabel>
         <Select
@@ -159,7 +160,7 @@ export default function Panel({
           <MenuItem value="Todos">Todos</MenuItem>
         </Select>
       </FormControl>
-      <Typography variant="subtitle1">Estado</Typography>
+
       <FormControl fullWidth margin="normal">
         <InputLabel id="state-label">Estado</InputLabel>
         <Select
@@ -174,7 +175,7 @@ export default function Panel({
           <MenuItem value="Todos">Todos</MenuItem>
         </Select>
       </FormControl>
-      <Typography variant="subtitle1">Afectacción</Typography>
+
       <FormControl fullWidth margin="normal">
         <InputLabel id="afect-label">afectacion</InputLabel>
         <Select
@@ -196,7 +197,6 @@ export default function Panel({
         </Select>
       </FormControl>
 
-      <Typography variant="subtitle1">Parroquia</Typography>
       <FormControl fullWidth margin="normal">
         <InputLabel id="Parroq-label">Parroquia</InputLabel>
         <Select
@@ -206,31 +206,30 @@ export default function Panel({
           label="Parroquia"
           onChange={handleParroqChange}
         >
-          <MenuItem value="Sucre">Sucre</MenuItem>
           <MenuItem value="Chantaco">Chantaco</MenuItem>
-          <MenuItem value="Taquil">Taquil</MenuItem>
-          <MenuItem value="Vilcabamba">Vilcabamba</MenuItem>
+          <MenuItem value="Chuquiribamba">Chuquiribamba</MenuItem>
+          <MenuItem value="El Cisne">El Cisne</MenuItem>
+          <MenuItem value="Gualel">Gualel</MenuItem>
+          <MenuItem value="Jimbilla">Jimbilla</MenuItem>
+          <MenuItem value="Loja">Loja</MenuItem>
+          <MenuItem value="Malacatos">Malacatos</MenuItem>
+            <MenuItem value="Taquil">Sagrario</MenuItem>
+          <MenuItem value="San Lucas">San Lucas</MenuItem>
+          <MenuItem value="Santiago">Santiago</MenuItem>
           <MenuItem value="San Pedro de Vilcabamba">
             San Pedro de Vilcabamba
           </MenuItem>
-          <MenuItem value="Malacatos">Malacatos</MenuItem>
+        
+          <MenuItem value="Sucre">Sucre</MenuItem>
+          <MenuItem value="Taquil">Taquil</MenuItem>
           <MenuItem value="Quinara">Quinara</MenuItem>
-          <MenuItem value="El Cisne">El Cisne</MenuItem>
-          <MenuItem value="Santiago">Santiago</MenuItem>
-          <MenuItem value="Yangana">Yangana</MenuItem>
-          <MenuItem value="Gualel">Gualel</MenuItem>
-          <MenuItem value="Chantaco">Chantaco</MenuItem>
-          <MenuItem value="Chuquiribamba">Chuquiribamba</MenuItem>
-          <MenuItem value="Jimbilla">Jimbilla</MenuItem>
-          <MenuItem value="Loja">Loja</MenuItem>
-          <MenuItem value="San Lucas">San Lucas</MenuItem>
           <MenuItem value="Valle">Valle</MenuItem>
-          <MenuItem value="Tumbunuma">Tumbunuma</MenuItem>
-          <MenuItem value="Cariamanga">Cariamanga</MenuItem>
+          <MenuItem value="Vilcabamba">Vilcabamba</MenuItem>
+          <MenuItem value="Yangana">Yangana</MenuItem>
+
           <MenuItem value="Todos">Todos</MenuItem>
         </Select>
       </FormControl>
-    
     </div>
   );
 }

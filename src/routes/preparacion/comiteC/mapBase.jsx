@@ -29,12 +29,11 @@ const MapBase = (props) => {
             <Polygon
               eventHandlers={{
                 click: () => {
-                  console.log("Marker clicked:", sect.ID);
-                  // Tu lógica aquí
-                 // props.onSelectParroq(item.id);
-                  props.onGetParroqData(item.id);
+                  console.log("Polígono clickeado:", props);
+                 // setSelectedBarrio(props.selectedParroq);
                 },
               }}
+             
               key={`N° ${item.id}-${index}`}
               positions={polyCoords}
               pathOptions={{
@@ -75,10 +74,7 @@ const MapBase = (props) => {
                     </p>
                     <p>
                       <strong>Barrio:</strong> {sect.BARRIO}
-                    </p>
-                    <p>
-                      <strong>Dirigente:</strong> {sect.PRESIDENTE}
-                    </p>
+                    </p>                    
                   </div>
                 </div>
               </Popup>

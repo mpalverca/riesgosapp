@@ -11,13 +11,14 @@ import {
 import EditNoteIcon from "@mui/icons-material/EditNote";
 import PlaylistAddCheckCircleIcon from "@mui/icons-material/PlaylistAddCheckCircle";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { People, Person2 } from "@mui/icons-material";
 
 export default function Respuesta() {
   const navigate = useNavigate();
   const location = useLocation();
 
   const subRoutes = [
-    "evin","comite"
+    "evin","brigada"
   ];
   const isAnalisis = subRoutes.some((route) =>
     location.pathname.includes(route)
@@ -38,14 +39,25 @@ export default function Respuesta() {
     },
     {
       id: 2,
-      route: "comites",
-      primary: "Comites Comunitarios",
+      route: "brigada",
+      primary: "Brigadas Comunitarias",
       secondary:
-        "Permite identificar lugares donde se ubican comites comunitarios", icon: <EditNoteIcon />,
+        "Permite identificar lugares donde se ubican las brigadas comunitarias", icon: <EditNoteIcon />,
       avatarColor: "#2196f3",
       badge: "nuevo",
       badgeColor: "success",
       description: "Elaboración de plan familiar de emergencia",
+    },
+    {
+      id: 3,
+      route: "Atencion",
+      primary: "Zonas de atención prioritaria",
+      secondary:
+        "Permite visualizar lugares y estado de los levantamientos de información para la atencion necesaria", icon: <People/>,
+      avatarColor: "#e9640c",
+      badge: "atención",
+      badgeColor: "error",
+      description: "Visualización de puntos de atención bajo evaluación Evin",
     },
     
   ];

@@ -11,6 +11,8 @@ import {
 import EditNoteIcon from "@mui/icons-material/EditNote";
 import PlaylistAddCheckCircleIcon from "@mui/icons-material/PlaylistAddCheckCircle";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { icon } from "leaflet";
+import { Apartment, BuildTwoTone, Flag, House, People } from "@mui/icons-material";
 
 export default function Preparacion() {
   const navigate = useNavigate();
@@ -20,8 +22,9 @@ export default function Preparacion() {
     "plancontingencia",
     "planfamiliar",
     "geologia",
-    "fire_camp",
-    "comite_comunitario"
+    "zonas_seguras",
+    "comite_comunitario",
+    "comite_comunitario_parroquial"
   ];
   const isAnalisis = subRoutes.some((route) =>
     location.pathname.includes(route)
@@ -46,31 +49,32 @@ export default function Preparacion() {
       primary: "Plan Familiar de emergencia",
       secondary:
         "El Plan Familiar de Emergencias es un conjunto de actividades que deben realizar las familias, nos permite identificar y reducir riesgos que se generan en la familia, en el entorno social o natural.",
-      icon: <EditNoteIcon />,
-      avatarColor: "#2196f3",
+      icon: <House/>,
+      avatarColor: "#f39821",
       badge: "Actualizado",
       badgeColor: "success",
       description: "Elaboración de plan familiar de emergencia",
     },
     {
       id: 3,
-      route: "planfamiliar",
+      route: "zonas_seguras",
       primary: "Zonas seguras",
       secondary:
         "zonas seguras son ubicaciones o espacios dodne se tiene o se peude realizar concentracion publico",
-      icon: <EditNoteIcon />,
-      avatarColor: "#2196f3",
+      icon: <Flag/>,
+      avatarColor: "#418141",
       badge: "Actualizado",
       badgeColor: "success",
       description: "revisar zonas seguras",
     },
     {
-      id: 5,
-      route: "planfamiliar",
+      id: 4,
+      route: "alojamientos_temporales",
       primary: "Alojamientos Temporales",
+       icon: <Apartment/>,
       secondary:
         "los lojamientos temporales son espacios para persoans que han sido afectadas por un evento natural o antropico",
-      avatarColor: "#2196f3",
+      avatarColor: "#b6b44b",
       badge: "Actualizado",
       badgeColor: "success",
       description: "zonas destinadas a alojamientos temporales",
@@ -79,9 +83,23 @@ export default function Preparacion() {
       id: 5,
       route: "comite_comunitario",
       primary: "Comites Comunitarios",
+      icon:<People/>,
+
       secondary:
         "Los comites comunitarios son espacios de personas",
-      avatarColor: "#2196f3",
+      avatarColor: "#b821f3",
+      badge: "Nuevo",
+      badgeColor: "success",
+      description: "organizaciones comunitarias para atender una situación",
+    },
+     {
+      id: 6,
+      route: "comite_comunitario_parroquial",
+      primary: "Comites Comunitarios parroquiales",
+      icon:<People/>,
+      secondary:
+        "Los comites comunitarios son organización de personas",
+      avatarColor: "#21f333",
       badge: "Nuevo",
       badgeColor: "success",
       description: "organizaciones comunitarias para atender una situación",

@@ -26,9 +26,9 @@ export default function Footer() {
               lineHeight: 1.6,
             }}
           >
-            © 2025 Municipio de Loja - Coordinación de Gestión de Riesgos | Ing.
+           {/*  © 2025 Municipio de Loja - Coordinación de Gestión de Riesgos */}| © 2025 | Ing.
             Millán Paul Alverca Gaona | Ecuador - Loja |
-            <Link
+           {/*  <Link
               href="https://www.loja.gob.ec/"
               target="_blank"
               rel="noopener noreferrer"
@@ -43,7 +43,7 @@ export default function Footer() {
               }}
             >
               Visita nuestro sitio web
-            </Link>
+            </Link> */}
           </Typography>
         </Container>
       </Box>

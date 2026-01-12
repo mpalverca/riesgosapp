@@ -142,7 +142,7 @@ export default function PlanContingencia() {
   };
 
   return (
-    <Paper sx={{ ph: 3 }}>
+    <Paper sx={{ py: 3 }}>
       <Typography variant="h4" component="h1" gutterBottom align="center">
         Plan de Contingencia para Eventos Públicos
       </Typography>
@@ -178,11 +178,11 @@ export default function PlanContingencia() {
             <Button
               disabled={activeStep === 0}
               onClick={handleBack}
-              sx={{ mr: 1 }}
+              sx={{ mr: 1, my:2 }}
             >
               Anterior
             </Button>
-            <Button variant="contained" onClick={handleNext}>
+            <Button variant="contained" onClick={handleNext} sx={{ mr: 1, my:2 }}>
               {activeStep === steps.length - 1 ? "Finalizar" : "Siguiente"}
             </Button>
           </Box>
