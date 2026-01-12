@@ -1,4 +1,5 @@
 import {
+  Box,
   Checkbox,
   Divider,
   FormControlLabel,
@@ -9,6 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import React from "react";
+import { AlertText } from "../../panels/Panels";
 
 export default function InfoBase({ formData, handleInputChange }) {
   return (
@@ -16,8 +18,7 @@ export default function InfoBase({ formData, handleInputChange }) {
       <Typography variant="h5" gutterBottom>
         Información Básica
       </Typography>
-
-      <Grid container spacing={3} >
+      <Grid container spacing={3}>
         <Grid item size={{ xs: 12, md: 5 }}>
           <TextField
             fullWidth
@@ -52,8 +53,14 @@ export default function InfoBase({ formData, handleInputChange }) {
           />
         </Grid>
       </Grid>
-        <Divider sx={{my:1}} />
-      <Grid container spacing={3} >
+      <AlertText
+        text={
+          <Box>
+            ⚠️ <strong>Advertencia:</strong> Recuerda que aforo se indica la necesidad de contar con seguridad,durante el evento
+          </Box>
+        }
+      />
+      <Grid container spacing={3}>
         <Grid item size={{ xs: 12, md: 5 }}>
           <TextField
             fullWidth
@@ -85,7 +92,7 @@ export default function InfoBase({ formData, handleInputChange }) {
           />
         </Grid>
       </Grid>
-      <Divider sx={{my:2}} />
+      <Divider sx={{ my: 2 }} />
       <Grid container spacing={3}>
         <Grid item size={{ xs: 12, md: 4 }}>
           <TextField
@@ -124,7 +131,7 @@ export default function InfoBase({ formData, handleInputChange }) {
           />
         </Grid>
       </Grid>
-        <Divider sx={{my:2}} />
+      <Divider sx={{ my: 2 }} />
       <Grid container spacing={3}>
         <Grid item size={{ xs: 12, md: 4 }}>
           <TextField
@@ -176,53 +183,51 @@ export default function InfoBase({ formData, handleInputChange }) {
 export const SpaceData = ({ formData, handleInputChange }) => {
   return (
     <Paper elevation={3} sx={{ p: 2, mb: 2 }}>
-              <Typography variant="h5" gutterBottom>
+      <Typography variant="h5" gutterBottom>
         Información del Lugar
       </Typography>
       <Grid container spacing={3} padding={1}>
-     
-          <Grid item size={{ xs: 12, sm: 4,}}>
-            <Typography variant="subtitle1" gutterBottom>
-              Espacio
-            </Typography>
-          </Grid>
-          <Grid item size={{ xs: 12, sm: 4 }}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  name="privado"
-                  checked={formData.espacio.privado}
-                  onChange={handleInputChange}
-                />
-              }
-              label={<ListItemText
-                  primary="Privado"
-                  security="Son todos los espacios privados "
-                  />
-                  }
-            />{" "}
-          </Grid>
-          <Grid item size={{ xs: 12, sm: 4 }}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  name="publico"
-                  checked={formData.espacio.publico}
-                  onChange={handleInputChange}
-                />
-              }
-              label={<ListItemText
-                  primary="Público"
-                  security="Son todos los espacios de uso públicos o comunitario"
-                  />
-                  }
-            />
-          </Grid> 
+        <Grid item size={{ xs: 12, sm: 4 }}>
+          <Typography variant="subtitle1" gutterBottom>
+            Espacio
+          </Typography>
+        </Grid>
+        <Grid item size={{ xs: 12, sm: 4 }}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                name="privado"
+                checked={formData.espacio.privado}
+                onChange={handleInputChange}
+              />
+            }
+            label={
+              <ListItemText
+                primary="Privado"
+                security="Son todos los espacios privados "
+              />
+            }
+          />{" "}
+        </Grid>
+        <Grid item size={{ xs: 12, sm: 4 }}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                name="publico"
+                checked={formData.espacio.publico}
+                onChange={handleInputChange}
+              />
+            }
+            label={
+              <ListItemText
+                primary="Público"
+                security="Son todos los espacios de uso públicos o comunitario"
+              />
+            }
+          />
+        </Grid>
       </Grid>
-         <Divider/>
-      <Typography variant="subtitle1" gutterBottom>
-        Tipo de Espacio {formData.espacio.privado ?"Privado": "Público" }
-      </Typography>
+      <Divider />
       <Grid container spacing={2}>
         <Grid item size={{ xs: 12, sm: 6, md: 3 }}>
           <FormControlLabel
@@ -273,7 +278,6 @@ export const SpaceData = ({ formData, handleInputChange }) => {
           />
         </Grid>
         {formData.tipoEspacio.otro && (
-          <Grid item size={{ xs: 12, sm: 6, md: 3 }}>
             <TextField
               fullWidth
               name="otroEspacio"
@@ -282,7 +286,6 @@ export const SpaceData = ({ formData, handleInputChange }) => {
               onChange={handleInputChange}
               placeholder="Especifique el tipo de espacio"
             />
-          </Grid>
         )}
       </Grid>
     </Paper>

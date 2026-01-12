@@ -8,7 +8,7 @@ import {
   Polygon,
 } from "react-leaflet";
 import L from "leaflet";
-import imageLoad from "../../assets/loading_map_3.gif";
+import imageLoad from "../../../assets/loading_map_3.gif";
 import { Slider, Typography, Box, Button } from "@mui/material";
 import Clustering, {
   createCustomMarker,

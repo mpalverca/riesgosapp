@@ -111,7 +111,7 @@ const Home = () => {
 
         {/* Sección de Introducción */}
 
-        <Card elevation={3}>
+        <Card elevation={3} sx={{ mb: 2 }}>
           <CardContent>
             <Typography
               variant="h1"
@@ -121,12 +121,12 @@ const Home = () => {
             >
               ¿Qué es la Gestión Integral de Riesgos de Desastres?
             </Typography>
-            <Typography variant="body1" paragraph>
+            <Typography variant="body1" align="justify">
               La Ley de Gestión de Riesgos de Desastres (LOGIRD) contempla la
               posibilidad de ocurrencia de un evento que pueda afectar la
               economía, bienes materiales o vidas humanas.
             </Typography>
-            <Typography variant="body1" paragraph>
+            <Typography variant="body1" align="justify">
               La Gestión del Riesgo se hace referencia al proceso social de
               planeación, ejecución, seguimiento y evaluación de políticas y
               acciones para el conocimiento del riesgo y promoción de una mayor
@@ -145,18 +145,18 @@ const Home = () => {
             >
               Objetivos de la LOGIRD
             </Typography>
-            <Typography variant="body1" paragraph>
+            <Typography variant="body1" align="justify">
               La Ley Orgánica de Gestión Integral de Riesgos de Desastres tiene
               como objetivos principales:
             </Typography>
             <ul>
               <li>
-                <Typography variant="body1">
+                <Typography variant="body1" align="justify">
                   Impedir o evitar que se generen riesgos
                 </Typography>
               </li>
               <li>
-                <Typography variant="body1">
+                <Typography variant="body1" align="justify">
                   Reducir o controlar los riesgos existentes
                 </Typography>
               </li>

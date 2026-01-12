@@ -28,6 +28,7 @@ import Respuesta from "./respuesta/respuesta";
 import EvinCode from "./respuesta/Evin";
 
 import ComiteComunitario from "./preparacion/ComiteComu";
+import Brigadas from "./respuesta/Brigadas";
 
 export default class index extends Component {
   render() {
@@ -63,6 +64,7 @@ export default class index extends Component {
           <Route path="/riesgosapp/coe" element={<Coe />} />
           <Route path="/respuesta/*" element={<Respuesta />}>
             <Route path="evin" element={<EvinCode/>} />
+            <Route path="brigada" element={<Brigadas/>}/>
           </Route>
           {/*//auth*/}
           <Route path="/info" element={<InfoPage />} />

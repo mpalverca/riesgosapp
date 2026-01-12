@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
-import MapAfects from "../components/afects/afects";
+import MapAfects from "./analisis/afects/afects";
 import { Grid } from "@mui/material";
-import Panel from "../components/afects/panel";
-import { cargarDatosafec,cargarDatosParroquia } from "../components/afects/script.js";
+import Panel from "./analisis/afects/panel";
+import { cargarDatosafec, cargarDatosParroquia } from "./analisis/afects/script";
+
+
 export default function Alerts() {
   const [afectData, setAfectData] = useState([]);
   const [parroquia,setParroquia]=useState([]);
