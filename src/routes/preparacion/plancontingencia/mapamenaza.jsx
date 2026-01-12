@@ -9,8 +9,9 @@ import {
 
   Box
 } from '@mui/material';
+import MapViewer from './maps/ubiMap';
 
-import MapViewer from '../maps/MapViewer';
+
 
 
 const IdentificacionAmenazas = ({ handleNext, handleBack }) => {

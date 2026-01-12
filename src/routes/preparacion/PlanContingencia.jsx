@@ -13,10 +13,10 @@ import {
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import General from '../../components/plancontingencia/general';
-import Descripcion from '../../components/plancontingencia/descripcion';
-import Cronograma from '../../components/plancontingencia/cronograma';
-import RecursosContingencia from '../../components/plancontingencia/recursos';
+import General from './plancontingencia/general';
+import Descripcion from './plancontingencia/descripcion';
+import Cronograma from './plancontingencia/cronograma';
+import RecursosContingencia from './plancontingencia/recursos';
 
 
 // Solución para iconos de Leaflet en React

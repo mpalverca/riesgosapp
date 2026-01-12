@@ -62,7 +62,7 @@ const LoginForm = ({ switchToRegister, onLoginSuccess }) => {
 
       // Obtener los datos completos del usuario
       const { data: { user }, error: userError } = await client.auth.getUser();
-      
+     // console.log("User data:", { user });
       if (userError) throw userError;
 
       // Guardar en localStorage
@@ -72,7 +72,7 @@ const LoginForm = ({ switchToRegister, onLoginSuccess }) => {
         name: user.user_metadata?.name || '',
         phone: user.user_metadata?.phone || '',
         ci: user.user_metadata?.ci || '',
-        rol:user.role
+        rol:user.user_metadata?.role || 'user'
       };
       
       localStorage.setItem('user', JSON.stringify(userData));
@@ -203,7 +203,8 @@ const RegisterForm = ({ switchToLogin, onRegisterSuccess }) => {
         email: formData.email,
         name: formData.name,
         phone: formData.phone,
-        ci: formData.ci
+        ci: formData.ci,
+        role:"user"
       };
       localStorage.setItem('user', JSON.stringify(userData));
       

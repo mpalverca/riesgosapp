@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { Grid, Typography } from "@mui/material";
-import GeoDataViewer from "../../components/riesgos/GeoDataViewer.js";
-import { PolylineMap } from "../../components/riesgos/viewmap";
+import GeoDataViewer from "./riesgos/GeoDataViewer.js";
+import { PolylineMap } from "./riesgos/viewmap";
 import {
   useAASS,
   useApConst,
   useClaveData,
   useSector,
   useVial,
-} from "../../components/riesgos/useGeoData.js";
+} from "./riesgos/useGeoData.js";
 import "./App.css";
-import TableView, { ViewPredio } from "../../components/riesgos/tableview.jsx";
-import BasicTabs from "../../components/riesgos/tapsR.jsx";
+import TableView, { ViewPredio } from "./riesgos/tableview.jsx";
+import BasicTabs from "./riesgos/tapsR.jsx";
 //import Vias from "../../components/riesgos/vial/vias.jsx";
 function RiesgosPage() {
   const [selectedParroquia, setSelectedParroquia] = useState("");
