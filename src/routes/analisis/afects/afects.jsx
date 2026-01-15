@@ -10,10 +10,7 @@ import {
 import L from "leaflet";
 import imageLoad from "../../../assets/loading_map_3.gif";
 import { Slider, Typography, Box, Button } from "@mui/material";
-import  {
-  createCustomMarker,
-
-} from "./clustering";
+import  {  createCustomMarker,} from "./clustering";
 // ...otros imports...
 import "leaflet/dist/leaflet.css";
 import { divIcon } from "leaflet";

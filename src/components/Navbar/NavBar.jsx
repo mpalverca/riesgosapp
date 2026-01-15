@@ -153,10 +153,10 @@ export default function ResponsiveNavBar() {
               {pages.map((page) => {
                 // Lógica específica para COE
                 if (page.name === "COE") {
-                    console.log(page.name)
+              //      console.log(page.name)
                   // Si el usuario no existe o no es lider_mtt, no mostrar COE
                   if (!user || user.role !== "lider_mtt") {
-                    console.log(user)
+               //     console.log(user)
                     return null;
                   }
                 }

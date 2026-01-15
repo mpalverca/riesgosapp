@@ -29,7 +29,7 @@ const EvinCode = () => {
   const [code, setCode] = useState("");
   const [validar, setValidar] = useState(false);
   const [error, setError] = useState("");
-
+  console.log(data);
   const handleValidate = () => {
     if (!code.trim()) {
       setError("Por favor, ingresa un código");
@@ -125,14 +125,18 @@ const EvinCode = () => {
                 variant="body1"
                 sx={{
                   fontWeight: "bold",
-                  color: validar ? "success.contrastText" : "text.secondary",
+                  color:
+                    data === null ? "#777"
+                  : data.length === 0
+                  ? "text.secondary"
+                  : "success.contrastText",
                 }}
               >
-                {validar
-                  ? "✅ El evento está registrado"
-                  : data === null
+                {data === null
                   ? "Esperando validación..."
-                  : "❌ El código no existe o es incorrecto"}
+                  : data.length === 0
+                  ? "❌ El código no existe o es incorrecto"
+                  : "✅ El evento está registrado"}
               </Typography>
             </Box>
           </Grid>
@@ -152,14 +156,15 @@ const EvinCode = () => {
           </Typography>
         </Alert>
         {/* Mostrar formulario si la validación es exitosa */}
-        {validar && data && <EvinForm code={data} />}
+        {validar && data && Array.isArray(data) && data.length > 0 && (
+          <EvinForm code={data} />
+        )}
       </Paper>
     </Box>
   );
 };
 
 const EvinForm = ({ code }) => {
-  console.log(code[0])
   const [formData, setFormData] = useState({
     // I. Ubicación geográfica
     provincia: code[0].provincia,
@@ -172,7 +177,7 @@ const EvinForm = ({ code }) => {
     indicacionesLlegada: "",
     distanciaKm: "",
     tiempoHoras: "",
-    acceso:code[0].access,
+    acceso: code[0].access,
     especificacionTransporte: "",
     coordenadaX: "",
     coordenadaY: "",
@@ -305,7 +310,7 @@ const EvinForm = ({ code }) => {
               <FormControlLabel
                 control={
                   <Checkbox
-                  disabled
+                    disabled
                     name="urbana"
                     checked={formData.urbana}
                     onChange={handleChange}
@@ -318,7 +323,7 @@ const EvinForm = ({ code }) => {
               <FormControlLabel
                 control={
                   <Checkbox
-                  disabled
+                    disabled
                     name="rural"
                     checked={formData.rural}
                     onChange={handleChange}
@@ -340,7 +345,6 @@ const EvinForm = ({ code }) => {
             <Grid item size={{ xs: 12, sm: 4 }}>
               <TextField
                 fullWidth
-                
                 label="Punto de referencia"
                 name="puntoReferencia"
                 value={formData.puntoReferencia}
@@ -359,7 +363,7 @@ const EvinForm = ({ code }) => {
             <Grid item size={{ sx: 12, sm: 12 }}>
               <MapaUbicacion />
             </Grid>
-            <Grid item size={{ xs: 12, sm:3 }}>
+            <Grid item size={{ xs: 12, sm: 3 }}>
               <TextField
                 fullWidth
                 label="Distancia (km)"
@@ -368,7 +372,7 @@ const EvinForm = ({ code }) => {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid item xsize={{ xs: 12,sm:3 }}>
+            <Grid item xsize={{ xs: 12, sm: 3 }}>
               <TextField
                 fullWidth
                 label="Tiempo estimado (horas)"
@@ -377,7 +381,7 @@ const EvinForm = ({ code }) => {
                 onChange={handleChange}
               />
             </Grid>
-            <Grid item size={{ xs: 12, sm:6 }}>
+            <Grid item size={{ xs: 12, sm: 6 }}>
               <TextField
                 fullWidth
                 label="Especificación de transporte"
@@ -429,7 +433,7 @@ const EvinForm = ({ code }) => {
               <FormControl fullWidth>
                 <InputLabel>Evento generador</InputLabel>
                 <Select
-                disabled
+                  disabled
                   name="eventoGenerador"
                   value={formData.eventoGenerador}
                   onChange={handleChange}
