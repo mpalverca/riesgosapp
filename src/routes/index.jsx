@@ -1,4 +1,4 @@
-import React, { Component, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { HashRouter as Router, Route, Routes } from "react-router-dom";
 import Home from "./Home";
 import Alerts from "./alerts";
@@ -28,8 +28,7 @@ import EvinCode from "./respuesta/Evin";
 
 import ComiteComunitario from "./preparacion/ComiteComu";
 import Brigadas from "./respuesta/Brigadas";
-import PerfilUser from "./user/Perfil";
-import UserESpecial from "./user/UserEspecial";
+import UserEspecial from "./user/UserEspecial";
 
 // CAMBIO: El componente debe empezar con mayúscula
 export default function AppRouter() {
@@ -70,7 +69,7 @@ export default function AppRouter() {
           <Route path="plancontingencia" element={<PlanContingencia />} />
           <Route path="comite_comunitario" element={<ComiteComunitario />} />
         </Route>
-        <Route path="/perfil_especial" element={<UserESpecial />} />
+        <Route path="/perfil_especial" element={<UserEspecial />} />
         <Route path="/analisis/*" element={<Analisis />}></Route>
         <Route path="/riesgosapp/Cooper" element={<Cooper />} />
         {/* <Route path="/riesgosapp/Evin" element={<EVIN />} /> */}
