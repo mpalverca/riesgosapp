@@ -22,21 +22,21 @@ const pages = [
   { name: "Inicio", path: "" },
   { name: "Análisis", path: "/analisis" },
   { name: "Preparación", path: "/preparacion" },
-  { name: "Respuesta", path: "respuesta" },
+  { name: "Respuesta", path: "/respuesta" },
   { name: "COE", path: "/coe" },
   //{ name: "Información", path: "/info" },
 ];
 
 const userSettings = [
-  { name: "Perfil", path: "/riesgosapp/perfil" },
-  { name: "Cuenta", path: "/riesgosapp/cuenta" },
-  { name: "Panel", path: "/riesgosapp/panel" },
+  { name: "Perfil", path: "/perfil" },
+  { name: "Cuenta", path: "/cuenta" },
+  { name: "Panel", path: "/panel" },
   { name: "Cerrar Sesión", path: "/riesgosapp/logout" },
 ];
 
 export default function ResponsiveNavBar() {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  //const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
   const [user, setUser] = useState(null);
@@ -47,6 +47,7 @@ export default function ResponsiveNavBar() {
 
     if (userData) {
       setUser(JSON.parse(userData));
+      console.log(JSON.parse(userData));
     }
     console.log(JSON.parse(userData));
   }, []);
@@ -77,11 +78,11 @@ export default function ResponsiveNavBar() {
 
   const handleLogin = () => {
     // Simular login - en una app real esto vendría de un formulario o API
-    const fakeUser = {
+    /* const fakeUser = {
       name: "Usuario Ejemplo",
       email: "usuario@ejemplo.com",
       role: "admin",
-    };
+    }; */
 
     navegate("/riesgosapp/userauth");
 

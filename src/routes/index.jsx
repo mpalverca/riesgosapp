@@ -1,17 +1,16 @@
-import React, { Component } from "react";
+import React, { Component, useState, useEffect } from "react";
 import { HashRouter as Router, Route, Routes } from "react-router-dom";
 import Home from "./Home";
 import Alerts from "./alerts";
 
 //Geojson
-
 import NotFoud from "./NotFoud";
 import NavBar from "../components/Navbar/NavBar";
 import Dangermap from "./Dangermap";
 // import Planesatender from "./preparacion/PlanFamiliar";
 import PlanContingencia from "./preparacion/PlanContingencia";
 
-import Coe from "./coe";
+import Coe from "./COE/coe";
 import Geologia from "./analisis/geologia";
 import Cooper from "./cooper";
 
@@ -29,52 +28,67 @@ import EvinCode from "./respuesta/Evin";
 
 import ComiteComunitario from "./preparacion/ComiteComu";
 import Brigadas from "./respuesta/Brigadas";
+import PerfilUser from "./user/Perfil";
+import UserESpecial from "./user/UserEspecial";
 
-export default class index extends Component {
-  render() {
-    return (
-      <Router>
-        <NavBar />
-        <Routes>
-          <Route
-            path=""
-            element={
-              <ProtectedRoute>
-                <Home />{" "}
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/inicio" element={<Home />} />
+// CAMBIO: El componente debe empezar con mayúscula
+export default function AppRouter() {
+  const [user, setUser] = useState(null);
 
-          <Route path="/analisis/*" element={<Analisis />}>
-            <Route path="alertmap" element={<Alerts />} />
-            <Route path="threatmap" element={<Dangermap />} />
-            <Route path="geologia" element={<Geologia />} />
-            <Route path="fire_camp" element={<FireCamp />} />
-            <Route path="risk" element={<RiesgosPage />} />
-          </Route>
-          <Route path="/preparacion/*" element={<Preparacion />}>
-            <Route path="plancontingencia" element={<PlanContingencia />} />
-            <Route path="comite_comunitario" element={<ComiteComunitario />} />
-          </Route>
-          <Route path="/riesgosapp/Cooper" element={<Cooper />} />
-          {/* <Route path="/riesgosapp/Evin" element={<EVIN />} /> */}
-          <Route path="*" element={<NotFoud />} />
-          <Route path="/planContingencia" element={<PlanContingencia />} />
-          <Route path="/riesgosapp/coe" element={<Coe />} />
-          <Route path="/respuesta/*" element={<Respuesta />}>
-            <Route path="evin" element={<EvinCode/>} />
-            <Route path="brigada" element={<Brigadas/>}/>
-          </Route>
-          {/*//auth*/}
-          <Route path="/info" element={<InfoPage />} />
-          <Route path="/riesgosapp/userauth" element={<Login />} />
-          <Route path="/riesgosapp/userSettings" element={<Auth />} />
-          <Route path="/riesgosapp/auth" element={<Coe />} />
-          <Route path="/riesgosapp/usersignin" element={<SingIn />} />
-          <Route path="/riesgosapp/auth" element={<Coe />} />
-        </Routes>
-      </Router>
-    );
-  }
+  // CAMBIO: useEffect debe estar importado
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      setUser(JSON.parse(userData));
+      console.log(JSON.parse(userData));
+    }
+    console.log(JSON.parse(userData));
+  }, []);
+
+  return (
+    <Router>
+      <NavBar />
+      <Routes>
+        <Route
+          path=""
+          element={
+            <ProtectedRoute>
+              <Home />{" "}
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/inicio" element={<Home />} />
+
+        <Route path="/analisis/*" element={<Analisis />}>
+          <Route path="alertmap" element={<Alerts />} />
+          <Route path="threatmap" element={<Dangermap />} />
+          <Route path="geologia" element={<Geologia />} />
+          <Route path="fire_camp" element={<FireCamp />} />
+          <Route path="risk" element={<RiesgosPage />} />
+        </Route>
+        <Route path="/preparacion/*" element={<Preparacion />}>
+          <Route path="plancontingencia" element={<PlanContingencia />} />
+          <Route path="comite_comunitario" element={<ComiteComunitario />} />
+        </Route>
+        <Route path="/perfil_especial" element={<UserESpecial />} />
+        <Route path="/analisis/*" element={<Analisis />}></Route>
+        <Route path="/riesgosapp/Cooper" element={<Cooper />} />
+        {/* <Route path="/riesgosapp/Evin" element={<EVIN />} /> */}
+        <Route path="*" element={<NotFoud />} />
+        <Route path="/planContingencia" element={<PlanContingencia />} />
+        <Route path="/coe" element={<Coe role={user?.role} />} />
+        <Route path="/respuesta/*" element={<Respuesta />}>
+          <Route path="evin" element={<EvinCode />} />
+          <Route path="brigada" element={<Brigadas />} />
+        </Route>
+        {/*//auth*/}
+        <Route path="/info" element={<InfoPage />} />
+        <Route path="/riesgosapp/userauth" element={<Login />} />
+        <Route path="/riesgosapp/userSettings" element={<Auth />} />
+        <Route path="/riesgosapp/auth" element={<Coe />} />
+        <Route path="/riesgosapp/usersignin" element={<SingIn />} />
+        <Route path="/riesgosapp/auth" element={<Coe />} />
+      </Routes>
+    </Router>
+  );
 }

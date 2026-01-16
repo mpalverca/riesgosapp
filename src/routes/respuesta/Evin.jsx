@@ -13,13 +13,6 @@ import {
   InputLabel,
   FormControl,
   Paper,
-  CircularProgress,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
 } from "@mui/material";
 import MapaUbicacion from "../../components/maps/Ubi";
 import { fetchCodeEvin } from "../../services/getCodeEvin";
@@ -170,8 +163,8 @@ const EvinForm = ({ code }) => {
     provincia: code[0].provincia,
     canton: code[0].canton,
     parroquia: code[0].parroquia,
-    urbana: code[0].type == "urbano" ? true : false,
-    rural: code[0].type == "rural" ? true : false,
+    urbana: code[0].type === "urbano" ? true : false,
+    rural: code[0].type === "rural" ? true : false,
     sector: code[0].bar,
     puntoReferencia: "",
     indicacionesLlegada: "",
