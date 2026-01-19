@@ -1,0 +1,161 @@
+[
+  {
+    "codigo": "MTT1",
+    "nombre": "Agua segura, saneamiento y gestión de residuos",
+    "responsable": "Empresa/Dirección de agua potable y saneamiento Municipal/Metropolitano",
+    "apoyo": [
+      "Empresa/Dirección de aseo, gestión de residuos y saneamiento Municipal/Metropolitano",
+      "De ser requerido: SENAGUA, MSP, MAE"
+    ],
+    "mision": "Garantizar el acceso, provisión y distribución permanente de agua potable y servicios de saneamiento",
+    "responsabilidades": [
+      "Evaluación y análisis de las necesidades locales de agua en los sectores afectados",
+      "Provisión de agua segura, drenaje y saneamiento (evacuación de aguas negras, grises y excretas) en viviendas, establecimientos de salud, alojamientos temporales y otros establecimientos que lo requieran",
+      "Gestión de desechos sólidos en viviendas, establecimientos de salud, alojamientos temporales y otros establecimientos que lo requieran",
+      "Provisión de agua para abastecimiento de sistemas de riegos y dotación de líquido para animales de granja",
+      "Evaluación de la calidad del agua para consumo humano en la zona de emergencia o desastre, evaluando parámetros básicos de calidad del agua (nivel de cloro residual, turbidez, pH)",
+      "Soporte a las acciones de otras MTT-M"
+    ]
+  },
+  {
+    "codigo": "MTT2",
+    "nombre": "Salud y APH",
+    "responsable": "MSP",
+    "apoyo": ["Dirección de Salud Municipal/ Metropolitano"],
+    "mision": "Garantizar la continuidad y calidad de los servicios de salud e higiene para la población",
+    "responsabilidades": [
+      "Evaluación y análisis de las necesidades locales de atención pre-hospitalaria y servicios de salud a toda la población de los sectores afectados",
+      "Coordinación de los servicios de atención pre-hospitalaria",
+      "Evaluación y coordinación de los servicios de salud a nivel local, para la respuesta en base a las evaluaciones de afectación y disponibilidad",
+      "Despliegue de equipos para realizar vigilancia epidemiológica en las zonas afectadas",
+      "Establecimiento y ejecución de las cadenas logísticas de soporte a los servicios de salud",
+      "Soporte a las acciones de salud requeridas por otras MTT-M"
+    ]
+  },
+  {
+    "codigo": "MTT3",
+    "nombre": "Servicios básicos esenciales",
+    "responsable": "Dirección de Obras Públicas Municipal/Metropolitano",
+    "apoyo": [
+      "Empresa Eléctrica",
+      "CNT",
+      "EP-Petroecuador",
+      "Dirección de Tránsito Municipal/Metropolitano"
+    ],
+    "mision": "Garantizar las acciones oportunas de prevención para reducir los riesgos; rehabilitar los servicios esenciales afectados",
+    "responsabilidades": [
+      "Evaluación y análisis de la recuperación vial y la restauración de obra civil afectada según sus competencias",
+      "Provisión de energía eléctrica, telecomunicaciones y servicios de movilidad para la población de las zonas afectadas, sobre todo en establecimientos de salud, alojamientos temporales y otros establecimientos de las zonas afectadas que lo requieran",
+      "Soporte a las acciones de requerimiento de servicios esenciales como electricidad y telecomunicaciones, requeridas por otras MTT-M"
+    ]
+  },
+  {
+    "codigo": "MTT4",
+    "nombre": "Alojamientos Temporales y Asistencia Humanitaria",
+    "responsable": "Dirección/ Unidad de Gestión de Riesgos Municipal/Metropolitano",
+    "apoyo": [
+      "Dirección de Desarrollo Humano o Social",
+      "SGR",
+      "De ser requerido: MINEDUC, MIES, INMOBILIAR, Min Deporte, MJDHC"
+    ],
+    "mision": "Garantizar la atención integral y el bienestar de la población afectada o damnificada por eventos peligrosos",
+    "responsabilidades": [
+      "Implementación y gestión de alojamientos temporales, bajo la aplicación de normas ESFERA",
+      "Evaluación y análisis de las necesidades de alojamiento temporal",
+      "Provisión de insumos esenciales no alimentarios a la población afectada por un desastre",
+      "Coordinación para garantizar la seguridad alimentaria en las zonas de afectación y de ser necesario en otras zonas de afectación indirecta",
+      "Coordinación para la gestión del registro y censo de afectados, personas con discapacidad, grupos atención prioritaria, género y cultura",
+      "Provisión de los requerimientos para el funcionamiento de los alojamientos temporales"
+    ]
+  },
+
+  {
+    "codigo": "MTT5",
+    "nombre": "Educación en emergencia",
+    "responsable": "MINEDUC",
+    "apoyo": ["Dirección de Educación Municipal/Metropolitano"],
+    "mision": "Garantizar el derecho a la educación en las zonas afectadas por emergencias o desastres. Fortalecer y asegurar la continuidad de los servicios educativos durante la recuperación temprana de las zonas afectadas",
+    "responsabilidades": [
+      "Apoyo y coordinación para la continuidad de los servicios de educación (inicial, básica, intermedia y superior)",
+      "Registro y gestión de infraestructuras para funcionamiento temporal de unidades de educación",
+      "Establecimiento de las cadenas logísticas de soporte a los servicios de educación"
+    ]
+  },
+  {
+    "codigo": "MTT6",
+    "nombre": "Medios de vida y productividad",
+    "responsable": "GAD Provincial (Productividad)",
+    "apoyo": ["GAD Municipal/Metropolitano"],
+    "mision": "Coordinar acciones oportunas para evaluar y gestionar la reactivación de los sectores económicos, productivos y medios de vida en las zonas afectadas",
+    "responsabilidades": [
+      "Coordinación Municipal/Metropolitana para la evaluación municipal de las afectaciones al sector productivo",
+      "Apoyo y coordinación Municipal/Metropolitana para la continuidad de operación de mercados locales y comercio",
+      "Ejecución de programas de recuperación que permita la dotación de materia prima para los productores damnificados / afectados dentro del territorio local",
+      "Evaluación del estado de la infraestructura de producción, sistemas de riegos, centros de acopio y canales de distribución y establecer las soluciones para apoyar la reactivación local de la cadena productiva",
+      "Coordinación Municipal/Metropolitana con los grupos operativos para la ejecución de programas y evaluación de afectaciones en el sector productivo del cantón, si así lo requiere la mesa técnica",
+      "Solicitar soporte a otras MTT-M para cumplir con las responsabilidades establecidas"
+    ]
+  },
+  {
+    "codigo": "MTT7",
+    "nombre": "Infraestructura esencial y Vivienda",
+    "responsable": "Dirección de Catastro y Planificación Territorial Municipal/Metropolitano",
+    "apoyo": [
+      "Dirección de Planificación Municipal/Metropolitano",
+      "MIDUVI"
+    ],
+    "mision": "Coordinar las acciones oportunas para evaluar la habitabilidad de las edificaciones esenciales y viviendas; dirigir los protocolos de derrocamiento y demolición; rehabilitar y reconstruir la infraestructura afectada",
+    "responsabilidades": [
+      "Realización de la evaluación de daños en la infraestructura esencial y en viviendas de las zonas afectadas",
+      "Realización de la remoción de los escombros producidos en la emergencia o desastres siguiendo los protocolos establecidos",
+      "Ejecución del análisis de las necesidades de vivienda en la población afectada y damnificada",
+      "Provisión y movilización de recursos para la evaluación, limpieza de escombros y recuperación temprana, de la infraestructura esencial y viviendas de las zonas afectadas"
+    ]
+  },
+  {
+    "codigo": "GT1",
+    "nombre": "Logística",
+    "responsable": "Dirección Administrativa del GAD Municipal / DM",
+    "apoyo": ["Dirección de Obras Públicas y Transporte Municipal"],
+    "mision": "Ejecutar acciones oportunas para movilización de personal, equipos, accesorios, herramientas, gestión de suministros y asistencia humanitaria de emergencias para el trabajo del personal operativo y la atención de población afectada",
+    "responsabilidades": [
+      "Actualizar el inventario de capacidades y limitantes para la logística humanitaria.",
+      "Evaluación de infraestructura y áreas destinadas para el soporte logístico.",
+      "Facilitar el transporte y distribución de asistencia humanitaria y demás equipamiento para atender a la población afectada.",
+      "Brindar apoyo con recursos de movilización para traslado de pacientes, personal y equipos de salud, desde y hacia la zona de desastre.",
+      "Puesta en marcha de las Cadenas Logísticas Humanitarias."
+    ]
+  },
+  {
+    "codigo": "GT2",
+    "nombre": "Seguridad y Control",
+    "responsable": "Policía Nacional",
+    "apoyo": ["Agencias de Tránsito", "Policía Municipal/Metropolitana"],
+    "mision": "Ejecutar acciones oportunas para garantizar la seguridad de la población, de los bienes, e infraestructura para los servicios básicos.",
+    "responsabilidades": [
+      "Desarrollar los planes de seguridad y operativos para eventos que puedan convertirse en peligrosos.",
+      "Aplicación de planes de seguridad y protección de la población afectada y de sus bienes.",
+      "Control de las zonas de afectación, de acceso restringido, de acceso limitado y de impacto.",
+      "Garantizar la seguridad en las infraestructuras esenciales.",
+      "Brindar soporte a las acciones de Logística."
+    ]
+  },
+  {
+    "codigo": "GT3",
+    "nombre": "Búsqueda, salvamento y rescate",
+    "responsable": "Cuerpo de Bomberos",
+    "apoyo": ["PN (GIR o GOE)", "Fiscalía"],
+    "mision": "Ejecutar acciones oportunas para la activación, despliegue y operaciones de rescate.",
+    "responsabilidades": [
+      "Garantizar los medios y recursos técnicos / tecnológicos necesarios para las labores de búsqueda, rescate, operaciones SAR y atención pre-hospitalaria.",
+      "Coordinar entre los equipos de rescate las prioridades de movilización y atención."
+    ]
+  },
+  {
+    "nombre": "Sala de Situación",
+    "responsable": "Unidad de Gestión de Riesgos Municipales / Metropolitana",
+    "apoyo": "Unidad de Monitoreo Provincial de la SGR",
+    "activacion": "Se instala automáticamente después de acontecida la emergencia o desastre.",
+    "finalidad": "Mantener la información actualizada sobre la evolución del evento peligroso tanto de sus impactos como de la respuesta dada."
+  }
+]

@@ -39,9 +39,9 @@ export default function AppRouter() {
     const userData = localStorage.getItem("user");
     if (userData) {
       setUser(JSON.parse(userData));
-      console.log(JSON.parse(userData));
+    
     }
-    console.log(JSON.parse(userData));
+    
   }, []);
 
   return (
@@ -75,7 +75,7 @@ export default function AppRouter() {
         {/* <Route path="/riesgosapp/Evin" element={<EVIN />} /> */}
         <Route path="*" element={<NotFoud />} />
         <Route path="/planContingencia" element={<PlanContingencia />} />
-        <Route path="/coe" element={<Coe role={user?.role} />} />
+        <Route path="/coe" element={<Coe role={user?.role} ci={user?.ci} />} />
         <Route path="/respuesta/*" element={<Respuesta />}>
           <Route path="evin" element={<EvinCode />} />
           <Route path="brigada" element={<Brigadas />} />
