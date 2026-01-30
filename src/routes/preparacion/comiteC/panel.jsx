@@ -100,8 +100,27 @@ export default function Panel({ selectedValue, setSelectedValue, ...props }) {
   } = useDetailSector();
 
   // Obtener los barrios de props.data (asegúrate que sea un array de strings)
-  const barriosOptions = Array.isArray(props.data) ? props.data : [];
+  const barriosOptions = Array.isArray(props.data) ? props.barData : [];
+  const sectorview = props.data
+    .map((feature) => {
+      if (feature?.properties) {
+        // Verificar si este feature tiene el barrio que estamos buscando
+        const barrio = feature.properties.barrio;
+        const sector = feature.properties.sector; // Asumiendo que el sector está en SECTOR
 
+        // Solo devolver sector si el barrio coincide con el selectValue
+        if (barrio && barrio.trim() === selectedValue?.trim()) {
+          return sector; // Devuelve el sector en lugar del barrio
+        }
+      }
+      return null;
+    })
+    .filter((sector) => sector && typeof sector === "string") // Filtrar nulos y no strings
+    .map((sector) => sector.trim())
+    .filter((sector, index, array) => array.indexOf(sector) === index) // Únicos
+    .sort();
+
+  console.log("Sectores del barrio seleccionado:", sectorview);
   // Manejar la búsqueda
   const handleSearch = async () => {
     if (!selectedValue) {
@@ -155,20 +174,18 @@ export default function Panel({ selectedValue, setSelectedValue, ...props }) {
         </strong>
       </Typography>
       <Typography align="justify" variant="body2">
-          Se promoverá la participación ciudadana en gestión de riesgos a
-          través de comités comunitarios de gestión de riesgos. Estos comités
-          son instancias creadas para la gestión integral de riesgos de
-          desastres de conformidad con los lineamientos para su reconocimiento,
-          conformación y funcionamiento expedidos por el ente rector de la
-          gestión integral del riesgo de desastres. Los procesos de
-          reconocimiento legal, conformación, capacitación y fortalecimiento de
-          los comités locales de gestión de riesgos son responsabilidad de los
-          gobiernos autónomos descentralizados municipales en el ámbito urbano y
-          de los gobiernos autónomos descentralizados provinciales en el ámbito
-          rural, los que informarán, de manera anual sobre el avance de este
-          proceso al ente rector, de conformidad con el instructivo que se
-          expida para el efecto.
-     
+        Se promoverá la participación ciudadana en gestión de riesgos a través
+        de comités comunitarios de gestión de riesgos. Estos comités son
+        instancias creadas para la gestión integral de riesgos de desastres de
+        conformidad con los lineamientos para su reconocimiento, conformación y
+        funcionamiento expedidos por el ente rector de la gestión integral del
+        riesgo de desastres. Los procesos de reconocimiento legal, conformación,
+        capacitación y fortalecimiento de los comités locales de gestión de
+        riesgos son responsabilidad de los gobiernos autónomos descentralizados
+        municipales en el ámbito urbano y de los gobiernos autónomos
+        descentralizados provinciales en el ámbito rural, los que informarán, de
+        manera anual sobre el avance de este proceso al ente rector, de
+        conformidad con el instructivo que se expida para el efecto.
       </Typography>
       <Divider sx={{ mb: 3 }} />
 
@@ -256,6 +273,15 @@ export default function Panel({ selectedValue, setSelectedValue, ...props }) {
       {/* Resultados */}
       {sectorData && !sectorLoading && (
         <Box>
+          <Button
+            sx={{ mb: 2 }}
+            fullWidth
+            variant="outlined"
+            onClick={handleClear}
+            disabled={!sectorData && !selectedValue}
+          >
+            ver Comite
+          </Button>
           {/* Verificar estructura de datos */}
           {sectorData.resultados && Array.isArray(sectorData.resultados) ? (
             sectorData.resultados.map((item, index) => (
@@ -326,8 +352,8 @@ const BarrioResultItem = ({ item, index }) => {
             item.estado?.toLowerCase() === "activo"
               ? "success"
               : item.estado?.toLowerCase() === "pendiente"
-              ? "warning"
-              : "default"
+                ? "warning"
+                : "default"
           }
           sx={{
             bgcolor: "white",
@@ -383,7 +409,7 @@ const BarrioResultItem = ({ item, index }) => {
               },
               {
                 title: "Acceso a recursos",
-                value: item.a_r_emerrg,
+                value: item.a_r_emerg,
                 color: "success",
                 icon: <LocalHospitalIcon />,
                 description: "Centros de Salud, Educativos, Policías, Bomberos",

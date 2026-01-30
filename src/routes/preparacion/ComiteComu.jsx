@@ -120,7 +120,8 @@ export default function ComiteComunitario() {
         >
           <Panel
             title="Comites Comunitarios"
-            data={barData}
+            barData={barData}
+            data={data}
             selectedValue={selectedvalue}
             setSelectedValue={setSelectedValue}
             loading={loadingParroq}
@@ -132,7 +133,7 @@ export default function ComiteComunitario() {
             data={data}
             loading={loading}
             error={error}
-           // onSelectParroq={setSelectedValue}
+            // onSelectParroq={setSelectedValue}
             onGetParroqData={getParroqData}
             selectedParroq={selectedvalue}
             setEvent={setDataEvent}
