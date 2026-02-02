@@ -31,7 +31,7 @@ export default function ComiteComunitario() {
               // Acceder a las propiedades de CADA feature
               if (feature?.properties) {
                 // Buscar barrio en diferentes posibles nombres de campo
-                return feature.properties.BARRIO;
+                return feature.properties.barrio;
               }
               return null;
             })
