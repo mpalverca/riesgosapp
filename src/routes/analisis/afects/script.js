@@ -123,6 +123,7 @@ export const cargarDatosParroquia = async () => {
 export async function generarPDF(titulo, lat, lng, itemStr, require) {
   try {
     const item = itemStr;
+    //console.log("Generando PDF para el ítem:", item)
     const doc = new jsPDF();
 
     // Configuración de márgenes
@@ -312,7 +313,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.setFont("helvetica", "normal");
     doc.text(
       String(
-        new Date(item.FECHA).toLocaleDateString("es-ES", {
+        new Date(item.date).toLocaleDateString("es-ES", {
           day: "2-digit",
           month: "2-digit",
           year: "numeric",

@@ -56,7 +56,7 @@ export default function Panel({
 
   return (
     <div>
-      <Typography variant="h4">
+      <Typography variant="h5">
         <strong>Visor Territorial de Afectaciones</strong>
       </Typography>
       <div
@@ -77,7 +77,9 @@ export default function Panel({
         </Typography>
       </div>
       <Divider />
-      <Typography variant="subtitle1">Ubicación</Typography>
+      <Typography align="center" variant="h6">
+        Ubicación
+      </Typography>
       <form onSubmit={handleSubmit}>
         <TextField
           fullWidth
@@ -116,7 +118,7 @@ export default function Panel({
           Buscar en Mapa
         </Button>
       </form>
-      <Divider />
+      <Divider sx={{ mt: 2 }} />
       <div
         style={{
           padding: "10px",
@@ -125,7 +127,7 @@ export default function Panel({
           alignContent: "normal",
         }}
       >
-        <Typography align="justify" variant="subtitle2">
+        <Typography align="justify" variant="body2">
           <strong>Afectación:</strong> Es una situación, suceso o hecho que
           produce alteración en la Vida de las personas, de la economía, los
           sistemas sociales y el ambiente, causado por fenómenos de origen
@@ -213,21 +215,40 @@ export default function Panel({
           <MenuItem value="Jimbilla">Jimbilla</MenuItem>
           <MenuItem value="Loja">Loja</MenuItem>
           <MenuItem value="Malacatos">Malacatos</MenuItem>
-            <MenuItem value="Taquil">Sagrario</MenuItem>
+          <MenuItem value="Taquil">Sagrario</MenuItem>
           <MenuItem value="San Lucas">San Lucas</MenuItem>
           <MenuItem value="Santiago">Santiago</MenuItem>
           <MenuItem value="San Pedro de Vilcabamba">
             San Pedro de Vilcabamba
           </MenuItem>
-        
           <MenuItem value="Sucre">Sucre</MenuItem>
           <MenuItem value="Taquil">Taquil</MenuItem>
           <MenuItem value="Quinara">Quinara</MenuItem>
           <MenuItem value="Valle">Valle</MenuItem>
           <MenuItem value="Vilcabamba">Vilcabamba</MenuItem>
           <MenuItem value="Yangana">Yangana</MenuItem>
-
           <MenuItem value="Todos">Todos</MenuItem>
+        </Select>
+      </FormControl>
+
+      <FormControl fullWidth margin="normal">
+        <InputLabel id="Parroq-label">Atiende</InputLabel>
+        <Select
+          labelId="Parroq-label"
+          id="Parroq-select"
+          value={parroq}
+          label="Parroquia"
+          onChange={handleParroqChange}
+        >
+          <MenuItem value="Chantaco">Obras Publicas</MenuItem>
+          <MenuItem value="Chuquiribamba">UMAPAL</MenuItem>
+          <MenuItem value="El Cisne">Ornato</MenuItem>
+          <MenuItem value="Gualel">Gestión Ambiental</MenuItem>
+          <MenuItem value="Jimbilla">Higiene</MenuItem>
+          <MenuItem value="Loja">Gestión de Riesgos</MenuItem>
+          <MenuItem value="Malacatos">CBL-Bomberos</MenuItem>
+          <MenuItem value="Taquil">Seguridad Ciudadana</MenuItem>
+          <MenuItem value="Taquil">Todos</MenuItem>
         </Select>
       </FormControl>
     </div>

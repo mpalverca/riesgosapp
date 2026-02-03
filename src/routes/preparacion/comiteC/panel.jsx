@@ -29,15 +29,6 @@ import CalculateIcon from "@mui/icons-material/Calculate";
 import InfoIcon from "@mui/icons-material/Info";
 import SearchIcon from "@mui/icons-material/Search";
 
-// Componente estilizado para el contenedor
-const StyledFormControl = styled(FormControl)(({ theme }) => ({
-  minWidth: 250,
-  margin: theme.spacing(2, 0),
-  '& .MuiOutlinedInput-root': {
-    borderRadius: 12,
-    backgroundColor: theme.palette.background.paper,
-  },
-}));
 // Hook personalizado (crea este archivo en ./hooks/useDetailSector.js)
 const useDetailSector = () => {
   const [sectorData, setSectorData] = useState(null);
@@ -110,37 +101,26 @@ export default function Panel({ selectedValue, setSelectedValue, ...props }) {
 
   // Obtener los barrios de props.data (asegúrate que sea un array de strings)
   const barriosOptions = Array.isArray(props.data) ? props.barData : [];
-  console.log(props.data);
   const sectorview = props.data
-    .reduce((accumulator, feature) => {
+    .map((feature) => {
       if (feature?.properties) {
-        const barrio =
-          feature.properties.barrio ||
-          feature.properties.BARRIO ||
-          feature.properties.Barrio;
-        const sector =
-          feature.properties.sector ||
-          feature.properties.SECTOR ||
-          feature.properties.Sector;
+        // Verificar si este feature tiene el barrio que estamos buscando
+        const barrio = feature.properties.barrio;
+        const sector = feature.properties.sector; // Asumiendo que el sector está en SECTOR
 
-        // Verificar si el barrio coincide
-        if (
-          barrio &&
-          barrio.toString().trim().toLowerCase() ===
-            selectedValue?.toString().trim().toLowerCase() &&
-          sector
-        ) {
-          const sectorTrimmed = sector.toString().trim();
-          // Agregar al acumulador si no existe
-          if (!accumulator.includes(sectorTrimmed)) {
-            accumulator.push(sectorTrimmed);
-          }
+        // Solo devolver sector si el barrio coincide con el selectValue
+        if (barrio && barrio.trim() === selectedValue?.trim()) {
+          return sector; // Devuelve el sector en lugar del barrio
         }
       }
-      return accumulator;
-    }, [])
-    .sort(); // Ordenar al final
+      return null;
+    })
+    .filter((sector) => sector && typeof sector === "string") // Filtrar nulos y no strings
+    .map((sector) => sector.trim())
+    .filter((sector, index, array) => array.indexOf(sector) === index) // Únicos
+    .sort();
 
+  console.log("Sectores del barrio seleccionado:", sectorview);
   // Manejar la búsqueda
   const handleSearch = async () => {
     if (!selectedValue) {
@@ -248,61 +228,6 @@ export default function Panel({ selectedValue, setSelectedValue, ...props }) {
             ))
           }
         />
-
-         {/* Selector de sectores */}
-      <StyledFormControl fullWidth variant="outlined">
-        <InputLabel id="sector-select-label">{label}</InputLabel>
-        <Select
-          labelId="sector-select-label"
-          id="sector-select"
-          open={open}
-          onClose={handleClose}
-          onOpen={handleOpen}
-          value={selectedSector}
-          onChange={handleChange}
-          label={label}
-          MenuProps={{
-            PaperProps: {
-              style: {
-                maxHeight: 300,
-              },
-            },
-          }}
-        >
-          {/* Opción vacía */}
-          <MenuItem value="">
-            <em>Selecciona un sector</em>
-          </MenuItem>
-          
-          {/* Mapear todos los sectores */}
-          {sectorview.map((sector, index) => (
-            <MenuItem 
-              key={`${sector}-${index}`} 
-              value={sector}
-              sx={{
-                py: 1,
-                borderBottom: index < sectorview.length - 1 ? '1px solid' : 'none',
-                borderColor: 'divider',
-              }}
-            >
-              <Stack direction="row" alignItems="center" spacing={1}>
-                <Box
-                  sx={{
-                    width: 12,
-                    height: 12,
-                    borderRadius: '50%',
-                    bgcolor: 'primary.main',
-                    opacity: 0.7,
-                  }}
-                />
-                <Typography variant="body1">
-                  {sector}
-                </Typography>
-              </Stack>
-            </MenuItem>
-          ))}
-        </Select>
-      </StyledFormControl>
 
         <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
           <Button

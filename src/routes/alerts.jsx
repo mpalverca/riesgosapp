@@ -131,12 +131,13 @@ export default function Alerts() {
       : filteredState.filter((item) => item.afectacion === afect);
 
   const filteredByDate = selectedDate
-    ? fiterByAfect.filter((item) => {
-        const itemTime = new Date(item.date).setHours(0, 0, 0, 0);
-        const selectedTime = new Date(selectedDate).setHours(0, 0, 0, 0);
-        return itemTime <= selectedTime;
-      })
-    : fiterByAfect;
+  ? fiterByAfect.filter((item) => {
+      const itemTime = new Date(item.date).setHours(0, 0, 0, 0);
+      const selectedTime = new Date(selectedDate).setHours(0, 0, 0, 0);
+      // Cambiar a >= para mostrar desde la fecha seleccionada hacia adelante (más recientes)
+      return itemTime >= selectedTime;
+    })
+  : fiterByAfect;
 
   // Puedes colocar esta función donde la necesites
 function getRadio(afectData) {

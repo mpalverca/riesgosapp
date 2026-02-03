@@ -9,8 +9,16 @@ import {
 } from "react-leaflet";
 import L from "leaflet";
 import imageLoad from "../../../assets/loading_map_3.gif";
-import { Slider, Typography, Box, Button } from "@mui/material";
-import  {  createCustomMarker,} from "./clustering";
+import {
+  Slider,
+  Typography,
+  Button,
+  Box,
+  Checkbox,
+  FormControlLabel,
+  Paper,
+} from "@mui/material";
+import { createCustomMarker } from "./clustering";
 // ...otros imports...
 import "leaflet/dist/leaflet.css";
 import { divIcon } from "leaflet";
@@ -20,7 +28,6 @@ import {
   FaWater,
   FaMountain,
   FaBuilding,
-  
   FaExclamationTriangle,
 } from "react-icons/fa";
 /* import { FaHouseDamage } from "@react-icons/all-files/fa/FaHouseDamage";
@@ -56,7 +63,8 @@ const MapAfects = ({
 }) => {
   // Estado para controlar qué imagen está expandida
   const [expandedImage, setExpandedImage] = useState(null);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null);  
+    const [showLayer, setShowLayer] = useState(true);
   const position = [-3.9939, -79.2042];
   // Agrega un estado para manejar los datos del item clickeado
   const [selectedId, setSelectedId] = useState(null);
@@ -85,38 +93,12 @@ const MapAfects = ({
     }
   };
 
-  // Función para renderizar marcadores de afectaciones
-  /* const renderAfectMarker = useCallback((item) => {
-    if (!item.latitud || !item.longitud) return null;
-
-    const position = [parseFloat(item.latitud), parseFloat(item.longitud)];
-
-    // Personaliza según tus necesidades
-    const popupContent = `
-      <div>
-        <h3>${item.tipo || "Afectación"}</h3>
-        <p>${item.descripcio || "Sin descripción"}</p>
-        ${
-          item.imagen
-            ? `<img src="${item.imagen}" alt="Imagen" style="max-width: 100px; max-height: 100px; cursor: pointer;" onclick="window.openImage('${item.imagen}')">`
-            : ""
-        }
-      </div>
-    `;
-
-    return createCustomMarker(position, {
-      iconUrl: "/marker-icon.png", // Ruta a tu icono personalizado
-      popupContent,
-      className: "custom-marker",
-    });
-  }, []); */
-
   // Función para comparar fechas ignorando la hora
   const renderAfect = () => {
     return afectData
       .map((item, index) => {
-        try {         
-          const coords = extractCoordinates(item.geom);        
+        try {
+          const coords = extractCoordinates(item.geom);
           if (!coords) {
             console.warn("Coordenadas inválidas para el item:", item);
             return null;
@@ -139,7 +121,7 @@ const MapAfects = ({
               ) : (
                 <FaExclamationTriangle />
               );
-     
+
             // Círculo de color según prioridad
             const circleStyle = {
               display: "flex",
@@ -158,7 +140,7 @@ const MapAfects = ({
                 // ✅ Ahora funcionaa el click aquí
               >
                 {iconComponent}
-              </div>
+              </div>,
             );
 
             return divIcon({
@@ -170,29 +152,28 @@ const MapAfects = ({
           };
 
           return (
-            
-              <Marker
-                eventHandlers={{
-                  click: () => {
-                    console.log("Marker clicked:", item.id);
-                    // Tu lógica aquí
-                  handleIconClick (item.id)
-                  console.log(selectedId)
-                  },
-                }}
-                key={`marker-${item.id || index}`}
-                position={[coords.lat, coords.lng]}
-                //icon={createCustomIcon(priority, eventType)}
-                icon={getEventIcon(eventType, item.id)}
-              >
-                {" "}
-                {selectedId && (<Popup>
+            <Marker
+              eventHandlers={{
+                click: () => {
+                  console.log("Marker clicked:", item.id);
+                  // Tu lógica aquí
+                  handleIconClick(item.id);
+                  console.log(selectedId);
+                },
+              }}
+              key={`marker-${item.id || index}`}
+              position={[coords.lat, coords.lng]}
+              //icon={createCustomIcon(priority, eventType)}
+              icon={getEventIcon(eventType, item.id)}
+            >
+              {" "}
+              {selectedId && (
+                <Popup>
                   <div>
                     <h4>
-                      {`${item.id} - ${eventType}` ||
-                        `Evento ${index + 1}`}
+                      {`${item.id} - ${eventType}` || `Evento ${index + 1}`}
                     </h4>
-             
+
                     {selectedId.anex_foto && (
                       <div style={{ marginTop: "10px" }}>
                         <img
@@ -218,7 +199,7 @@ const MapAfects = ({
                       </div>
                     )}
                     <p>
-                      <strong>fecha:</strong> {selectedId.date|| ""}
+                      <strong>fecha:</strong> {selectedId.date || ""}
                     </p>
                     <p>
                       <strong>Sector:</strong> {selectedId.sector}
@@ -252,7 +233,7 @@ const MapAfects = ({
                             coords.lat,
                             coords.lng,
                             selectedId,
-                            user
+                            user,
                           )
                         }
                         fullWidth
@@ -269,9 +250,9 @@ const MapAfects = ({
                       </Button>
                     )}
                   </div>
-                </Popup>)}
-              </Marker>
-            
+                </Popup>
+              )}
+            </Marker>
           );
         } catch (error) {
           console.error("Error al procesar elemento:", item, error);
@@ -286,7 +267,7 @@ const MapAfects = ({
       .map((item, index) => {
         try {
           const coords = item.coords;
-          console.log(item)
+          console.log(item);
           if (!coords) {
             console.warn("Coordenadas inválidas para el item:", item);
             return null;
@@ -343,7 +324,7 @@ const MapAfects = ({
       if (item.geom.type === "MultiPolygon") {
         return item.geom.coordinates.map((poly, polyIdx) => {
           const polyCoords = poly[0].map(
-            (coord) => [coord[1], coord[0]] // Leaflet usa [lat, lng]
+            (coord) => [coord[1], coord[0]], // Leaflet usa [lat, lng]
           );
           return (
             <Polygon
@@ -368,11 +349,11 @@ const MapAfects = ({
   if (loading)
     return (
       <Box
-    display="flex"
-    justifyContent="center"
-    alignItems="center"
-    minHeight="60vh" // Ajusta según tu diseño
-  >
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="60vh" // Ajusta según tu diseño
+      >
         <img src={imageLoad} alt="Descripción de la imagen" />
       </Box>
     );
@@ -388,15 +369,15 @@ const MapAfects = ({
         }}
       >
         <strong>No hay datos de afectaciones </strong>
-        <Typography>
+        <Typography align="center" alignContent="center" variant="h4" gutterBottom>
           La busqueda realizada no ha encontrado datos de afectaciones, por
-          favor intente con otra fecha, Prioridad, estado y afectaciones
+          favor intente con otra fecha, prioridad, estado y afectaciones
         </Typography>
       </div>
     );
 
   return (
-    <div>
+    <Box>
       <style>
         {`
         .leaflet-pulse-circle {
@@ -419,6 +400,34 @@ const MapAfects = ({
         }
       `}
       </style>
+      <Paper
+        sx={{
+          position: "absolute",
+          top: 80,
+          right: 10,
+          zIndex: 1000,
+          padding: 2,
+          backgroundColor: "rgba(255, 255, 255, 0.9)",
+          borderRadius: 2,
+          boxShadow: 3,
+          minWidth: 200,
+        }}
+      >
+        <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+          Control de Capas
+        </Typography>
+
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={showLayer}
+              onChange={(e) => setShowLayer(e.target.checked)}
+              color="primary"
+            />
+          }
+          label="Mostrar capa de polígonos"
+        />
+      </Paper>
       <MapContainer
         center={[
           coords && coords[0] ? parseFloat(coords[0]) : position[0],
@@ -564,7 +573,7 @@ const MapAfects = ({
           </Box>
         </div>
       )}
-    </div>
+    </Box>
   );
 };
 

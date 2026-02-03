@@ -6,7 +6,7 @@ import Alerts from "./alerts";
 //Geojson
 import NotFoud from "./NotFoud";
 import NavBar from "../components/Navbar/NavBar";
-import Dangermap from "./Dangermap";
+import Dangermap from "./analisis/suscep/Dangermap";
 // import Planesatender from "./preparacion/PlanFamiliar";
 import PlanContingencia from "./preparacion/PlanContingencia";
 

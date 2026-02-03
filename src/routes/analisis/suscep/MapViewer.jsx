@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Polygon } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import imageLoad from "../../assets/loading_map_3.gif";
-import { cargarDatosPol } from "./script/script.js";
+import imageLoad from "../../../assets/loading_map_3.gif";
+import { cargarDatosPol } from "../../../components/maps/script/script.js";
 import { Box } from "@mui/material";
 
 const MapViewer = ({ coord }) => {
@@ -110,6 +110,8 @@ const MapViewer = ({ coord }) => {
   if (!polygonData.length)
     return <div>No hay datos de polígonos disponibles</div>;
   return (
+    
+      
     <MapContainer
       center={position}
       zoom={14}
@@ -124,6 +126,7 @@ const MapViewer = ({ coord }) => {
       </Marker>
       {renderPolygons()}
     </MapContainer>
+    
   );
 };
 
