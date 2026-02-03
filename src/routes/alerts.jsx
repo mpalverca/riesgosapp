@@ -151,9 +151,9 @@ function getRadio(afectData) {
     .map((item) => ({
       id: item.id,
       nombre: item.nombre,
-      PRIORIDAD: item.prioridad,
+      prioridad: item.prioridad,
       radio: item.radio,
-      ESTADO: item.estado,
+      Estado: item.estado,
       coords: item.geom?.coordinates || null,
       // Agrega aquí otras propiedades que necesites
     }));
@@ -191,7 +191,7 @@ function getRadio(afectData) {
             setSelectedDate={selFecha}
             minFecha={minFecha}
             maxFecha={maxFecha}
-            radioAfect={getRadio(afectData)}
+          
           />
         </Grid>
       </Grid>

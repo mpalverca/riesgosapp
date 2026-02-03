@@ -1,14 +1,13 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import {
   MapContainer,
   TileLayer,
   Marker,
   Popup,
-  Circle,
   Polygon,
+  useMapEvents
 } from "react-leaflet";
 import L from "leaflet";
-import imageLoad from "../../../assets/loading_map_3.gif";
 import {
   Slider,
   Typography,
@@ -17,43 +16,165 @@ import {
   Checkbox,
   FormControlLabel,
   Paper,
+  CircularProgress,
+  Alert,
 } from "@mui/material";
-import { createCustomMarker } from "./clustering";
-// ...otros imports...
-import "leaflet/dist/leaflet.css";
-import { divIcon } from "leaflet";
+import { FaWater, FaMountain, FaBuilding, FaExclamationTriangle } from "react-icons/fa";
 import { renderToString } from "react-dom/server";
+import { divIcon } from "leaflet";
+import PropTypes from 'prop-types';
+
+// Importaciones locales
+import imageLoad from "../../../assets/loading_map_3.gif";
 import { cargardatoformId, generarPDF } from "./script.js";
-import {
-  FaWater,
-  FaMountain,
-  FaBuilding,
-  FaExclamationTriangle,
-} from "react-icons/fa";
-/* import { FaHouseDamage } from "@react-icons/all-files/fa/FaHouseDamage";
-import { cargarDatosafec } from "./script.js";
-import { captureMapImage } from "./maptoimage.js"; */
+import { cargarDatosPol } from "../../../components/maps/script/script.js";
+
+// Estilos CSS de Leaflet
+import "leaflet/dist/leaflet.css";
 
 // Configuración de iconos para Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
-  iconUrl: require("leaflet/dist/images/marker-icon.png"),
-  shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+  iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png").default,
+  iconUrl: require("leaflet/dist/images/marker-icon.png").default,
+  shadowUrl: require("leaflet/dist/images/marker-shadow.png").default,
 });
-const color_prioridad = {
+
+// Constantes y configuraciones
+const DEFAULT_POSITION = [-3.9939, -79.2042];
+const COLOR_PRIORIDAD = {
   Alta: "#dc3545",
   Media: "#ffc107",
   Baja: "#28a745",
   DEFAULT: "#007bff",
 };
 
+const POLYGON_COLORS = {
+  tipo1: { color: "#ffff00", fillColor: "#ffff00", fillOpacity: 0.2 },
+  tipo2: { color: "#0000ff", fillColor: "#0000ff", fillOpacity: 0.2 },
+  parroquia: { color: "#050505", fillColor: "#b6b1b1", fillOpacity: 0.2 },
+};
+
+const EVENT_ICONS = {
+  "Movimiento en masas": { icon: FaMountain, color: "#FF5733" },
+  "Inundación": { icon: FaWater, color: "Blue" },
+  "Colapso estructural": { icon: FaBuilding, color: "Blue" },
+  "default": { icon: FaExclamationTriangle, color: "#080808" },
+};
+
+// Componente para imagen expandida
+const ExpandedImageModal = ({ src, onClose }) => (
+  <div
+    style={{
+      position: "fixed",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: "rgba(0,0,0,0.8)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 9999,
+      padding: "20px",
+    }}
+    onClick={onClose}
+    role="dialog"
+    aria-label="Imagen expandida"
+  >
+    <div
+      style={{
+        maxWidth: "90%",
+        maxHeight: "90%",
+        position: "relative",
+      }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <img
+        src={src}
+        alt="Imagen expandida"
+        style={{
+          maxWidth: "100%",
+          maxHeight: "90vh",
+          borderRadius: "8px",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.25)",
+        }}
+      />
+      <button
+        onClick={onClose}
+        style={{
+          position: "absolute",
+          top: "-15px",
+          right: "-15px",
+          background: "#dc3545",
+          color: "white",
+          border: "none",
+          borderRadius: "50%",
+          width: "30px",
+          height: "30px",
+          fontSize: "16px",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+        aria-label="Cerrar imagen"
+      >
+        ×
+      </button>
+    </div>
+  </div>
+);
+
+ExpandedImageModal.propTypes = {
+  src: PropTypes.string.isRequired,
+  onClose: PropTypes.func.isRequired,
+};
+
+// Componente de capa de control
+const LayerControl = ({ showLayer, onToggle }) => (
+  <Paper
+    sx={{
+      position: "absolute",
+      top: 10,
+      right: 10,
+      zIndex: 1000,
+      padding: 2,
+      backgroundColor: "rgba(255, 255, 255, 0.95)",
+      borderRadius: 2,
+      boxShadow: 3,
+      minWidth: 200,
+    }}
+  >
+    <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+      Control de Capas
+    </Typography>
+    <FormControlLabel
+      control={
+        <Checkbox
+          checked={showLayer}
+          onChange={onToggle}
+          color="primary"
+          aria-label="Mostrar capa de polígonos"
+        />
+      }
+      label="Mostrar capa de polígonos"
+    />
+  </Paper>
+);
+
+LayerControl.propTypes = {
+  showLayer: PropTypes.bool.isRequired,
+  onToggle: PropTypes.func.isRequired,
+};
+
+// Componente principal
 const MapAfects = ({
-  afectData,
-  parroquia,
-  loading,
-  error,
-  coords,
+  afectData = [],
+  parroquia = [],
+  loading = false,
+  error = null,
+  coords = [],
   extractCoordinates,
   selectedDate,
   setSelectedDate,
@@ -61,192 +182,250 @@ const MapAfects = ({
   maxFecha,
   radioAfect,
 }) => {
-  // Estado para controlar qué imagen está expandida
   const [expandedImage, setExpandedImage] = useState(null);
-  const [user, setUser] = useState(null);  
-    const [showLayer, setShowLayer] = useState(true);
-  const position = [-3.9939, -79.2042];
-  // Agrega un estado para manejar los datos del item clickeado
-  const [selectedId, setSelectedId] = useState(null);
+  const [user, setUser] = useState(null);
+  const [showLayer, setShowLayer] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [poligonosData, setPoligonosData] = useState([]);
+  const [loadingPoligonos, setLoadingPoligonos] = useState(false);
 
+  // Cargar usuario desde localStorage
   useEffect(() => {
-    const userData = localStorage.getItem("user");
-    if (userData) {
-      setUser(JSON.parse(userData));
+    try {
+      const userData = localStorage.getItem("user");
+      if (userData) {
+        setUser(JSON.parse(userData));
+      }
+    } catch (error) {
+      console.error("Error al cargar usuario:", error);
     }
   }, []);
 
-  const handleIconClick = async (itemId) => {
+  // Cargar datos de polígonos cuando se activa la capa
+  useEffect(() => {
+    const loadPoligonos = async () => {
+      if (showLayer && poligonosData.length === 0) {
+        setLoadingPoligonos(true);
+        try {
+          const data = await cargarDatosPol();
+          setPoligonosData(data || []);
+        } catch (error) {
+          console.error("Error al cargar polígonos:", error);
+        } finally {
+          setLoadingPoligonos(false);
+        }
+      }
+    };
+
+    loadPoligonos();
+  }, [showLayer, poligonosData.length]);
+
+  const handleIconClick = useCallback(async (itemId) => {
     try {
       const itemData = await cargardatoformId(itemId);
-      console.log("Datos cargados:", itemData);
-
-      // ¡AGREGA ESTO PARA USAR LOS DATOS!
-      setSelectedId(itemData);
-
-      // Opcional: mostrar alerta o modal
-      /* if (itemData) {
-        alert(`Datos cargados: ${itemData.nombre || "Sin nombre"}`);
-      } */
+      if (itemData) {
+        setSelectedItem(itemData);
+      }
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error al cargar datos del item:", error);
     }
-  };
+  }, []);
 
-  // Función para comparar fechas ignorando la hora
-  const renderAfect = () => {
+  const formatCoords = useCallback((coord) => {
+    return typeof coord === 'number' ? coord.toFixed(6) : '0.000000';
+  }, []);
+
+  const getEventIcon = useCallback((eventType, priority) => {
+    const color = COLOR_PRIORIDAD[priority] || COLOR_PRIORIDAD.DEFAULT;
+    const eventConfig = EVENT_ICONS[eventType] || EVENT_ICONS.default;
+    const IconComponent = eventConfig.icon;
+
+    const circleStyle = {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      background: color,
+      borderRadius: "50%",
+      width: "24px",
+      height: "24px",
+      boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+    };
+
+    const html = renderToString(
+      <div style={circleStyle}>
+        <IconComponent color={eventConfig.color} size={14} />
+      </div>
+    );
+
+    return divIcon({
+      html,
+      className: "custom-leaflet-icon",
+      iconSize: [30, 30],
+      iconAnchor: [15, 30],
+    });
+  }, []);
+
+  const getEventIconPulso = useCallback((eventType, priority, radio) => {
+    const color = COLOR_PRIORIDAD[priority] || COLOR_PRIORIDAD.DEFAULT;
+    const eventConfig = EVENT_ICONS[eventType] || EVENT_ICONS.default;
+    const IconComponent = eventConfig.icon;
+
+    // Calcular tamaño basado en el radio
+    const baseSize = 40; // Tamaño base en píxeles
+    const radioFactor = radio/25 //Math.min(Math.max(radio / 100, 1), 5); // Factor entre 1 y 5
+    const calculatedSize = baseSize * radioFactor;
+    
+    // Tamaños proporcionales
+    const outerCircleSize = calculatedSize;
+    const middleCircleSize = calculatedSize * 0.75;
+    const innerCircleSize = calculatedSize * 0.6;
+
+    const html = renderToString(
+      <div style={{
+        position: 'relative',
+        width: `${outerCircleSize}px`,
+        height: `${outerCircleSize}px`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        {/* Círculos concéntricos animados - tamaño basado en radio */}
+        <div style={{
+          position: 'absolute',
+          width: `${outerCircleSize}px`,
+          height: `${outerCircleSize}px`,
+          borderRadius: '50%',
+          backgroundColor: color,
+          opacity: 0.3,
+          animation: 'pulse 2s infinite',
+        }} />
+        
+        <div style={{
+          position: 'absolute',
+          width: `${middleCircleSize}px`,
+          height: `${middleCircleSize}px`,
+          borderRadius: '50%',
+          backgroundColor: color,
+          opacity: 0.5,
+          animation: 'pulse 2s infinite',
+          animationDelay: '0.5s',
+        }} />
+        
+        {/* Círculo central con icono */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: color,
+          borderRadius: '50%',
+          width: `24px`,
+          height: `24px`,
+          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+          zIndex: 10,
+          position: 'relative',
+        }}>
+          <IconComponent color="white" size={12} />
+        </div>
+      </div>
+    );
+
+    return divIcon({
+      html,
+      className: `custom-leaflet-icon emergency-alert radio-${Math.round(radio)}`,
+      iconSize: [outerCircleSize, outerCircleSize],
+      iconAnchor: [outerCircleSize / 2, outerCircleSize],
+    });
+  }, []);
+
+  const renderAfectMarkers = useMemo(() => {
     return afectData
       .map((item, index) => {
         try {
-          const coords = extractCoordinates(item.geom);
-          if (!coords) {
+          if (!item?.geom) {
+            console.warn("Item sin geometría:", item);
+            return null;
+          }
+
+          const coords = extractCoordinates?.(item.geom);
+          if (!coords || typeof coords.lat !== 'number' || typeof coords.lng !== 'number') {
             console.warn("Coordenadas inválidas para el item:", item);
             return null;
           }
-          const formatCoords = (coord) => {
-            return coord.toFixed(6);
-          };
-          const eventType = item.event || "DEFAULT";
+
+          const eventType = item.event || "default";
           const priority = item.prioridad || "DEFAULT";
-          // Dentro de tu componente:
-          const getEventIcon = (eventType, item) => {
-            const color = color_prioridad[priority] || color_prioridad.DEFAULT;
-            const iconComponent =
-              eventType === "Movimiento en masas" ? (
-                <FaMountain color="#FF5733" />
-              ) : eventType === "Inundación" ? (
-                <FaWater color="Blue" />
-              ) : eventType === "Colapso estructural" ? (
-                <FaBuilding color="Blue" />
-              ) : (
-                <FaExclamationTriangle />
-              );
-
-            // Círculo de color según prioridad
-            const circleStyle = {
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: color,
-              borderRadius: "50%",
-              width: "20px",
-              height: "20px",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-            };
-
-            const html = renderToString(
-              <div
-                style={circleStyle}
-                // ✅ Ahora funcionaa el click aquí
-              >
-                {iconComponent}
-              </div>,
-            );
-
-            return divIcon({
-              html,
-              className: "custom-leaflet-icon", // Opcional: añade estilos CSS si necesitas
-              iconSize: [30, 30],
-              iconAnchor: [15, 30], // Ajusta el tamaño según necesites
-            });
-          };
-
+console.log(item)
+      
           return (
             <Marker
-              eventHandlers={{
-                click: () => {
-                  console.log("Marker clicked:", item.id);
-                  // Tu lógica aquí
-                  handleIconClick(item.id);
-                  console.log(selectedId);
-                },
-              }}
-              key={`marker-${item.id || index}`}
+              key={`marker-${item.id || `index-${index}`}`}
               position={[coords.lat, coords.lng]}
-              //icon={createCustomIcon(priority, eventType)}
-              icon={getEventIcon(eventType, item.id)}
+              icon={item.radio > 0 && priority=="Alta" && item.estado=="Pendiente" ?  getEventIconPulso(eventType, priority,item.radio):getEventIcon(eventType, priority) }
+              eventHandlers={{
+                click: () => handleIconClick(item.id),
+              }}
             >
-              {" "}
-              {selectedId && (
+              {selectedItem?.id === item.id && (
                 <Popup>
                   <div>
-                    <h4>
-                      {`${item.id} - ${eventType}` || `Evento ${index + 1}`}
-                    </h4>
-
-                    {selectedId.anex_foto && (
+                    <h4>{`${item.id} - ${eventType}`}</h4>
+                    
+                    {selectedItem.anex_foto && (
                       <div style={{ marginTop: "10px" }}>
                         <img
-                          src={selectedId.anex_foto}
-                          alt={`Imagen de ${selectedId.nombre || "afectación"}`}
+                          src={selectedItem.anex_foto}
+                          alt={`Imagen de ${selectedItem.nombre || "afectación"}`}
                           style={{
                             width: "100%",
                             height: "auto",
+                            maxHeight: "200px",
+                            objectFit: "contain",
                             borderRadius: "4px",
                             border: "1px solid #ddd",
+                            cursor: "pointer",
                           }}
-                          onClick={() => setExpandedImage(selectedId.anex_foto)}
+                          onClick={() => setExpandedImage(selectedItem.anex_foto)}
                         />
-                        <p
-                          style={{
-                            fontSize: "0.8em",
-                            color: "#666",
-                            textAlign: "center",
-                          }}
-                        >
+                        <p style={{ fontSize: "0.8em", color: "#666", textAlign: "center" }}>
                           Haz clic para ampliar
                         </p>
                       </div>
                     )}
+
+                    <p><strong>Fecha:</strong> {selectedItem.date || "No disponible"}</p>
+                    <p><strong>Sector:</strong> {selectedItem.sector || "No disponible"}</p>
                     <p>
-                      <strong>fecha:</strong> {selectedId.date || ""}
-                    </p>
-                    <p>
-                      <strong>Sector:</strong> {selectedId.sector}
-                    </p>
-                    <p>
-                      <strong>ubicación:</strong> {formatCoords(coords.lat)},{" "}
-                      {formatCoords(coords.lng)}
+                      <strong>Ubicación:</strong> {formatCoords(coords.lat)}, {formatCoords(coords.lng)}
                     </p>
                     <p>
                       <strong>Prioridad:</strong>
-                      <span
-                        style={{
-                          color:
-                            color_prioridad[priority] ||
-                            color_prioridad.DEFAULT,
-                        }}
-                      >
-                        {priority}
+                      <span style={{ color: COLOR_PRIORIDAD[priority] || COLOR_PRIORIDAD.DEFAULT }}>
+                        {" "}{priority}
                       </span>
                     </p>
-                    {selectedId.descripcio && (
-                      <p>
-                        <strong>Descripción:</strong> {selectedId.descripcio}
-                      </p>
+                    
+                    {selectedItem.descripcio && (
+                      <p><strong>Descripción:</strong> {selectedItem.descripcio}</p>
                     )}
+
                     {user && (
                       <Button
-                        onClick={() =>
-                          generarPDF(
-                            selectedId.event,
-                            coords.lat,
-                            coords.lng,
-                            selectedId,
-                            user,
-                          )
-                        }
+                        onClick={() => generarPDF(
+                          selectedItem.event,
+                          coords.lat,
+                          coords.lng,
+                          selectedItem,
+                          user
+                        )}
                         fullWidth
-                        style={{
-                          background:
-                            "linear-gradient(45deg, #FF5733 20%, #FFD700 90%)",
-                          //marginTop: "16px",
-                          //  padding: "10px 0",
+                        sx={{
+                          background: "linear-gradient(45deg, #FF5733 20%, #FFD700 90%)",
+                          marginTop: "16px",
+                          fontWeight: "bold",
                         }}
-                        //size="large"
                         variant="contained"
                       >
-                        <strong>Generar Reporte PDF</strong>
+                        Generar Reporte PDF
                       </Button>
                     )}
                   </div>
@@ -255,291 +434,235 @@ const MapAfects = ({
             </Marker>
           );
         } catch (error) {
-          console.error("Error al procesar elemento:", item, error);
-          return null;
-        }
-      })
-      .filter(Boolean); // Filtramos cualquier marcador nulo
-  };
-  // Función para comparar fechas ignorando la hora
-  const renderRadio = () => {
-    return radioAfect
-      .map((item, index) => {
-        try {
-          const coords = item.coords;
-          console.log(item);
-          if (!coords) {
-            console.warn("Coordenadas inválidas para el item:", item);
-            return null;
-          }
-          // Usa el color según la prioridad
-          const color =
-            color_prioridad[item.prioridad] || color_prioridad.DEFAULT;
-          if (item.radio > 0) {
-            return (
-              <React.Fragment key={`circle-group-${item.id || index}`}>
-                {/* Círculo principal */}
-                <Circle
-                  center={[coords[1], coords[0]]}
-                  radius={item.radio}
-                  pathOptions={{
-                    color,
-                    fillColor: color,
-                    fillOpacity: 0.5,
-                    weight: 2,
-                  }}
-                >
-                  <Popup>
-                    <p>
-                      <strong>Radio:</strong> radio de afectación {item.radio}
-                    </p>
-                  </Popup>
-                </Circle>
-                {/* Círculo de pulso */}
-                <Circle
-                  center={[coords[1], coords[0]]}
-                  radius={item.radio * 0.7}
-                  pathOptions={{
-                    color,
-                    fillColor: color,
-                    fillOpacity: 0.15,
-                    weight: 1,
-                  }}
-                  className="leaflet-pulse-circle"
-                />
-              </React.Fragment>
-            );
-          }
-          return null;
-        } catch (error) {
-          console.error("Error al procesar elemento:", item, error);
+          console.error("Error al renderizar marcador:", item, error);
           return null;
         }
       })
       .filter(Boolean);
-  };
+  }, [afectData, selectedItem, user, formatCoords, getEventIcon, handleIconClick, extractCoordinates]);
 
-  const renderParroquia = () => {
-    return parroquia.map((item, index) => {
-      if (item.geom.type === "MultiPolygon") {
-        return item.geom.coordinates.map((poly, polyIdx) => {
-          const polyCoords = poly[0].map(
-            (coord) => [coord[1], coord[0]], // Leaflet usa [lat, lng]
-          );
+  const renderPoligonos = useMemo(() => {
+    if (!showLayer || loadingPoligonos) return null;
+
+    return poligonosData.flatMap((item, index) => {
+      try {
+        if (!item?.geom?.coordinates) return null;
+
+        return item.geom.coordinates.map((polygon, polyIndex) => {
+          const polyCoords = polygon[0].map(coord => [coord[1], coord[0]]);
+          const colors = item.tipo === 1 ? POLYGON_COLORS.tipo1 : POLYGON_COLORS.tipo2;
+
           return (
             <Polygon
-              key={`N° ${item.id || index}-${polyIdx}`}
+              key={`poligono-${item.id}-${index}-${polyIndex}`}
               positions={polyCoords}
               pathOptions={{
-                color: "#050505ff",
-                fillColor: "#b6b1b1ff",
-                fillOpacity: 0.2,
+                color: colors.color,
+                fillColor: colors.fillColor,
+                fillOpacity: colors.fillOpacity,
                 weight: 2,
               }}
             >
-              <Popup>Parroquia: {item.DPA_DESPAR}</Popup>
+              <Popup>
+                <div>
+                  <h4>Polígono {item.id}</h4>
+                  <p><strong>Descripción:</strong> {item.Descripcio || "Sin descripción"}</p>
+                </div>
+              </Popup>
             </Polygon>
           );
         });
+      } catch (error) {
+        console.error("Error al renderizar polígono:", item, error);
+        return null;
       }
-      return null;
-    });
-  };
+    }).filter(Boolean);
+  }, [poligonosData, showLayer, loadingPoligonos]);
 
-  if (loading)
+  const renderParroquiaPolygons = useMemo(() => {
+    return parroquia.flatMap((item, index) => {
+      if (!item?.geom || item.geom.type !== "MultiPolygon") return null;
+
+      return item.geom.coordinates.map((poly, polyIdx) => {
+        const polyCoords = poly[0].map(coord => [coord[1], coord[0]]);
+        
+        return (
+          <Polygon
+            key={`parroquia-${item.id || index}-${polyIdx}`}
+            positions={polyCoords}
+            pathOptions={{
+              color: POLYGON_COLORS.parroquia.color,
+              fillColor: POLYGON_COLORS.parroquia.fillColor,
+              fillOpacity: POLYGON_COLORS.parroquia.fillOpacity,
+              weight: 2,
+            }}
+          >
+            <Popup>
+              <strong>Parroquia:</strong> {item.DPA_DESPAR || "Sin nombre"}
+            </Popup>
+          </Polygon>
+        );
+      });
+    }).filter(Boolean);
+  }, [parroquia]);
+
+  // Calcular posición del mapa
+  const mapCenter = useMemo(() => {
+    if (coords && coords.length >= 2) {
+      const lat = parseFloat(coords[0]);
+      const lng = parseFloat(coords[1]);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        return [lat, lng];
+      }
+    }
+    return DEFAULT_POSITION;
+  }, [coords]);
+
+  // Estados de carga y error
+  if (loading) {
     return (
       <Box
         display="flex"
+        flexDirection="column"
         justifyContent="center"
         alignItems="center"
-        minHeight="60vh" // Ajusta según tu diseño
+        minHeight="60vh"
       >
-        <img src={imageLoad} alt="Descripción de la imagen" />
+        <img 
+          src={imageLoad} 
+          alt="Cargando mapa..." 
+          //style={{ maxWidth: "200px" }}
+        />
+        <Typography variant="body1" sx={{ mt: 2 }}>
+          Cargando datos del mapa...
+        </Typography>
       </Box>
     );
-  if (error) return <div className="error-message">{error}</div>;
-  if (!afectData.length)
+  }
+
+  if (error) {
     return (
-      <div
-        className="no-data-message"
-        style={{
-          textAlign: "center",
-          alignContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <strong>No hay datos de afectaciones </strong>
-        <Typography align="center" alignContent="center" variant="h4" gutterBottom>
-          La busqueda realizada no ha encontrado datos de afectaciones, por
-          favor intente con otra fecha, prioridad, estado y afectaciones
-        </Typography>
-      </div>
+      <Alert severity="error" sx={{ m: 2 }}>
+        Error: {error}
+      </Alert>
     );
+  }
+
+  if (!afectData.length) {
+    return (
+      <Box
+        display="flex"
+        flexDirection="column"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="60vh"
+        textAlign="center"
+        p={3}
+      >
+        <Typography variant="h5" gutterBottom color="textSecondary">
+          No hay datos de afectaciones
+        </Typography>
+        <Typography variant="body1" color="textSecondary">
+          La búsqueda realizada no ha encontrado datos de afectaciones.
+          Por favor, intente con otra fecha, prioridad o criterios de búsqueda.
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
-    <Box>
+    <Box sx={{ position: "relative" }}>
       <style>
         {`
-        .leaflet-pulse-circle {
-          animation: pulse 2s infinite;
-          opacity: 0.3;
-        }
-        @keyframes pulse {
-          0% {
-            transform: scale(0.9);
-            opacity: 0.5;
+          .leaflet-pulse-circle {
+            animation: pulse 2s infinite;
+            opacity: 0.3;
           }
-          70% {
-            transform: scale(1.2);
-            opacity: 0.2;
+          
+          @keyframes pulse {
+            0% {
+              transform: scale(0.9);
+              opacity: 0.5;
+            }
+            70% {
+              transform: scale(1.2);
+              opacity: 0.2;
+            }
+            100% {
+              transform: scale(0.9);
+              opacity: 0.5;
+            }
           }
-          100% {
-            transform: scale(0.9);
-            opacity: 0.5;
-          }
-        }
-      `}
+        `}
       </style>
-      <Paper
-        sx={{
-          position: "absolute",
-          top: 80,
-          right: 10,
-          zIndex: 1000,
-          padding: 2,
-          backgroundColor: "rgba(255, 255, 255, 0.9)",
-          borderRadius: 2,
-          boxShadow: 3,
-          minWidth: 200,
-        }}
-      >
-        <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-          Control de Capas
-        </Typography>
 
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={showLayer}
-              onChange={(e) => setShowLayer(e.target.checked)}
-              color="primary"
-            />
-          }
-          label="Mostrar capa de polígonos"
-        />
-      </Paper>
+      <LayerControl 
+        showLayer={showLayer} 
+        onToggle={(e) => setShowLayer(e.target.checked)} 
+      />
+
       <MapContainer
-        center={[
-          coords && coords[0] ? parseFloat(coords[0]) : position[0],
-          coords && coords[1] ? parseFloat(coords[1]) : position[1],
-        ]}
+        center={mapCenter}
         zoom={14}
         style={{ height: "75vh", width: "100%" }}
+        scrollWheelZoom={true}
       >
         <TileLayer
           url="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
-          attribution="&copy; OpenStreetMap contributors"
+          attribution="&copy; Google Maps"
         />
-        <Marker
-          position={[
-            coords && coords[0] ? parseFloat(coords[0]) : 0,
-            coords && coords[1] ? parseFloat(coords[1]) : 0,
-          ]}
-        >
-          <Popup>Ubicación central de referencia</Popup>
-        </Marker>
-
-        {renderAfect()}
-
-        {/* Componente de clustering para afectaciones */}
-        {/*  <Clustering data={afectData} renderMarker={renderAfectMarker} /> */}
-        {renderRadio()}
-        {renderParroquia()}
-        {/* Modal para imagen expandida */}
-        {expandedImage && (
-          <div
-            style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: "rgba(0,0,0,0.8)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              zIndex: 9999,
-              padding: "20px",
-            }}
-            onClick={() => setExpandedImage(null)}
-          >
-            <div
-              style={{
-                maxWidth: "90%",
-                maxHeight: "90%",
-                position: "relative",
-              }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <img
-                src={expandedImage}
-                alt="Imagen expandida"
-                style={{
-                  maxWidth: "100%",
-                  maxHeight: "90vh",
-                  borderRadius: "8px",
-                  boxShadow: "0 4px 20px rgba(0,0,0,0.25)",
-                }}
-              />
-              <button
-                onClick={() => setExpandedImage(null)}
-                style={{
-                  position: "absolute",
-                  top: "-15px",
-                  right: "-15px",
-                  background: "#dc3545",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "50%",
-                  width: "30px",
-                  height: "30px",
-                  fontSize: "16px",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                ×
-              </button>
-            </div>
+        
+        {renderAfectMarkers}
+        {renderPoligonos}
+        {renderParroquiaPolygons}
+        
+        {loadingPoligonos && (
+          <div style={{
+            position: "absolute",
+            top: "10px",
+            left: "10px",
+            zIndex: 1000,
+            background: "white",
+            padding: "5px 10px",
+            borderRadius: "4px",
+            fontSize: "12px",
+          }}>
+            Cargando polígonos...
           </div>
         )}
       </MapContainer>
+
+      {expandedImage && (
+        <ExpandedImageModal 
+          src={expandedImage} 
+          onClose={() => setExpandedImage(null)} 
+        />
+      )}
+
       {minFecha && maxFecha && (
-        <div style={{ width: "90%", margin: "30px auto 0 auto" }}>
+        <Box sx={{ width: "90%", margin: "30px auto 0 auto" }}>
           <Slider
             value={selectedDate || maxFecha}
             min={minFecha}
             max={maxFecha}
-            step={24 * 60 * 60 * 1000} // un día en ms
+            step={24 * 60 * 60 * 1000}
             onChange={(_, value) => setSelectedDate(value)}
             valueLabelDisplay="auto"
-            valueLabelFormat={(v) =>
-              new Date(v).toLocaleDateString("es-EC", {
+            valueLabelFormat={(value) =>
+              new Date(value).toLocaleDateString("es-EC", {
                 year: "numeric",
                 month: "short",
                 day: "numeric",
               })
             }
             sx={{
-              color: "orange", // Color naranja para la barra
-              height: 8, // Grosor de la barra
-              "& .MuiSlider-thumb": {
+              color: "orange",
+              height: 8,
+              '& .MuiSlider-thumb': {
                 backgroundColor: "#fff",
                 border: "2px solid orange",
               },
-              "& .MuiSlider-valueLabel": {
+              '& .MuiSlider-valueLabel': {
                 backgroundColor: "orange",
                 color: "#fff",
                 borderRadius: "4px",
@@ -571,10 +694,50 @@ const MapAfects = ({
               })}
             </span>
           </Box>
-        </div>
+        </Box>
       )}
     </Box>
   );
 };
 
-export default MapAfects;
+// PropTypes para validación de props
+MapAfects.propTypes = {
+  afectData: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    geom: PropTypes.string,
+    event: PropTypes.string,
+    prioridad: PropTypes.string,
+  })),
+  parroquia: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    geom: PropTypes.shape({
+      type: PropTypes.string,
+      coordinates: PropTypes.array,
+    }),
+    DPA_DESPAR: PropTypes.string,
+  })),
+  loading: PropTypes.bool,
+  error: PropTypes.string,
+  coords: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number])),
+  extractCoordinates: PropTypes.func.isRequired,
+  selectedDate: PropTypes.number,
+  setSelectedDate: PropTypes.func,
+  minFecha: PropTypes.number,
+  maxFecha: PropTypes.number,
+  radioAfect: PropTypes.number,
+};
+
+// Valores por defecto
+MapAfects.defaultProps = {
+  afectData: [],
+  parroquia: [],
+  loading: false,
+  error: null,
+  coords: [],
+  selectedDate: null,
+  minFecha: null,
+  maxFecha: null,
+  radioAfect: 1000,
+};
+
+export default React.memo(MapAfects);

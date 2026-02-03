@@ -40,7 +40,7 @@ export const cargarDatosafec = async () => {
   try {
     const { data, error } = await supabaseAfect
       .from("bd_loja_1")
-      .select("id,geom,date,prioridad,event,estado,parroq,afectacion");
+      .select("id,geom,date,prioridad,event,estado,parroq,afectacion,radio");
     if (error) throw error;
     return data;
   } catch (error) {
