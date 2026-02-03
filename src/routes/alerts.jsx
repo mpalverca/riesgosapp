@@ -1,9 +1,12 @@
-import React, { useEffect, useState } from "react";
-import MapAfects from "./analisis/afects/afects";
+import React, { useEffect, useState,lazy } from "react";
+
+// import MapAfects from "./analisis/afects/afects";
 import { Grid } from "@mui/material";
-import Panel from "./analisis/afects/panel";
+// import Panel from "./analisis/afects/panel";
 import { cargarDatosafec, cargarDatosParroquia } from "./analisis/afects/script";
 
+const MapAfects = lazy(() => import("./analisis/afects/afects"));
+const Panel = lazy(() => import("./analisis/afects/panel"));
 
 export default function Alerts() {
   const [afectData, setAfectData] = useState([]);
@@ -159,7 +162,8 @@ function getRadio(afectData) {
     }));
 }
   return (
-    <div style={{ margin: "10px" }}>
+  <Suspense fallback={<div>Cargando...</div>}>
+  <div style={{ margin: "10px" }}>
       <Grid container spacing={2}>
         <Grid
           size={{ xs: 12, md: 3 }}
@@ -195,6 +199,6 @@ function getRadio(afectData) {
           />
         </Grid>
       </Grid>
-    </div>
+    </div></Suspense>
   );
 }
