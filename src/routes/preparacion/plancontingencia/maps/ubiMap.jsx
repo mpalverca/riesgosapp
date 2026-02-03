@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -14,7 +14,7 @@ import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextFie
 // Componente para detectar clics en el mapa y dibujar
 function DrawingHandler({ mode, onDrawComplete, color = "#3388ff",setOpenD }) {
   const [points, setPoints] = useState([]);
-  const map = useMapEvents({
+  /* const map = useMapEvents({
     click(e) {
       if (mode === "point") {
         // Dibujar punto individual
@@ -64,7 +64,7 @@ function DrawingHandler({ mode, onDrawComplete, color = "#3388ff",setOpenD }) {
         setPoints((prev) => prev.slice(0, -1));
       }
     },
-  });
+  }); */
 
   // Limpiar puntos cuando cambia el modo
   useEffect(() => {

@@ -1,0 +1,29 @@
+{
+  "files": {
+    "main.css": "/riesgosapp/static/css/main.1af37204.css",
+    "main.js": "/riesgosapp/static/js/main.6c52abdc.js",
+    "static/js/89.567ce2a1.chunk.js": "/riesgosapp/static/js/89.567ce2a1.chunk.js",
+    "static/js/325.b216ae73.chunk.js": "/riesgosapp/static/js/325.b216ae73.chunk.js",
+    "static/js/977.12318752.chunk.js": "/riesgosapp/static/js/977.12318752.chunk.js",
+    "static/js/732.eae0cf1a.chunk.js": "/riesgosapp/static/js/732.eae0cf1a.chunk.js",
+    "static/js/453.8179c00a.chunk.js": "/riesgosapp/static/js/453.8179c00a.chunk.js",
+    "static/js/395.16342e84.chunk.js": "/riesgosapp/static/js/395.16342e84.chunk.js",
+    "static/media/loading_map_3.gif": "/riesgosapp/static/media/loading_map_3.aa4e10b4f58e408ab1c8.gif",
+    "static/media/fondo1.png": "/riesgosapp/static/media/fondo1.09c4a49daea19382058b.png",
+    "static/media/Urku_el_puma.png": "/riesgosapp/static/media/Urku_el_puma.4ad7fb5111d892e12f1b.png",
+    "static/media/fire.png": "/riesgosapp/static/media/fire.c0bf99eeadc99a59411f.png",
+    "index.html": "/riesgosapp/index.html",
+    "main.1af37204.css.map": "/riesgosapp/static/css/main.1af37204.css.map",
+    "main.6c52abdc.js.map": "/riesgosapp/static/js/main.6c52abdc.js.map",
+    "89.567ce2a1.chunk.js.map": "/riesgosapp/static/js/89.567ce2a1.chunk.js.map",
+    "325.b216ae73.chunk.js.map": "/riesgosapp/static/js/325.b216ae73.chunk.js.map",
+    "977.12318752.chunk.js.map": "/riesgosapp/static/js/977.12318752.chunk.js.map",
+    "732.eae0cf1a.chunk.js.map": "/riesgosapp/static/js/732.eae0cf1a.chunk.js.map",
+    "453.8179c00a.chunk.js.map": "/riesgosapp/static/js/453.8179c00a.chunk.js.map",
+    "395.16342e84.chunk.js.map": "/riesgosapp/static/js/395.16342e84.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.1af37204.css",
+    "static/js/main.6c52abdc.js"
+  ]
+}

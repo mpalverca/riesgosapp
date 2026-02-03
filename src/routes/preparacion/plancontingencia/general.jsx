@@ -4,9 +4,7 @@ import {
   Paper,
   TextField,
   Typography,
-  Grid,
-  Checkbox,
-  FormControlLabel,
+ 
   Button,
   Divider,
   InputAdornment,
@@ -86,7 +84,7 @@ const InformacionGeneral = () => {
       }));
     }
   };
-  const handleEspacioChange = (e) => {
+ /*  const handleEspacioChange = (e) => {
     const { name, value, type, checked } = e.target;
 
     if (type === "checkbox") {
@@ -103,14 +101,14 @@ const InformacionGeneral = () => {
         [name]: value,
       }));
     }
-  };
+  }; */
 
-  const handleMapClick = (coords) => {
+  /* const handleMapClick = (coords) => {
     setFormData((prev) => ({
       ...prev,
       coordenadas: coords,
     }));
-  };
+  }; */
 
   const handleGetCurrentLocation = () => {
     if (navigator.geolocation) {
@@ -254,7 +252,7 @@ function MapClickHandler({ onClick }) {
   return null;
 }
 
-const MapViewerUbi = ({ center, zoom, markers, onClick, height = "400px" }) => {
+/* const MapViewerUbi = ({ center, zoom, markers, onClick, height = "400px" }) => {
   return (
     <MapContainer
       center={center}
@@ -280,4 +278,4 @@ const MapViewerUbi = ({ center, zoom, markers, onClick, height = "400px" }) => {
       ))}
     </MapContainer>
   );
-};
+}; */
