@@ -1,4 +1,4 @@
-import React, { useEffect, useState,lazy } from "react";
+import React, { useEffect, useState,lazy,Suspense } from "react";
 
 // import MapAfects from "./analisis/afects/afects";
 import { Grid } from "@mui/material";
