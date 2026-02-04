@@ -34,8 +34,8 @@ const SUPABASE_O_KEY =
   3: { icon: <FaRoad />, color: "#ff4500" },
 }; */
 const supabaseAfect = createClient(SUPABASE_URL, SUPABASE_KEY);
-const parroq =createClient(SUPABASE_O_URL,SUPABASE_O_KEY)
-  
+const parroq = createClient(SUPABASE_O_URL, SUPABASE_O_KEY);
+
 export const cargarDatosafec = async () => {
   try {
     const { data, error } = await supabaseAfect
@@ -54,7 +54,7 @@ export const cargardatoformId = async (id) => {
       .from("bd_loja_1")
       .select("*")
       .eq("id", id)
-      .single(); 
+      .single();
 
     if (error) throw error;
     return data;
@@ -86,11 +86,8 @@ export const cargardatoformId = async (id) => {
   } */
 
 export const cargarDatosParroquia = async () => {
-   try {
-    const { data, error } = await parroq
-      .from("parroquial")
-      .select("*")
-      
+  try {
+    const { data, error } = await parroq.from("parroquial").select("*");
 
     if (error) throw error;
     return data;
@@ -221,7 +218,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
       `FICHA TÉCNICA DE RIESGOS Nro. CGR-${item.id}`,
       pageWidth / 2,
       topMargin,
-      { align: "center" }
+      { align: "center" },
     );
 
     doc.setFont("helvetica", "bold");
@@ -230,7 +227,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
       `FORMATO PARA EVALUACIÓN INICIAL DE AFECTACION`,
       pageWidth / 2,
       topMargin + 5,
-      { align: "center" }
+      { align: "center" },
     );
 
     divisoriaLine();
@@ -317,10 +314,10 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
           day: "2-digit",
           month: "2-digit",
           year: "numeric",
-        }) || ""
+        }) || "",
       ),
       leftMargin + 20,
-      yPosition
+      yPosition,
     );
     doc.setFont("helvetica", "bold");
     doc.text("Prioridad:", leftMargin + 90, yPosition);
@@ -349,7 +346,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.setFont("helvetica", "normal");
     const lines = doc.splitTextToSize(
       String(item.descripcio || "No existe Descripción"),
-      maxWidth - 40
+      maxWidth - 40,
     );
 
     // Verificar si necesitamos nueva página para la descripción
@@ -365,10 +362,12 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.text("Detalle:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(
-      String(item.info_afect || "No existe personas afectadas, heridas o fallecidas"),
+      String(
+        item.info_afect || "No existe personas afectadas, heridas o fallecidas",
+      ),
       leftMargin + 30,
       yPosition,
-      { maxWidth: maxWidth - 30 }
+      { maxWidth: maxWidth - 30 },
     );
     yPosition += 5;
 
@@ -403,7 +402,8 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
           yPosition += 10;
         }
         doc.text(accionesList[i], leftMargin + 5, yPosition, {
-          maxWidth: maxWidth - 30, align:"justify"
+          maxWidth: maxWidth - 30,
+          align: "justify",
         });
         yPosition += 10;
       }
@@ -429,110 +429,114 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     }
 
     let imgDataString = `${item.anex_foto}`;
-if (imgDataString) {
-  const imageUrls = imgDataString.split(",").map(url => url.trim()).filter(url => url);
-  
-  if (imageUrls.length > 0) {
-    // Configuración
-    const maxImagesToShow = 6;
-    const imagesToProcess = imageUrls.slice(0, maxImagesToShow);
-    const imagesPerRow = Math.min(imagesToProcess.length, 2);
-    const rows = Math.ceil(imagesToProcess.length / imagesPerRow);
-    
-    // Altura dinámica basada en el espacio disponible
-    const pageHeight = doc.internal.pageSize.height;
-    const bottomMargin = 30;
-    const spaceLeftOnPage = pageHeight - yPosition - bottomMargin;
-    
-    // Determinar altura óptima
-    let imageHeight = 100; // Altura por defecto
-    const minImageHeight = 50; // Altura mínima aceptable
-    
-    // Calcular altura máxima que cabe
-    const maxPossibleHeight = Math.max(
-      minImageHeight,
-      (spaceLeftOnPage - (rows * 10) - 15) / rows
-    );
-    
-    if (imageHeight > maxPossibleHeight) {
-      // Si la altura por defecto no cabe, usar la máxima posible
-      imageHeight = Math.max(minImageHeight, maxPossibleHeight);
-    }
-    
-    // Verificar si aún no cabe
-    const requiredHeight = (imageHeight * rows) + (rows * 10) + 15;
-    
-    // Solo crear nueva página si es absolutamente necesario
-    if (requiredHeight > spaceLeftOnPage && spaceLeftOnPage < 100) {
-      checkPageBreak(requiredHeight);
-    }
-    
-    // Procesar imágenes
-    const availableWidth = pageWidth - leftMargin - rightMargin;
-    const spacing = 10;
-    const imgWidth = imagesPerRow > 1 
-      ? (availableWidth - spacing) / 2 
-      : availableWidth;
-    
-    let x = leftMargin, y = yPosition, count = 0;
-    
-    for (let i = 0; i < imagesToProcess.length; i++) {
-      try {
-        let imgData = imagesToProcess[i];
-        
-        if (imgData && !imgData.startsWith("data:image")) {
-          imgData = await getImageBase64(imgData);
-        }
-        
-        if (imgData) {
-          // Nueva fila cada 2 imágenes
-          if (count > 0 && count % 2 === 0) {
-            x = leftMargin;
-            y += imageHeight + spacing;
-          }
-          
-          // Agregar imagen
-          doc.addImage(imgData, "JPEG", x, y, imgWidth, imageHeight);
-          
-          // Opcional: agregar número de imagen
-          doc.setFontSize(8);
-          doc.setFont("helvetica", "normal");
-          doc.text(`${i + 1}`, x + 5, y + 12);
-          
-          x += imgWidth + spacing;
-          count++;
-        }
-      } catch (error) {
-        console.warn(`Error con imagen ${i + 1}:`, error);
-      }
-    }
-    
-    if (count > 0) {
-      // Actualizar posición Y
-      yPosition = y + imageHeight + 15;
-      
-      // Línea separadora
-      doc.line(
-        leftMargin,
-        yPosition - 5,
-        pageWidth - rightMargin,
-        yPosition - 5
-      );
-      yPosition += 5;
-      
-      // Nota si hay más imágenes
-      if (imageUrls.length > maxImagesToShow) {
-        doc.setFontSize(9);
-        doc.text(
-          `* Se muestran ${maxImagesToShow} de ${imageUrls.length} imágenes`,
-          leftMargin,
-          yPosition
+    if (imgDataString) {
+      const imageUrls = imgDataString
+        .split(",")
+        .map((url) => url.trim())
+        .filter((url) => url);
+
+      if (imageUrls.length > 0) {
+        // Configuración
+        const maxImagesToShow = 6;
+        const imagesToProcess = imageUrls.slice(0, maxImagesToShow);
+        const imagesPerRow = Math.min(imagesToProcess.length, 2);
+        const rows = Math.ceil(imagesToProcess.length / imagesPerRow);
+
+        // Altura dinámica basada en el espacio disponible
+        const pageHeight = doc.internal.pageSize.height;
+        const bottomMargin = 30;
+        const spaceLeftOnPage = pageHeight - yPosition - bottomMargin;
+
+        // Determinar altura óptima
+        let imageHeight = 100; // Altura por defecto
+        const minImageHeight = 50; // Altura mínima aceptable
+
+        // Calcular altura máxima que cabe
+        const maxPossibleHeight = Math.max(
+          minImageHeight,
+          (spaceLeftOnPage - rows * 10 - 15) / rows,
         );
-        yPosition += 10;
+
+        if (imageHeight > maxPossibleHeight) {
+          // Si la altura por defecto no cabe, usar la máxima posible
+          imageHeight = Math.max(minImageHeight, maxPossibleHeight);
+        }
+
+        // Verificar si aún no cabe
+        const requiredHeight = imageHeight * rows + rows * 10 + 15;
+
+        // Solo crear nueva página si es absolutamente necesario
+        if (requiredHeight > spaceLeftOnPage && spaceLeftOnPage < 100) {
+          checkPageBreak(requiredHeight);
+        }
+
+        // Procesar imágenes
+        const availableWidth = pageWidth - leftMargin - rightMargin;
+        const spacing = 10;
+        const imgWidth =
+          imagesPerRow > 1 ? (availableWidth - spacing) / 2 : availableWidth;
+
+        let x = leftMargin,
+          y = yPosition,
+          count = 0;
+
+        for (let i = 0; i < imagesToProcess.length; i++) {
+          try {
+            let imgData = imagesToProcess[i];
+
+            if (imgData && !imgData.startsWith("data:image")) {
+              imgData = await getImageBase64(imgData);
+            }
+
+            if (imgData) {
+              // Nueva fila cada 2 imágenes
+              if (count > 0 && count % 2 === 0) {
+                x = leftMargin;
+                y += imageHeight + spacing;
+              }
+
+              // Agregar imagen
+              doc.addImage(imgData, "JPEG", x, y, imgWidth, imageHeight);
+
+              // Opcional: agregar número de imagen
+              doc.setFontSize(8);
+              doc.setFont("helvetica", "normal");
+              doc.text(`${i + 1}`, x + 5, y + 12);
+
+              x += imgWidth + spacing;
+              count++;
+            }
+          } catch (error) {
+            console.warn(`Error con imagen ${i + 1}:`, error);
+          }
+        }
+
+        if (count > 0) {
+          // Actualizar posición Y
+          yPosition = y + imageHeight + 15;
+
+          // Línea separadora
+          doc.line(
+            leftMargin,
+            yPosition - 5,
+            pageWidth - rightMargin,
+            yPosition - 5,
+          );
+          yPosition += 5;
+
+          // Nota si hay más imágenes
+          if (imageUrls.length > maxImagesToShow) {
+            doc.setFontSize(9);
+            doc.text(
+              `* Se muestran ${maxImagesToShow} de ${imageUrls.length} imágenes`,
+              leftMargin,
+              yPosition,
+            );
+            yPosition += 10;
+          }
+        }
       }
     }
-  }
-}
 
     // Verificar si necesitamos nueva página para las firmas
     checkPageBreak(60);
@@ -571,15 +575,15 @@ if (imgDataString) {
       "Reporte generado automáticamente",
       pageWidth / 2,
       doc.internal.pageSize.getHeight() - 10,
-      { align: "center" }
+      { align: "center" },
     );
 
     // Guardar el PDF
     doc.save(
       `reporte_${titulo.replace(/[^a-z0-9]/gi, "_")}_${fechaDescarga.replace(
         /[/,: ]/g,
-        "-"
-      )}.pdf`
+        "-",
+      )}.pdf`,
     );
   } catch (e) {
     console.error("Error al generar PDF:", e);
