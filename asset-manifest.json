@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/riesgosapp/static/css/main.1af37204.css",
-    "main.js": "/riesgosapp/static/js/main.bb58a034.js",
-    "static/js/89.567ce2a1.chunk.js": "/riesgosapp/static/js/89.567ce2a1.chunk.js",
+    "main.js": "/riesgosapp/static/js/main.f3474e0d.js",
+    "static/js/89.fbef4467.chunk.js": "/riesgosapp/static/js/89.fbef4467.chunk.js",
     "static/js/325.b216ae73.chunk.js": "/riesgosapp/static/js/325.b216ae73.chunk.js",
     "static/js/977.12318752.chunk.js": "/riesgosapp/static/js/977.12318752.chunk.js",
     "static/js/732.eae0cf1a.chunk.js": "/riesgosapp/static/js/732.eae0cf1a.chunk.js",
@@ -14,8 +14,8 @@
     "static/media/fire.png": "/riesgosapp/static/media/fire.c0bf99eeadc99a59411f.png",
     "index.html": "/riesgosapp/index.html",
     "main.1af37204.css.map": "/riesgosapp/static/css/main.1af37204.css.map",
-    "main.bb58a034.js.map": "/riesgosapp/static/js/main.bb58a034.js.map",
-    "89.567ce2a1.chunk.js.map": "/riesgosapp/static/js/89.567ce2a1.chunk.js.map",
+    "main.f3474e0d.js.map": "/riesgosapp/static/js/main.f3474e0d.js.map",
+    "89.fbef4467.chunk.js.map": "/riesgosapp/static/js/89.fbef4467.chunk.js.map",
     "325.b216ae73.chunk.js.map": "/riesgosapp/static/js/325.b216ae73.chunk.js.map",
     "977.12318752.chunk.js.map": "/riesgosapp/static/js/977.12318752.chunk.js.map",
     "732.eae0cf1a.chunk.js.map": "/riesgosapp/static/js/732.eae0cf1a.chunk.js.map",
@@ -24,6 +24,6 @@
   },
   "entrypoints": [
     "static/css/main.1af37204.css",
-    "static/js/main.bb58a034.js"
+    "static/js/main.f3474e0d.js"
   ]
 }
