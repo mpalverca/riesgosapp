@@ -47,9 +47,9 @@ export default function ResponsiveNavBar() {
 
     if (userData) {
       setUser(JSON.parse(userData));
-      console.log(JSON.parse(userData));
+  //    console.log(JSON.parse(userData));
     }
-    console.log(JSON.parse(userData));
+//    console.log(JSON.parse(userData));
   }, []);
 
   const handleOpenNavMenu = (event) => {

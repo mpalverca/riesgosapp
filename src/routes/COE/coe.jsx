@@ -29,7 +29,7 @@ import {
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { useSearchMembers } from "./script";
 import BodyCOE from "./canton/bodyCOE";
-import Accions from "./canton/Accions";
+import Recursos from "./canton/Accions";
 //import { useCoeData } from "./script";
 import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
@@ -54,7 +54,6 @@ const Coe = ({ role, ci, ...props }) => {
     setValue(newValue);
   };
 
-
   return (
     <Box sx={{ p: 2, margin: "0 auto" }}>
       <Typography variant="h4" gutterBottom color="primary" align="center">
@@ -67,7 +66,8 @@ const Coe = ({ role, ci, ...props }) => {
           <TabList onChange={handleChange} aria-label="lab API tabs example">
             <Tab label="descripción de Mesa" value="1" />
             <Tab label="Estado del cantón" value="2" />
-            <Tab label="Recusos" value="3" />
+            <Tab label="Recursos" value="3" />
+            <Tab label="Acciones" value="4" />
           </TabList>
         </Box>
         <TabPanel value="1">
@@ -88,11 +88,12 @@ const Coe = ({ role, ci, ...props }) => {
               {<BodyCOE mtt={member?.mtt} />}
             </Paper>
             <Paper elevation={3} sx={{ p: 1, mb: 1, borderRadius: 1 }}>
-              <Accions />
+              <Recursos />
             </Paper>
           </>
         </TabPanel>
         <TabPanel value="3">Item Three</TabPanel>
+        <TabPanel value="4">Item Four</TabPanel>
       </TabContext>
     </Box>
   );

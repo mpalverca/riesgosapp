@@ -1,4 +1,3 @@
-import { FaHome, FaRoad } from "react-icons/fa";
 import Fondo1 from "../../../assets/fondo1.png";
 import { jsPDF } from "jspdf";
 import { captureMap } from "./maptoimage";

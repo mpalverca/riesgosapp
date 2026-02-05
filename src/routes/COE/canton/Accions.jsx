@@ -1,7 +1,7 @@
 import { Grid } from '@mui/material'
 import React from 'react'
 
-function Accions() {
+function Recursos() {
   return (
     <Grid container spacing={2} sx={{padding:2}}>
            <Grid item size={{ xs: 12, md: 4 }}>
@@ -17,4 +17,4 @@ function Accions() {
   )
 }
 
-export default Accions
+export default Recursos
