@@ -325,7 +325,7 @@ export const useSearchMembers = () => {
       const responseMtt = await fetch(`${url_members}?mtt=${data.data[0].mtt}`);
       const dataMtt = await responseMtt.json();
 
-      console.log("Datos MTT:", dataMtt);
+      //console.log("Datos MTT:", dataMtt);
 
       if (!response.ok) {
         throw new Error(data.error || "Error en la consulta");
