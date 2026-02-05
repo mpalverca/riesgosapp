@@ -1,15 +1,8 @@
 import React, { useState, useEffect } from "react";
 import {
   Box,
-  TextField,
-  Button,
   Typography,
-  Grid,
   Paper,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Select,
   CircularProgress,
   Alert,
   Tab,
@@ -35,8 +28,8 @@ import {
 //import SearchIcon from "@mui/icons-material/Search";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { useSearchMembers } from "./script";
-import BodyCOE from "./bodyCOE";
-import Accions from "./Accions";
+import BodyCOE from "./canton/bodyCOE";
+import Accions from "./canton/Accions";
 //import { useCoeData } from "./script";
 import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
@@ -44,101 +37,26 @@ import TabPanel from "@mui/lab/TabPanel";
 import Coe_info from "../../components/utils/coe_info.json";
 
 const Coe = ({ role, ci, ...props }) => {
-  /* const {
-    coeData,
-    coeLoading,
-    coeError,
-    coeSheets,
-    getSheets,
-    getSheetData,
-    searchInAllSheets,
-    filterSheetsByType,
-    clearData,
-  } = useCoeData(); */
   const [value, setValue] = React.useState("1");
   const [selectedSheet, setSelectedSheet] = useState(null);
-  //const [searchTerm, setSearchTerm] = useState("");
-  //const [activeTab, setActiveTab] = useState(0);
-  //const [filteredSheets, setFilteredSheets] = useState([]);
+  const { loading, error, member, apoyo, search, clear, found } =
+    useSearchMembers();
 
-  // Filtrar hojas cuando cambia la pestaña
-  useEffect(
-    () => {
-      //let filtered = [];
-      // loadSheets();
-      /* switch (activeTab) {
-      case 0: // Todas
-        filtered = coeSheets;
-        break;
-      case 1: // MTT
-        filtered = coeSheets.filter((s) =>
-          s.name.toLowerCase().includes("mtt")
-        );
-        break;
-      case 2: // GT
-        filtered = coeSheets.filter((s) => s.name.toLowerCase().includes("gt"));
-        break;
-      case 3: // Afectaciones
-        filtered = coeSheets.filter((s) =>
-          s.name.toLowerCase().includes("afectaciones")
-        );
-        break;
-      case 4: // Acciones
-        filtered = coeSheets.filter((s) =>
-          s.name.toLowerCase().includes("acciones")
-        );
-        break;
-      default:
-        filtered = coeSheets; 
-    }*/
-      //setFilteredSheets(filtered);
-    } /* [activeTab, coeSheets] */,
-  );
-
-  /*  const loadSheets = async () => {
-    await getSheets();
-  }; */
-  /* if (role !== "mmtt_lider") {
-    return (
-      <Alert severity="error" sx={{ mt: 3 }}>
-        <Typography>
-        "Acceso denegado: No tienes permiso para ver esta página."
-      </Typography>
-      </Alert>
-    ); 
-  }*/
-  /* const handleSheetSelect = async (sheetName) => {
-    setSelectedSheet(sheetName);
-    await getSheetData(sheetName);
-  };
-  const handleSearch = async () => {
-    if (!searchTerm.trim()) {
-      await getSheetData(selectedSheet);
-      return;
-    } */
-  // Si hay una hoja seleccionada, buscar en esa hoja
-  /*  if (selectedSheet) {
-      await getSheetData(selectedSheet, {
-        search: searchTerm,
-        column: "Descripcion", // Columna por defecto para buscar
-      });
-    } else {
-      // Buscar en todas las hojas
-      await searchInAllSheets(searchTerm);
+  // Nuevo useEffect para buscar cuando cambia el CI
+  useEffect(() => {
+    if (ci && ci.trim() !== "") {
+      console.log("Buscando CI:", ci);
+      search(ci);
     }
-  }; */
-  /*  const handleTabChange = (event, newValue) => {
-    setActiveTab(newValue);
-  }; */
+  }, [ci, search]);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
 
-  // NOTA: Asegúrate de definir o importar el componente SearchTerm
 
   return (
-    <Box sx={{ p: 3, margin: "0 auto" }}>
+    <Box sx={{ p: 2, margin: "0 auto" }}>
       <Typography variant="h4" gutterBottom color="primary" align="center">
         🚨 Comite Operativo de Emergencias (COE) - MTT/GT
       </Typography>
@@ -157,12 +75,17 @@ const Coe = ({ role, ci, ...props }) => {
             setSelectedSheet={setSelectedSheet}
             selectedSheet={selectedSheet}
             ci={ci}
+            loading={loading}
+            error={error}
+            member={member}
+            apoyo={apoyo}
+            found={found}
           />
         </TabPanel>
         <TabPanel value="2">
           <>
             <Paper elevation={3} sx={{ p: 1, mb: 1, borderRadius: 1 }}>
-              <BodyCOE />
+              {<BodyCOE mtt={member?.mtt} />}
             </Paper>
             <Paper elevation={3} sx={{ p: 1, mb: 1, borderRadius: 1 }}>
               <Accions />
@@ -176,18 +99,15 @@ const Coe = ({ role, ci, ...props }) => {
 };
 export default Coe;
 
-const SearchTerm = ({ setSelectedSheet, selectedSheet, ci }) => {
-  const { loading, error, member, apoyo, search, clear, found } =
-    useSearchMembers();
-
-  // Nuevo useEffect para buscar cuando cambia el CI
-  useEffect(() => {
-    if (ci && ci.trim() !== "") {
-      console.log("Buscando CI:", ci);
-      search(ci);
-    }
-  }, [ci, search]);
-
+const SearchTerm = ({
+  selectedSheet,
+  loading,
+  error,
+  member,
+  apoyo,
+  found,
+  ci,
+}) => {
   // Función para obtener valores seguros del miembro
   const getSafeMemberValue = (key) => {
     if (!member) return "No especificado";
