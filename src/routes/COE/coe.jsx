@@ -35,6 +35,7 @@ import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
 import Coe_info from "../../components/utils/coe_info.json";
+import { VisualRecursos } from "./recursos/Req_mtt";
 
 const Coe = ({ role, ci, ...props }) => {
   const [value, setValue] = React.useState("1");
@@ -92,7 +93,9 @@ const Coe = ({ role, ci, ...props }) => {
             </Paper>
           </>
         </TabPanel>
-        <TabPanel value="3">Item Three</TabPanel>
+        <TabPanel value="3">
+          <VisualRecursos mtt={member?.mtt} />
+        </TabPanel>
         <TabPanel value="4">Item Four</TabPanel>
       </TabContext>
     </Box>
