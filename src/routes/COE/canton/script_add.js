@@ -11,50 +11,59 @@ export const useAfectaciones = () => {
 
   // 2. FUNCIÓN PARA AGREGAR/CREAR (POST)
   const createIAF = useCallback(async (mtt, data) => {
-    console.log(mtt,data)
-    if (!mtt) {
-      setError("Ingrese un número de MTT");
-      return;
-    }
-    if (!data || Object.keys(data).length === 0) {
-      setError("Ingrese los datos para crear el registro");
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    setData(null);
-    try {
-      // Primer fetch para buscar el MTT
-      const response = await fetch(
-        `${url_edit}?mtt=${mtt}&tipo=post&data=${data}`,
-      );
+  console.log(mtt, data);
+  
+  if (!mtt) {
+    setError("Ingrese un número de MTT");
+    return;
+  }
+  
+  if (!data || Object.keys(data).length === 0) {
+    setError("Ingrese los datos para crear el registro");
+    return;
+  }
+  
+  setLoading(true);
+  setError(null);
+  setData(null);
+  
+  try {
+    // Primer fetch para buscar el MTT
+    const response = await fetch(
+      `${url_edit}?mtt=${mtt}&tipo=post&data=${JSON.stringify(data)}`, // Mejor usar JSON.stringify
+    );
 
-      if (!response.ok) {
-        throw new Error(`Error HTTP: ${response.status}`);
-      }
-
-      console.log("Response status:", response.status, response.statusText);
-      const data = await response.json();
-      console.log(data);
-      if (!data.success) {
-        throw new Error(data.message || "Error en la consulta");
-      }
-      if (data.data && data.data.length > 0) {
-        // Tomar el primer elemento del array
-        const afect_data = data.data;
-        setCount(data.count);
-        // Por ahora, usamos los datos del primer fetch
-        setData(afect_data);
-      } else {
-        setError(data.message || "MTT no encontrado");
-      }
-    } catch (err) {
-      console.error("Error en createIAF:", err);
-      setError(err.message || "Error de conexión");
-    } finally {
-      setLoading(false);
+    if (!response.ok) {
+      throw new Error(`Error HTTP: ${response.status}`);
     }
-  }, []);
+
+    console.log("Response status:", response.status, response.statusText);
+    
+    // CAMBIA ESTA LÍNEA - usa un nombre diferente
+    const responseData = await response.json(); // ← ¡Nuevo nombre!
+    
+    console.log(responseData);
+    
+    if (!responseData.success) {
+      throw new Error(responseData.message || "Error en la consulta");
+    }
+    
+    if (responseData.data && responseData.data.length > 0) {
+      // Tomar el primer elemento del array
+      const afect_data = responseData.data;
+      setCount(responseData.count);
+      // Por ahora, usamos los datos del primer fetch
+      setData(afect_data);
+    } else {
+      setError(responseData.message || "MTT no encontrado");
+    }
+  } catch (err) {
+    console.error("Error en createIAF:", err);
+    setError(err.message || "Error de conexión");
+  } finally {
+    setLoading(false);
+  }
+}, []);
 
   // 3. FUNCIÓN PARA ACTUALIZAR (PUT)
   const updateIAF = useCallback(async (mtt, rowNumber, data) => {
