@@ -1,15 +1,32 @@
-import { MapContainer, TileLayer } from "react-leaflet";
+import { MapContainer, TileLayer, useMapEvents } from "react-leaflet";
 import { AfectacionesView } from "./popups/afectaciones";
 import { useEffect, useState } from "react";
 import { AccionesView } from "./popups/acciones";
 import { RecursosView } from "./popups/recursos";
+import { Box, Button, IconButton, Popover, Stack, Typography } from "@mui/material";
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import CloseIcon from '@mui/icons-material/Close';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import { MarkerSimple } from "../../../components/maps/marker";
+// Componente para manejar eventos del mapa
+const MapClickHandler = ({ onMapClick }) => {
+  useMapEvents({
+    click: (e) => {
+      onMapClick(e.latlng);
 
-function MapMark({ position, zoom, dataAF, mtt, dataAC, dataRE, ...props }) {
+    },
+  });
+  return null;
+};
+function MapMark({ position, zoom, dataAF, mtt, dataAC, dataRE, layersConfig,...props }) {
   // Estado para almacenar los marcadores procesados
   const [afectaciones, setAfect] = useState([]);
   const [acciones, setAcc] = useState([]);
   const [recursos, setRec] = useState([]);
-  console.log(recursos);
+  //click dar para evento
+  const [clickPosition, setClickPosition] = useState(null);
+  const [menuAnchor, setMenuAnchor] = useState(null);
+  const [coordinates, setCoordinates] = useState(null);
   // Efecto para procesar dataAF y convertir ubi de string a array
   useEffect(() => {
     if (dataAF && Array.isArray(dataAF) && dataAF.length > 0) {
@@ -109,7 +126,7 @@ function MapMark({ position, zoom, dataAF, mtt, dataAC, dataRE, ...props }) {
   }, [dataAC]);
   useEffect(() => {
     if (dataRE && Array.isArray(dataRE) && dataRE.length > 0) {
-        console.log(dataRE)
+      console.log(dataRE);
       const processedMarkers = dataRE
         .map((item, index) => {
           if (!item.ubi) return null;
@@ -193,14 +210,46 @@ function MapMark({ position, zoom, dataAF, mtt, dataAC, dataRE, ...props }) {
       return dateString;
     }
   };
+  //funcion to clcik interaction map
+  const handleMapClick = (latlng) => {
+    // Convertir coordenadas Leaflet a posición en pantalla
+    const mapContainer = document.querySelector(".leaflet-container");
+    const rect = mapContainer.getBoundingClientRect();
 
+    setCoordinates({
+      lat: latlng.lat.toFixed(6),
+      lng: latlng.lng.toFixed(6),
+      latlng: latlng,
+    });
+
+    setMenuAnchor({
+      left: rect.left + window.scrollX,
+      top: rect.top + window.scrollY,
+    });
+
+    setClickPosition(latlng);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchor(null);
+    setCoordinates(null);
+  };
+
+  const handleLayerClick = (item) => {
+    item.accion(coordinates);
+    handleMenuClose();
+  };
   return (
+    <>
     <MapContainer
       center={position}
       zoom={zoom}
+      
       style={{ height: "90vh", width: "100%" }}
       scrollWheelZoom={true}
     >
+        {coordinates && <MarkerSimple iconMark={<LocationOnIcon/>} position={coordinates} />}
+        <MapClickHandler onMapClick={handleMapClick} />
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -224,16 +273,109 @@ function MapMark({ position, zoom, dataAF, mtt, dataAC, dataRE, ...props }) {
       )}
       {props.loading.loadingRE == false &&
         props.selectCapa.recursos &&
-        recursos && (            
+        recursos && (
           <RecursosView
             recursos={recursos}
             parseByField={parseByField}
             formatDate={formatDate}
-          />         
+          />
         )}
       {/* Otras capas personalizadas */}
       {props.children}
     </MapContainer>
+    {/* Menú contextual */}
+      <Popover
+        open={Boolean(menuAnchor)}
+        anchorReference="anchorPosition"
+        anchorPosition={menuAnchor}
+        onClose={handleMenuClose}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+        PaperProps={{
+          sx: {
+            width: 280,
+            maxHeight: 400,
+            overflow: 'auto',
+            mt: 1,
+            ml: 1
+          }
+        }}
+      >
+        <Box sx={{ p: 2 }}>
+          {/* Header con coordenadas */}
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'flex-start',
+            mb: 2,
+            pb: 2,
+            borderBottom: '1px solid',
+            borderColor: 'divider'
+          }}>
+            <Box>
+              <Typography variant="subtitle1" fontWeight="bold">
+                Coordenadas
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                <LocationOnIcon fontSize="small" sx={{ mr: 0.5, verticalAlign: 'middle' }} />
+                Lat: {coordinates?.lat}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                <LocationOnIcon fontSize="small" sx={{ mr: 0.5, verticalAlign: 'middle' }} />
+                Lng: {coordinates?.lng}
+              </Typography>
+            </Box>
+            <IconButton size="small" onClick={handleMenuClose}>
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          </Box>
+
+          {/* Botones de capas */}
+          <Typography variant="subtitle2" sx={{ mb: 1, color: 'text.secondary' }}>
+            Acciones en esta ubicación:
+          </Typography>
+          
+          <Stack spacing={1}>
+            {layersConfig.map((item) => (
+              <Button
+                key={item.key}
+                variant="outlined"
+                startIcon={item.icon}
+                onClick={() => handleLayerClick(item)}
+                fullWidth
+                sx={{
+                  justifyContent: 'flex-start',
+                  py: 1,
+                  textTransform: 'none',
+                  fontSize: '0.875rem'
+                }}
+              >
+                {item.label}
+              </Button>
+            ))}
+          </Stack>
+
+          {/* Botón para copiar coordenadas */}
+          <Button
+            variant="contained"
+            fullWidth
+            size="small"
+            startIcon={<ContentCopyIcon fontSize="small" />}
+            onClick={() => {
+              navigator.clipboard.writeText(`${coordinates?.lat}, ${coordinates?.lng}`);
+            }}
+            sx={{ mt: 2 }}
+          >
+            Copiar Coordenadas
+          </Button>
+        </Box>
+      </Popover></>
   );
 }
 export default MapMark;

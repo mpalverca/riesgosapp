@@ -279,9 +279,9 @@ export const VisualRecursos = ({ mtt }) => {
   };
 
   return (
-    <Box sx={{ p: 2 }}>
+    <Box sx={{ p: 1}}>
       <Typography variant="h6" gutterBottom>
-        Tipo de Recurso - MTT: {mtt || "No especificado"}
+        Tipo de Recurso {mtt || "No especificado"}
       </Typography>
       
       <FormControl component="fieldset">
@@ -297,7 +297,7 @@ export const VisualRecursos = ({ mtt }) => {
         </RadioGroup>
       </FormControl>
 
-      <Paper sx={{ p: 3, mt: 2 }}>
+      <Paper sx={{ p: 1, mt: 2 }}>
         <Typography variant="h5" gutterBottom>
           {options.find((opt) => opt.value === selectedOption)?.label}
           {getCurrentData().length > 0 && ` (${getCurrentData().length} registros)`}

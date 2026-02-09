@@ -1,7 +1,12 @@
 import { useCallback, useState } from "react";
 
-const url_afec =
-  "https://script.google.com/macros/s/AKfycbweMHL4h6Umb6DcsdksJHOOrVBPDiFiJg7ioa9DvqYx5brYnkG6_AOk5eX_D1s0N838oA/exec";
+/* const url_afec =
+  "https://script.google.com/macros/s/AKfycbweMHL4h6Umb6DcsdksJHOOrVBPDiFiJg7ioa9DvqYx5brYnkG6_AOk5eX_D1s0N838oA/exec"; */
+
+ const url_afec =
+"https://script.google.com/macros/s/AKfycbxESYSy9nStYDXrePR7d4aQdkehlYzb5hGzHbEMMqFJLOYtJYwLAb_ZQ9OZzzDEn07Htg/exec"
+ /* "https://script.google.com/macros/s/AKfycbz4xRcp_SkLzhrpHiGleUsjL9jFcLJ_-B_KWWDOlfxHJtiIL2KCJU3VD2X5Y6sVHQzcag/exec";
+ */ 
 const url_acciones =
   "https://script.google.com/macros/s/AKfycbwuJw9VVDjpJH5z2NATNCezVSanYKmVj2FaCIsDbKnqo9Wk9dplYEh3enSRUsF7P4rmpA/exec";
 const url_recursos =
@@ -20,8 +25,6 @@ export const useAfectaciones = () => {
       return;
     }
 
-    console.log("Buscando MTT:", mtt);
-
     setLoading(true);
     setError(null);
     setDataAF(null);
@@ -33,19 +36,17 @@ export const useAfectaciones = () => {
       if (!response.ok) {
         throw new Error(`Error HTTP: ${response.status}`);
       }
-
       const data = await response.json();
-
+      console.log(data);
       if (!data.success) {
         throw new Error(data.message || "Error en la consulta");
       }
-
       if (data.data && data.data.length > 0) {
         // Tomar el primer elemento del array
-        const memberData = data.data;
+        const afect_data = data.data;
         setCount(data.count);
         // Por ahora, usamos los datos del primer fetch
-        setDataAF(memberData);
+        setDataAF(afect_data);
       } else {
         setError(data.message || "MTT no encontrado");
       }
@@ -127,8 +128,8 @@ export const useAcciones = () => {
   return {
     loadingAC,
     errorAC,
-     dataAC,
-   countAC,
+    dataAC,
+    countAC,
     searchAC,
     clear,
   };
@@ -186,10 +187,10 @@ export const useRecursos = () => {
   }, []);
 
   return {
-     loadingRE,
-     errorRE,
-     dataRE,
-   countRE,
+    loadingRE,
+    errorRE,
+    dataRE,
+    countRE,
     searchRE,
     clear,
   };

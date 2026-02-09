@@ -26,10 +26,8 @@ import {
 } from "@mui/icons-material";
 
 //import SearchIcon from "@mui/icons-material/Search";
-import RefreshIcon from "@mui/icons-material/Refresh";
 import { useSearchMembers } from "./script";
 import BodyCOE from "./canton/bodyCOE";
-import Recursos from "./canton/Accions";
 //import { useCoeData } from "./script";
 import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
@@ -40,16 +38,53 @@ import { VisualRecursos } from "./recursos/Req_mtt";
 const Coe = ({ role, ci, ...props }) => {
   const [value, setValue] = React.useState("1");
   const [selectedSheet, setSelectedSheet] = useState(null);
-  const { loading, error, member, apoyo, search, clear, found } =
-    useSearchMembers();
+  const { loading, error, member, apoyo, search, found } = useSearchMembers();
 
   // Nuevo useEffect para buscar cuando cambia el CI
   useEffect(() => {
     if (ci && ci.trim() !== "") {
-      console.log("Buscando CI:", ci);
-      search(ci);
+      const memberData = localStorage.getItem("member");
+      //console.log(memberData);
+      if (!memberData) {
+       
+        // Si no hay datos en localStorage, buscar
+        search(ci);
+      } else {
+        try {
+          // Parsear los datos de localStorage
+          const parsedData = JSON.parse(memberData);
+          
+          if (parsedData.ci/* .toString() */ === ci) {
+            console.log("aqui si es igual")
+
+      
+            // Aquí necesitas una forma de actualizar el estado de useSearchMembers
+            // Depende de cómo esté implementado tu hook
+          } else {
+      //       console.log((JSON.parse(memberData)));
+            // Si el CI no coincide, buscar de nuevo
+            search(ci);
+          }
+        } catch (error) {
+          console.error("Error parsing localStorage data:", error);
+          search(ci);
+        }
+      }
     }
   }, [ci, search]);
+
+  // Mejor alternativa: Usar un useEffect separado para guardar en localStorage
+  useEffect(() => {
+    if (member && Object.keys(member).length > 0) {
+      localStorage.setItem("member", JSON.stringify(member));
+    }
+  }, [member]);
+
+  useEffect(() => {
+    if (apoyo && Object.keys(apoyo).length > 0) {
+      localStorage.setItem("apoyo", JSON.stringify(apoyo));
+    }
+  }, [apoyo]);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -86,15 +121,14 @@ const Coe = ({ role, ci, ...props }) => {
         <TabPanel value="2">
           <>
             <Paper elevation={3} sx={{ p: 1, mb: 1, borderRadius: 1 }}>
-              {<BodyCOE mtt={member?.mtt} />}
-            </Paper>
-            <Paper elevation={3} sx={{ p: 1, mb: 1, borderRadius: 1 }}>
-              <Recursos />
+              {<BodyCOE mtt={member?.mtt} member={member} />}
             </Paper>
           </>
         </TabPanel>
         <TabPanel value="3">
-          <VisualRecursos mtt={member?.mtt} />
+          <Paper elevation={3} sx={{ p: 1, mb: 1, borderRadius: 1 }}>
+            <VisualRecursos mtt={member?.mtt} />
+          </Paper>
         </TabPanel>
         <TabPanel value="4">Item Four</TabPanel>
       </TabContext>
@@ -260,7 +294,7 @@ const SearchTerm = ({
 
       {/* Información del MTT/GT */}
       <Box>
-        {Coe_info.filter((info) => info.codigo == member?.mtt).map(
+        {Coe_info.filter((info) => info.codigo === member?.mtt).map(
           (mtt, index) => (
             <Box key={index} sx={{ mt: 3 }}>
               {/* Encabezado del Componente */}

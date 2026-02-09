@@ -1,26 +1,42 @@
 import React, { useEffect, useState } from "react";
 import Panels from "../../../components/panels/Panels";
+// icons
+import CircleNotificationsIcon from "@mui/icons-material/CircleNotifications";
+import DirectionsWalkIcon from "@mui/icons-material/DirectionsWalk";
+import HandymanIcon from "@mui/icons-material/Handyman";
+import EmergencyShareIcon from "@mui/icons-material/EmergencyShare";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import {
   Box,
+  Button,
   Checkbox,
   Divider,
   FormControlLabel,
   Grid,
+  IconButton,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { useAcciones, useAfectaciones, useRecursos } from "../script_afect";
-import { CheckBox } from "@mui/icons-material";
+import { CheckBox, Refresh } from "@mui/icons-material";
 import MapMark from "./MapsView";
-
+import { icon } from "leaflet";
+import { DialogAfect } from "./popups/ImputAfect";
+import { set } from "mongoose";
 
 function BodyCOE({ ...props }) {
   const { loadingAF, errorAF, dataAF, countAF, searchAF } = useAfectaciones();
-  const { loadingAC, errorAC, dataAC, countAC, searchAC } = useAcciones();  
+  const { loadingAC, errorAC, dataAC, countAC, searchAC } = useAcciones();
   const { loadingRE, errorRE, dataRE, countRE, searchRE } = useRecursos();
 
   const [afectaciones, setAfectaciones] = useState(null);
   const [acciones, setAcciones] = useState(null);
   const [recursos, setRecursos] = useState(null);
+  //to dates
+  const [coordinates, setCoordinates] = useState(null);
+  //acciones
+
+  const [openAF, setOpenAF] = useState(false);
 
   const [selectedCapa, setSelectedCapa] = useState({
     afectaciones: false,
@@ -40,7 +56,14 @@ function BodyCOE({ ...props }) {
     if (selectedCapa.recursos && dataRE) {
       setRecursos(dataRE);
     }
-  }, [dataAF, dataAC, dataRE, selectedCapa.afectaciones, selectedCapa.acciones, selectedCapa.recursos]);
+  }, [
+    dataAF,
+    dataAC,
+    dataRE,
+    selectedCapa.afectaciones,
+    selectedCapa.acciones,
+    selectedCapa.recursos,
+  ]);
 
   //control varias capas
   const handleLayerToggle = (layer) => {
@@ -81,86 +104,156 @@ function BodyCOE({ ...props }) {
     });
   };
 
+  const layersConfig = [
+    {
+      key: "afectaciones",
+      label: "Afectaciones",
+      loading: loadingAF,
+      count: countAF,
+      icon: <CircleNotificationsIcon />,
+      accion: (coords) => handleClickOpen(coords),
+      refresh: () => searchAF(props?.mtt),
+    },
+    {
+      key: "acciones",
+      label: "Acciones",
+      loading: loadingAC,
+      count: countAC,
+      icon: <DirectionsWalkIcon />,
+      accion: (coords) => console.log("Afectaciones en:", coords),
+      refresh: () => {
+        searchAC(props?.mtt);
+        if (selectedCapa.acciones && dataAC) {
+          setAcciones(dataAC);
+        }
+      },
+    },
+    {
+      key: "recursos",
+      label: "Recursos",
+      loading: loadingRE,
+      count: countRE,
+      icon: <HandymanIcon />,
+      accion: (coords) => console.log("Afectaciones en:", coords),
+    },
+    {
+      key: "necesidades",
+      label: "Necesidades",
+      loading: false,
+      count: null,
+      icon: <EmergencyShareIcon />,
+      accion: (coords) => console.log("Afectaciones en:", coords),
+    },
+    {
+      key: "requerimientos",
+      label: "Bandeja de Requerimientos",
+      loading: false,
+      count: null,
+      icon: <CheckCircleOutlineIcon />,
+      accion: (coords) => console.log("Afectaciones en:", coords),
+    },
+  ];
+
+  //open dialog:
+
+  const handleClickOpen = (coordenate) => {
+    setOpenAF(true);
+    setCoordinates(coordenate);
+  };
+
+  const handleClose = (value) => {
+    setOpenAF(false);
+ 
+  };
+
   return (
     <Grid container spacing={2} sx={{ padding: 2 }}>
-      <Grid item size={{ xs: 12, md: 3 }}>
+      <Grid
+        item
+        size={{ xs: 12, md: 3 }}
+        style={{ height: "90vh", overflowY: "auto" }}
+      >
         <Panels
-          title={`Mesa Tecnica de trabajo/grupo de trabajo - ${props.mtt}`}
+          title={`Mesa Tecnica de trabajo/grupo de trabajo - ${props?.mtt}`}
           body={
-            <>
-              <Typography variant="body1" align="justify">
-                Capas visibles en el mapa:
+            <Box
+              sx={{
+                pl: 2,
+                mb: 2,
+                display: "flex",
+                flexDirection: "column", // ← Esto fuerza el layout vertical
+                // gap: 1, // ← Espacio entre elementos (opcional)
+              }}
+            >
+              <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+                Ver capas{" "}
               </Typography>
-              <Box sx={{ pl: 2, mb: 2 }}>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={selectedCapa.afectaciones}
-                      onChange={() => handleLayerToggle("afectaciones")}
-                      icon={<CheckBox fontSize="small" />}
-                      checkedIcon={
-                        <CheckBox fontSize="small" color="primary" />
-                      }
-                    />
-                  }
-                  label={`Afectaciones (${loadingAF==true?"cargando":countAF}) `}
-                />
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={selectedCapa.acciones}
-                      onChange={() => handleLayerToggle("acciones")}
-                      icon={<CheckBox fontSize="small" />}
-                      checkedIcon={
-                        <CheckBox fontSize="small" color="primary" />
-                      }
-                    />
-                  }
-                  label={`Acciones (${loadingAC==true?"cargando":countAC})`}
-                />
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={selectedCapa.recursos}
-                      onChange={() => handleLayerToggle("recursos")}
-                      icon={<CheckBox fontSize="small" />}
-                      checkedIcon={
-                        <CheckBox fontSize="small" color="primary" />
-                      }
-                    />
-                  }
-                  label={`Recursos (${loadingRE==true?"cargando":countRE})`}
-                />
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={selectedCapa.necesidades}
-                      onChange={() => handleLayerToggle("necesidades")}
-                      icon={<CheckBox fontSize="small" />}
-                      checkedIcon={
-                        <CheckBox fontSize="small" color="primary" />
-                      }
-                    />
-                  }
-                  label="Necesidades"
-                />
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={selectedCapa.requerimientos}
-                      onChange={() => handleLayerToggle("requerimientos")}
-                      icon={<CheckBox fontSize="small" />}
-                      checkedIcon={
-                        <CheckBox fontSize="small" color="primary" />
-                      }
-                    />
-                  }
-                  label={`Bandeja de Requerimientos `}
-                />
-              </Box>
+              {layersConfig.map((layer) => (
+                <div
+                  key={layer.key}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    marginBottom: "8px",
+                  }}
+                >
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={selectedCapa[layer.key]}
+                        onChange={() => handleLayerToggle(layer.key)}
+                        icon={layer.icon}
+                        checkedIcon={layer.icon}
+                      />
+                    }
+                    label={`${layer.label}${layer.count !== null ? ` (${layer.loading ? "cargando" : layer.count})` : ""}`}
+                  />
+                  <IconButton onClick={layer.refresh} size="small">
+                    <Refresh fontSize="small" />
+                  </IconButton>
+                </div>
+              ))}
               <Divider />
-              <Box></Box>
-            </>
+              <Typography>Afectaciones </Typography>
+
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    //checked={}
+                    // onChange={() => handleLayerToggle(layer.key)}
+                    // icon={layer.icon}
+                    checkedIcon={
+                      <CheckBox fontSize="small" color="primary" />
+                      //layer.icon
+                    }
+                  />
+                }
+                label={`Eventos Registrados`}
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    //checked={}
+                    // onChange={() => handleLayerToggle(layer.key)}
+                    // icon={layer.icon}
+                    checkedIcon={
+                      <CheckBox fontSize="small" color="primary" />
+                      //layer.icon
+                    }
+                  />
+                }
+                label={`Susceptibilidad`}
+              />
+              <Divider />
+              <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+                Añadir capa
+              </Typography>
+              <Typography variant="body2">
+                Para añadir una capa, debes dar clik en un lugar en el mapa
+                "Menu que se depliega", debes seleccionar una opcion para
+                agregar{" "}
+              </Typography>
+            </Box>
           }
         />
       </Grid>
@@ -168,12 +261,22 @@ function BodyCOE({ ...props }) {
         <MapMark
           position={[-3.9965787520553717, -79.20168563157956]}
           zoom={10}
-          dataAF={afectaciones}          
-          loading={{loadingAC,loadingAF,loadingRE}}
+          dataAF={afectaciones}
+          loading={{ loadingAC, loadingAF, loadingRE }}
           selectCapa={selectedCapa}
           mtt={props.mtt}
           dataAC={acciones}
           dataRE={recursos}
+          layersConfig={layersConfig}
+          coordinates={coordinates}
+          setCoordinates={setCoordinates}
+        />
+        <DialogAfect
+          mtt={props.mtt}
+          open={openAF}
+          coordinates={coordinates}
+          member={props.member}
+          onClose={handleClose}
         />
       </Grid>
     </Grid>

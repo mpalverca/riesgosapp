@@ -275,7 +275,6 @@ export const useCoeData = () => {
     coeLoading,
     coeError,
     coeSheets,
-
     // Funciones principales
     getSheets,
     getSheetData,
@@ -305,8 +304,7 @@ export const useSearchMembers = () => {
       setError("Ingrese un número de cédula");
       return;
     }
-    console.log("Buscando CI:", ci);
-
+   
     const ciNumber = ci.toString().trim();
     if (ciNumber.length < 6) {
       setError("El CI debe tener al menos 6 dígitos");

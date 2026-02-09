@@ -109,7 +109,7 @@ const getEventIcon = useCallback(() => {
             <Popup>
               <div style={{ maxWidth: "300px" }}>
                 <h3 style={{ marginTop: 0, color: "#e21111" }}>
-                  {"Afectación" }
+                  {`Afectación - (${marker.data.row})`}
                 </h3>
                 <h4 style={{ marginTop: 0, color: "#e21111" }}>
                   {marker.data.event || "Evento"}
