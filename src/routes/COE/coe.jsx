@@ -39,12 +39,11 @@ const Coe = ({ role, ci, ...props }) => {
   const [value, setValue] = React.useState("1");
   const [selectedSheet, setSelectedSheet] = useState(null);
   const { loading, error, member, apoyo, search, found } = useSearchMembers();
-
   // Nuevo useEffect para buscar cuando cambia el CI
   useEffect(() => {
     if (ci && ci.trim() !== "") {
-      const memberData = localStorage.getItem("member");
-      //console.log(memberData);
+      const memberData = localStorage.getItem("memberD");
+      console.log(memberData);
       if (!memberData) {
        
         // Si no hay datos en localStorage, buscar
@@ -53,7 +52,7 @@ const Coe = ({ role, ci, ...props }) => {
         try {
           // Parsear los datos de localStorage
           const parsedData = JSON.parse(memberData);
-          
+          console.log(parsedData.ci.toString() === ci)
           if (parsedData.ci/* .toString() */ === ci) {
             console.log("aqui si es igual")
 
@@ -76,13 +75,13 @@ const Coe = ({ role, ci, ...props }) => {
   // Mejor alternativa: Usar un useEffect separado para guardar en localStorage
   useEffect(() => {
     if (member && Object.keys(member).length > 0) {
-      localStorage.setItem("member", JSON.stringify(member));
+      localStorage.setItem("memberD", JSON.stringify(member));
     }
   }, [member]);
 
   useEffect(() => {
     if (apoyo && Object.keys(apoyo).length > 0) {
-      localStorage.setItem("apoyo", JSON.stringify(apoyo));
+      localStorage.setItem("apoyoD", JSON.stringify(apoyo));
     }
   }, [apoyo]);
 

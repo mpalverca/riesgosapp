@@ -20,44 +20,55 @@ import MTT4Afect from "./afectMMT/mtt4";
 import { useAfectaciones } from "../script_add";
 
 export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
+  const getUbiString = () => {
+    if (
+      !coordinates ||
+      coordinates.lat === undefined ||
+      coordinates.lng === undefined
+    ) {
+      return ""; // O algún valor por defecto
+    }
+    return `[${coordinates.lat}, ${coordinates.lng}]`;
+  };
+  const handleClose = () => {
+    onClose();
+  };
   const { loadingIAF, errorIAF, dataIAF, createIAF } = useAfectaciones();
   const [fixData, setFixData] = useState({
     date_event: null,
     date_act: null,
     by: props.member,
-    ubi: [coordinates?.lat, coordinates?.lng],
-    provincia: "",
-    canton: "",
+    ubi: getUbiString(),
+    provincia: "Loja",
+    canton: "Loja_",
     parroq: "",
     event: "",
-    radio: 0,
+    radio: "",
     sector: "",
     desc: "",
   });
+  console.log(fixData);
   const [formData4, setFormData4] = useState({
-    perm_dam: 0,
-    fam_damn: 0,
-    perf_afect: 0,
-    fam_afect: 0,
-    per_ind: 0,
-    fam_ind: 0,
-    perd_desp: 0,
-    fam_despl: 0,
-    alb_afect: 0,
-    camp_afect: 0,
-    per_fam: 0,
-    fam_fam: 0,
-    per_cam: 0,
-    fam_camp: 0,
-    per_ref: 0,
-    fam_ref: 0,
-    per_emerg: 0,
-    fami_emerg: 0,
+    perm_dam: null,
+    fam_damn: null,
+    perf_afect: null,
+    fam_afect: null,
+    per_ind: null,
+    fam_ind: null,
+    perd_desp: null,
+    fam_despl: null,
+    alb_afect: null,
+    camp_afect: null,
+    per_fam: null,
+    fam_fam: null,
+    per_cam: null,
+    fam_camp: null,
+    per_ref: null,
+    fam_ref: null,
+    per_emerg: null,
+    fami_emerg: null,
   });
-
-  const handleClose = () => {
-    onClose();
-  };
+  // Verificar coordenadas antes de usarlas
 
   const getColorByMTT = (mttValue) => {
     switch (mttValue) {
@@ -220,7 +231,12 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
           {currentColor}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => createIAF(mtt, { ...formData4, ...fixData })}>
+          <Button
+            onClick={() => {
+              createIAF(mtt, { ...formData4, ...fixData });
+              handleClose()
+            }}
+          >
             Añadir
           </Button>
           <Button onClick={handleClose} autoFocus>
