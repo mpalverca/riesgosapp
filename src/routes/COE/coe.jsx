@@ -43,7 +43,6 @@ const Coe = ({ role, ci, ...props }) => {
   useEffect(() => {
     if (ci && ci.trim() !== "") {
       const memberData = localStorage.getItem("memberD");
-      console.log(memberData);
       if (!memberData) {
        
         // Si no hay datos en localStorage, buscar
@@ -52,7 +51,7 @@ const Coe = ({ role, ci, ...props }) => {
         try {
           // Parsear los datos de localStorage
           const parsedData = JSON.parse(memberData);
-          console.log(parsedData.ci.toString() === ci)
+          //console.log(parsedData.ci.toString() === ci)
           if (parsedData.ci/* .toString() */ === ci) {
             console.log("aqui si es igual")
 

@@ -19,10 +19,13 @@ const MapClickHandler = ({ onMapClick }) => {
   return null;
 };
 function MapMark({ position, zoom, dataAF, mtt, dataAC, dataRE, layersConfig,...props }) {
+  console.log(props)
   // Estado para almacenar los marcadores procesados
   const [afectaciones, setAfect] = useState([]);
   const [acciones, setAcc] = useState([]);
   const [recursos, setRec] = useState([]);
+  console.log(afectaciones)
+  console.log(dataAC)
   //click dar para evento
   const [clickPosition, setClickPosition] = useState(null);
   const [menuAnchor, setMenuAnchor] = useState(null);
@@ -37,7 +40,7 @@ function MapMark({ position, zoom, dataAF, mtt, dataAC, dataRE, layersConfig,...
           try {
             // Convertir la cadena "[lat, lng]" a array de números
             let coordinates;
-
+            console.log(coordinates)
             if (typeof item.ubi === "string") {
               // Remover corchetes y espacios, luego dividir por coma
               const cleanStr = item.ubi.replace(/[\[\]\s]/g, "");
@@ -256,7 +259,7 @@ function MapMark({ position, zoom, dataAF, mtt, dataAC, dataRE, layersConfig,...
       />
 
       {/* Mostrar todos los marcadores procesados */}
-      {props.loading.loadingAF == false && props.selectCapa.afectaciones && (
+      {props.loading == false && props.selectCapa.afectaciones && (
         <AfectacionesView
           afect={afectaciones}
           parseByField={parseByField}

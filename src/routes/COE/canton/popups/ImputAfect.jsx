@@ -47,7 +47,7 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
     sector: "",
     desc: "",
   });
-  console.log(fixData);
+  ///console.log(fixData);
   const [formData4, setFormData4] = useState({
     perm_dam: null,
     fam_damn: null,
