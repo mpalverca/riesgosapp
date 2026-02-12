@@ -20,6 +20,7 @@ import MTT4Afect from "./afectMMT/mtt4";
 import { useAfectaciones } from "../script_add";
 
 export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
+
   const getUbiString = () => {
     if (
       !coordinates ||
@@ -38,6 +39,7 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
     date_event: null,
     date_act: null,
     by: props.member,
+    event: null,
     ubi: getUbiString(),
     provincia: "Loja",
     canton: "Loja_",
@@ -47,7 +49,6 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
     sector: "",
     desc: "",
   });
-  console.log(fixData);
   const [formData4, setFormData4] = useState({
     perm_dam: null,
     fam_damn: null,
@@ -123,6 +124,32 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
     </TextField>
   );
 
+  const transformDataToOptions = (rawData) => {
+    
+  // Verificamos que sea un array válido
+  if (!rawData || !Array.isArray(rawData)) {
+    return [{ value: "", label: "Seleccione" }];
+  }
+
+  const options = rawData.map((item,index) => {
+    // Creamos el label: "sector - event"
+    const label = `${index}-${item.sector} - ${item.event}`;
+
+    // Creamos el value: "sector+event.date" 
+    // Usamos replace para quitar espacios si prefieres un value más limpio
+    const value = `${item.sector}+${item.event}.${item.date_event}`.replace(/\s+/g, '_');
+
+    return {
+      value: item.row,
+      label: label
+    };
+  });
+  console.log(options)
+  // Agregamos la opción por defecto al inicio
+  return [{ value: "", label: "Seleccione" }, ...options];
+
+};
+
   return (
     <>
       <Dialog onClose={handleClose} open={open}>
@@ -146,6 +173,9 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <Box sx={{ mt: 2 }}>
                 <Grid container spacing={2}>
+                  <Grid item size={{ xs: 12, sm: 12 }}>
+                    {renderField("evento", "Evento", "select", [transformDataToOptions(props.dataPol)])}
+                  </Grid>
                   <Grid item size={{ xs: 12, sm: 6 }}>
                     <DatePicker
                       format="dd/MM/yyyy"
@@ -172,6 +202,7 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
                       }}
                     />
                   </Grid>
+                  
                   <Grid item size={{ xs: 12, sm: 6 }}>
                     {renderField("parroq", "Parroquia", "select", [
                       { value: "carigan", label: "Carigan" },
@@ -196,10 +227,9 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
                       { value: "taquil", label: "Taquil" },
                       { value: "vilcabamba", label: "Vilcabamba" },
                       { value: "yangana", label: "Yangana" },
-
-                      ,
                     ])}
                   </Grid>
+                  
                   <Grid item size={{ xs: 12, sm: 6 }}>
                     {renderField("sector", "Sector")}
                   </Grid>
@@ -234,7 +264,7 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
           <Button
             onClick={() => {
               createIAF(mtt, { ...formData4, ...fixData });
-              handleClose()
+              handleClose();
             }}
           >
             Añadir
@@ -255,4 +285,3 @@ const MTT1Afect = () => {
     </>
   );
 };
-

@@ -5,27 +5,28 @@ import {
   Divider,
   FormControlLabel,
   Grid,
-  IconButton,
   Typography,
 } from "@mui/material";
 import {
   CircleNotifications as CircleNotificationsIcon,
   DirectionsWalk as DirectionsWalkIcon,
   CheckCircleOutline as CheckCircleOutlineIcon,
-  Refresh,
+ 
 } from "@mui/icons-material";
+import MapIcon from "@mui/icons-material/Map";
 
 import Panels from "../../../components/panels/Panels";
 import MapMark from "./MapsView";
 import { DialogAfect } from "./popups/ImputAfect";
-import { useGetInfo } from "../script";
+import { useGetInfo, useGetPoligonos } from "../script";
 
 function BodyCOE({ mtt, member }) {
   // 1. Instancias independientes para evitar colisiones de datos
   const reqAfect = useGetInfo();
   const reqAcciones = useGetInfo();
   const reqRequ = useGetInfo();
-
+  const reqPol = useGetPoligonos()
+  console.log(reqPol.dataPol)
   // 2. Cache local para persistir datos si se apaga la capa
   const [cache, setCache] = useState({
     afectaciones: null,
@@ -39,6 +40,7 @@ function BodyCOE({ mtt, member }) {
     afectaciones: false,
     acciones: false,
     requerimientos: false,
+    poligono: false,
   });
 
   // Manejador optimizado
@@ -55,7 +57,8 @@ function BodyCOE({ mtt, member }) {
         result = await reqAcciones.searchGet(mtt, "Acciones");
       if (layer === "requerimientos")
         result = await reqRequ.searchGet(mtt, "Requerimiento");
-
+      if (layer ==="poligono")
+        result = await reqPol.searchPol()
       // Guardar en cache local si searchGet retorna la data directamente o usar el dataGet de la instancia
       if (result?.data) {
         setCache((prev) => ({ ...prev, [layer]: result.data }));
@@ -95,15 +98,15 @@ function BodyCOE({ mtt, member }) {
     setCoordinates(coordenate);
   };
 
-  const handleClose = (value) => {
+  /* const handleClose = (value) => {
     setOpenAF(false);
-  };
+  }; */
   return (
     <Grid container spacing={2} sx={{ padding: 2 }}>
       {/* Sidebar - Usando Grid size v2 */}
       <Grid size={{ xs: 12, md: 3 }} sx={{ height: "90vh", overflowY: "auto" }}>
         <Panels
-          title={!mtt ? "Cargando" : `Mesa Técnica - ${mtt}`}
+          title={!mtt ? "Cargando" : `Mesa Técnica/Grupo de trabajo - ${mtt}`}
           body={
             <Box
               sx={{ pl: 1, mb: 1, display: "flex", flexDirection: "column" }}
@@ -111,7 +114,19 @@ function BodyCOE({ mtt, member }) {
               <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
                 Capas
               </Typography>
-
+              <FormControlLabel
+                sx={{ flexGrow: 1 }}
+                control={
+                  <Checkbox
+                    checked={selectedCapa["poligono"]}
+                    onChange={() => handleLayerToggle("poligono")}
+                    icon={<MapIcon />}
+                    checkedIcon={<MapIcon />}
+                  />
+                }
+                label={`Poligono de afectación ${reqPol.loadinPol ? "Cargando" : `(${reqPol.dataPol?.data?.length || 0})`} `}
+              />
+              <Divider />
               {layersConfig.map((layer) => (
                 <Box
                   key={layer.key}
@@ -127,16 +142,16 @@ function BodyCOE({ mtt, member }) {
                         checkedIcon={layer.icon}
                       />
                     }
-                    label={`${layer.label} ${layer.instance.loadingGet ? "..." : `(${layer.instance.dataGet?.data?.length || 0})`}`}
+                    label={`${layer.label} ${layer.instance.loadingGet ? "Cargando" : `(${layer.instance.dataGet?.data?.length || 0})`}`}
                   />
-                  <IconButton
+                  {/*    <IconButton
                     onClick={() =>
                       layer.instance.searchGet(mtt, layer.searchType)
                     }
                     disabled={layer.instance.loadingGet}
                   >
                     <Refresh fontSize="small" />
-                  </IconButton>
+                  </IconButton> */}
                 </Box>
               ))}
             </Box>
@@ -153,10 +168,12 @@ function BodyCOE({ mtt, member }) {
             loadingAF: reqAfect.loadingGet,
             loadingAC: reqAcciones?.loadingGet,
             loadingRE: reqRequ?.loadingGet,
+            loadingPol: reqPol?.loadinPol
           }}
           dataAF={reqAfect.dataGet?.data}
           dataAC={reqAcciones.dataGet?.data}
           dataRE={reqRequ.dataGet?.data}
+          dataPol={reqPol.dataPol?.data}
           selectCapa={selectedCapa}
           mtt={mtt}
           layersConfig={layersConfig}
@@ -168,6 +185,7 @@ function BodyCOE({ mtt, member }) {
       <DialogAfect
         mtt={mtt}
         open={openAF}
+        dataPol={reqPol.dataPol?.data}
         coordinates={coordinates}
         member={member}
         onClose={() => setOpenAF(false)}

@@ -18,6 +18,7 @@ import { MarkerSimple } from "../../../components/maps/marker";
 import { AfectacionesView } from "./popups/afectaciones";
 import { AccionesView } from "./popups/acciones";
 import { RequireView } from "./popups/recursos";
+import { PolEventView } from "./popups/afectMMT/pol_event";
 
 // Componente interno para capturar clicks
 const MapClickHandler = ({ onMapClick }) => {
@@ -33,11 +34,13 @@ function MapMark({
   dataAF,
   dataAC,
   dataRE,
+  dataPol,
   mtt,
   layersConfig,
   selectCapa,
   loading,
   children,
+  member,
 }) {
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [coordinates, setCoordinates] = useState(null);
@@ -52,7 +55,7 @@ function MapMark({
       .map((item, index) => {
         if (!item.ubi) return null;
         let coords = null;
-       
+
         try {
           if (typeof item.ubi === "string") {
             const cleanStr = item.ubi.replace(/[\[\]\s]/g, "");
@@ -141,10 +144,10 @@ function MapMark({
       >
         {/* <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" /> */}
         <TileLayer
-                  url="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
-                  attribution="&copy; Google Maps"
-                />
-        
+          url="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
+          attribution="&copy; Google Maps"
+        />
+
         <MapClickHandler onMapClick={handleMapClick} />
 
         {/* Marcador temporal de selección */}
@@ -184,6 +187,15 @@ function MapMark({
           />
         )}
 
+        {!loading.loadingPol && selectCapa.poligono && (
+          <PolEventView
+            polygon={dataPol}
+            parseByField={parseByField}
+            formatDate={formatDate}
+            mtt={mtt}
+          />
+        )}
+
         {children}
       </MapContainer>
 
@@ -216,7 +228,7 @@ function MapMark({
               // CORRECCIÓN AQUÍ: usa ===
               item.key === "requerimientos" ? null : (
                 <Button
-                color="success"
+                  color="success"
                   key={item.key}
                   variant="outlined"
                   startIcon={item.icon}
@@ -229,7 +241,7 @@ function MapMark({
               ),
             )}
           </Stack>
-<Divider sx={{pb:2}} />
+          <Divider sx={{ pb: 2 }} />
           <Button
             variant="outlined"
             fullWidth

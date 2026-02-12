@@ -5,6 +5,9 @@ const url_members =
 const url_GetAll =
   "https://script.google.com/macros/s/AKfycbw21IFT6ijZNQocKRE-00-td6goh0fp2fDhmbzwXMwuyyptuXCQOm7JTbeNxB0y4lf0Fg/exec";
 
+  const url_event=
+  "https://script.google.com/macros/s/AKfycbyhW0MvqTHXSIu-G7mFPVaZOlb49I5CQqXZeAQBRhv0-yarwN4G-E3wWG8BZ2TOC7871w/exec"
+
 export const useSearchMembers = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -124,5 +127,45 @@ export const useGetInfo = () => {
     dataGet,
     searchGet,
     clearGet,
+  };
+};
+
+
+export const useGetPoligonos = () => {
+  const [loadinPol, setLoading] = useState(false);
+  const [errorPol, setError] = useState(null);
+  const [dataPol, setData] = useState(null);
+
+  const searchPol = useCallback(async () => {
+
+    setLoading(true);
+    setError(null);
+    setData(null);
+    try {
+      const response = await fetch(
+        `${url_event}`,
+      );
+      const data = await response.json();
+      setData(data);
+      //console.log("Datos MTT:", dataMtt);
+    } catch (err) {
+      setError(err.message || "Error de conexión");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const clearPol = useCallback(() => {
+    setData(null);
+    setError(null);
+    setLoading(false);
+  }, []);
+
+  return {
+     loadinPol,
+     errorPol,
+    dataPol,
+     searchPol,
+     clearPol,
   };
 };
