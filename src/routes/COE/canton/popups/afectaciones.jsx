@@ -1,7 +1,7 @@
 import { useCallback } from "react";
-import CircleNotificationsIcon from '@mui/icons-material/CircleNotifications';
-import { Divider } from "@mui/material";
-import {  Marker, Popup  } from "react-leaflet";
+import CircleNotificationsIcon from "@mui/icons-material/CircleNotifications";
+import { Box, Button, Divider } from "@mui/material";
+import { Marker, Popup } from "react-leaflet";
 import { renderToString } from "react-dom/server"; // Importa renderToString
 import { divIcon } from "leaflet";
 
@@ -69,8 +69,7 @@ const fieldsMTT7 = [];
 const fieldsGT3 = [];
 
 export const AfectacionesView = ({ afect, parseByField, formatDate, mtt }) => {
-  
-const getEventIcon = useCallback(() => {
+  const getEventIcon = useCallback(() => {
     const circleStyle = {
       display: "flex",
       alignItems: "center",
@@ -85,7 +84,7 @@ const getEventIcon = useCallback(() => {
     const html = renderToString(
       <div style={circleStyle}>
         <CircleNotificationsIcon color="#141414" size={14} />
-      </div>
+      </div>,
     );
 
     return divIcon({
@@ -96,17 +95,18 @@ const getEventIcon = useCallback(() => {
     });
   }, []);
 
-
   return (
     <>
       {afect.map((marker) => {
-        
         const byData = parseByField(marker.data.by);
         return (
-          <Marker key={marker.id} position={marker.position}
-          icon={getEventIcon()}
+          <Marker
+            key={marker.id}
+            position={marker.position}
+            icon={getEventIcon()}
           >
-            <Popup>
+            <Popup >
+              <Box sx={{ height: "60vh", overflowY: "auto" }} >
               <div style={{ maxWidth: "300px" }}>
                 <h3 style={{ marginTop: 0, color: "#e21111" }}>
                   {`Afectación - (${marker.data.row})`}
@@ -181,7 +181,7 @@ const getEventIcon = useCallback(() => {
                 <Divider />
 
                 {/* Mostrar datos de afectación si existen */}
-                <div style={{ marginTop: "10px", fontSize: "0.9em" }}>
+                <div style={{ fontSize: "0.9em" }}>
                   <p>
                     <strong>Estadísticas:</strong>
                   </p>
@@ -266,12 +266,38 @@ const getEventIcon = useCallback(() => {
                                   )}
                   </ul>
                 </div>
+
+                <Box sx={{ display: "flex", gap: 2 }}>
+                  <Button
+                    fullWidth
+                    variant="outlined"
+                    color="warning"
+                    onClick={() => console.log("eliminar archivo")}
+                  >
+                   PDF
+                  </Button>
+                  <Button
+                    fullWidth
+                    variant="outlined"
+                    onClick={() => console.log("Editar archivo")}
+                  >
+                    Editar
+                  </Button>
+                   <Button
+                    fullWidth
+                    variant="outlined"
+                    color="error"
+                    sx={{ color: "#e21111" }}
+                    onClick={() => console.log("eliminar archivo")}
+                  >
+                    Eliminar
+                  </Button>
+                </Box>
               </div>
-            </Popup>
+            </Box></Popup>
           </Marker>
         );
       })}
     </>
   );
 };
-

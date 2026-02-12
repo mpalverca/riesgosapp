@@ -139,7 +139,12 @@ function MapMark({
         zoom={zoom}
         style={{ height: "90vh", width: "100%", borderRadius: "8px" }}
       >
-        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        {/* <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" /> */}
+        <TileLayer
+                  url="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
+                  attribution="&copy; Google Maps"
+                />
+        
         <MapClickHandler onMapClick={handleMapClick} />
 
         {/* Marcador temporal de selección */}
@@ -188,12 +193,12 @@ function MapMark({
         anchorReference="anchorPosition"
         anchorPosition={menuAnchor}
         onClose={() => setMenuAnchor(null)}
-        PaperProps={{ sx: { width: 280, p: 2, borderRadius: 2 } }}
+        PaperProps={{ sx: { width: 200, p: 2, borderRadius: 3 } }}
       >
         <Box>
           <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
             <Typography variant="subtitle1" fontWeight="bold">
-              Ubicación
+              Añadir nuevo punto
             </Typography>
             <IconButton size="small" onClick={() => setMenuAnchor(null)}>
               <CloseIcon fontSize="small" />
@@ -211,6 +216,7 @@ function MapMark({
               // CORRECCIÓN AQUÍ: usa ===
               item.key === "requerimientos" ? null : (
                 <Button
+                color="success"
                   key={item.key}
                   variant="outlined"
                   startIcon={item.icon}
@@ -223,9 +229,9 @@ function MapMark({
               ),
             )}
           </Stack>
-
+<Divider sx={{pb:2}} />
           <Button
-            variant="contained"
+            variant="outlined"
             fullWidth
             size="small"
             startIcon={<ContentCopyIcon fontSize="small" />}

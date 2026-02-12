@@ -70,7 +70,7 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
   });
   // Verificar coordenadas antes de usarlas
 
-  const getColorByMTT = (mttValue) => {
+  const getMMData = (mttValue) => {
     switch (mttValue) {
       case "MTT1":
         return <MTT1Afect />;
@@ -87,7 +87,7 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
     }
   };
 
-  const currentColor = getColorByMTT(mtt);
+  const CurrentMTT = getMMData(mtt);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -228,7 +228,7 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
               </Box>
             </LocalizationProvider>
           </Paper>
-          {currentColor}
+          {CurrentMTT}
         </DialogContent>
         <DialogActions>
           <Button
