@@ -174,7 +174,7 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
               <Box sx={{ mt: 2 }}>
                 <Grid container spacing={2}>
                   <Grid item size={{ xs: 12, sm: 12 }}>
-                    {renderField("evento", "Evento", "select", [transformDataToOptions(props.dataPol)])}
+                    {renderField("evento", "Evento", "select", transformDataToOptions(props.dataPol))}
                   </Grid>
                   <Grid item size={{ xs: 12, sm: 6 }}>
                     <DatePicker
