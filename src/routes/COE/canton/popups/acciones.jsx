@@ -6,6 +6,7 @@ import { renderToString } from "react-dom/server";
 import { Marker, Popup } from "react-leaflet";
 
 export const AccionesView = ({ acciones, parseByField, formatDate, mtt }) => {
+
   const getEventIcon = useCallback((color) => {
     const circleStyle = {
       display: "flex",

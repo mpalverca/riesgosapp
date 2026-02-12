@@ -69,7 +69,7 @@ const fieldsMTT7 = [];
 const fieldsGT3 = [];
 
 export const AfectacionesView = ({ afect, parseByField, formatDate, mtt }) => {
-    console.log(afect)
+  
 const getEventIcon = useCallback(() => {
     const circleStyle = {
       display: "flex",

@@ -1,12 +1,13 @@
 
 import HandymanIcon from '@mui/icons-material/Handyman';
-import { Divider } from "@mui/material";
+import { Button, Divider } from "@mui/material";
 import { divIcon } from "leaflet";
 import { useCallback } from "react";
 import { renderToString } from "react-dom/server";
 import { Marker, Popup } from "react-leaflet";
 
-export const RecursosView = ({ recursos, parseByField, formatDate, mtt }) => {
+export const RequireView = ({ recursos, parseByField, formatDate, mtt }) => {
+
   const getEventIcon = useCallback((color) => {
     const circleStyle = {
       display: "flex",
@@ -47,15 +48,15 @@ export const RecursosView = ({ recursos, parseByField, formatDate, mtt }) => {
             <Popup>
               <div style={{ maxWidth: "300px" }}>
                 <h3 style={{ marginTop: 0, color: "#10e61b" }}>
-                  {`Recursos Utilizados`}
+                  {`${marker.data.row} - Requerimiento - ${marker.data.to_mtt_bamd}`}
                 </h3>                
                 <p>
                   <strong>Fecha Movilización:</strong>{" "}
-                  {formatDate(marker.data.date_mov)}
+                  {formatDate(marker.data.date_req_band)}
                 </p>
                 <p>
-                  <strong>Institución que atiende:</strong>{" "}
-                  {marker.data.inst_atie}
+                  <strong>Estado del requerimiento:</strong>{" "}
+                  {marker.data.est_req_band}
                 </p>
                 {byData && !byData.error && (
                   <>
@@ -87,34 +88,26 @@ export const RecursosView = ({ recursos, parseByField, formatDate, mtt }) => {
                   {marker.position[0].toFixed(6)}, Lng:{" "}
                   {marker.position[1].toFixed(6)}
                 </p>
-                <ul style={{ paddingLeft: "20px" }}>
-                  <li>
-                    <strong>Provincia:</strong> {marker.data.prov}
-                  </li>
-                  <li>
-                    <strong>Cantón:</strong> {marker.data.canton}
-                  </li>                 
-                </ul>
                 <Divider />
                  <p>
-                  <strong>Recursos Utilizados:</strong> 
+                  <strong>necesidad:</strong> <br/>
+                   {marker.data.need_band}
+                </p>
+                 <Divider />
+                 <p>
+                  <strong>Acciones a implementar :</strong> 
                 </p>
                 <ul style={{ paddingLeft: "20px" }}>
                   <li>
-                    <strong># Personal:</strong> {marker.data.n_ersonal}
+                    <strong>Acción implementadas:</strong> {marker.data.acc_impl_atent}
                   </li>
                   <li>
-                    <strong># Unidades de Emergencia:</strong> {marker.data.u_emerg}
+                    <strong>Estado actual del requerimiento:</strong> {marker.data.state_req_atent}
                   </li>     
                   <li>
-                    <strong># Vehículos livianos:</strong> {marker.data.n_livianos}
+                    <strong>Observaciones</strong> {marker.data.obs_atent}
                   </li>
-                  <li>
-                    <strong># Vehículos Pesados:</strong> {marker.data.n_pesados}
-                  </li>
-                  <li>
-                    <strong># Otros:</strong> {marker.data.otros}
-                  </li>                 
+                               
                 </ul>
 
                 {marker.data.obs && (
@@ -128,7 +121,9 @@ export const RecursosView = ({ recursos, parseByField, formatDate, mtt }) => {
                 )}
                 
                 <Divider />
-
+<Button
+fullWidth
+>Editar</Button>
                 {/* Mostrar datos de afectación si existen */}
               </div>
             </Popup>
