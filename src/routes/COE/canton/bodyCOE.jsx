@@ -11,9 +11,11 @@ import {
   CircleNotifications as CircleNotificationsIcon,
   DirectionsWalk as DirectionsWalkIcon,
   CheckCircleOutline as CheckCircleOutlineIcon,
- 
+
 } from "@mui/icons-material";
 import MapIcon from "@mui/icons-material/Map";
+import WarningIcon from '@mui/icons-material/Warning';
+import AppsOutageIcon from '@mui/icons-material/AppsOutage';
 
 import Panels from "../../../components/panels/Panels";
 import MapMark from "./MapsView";
@@ -26,7 +28,7 @@ function BodyCOE({ mtt, member }) {
   const reqAcciones = useGetInfo();
   const reqRequ = useGetInfo();
   const reqPol = useGetPoligonos()
-  console.log(reqPol.dataPol)
+ // console.log(reqPol.dataPol)
   // 2. Cache local para persistir datos si se apaga la capa
   const [cache, setCache] = useState({
     afectaciones: null,
@@ -41,6 +43,8 @@ function BodyCOE({ mtt, member }) {
     acciones: false,
     requerimientos: false,
     poligono: false,
+    susceptibilidad:false,
+    afect_register:false
   });
 
   // Manejador optimizado
@@ -114,6 +118,9 @@ function BodyCOE({ mtt, member }) {
               <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
                 Capas
               </Typography>
+              <Typography variant="subtitle2" sx={{}}>
+                1. Cargue la capa de poligonos definidos
+              </Typography>
               <FormControlLabel
                 sx={{ flexGrow: 1 }}
                 control={
@@ -127,7 +134,11 @@ function BodyCOE({ mtt, member }) {
                 label={`Poligono de afectación ${reqPol.loadinPol ? "Cargando" : `(${reqPol.dataPol?.data?.length || 0})`} `}
               />
               <Divider />
-              {layersConfig.map((layer) => (
+              <Typography variant="subtitle2" sx={{}}>
+                2. Cargue la capa de Acciones de {mtt}
+              </Typography>
+         
+              {reqPol.dataPol && layersConfig.map((layer) => (
                 <Box
                   key={layer.key}
                   sx={{ display: "flex", alignItems: "center", mb: 1 }}
@@ -154,6 +165,35 @@ function BodyCOE({ mtt, member }) {
                   </IconButton> */}
                 </Box>
               ))}
+              <Divider/>
+              <Typography variant="body2" sx={{ }}>
+                3. visualice afectaciones y areas de influencia registradas
+              </Typography>
+               <FormControlLabel
+                sx={{ flexGrow: 1 }}
+                control={
+                  <Checkbox
+                    checked={selectedCapa["afect_register"]}
+                    onChange={() => handleLayerToggle("afect_register")}
+                    icon={<WarningIcon />}
+                    checkedIcon={<WarningIcon />}
+                  />
+                }
+                label={`Afectaciones registradas`}
+              />
+               <FormControlLabel
+                sx={{ flexGrow: 1 }}
+                control={
+                  <Checkbox
+                    checked={selectedCapa["susceptibilidad"]}
+                    onChange={() => handleLayerToggle("susceptibilidad")}
+                    icon={<AppsOutageIcon />}
+                    checkedIcon={<AppsOutageIcon />}
+                  />
+                }
+                label={`Susceptibilidad`}
+              />
+
             </Box>
           }
         />

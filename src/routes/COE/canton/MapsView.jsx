@@ -165,6 +165,7 @@ function MapMark({
             parseByField={parseByField}
             formatDate={formatDate}
             mtt={mtt}
+            polAfect={dataPol}
           />
         )}
 
