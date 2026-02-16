@@ -1,6 +1,6 @@
 import React from "react";
 import { GeoJSON, Popup } from "react-leaflet";
-import { Divider, Typography } from "@mui/material";
+import { Box, Divider, Typography } from "@mui/material";
 
 export const PolEventView = ({ polygon, formatDate }) => {
   // Función para determinar el estilo según la alerta
@@ -14,10 +14,10 @@ export const PolEventView = ({ polygon, formatDate }) => {
     
     return {
       fillColor: colors[alerta?.toLowerCase()] || "#3519d2",
-      weight: 2,
-      opacity: 1,
+      weight: 3,
+      opacity: 2,
       color: "white", 
-      dashArray: "3",
+      dashArray: "5",
       fillOpacity: 0.5,
     };
   };
@@ -40,7 +40,7 @@ export const PolEventView = ({ polygon, formatDate }) => {
         }
 
         if (!geoJsonData) return null;
-
+if (item.estado=="Finalizado") return null;
         return (
           <GeoJSON
             key={`poly-${item.id || index}`}
@@ -48,7 +48,7 @@ export const PolEventView = ({ polygon, formatDate }) => {
             style={() => getStyle(item.alerta)}
           >
             <Popup>
-              <div style={{ minWidth: "200px" }}>
+              <Box style={{ minWidth: "200px" }} sx={{ height: "60vh", overflowY: "auto" }} >
                 <h3 style={{ margin: "0 0 8px 0", color: "#e6101b", textTransform: 'uppercase', fontSize: '1.1rem' }}>
                   {item.event || "Evento"}
                 </h3>
@@ -59,14 +59,14 @@ export const PolEventView = ({ polygon, formatDate }) => {
                 <Divider sx={{ my: 1 }} />
                 
                 <p style={{ margin: "4px 0" }}><strong>Sector:</strong> {item.sector}</p>
-                <p style={{ margin: "4px 0" }}><strong>Fecha:</strong> {formatDate(item.date_event)}</p>
+                <p style={{ margin: "4px 0" }}><strong>Fecha de registro:</strong> {formatDate(item.date_event)}</p>
                 
                 <Divider sx={{ my: 1 }} />
                 
                 <p style={{ fontSize: "0.85rem", fontStyle: "italic", margin: 0 }}>
-                  <strong>Descripción:</strong> {item.Descripción}
+                  <strong>Descripción:</strong> {item.desc_plan}
                 </p>
-              </div>
+              </Box>
             </Popup>
           </GeoJSON>
         );

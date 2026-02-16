@@ -38,48 +38,101 @@ import { VisualRecursos } from "./recursos/Req_mtt";
 const Coe = ({ role, ci, ...props }) => {
   const [value, setValue] = React.useState("1");
   const [selectedSheet, setSelectedSheet] = useState(null);
-  const { loading, error, member, apoyo, search, found } = useSearchMembers();
-  // Nuevo useEffect para buscar cuando cambia el CI
+  const memberData = useSearchMembers();
+  const [member, setMember] = useState(null);
+  const [apoyo, setApoyo] = useState(null);
+  
+  // useEffect para cargar desde localStorage al inicio
   useEffect(() => {
-    if (ci && ci.trim() !== "") {
-      const memberData = localStorage.getItem("memberD");
-      if (!memberData) {
-       
-        // Si no hay datos en localStorage, buscar
-        search(ci);
-      } else {
-        try {
-          // Parsear los datos de localStorage
-          const parsedData = JSON.parse(memberData);
-          //console.log(parsedData.ci.toString() === ci)
-          if (parsedData.ci/* .toString() */ === ci) {
-            console.log("aqui si es igual")
+    const loadFromStorage = () => {
+      try {
+        const storedMember = localStorage.getItem("memberD");
+        const storedApoyo = localStorage.getItem("apoyoD");
+        
+        if (storedMember) {
+          const parsedMember = JSON.parse(storedMember);
+          setMember(parsedMember);
+          console.log("Miembro cargado desde localStorage:", parsedMember);
+        }
+        
+        if (storedApoyo) {
+          const parsedApoyo = JSON.parse(storedApoyo);
+          setApoyo(parsedApoyo);
+          console.log("Apoyo cargado desde localStorage:", parsedApoyo);
+        }
+      } catch (error) {
+        console.error("Error parsing localStorage data:", error);
+        // Si hay error, limpiar localStorage corrupto
+        localStorage.removeItem("memberD");
+        localStorage.removeItem("apoyoD");
+      }
+    };
+    
+    loadFromStorage();
+  }, []); // Solo al montar el componente
 
+  // useEffect para buscar cuando cambia el CI
+  useEffect(() => {
+    const searchMember = async () => {
+      if (!ci || ci.trim() === "") return;
       
-            // Aquí necesitas una forma de actualizar el estado de useSearchMembers
-            // Depende de cómo esté implementado tu hook
-          } else {
-      //       console.log((JSON.parse(memberData)));
-            // Si el CI no coincide, buscar de nuevo
-            search(ci);
+      // Verificar si ya tenemos el miembro en localStorage
+      const storedMember = localStorage.getItem("memberD");
+      
+      if (storedMember) {
+        try {
+          const parsedMember = JSON.parse(storedMember);
+          
+          // Si el CI coincide, actualizar estado local
+          if (parsedMember.ci === ci) {
+            //console.log("Miembro encontrado en localStorage");
+            setMember(parsedMember);
+            
+            // Cargar apoyo si existe
+            const storedApoyo = localStorage.getItem("apoyoD");
+            if (storedApoyo) {
+              setApoyo(JSON.parse(storedApoyo));
+            }
+            return;
           }
         } catch (error) {
-          console.error("Error parsing localStorage data:", error);
-          search(ci);
+          console.error("Error parsing stored member:", error);
+          localStorage.removeItem("memberD");
+          localStorage.removeItem("apoyoD");
         }
       }
-    }
-  }, [ci, search]);
+      
+      // Si no está en localStorage o no coincide, buscar
+      console.log("Buscando miembro con CI:", ci);
+      await memberData.search(ci);
+    };
+    
+    searchMember();
+  }, [ci]); // Dependencia solo en ci
 
-  // Mejor alternativa: Usar un useEffect separado para guardar en localStorage
+  // useEffect para actualizar cuando memberData cambia (nueva búsqueda)
+  useEffect(() => {
+    if (memberData?.member && Object.keys(memberData.member).length > 0) {
+      console.log("Actualizando estado con datos de la búsqueda");
+      setMember(memberData.member);
+      
+      if (memberData?.apoyo) {
+        setApoyo(memberData.apoyo);
+      }
+    }
+  }, [memberData.member, memberData.apoyo]);
+
+  // useEffect para guardar en localStorage cuando member/apoyo cambian
   useEffect(() => {
     if (member && Object.keys(member).length > 0) {
+      //console.log("Guardando miembro en localStorage");
       localStorage.setItem("memberD", JSON.stringify(member));
     }
   }, [member]);
 
   useEffect(() => {
     if (apoyo && Object.keys(apoyo).length > 0) {
+    //  console.log("Guardando apoyo en localStorage");
       localStorage.setItem("apoyoD", JSON.stringify(apoyo));
     }
   }, [apoyo]);
@@ -89,50 +142,54 @@ const Coe = ({ role, ci, ...props }) => {
   };
 
   return (
-    <Box sx={{ p: 2, margin: "0 auto" }}>
+    <Box sx={{ p: 1, margin: "0 auto" }}>
       <Typography variant="h4" gutterBottom color="primary" align="center">
-        🚨 Comite Operativo de Emergencias (COE) - MTT/GT
+        🚨 Comité Operativo de Emergencias (COE) - MTT/GT
       </Typography>
-      {/* Panel de busqueda */}
 
       <TabContext value={value}>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-          <TabList onChange={handleChange} aria-label="lab API tabs example">
-            <Tab label="descripción de Mesa" value="1" />
+          <TabList onChange={handleChange} aria-label="COE tabs">
+            <Tab label="Descripción de Mesa" value="1" />
             <Tab label="Estado del cantón" value="2" />
             <Tab label="Recursos" value="3" />
             <Tab label="Acciones" value="4" />
           </TabList>
         </Box>
+        
         <TabPanel value="1">
           <SearchTerm
             setSelectedSheet={setSelectedSheet}
             selectedSheet={selectedSheet}
             ci={ci}
-            loading={loading}
-            error={error}
+            loading={memberData.loading}
+            error={memberData.error}
             member={member}
             apoyo={apoyo}
-            found={found}
+            found={memberData.found || !!member} // true si hay miembro
           />
         </TabPanel>
+        
         <TabPanel value="2">
-          <>
-            <Paper elevation={3} sx={{ p: 1, mb: 1, borderRadius: 1 }}>
-              {<BodyCOE mtt={member?.mtt} member={member} />}
-            </Paper>
-          </>
+          <Paper elevation={3} sx={{ p: 1, mb: 1, borderRadius: 1 }}>
+            <BodyCOE mtt={member?.mtt} member={member} />
+          </Paper>
         </TabPanel>
+        
         <TabPanel value="3">
           <Paper elevation={3} sx={{ p: 1, mb: 1, borderRadius: 1 }}>
             <VisualRecursos mtt={member?.mtt} />
           </Paper>
         </TabPanel>
-        <TabPanel value="4">Item Four</TabPanel>
+        
+        <TabPanel value="4">
+          <Typography>En desarrollo...</Typography>
+        </TabPanel>
       </TabContext>
     </Box>
   );
 };
+
 export default Coe;
 
 const SearchTerm = ({
@@ -144,6 +201,8 @@ const SearchTerm = ({
   found,
   ci,
 }) => {
+
+  console.log("SearchTerm - Props recibidos:", member, apoyo, found, ci)
   // Función para obtener valores seguros del miembro
   const getSafeMemberValue = (key) => {
     if (!member) return "No especificado";
@@ -176,7 +235,7 @@ const SearchTerm = ({
   };
 
   return (
-    <Paper elevation={3} sx={{ p: 3, mb: 3, borderRadius: 2 }}>
+    <Paper elevation={3} sx={{ p: 2, mb: 1, borderRadius: 2 }}>
       {/* Resultados de búsqueda por CI */}
       {member && found && (
         <Box

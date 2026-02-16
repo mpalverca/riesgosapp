@@ -3,6 +3,11 @@ import { MapContainer, TileLayer, useMapEvents } from "react-leaflet";
 import {
   Box,
   Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Divider,
   IconButton,
   Popover,
@@ -19,6 +24,7 @@ import { AfectacionesView } from "./popups/afectaciones";
 import { AccionesView } from "./popups/acciones";
 import { RequireView } from "./popups/recursos";
 import { PolEventView } from "./popups/afectMMT/pol_event";
+import ImageUploadDialog from "./popups/inputs/inputsDialog";
 
 // Componente interno para capturar clicks
 const MapClickHandler = ({ onMapClick }) => {
@@ -27,6 +33,8 @@ const MapClickHandler = ({ onMapClick }) => {
   });
   return null;
 };
+
+
 
 function MapMark({
   position,
@@ -45,6 +53,9 @@ function MapMark({
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [coordinates, setCoordinates] = useState(null);
 
+  const [openDialog, setOpenDialog] = useState(false);
+  const [typeInput, setTypeInput] = useState("");
+  const [files, setFiles] = useState([]);
   // --- UTILIDADES ---
 
   // Función centralizada para procesar cualquier tipo de marcador (Afectaciones, Acciones, etc.)
@@ -166,6 +177,9 @@ function MapMark({
             formatDate={formatDate}
             mtt={mtt}
             polAfect={dataPol}
+            setOpenDialog={setOpenDialog}
+            openDialog={openDialog}
+            setTypeInput={setTypeInput}
           />
         )}
 
@@ -176,6 +190,9 @@ function MapMark({
             parseByField={parseByField}
             formatDate={formatDate}
             mtt={mtt}
+            setOpenDialog={setOpenDialog}
+            openDialog={openDialog}
+            setTypeInput={setTypeInput}
           />
         )}
 
@@ -185,6 +202,8 @@ function MapMark({
             parseByField={parseByField}
             formatDate={formatDate}
             mtt={mtt}
+            setOpenDialog={setOpenDialog}
+            openDialog={openDialog}
           />
         )}
 
@@ -199,7 +218,11 @@ function MapMark({
 
         {children}
       </MapContainer>
+      <ImageUploadDialog openDialog={openDialog} setOpenDialog={setOpenDialog} typeInput={typeInput}
+      datapol={dataPol} dataGeneral={typeInput==="poligono"?dataPol:(typeInput==="afectaciones"?dataAF:(typeInput==="acciones"?dataAC:dataRE))}
+    
 
+      />
       {/* Menú Contextual Popover */}
       <Popover
         open={Boolean(menuAnchor)}

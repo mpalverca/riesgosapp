@@ -153,7 +153,7 @@ export async function generarPDFAfect(
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9);
     doc.text(
-      `Este informe fue elaborado por ${data_V.name}-${data_V.cargo}`,
+      `La información en este documento fue Actualizada por: ${data_V.name}-${data_V.cargo}`,
       pageWidth / 2,
       yPosition,
       {
@@ -206,7 +206,7 @@ export async function generarPDFAfect(
     );
     yPosition += 8;
     doc.setFont("helvetica", "bold");
-    doc.text("Fecha ", leftMargin, yPosition);
+    doc.text("Fecha", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(
       String(item.date_event || polAF.date_event, polAF.time || ""),
@@ -215,12 +215,22 @@ export async function generarPDFAfect(
     );
     yPosition += 8;
     doc.setFont("helvetica", "bold");
+    doc.text("Fecha", leftMargin, yPosition);
+    doc.setFont("helvetica", "normal");
+    doc.text(String(item.date_act || ""), leftMargin + 25, yPosition);
+    yPosition += 8;
+    doc.setFont("helvetica", "bold");
+    doc.text("Alerta", leftMargin, yPosition);
+    doc.setFont("helvetica", "normal");
+    doc.text(String(polAF.alerta || ""), leftMargin + 25, yPosition);
+    yPosition += 8;
+    doc.setFont("helvetica", "bold");
     doc.text("Latitud ", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(String(lat || ""), leftMargin + 25, yPosition);
     yPosition += 8;
     doc.setFont("helvetica", "bold");
-    doc.text("Longituf ", leftMargin, yPosition);
+    doc.text("Longitud", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(String(lng || ""), leftMargin + 25, yPosition);
     yPosition += 8;
@@ -228,7 +238,7 @@ export async function generarPDFAfect(
     doc.text("Evento", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(
-      String(item.date_event || polAF.event || ""),
+      String(item.event || polAF.event || ""),
       leftMargin + 25,
       yPosition,
     );
@@ -237,9 +247,9 @@ export async function generarPDFAfect(
       imagemap,
       "PNG",
       leftMargin + 90,
-      topMargin + 15,
+      topMargin + 17,
       maxWidth / 2,
-      65,
+      80,
     );
     yPosition += 5;
     divisoriaLine();
@@ -327,6 +337,9 @@ export async function generarPDFAfect(
       doc.text(String(item[key] || ""), leftMargin + 100, yPosition);
       yPosition += 8;
     });
+
+      doc.setFont("helvetica", "bold");
+    doc.text("4. Anexo Fotografico", leftMargin, yPosition);
 
     // Agregar imagen (si existe)
     async function getImageBase64(url) {
