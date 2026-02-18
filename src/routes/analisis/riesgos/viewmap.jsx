@@ -14,16 +14,6 @@ const PoligonMap = ({ geoData, sector, predio, clave }) => {
     return <div>No hay datos geoespaciales para mostrar</div>;
   }
 
-  /* console.log(geoData);
-  // Estilo para las geometrías
-  const geoJsonStyle = {
-    color: "#f80707ff",
-    weight: 2,
-    opacity: 0.7,
-    fillOpacity: 0.1,
-  }; */
-  // Calcular centro del mapa basado en los datos
-
   const calculateCenter = () => {
     return [-3.99313, -79.20422];
   };

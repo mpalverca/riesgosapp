@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Grid, Typography } from "@mui/material";
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Divider,
+  Grid,
+  Typography,
+} from "@mui/material";
 import GeoDataViewer from "./riesgos/GeoDataViewer.js";
 import { PolylineMap } from "./riesgos/viewmap";
 import {
@@ -25,20 +32,20 @@ function RiesgosPage() {
   // Hooks para cada tipo de datos - ahora siempre activos pero con parámetros condicionales
   const { aptcData, aptcL, aptcE } = useApConst(
     selectedDataType === "aptconst" ? selectedParroquia : "",
-    selectedDataType === "aptconst" ? selectedSector : ""
+    selectedDataType === "aptconst" ? selectedSector : "",
   );
   const { aassData, aassL, aassE } = useAASS(
     selectedDataType === "aass" ? selectedParroquia : "",
-    selectedDataType === "aass" ? selectedSector : ""
+    selectedDataType === "aass" ? selectedSector : "",
   );
   const { vialData, vialL, vialE } = useVial(
     selectedDataType === "vialidad" ? selectedParroquia : "",
-    selectedDataType === "vialidad" ? selectedSector : ""
+    selectedDataType === "vialidad" ? selectedSector : "",
   );
   const { claveData, claveL, claveE } = useClaveData(
     selectedParroquia,
     selectedSector,
-    clave
+    clave,
   );
   const { sectorData, sectorL } = useSector("", selectedSector);
   // Función para obtener los datos activos
@@ -238,7 +245,6 @@ function RiesgosPage() {
               </>
             )
           */}
-
           <BasicTabs
             tabsOne={{
               title: "Mapa de Predio Sector",
@@ -261,7 +267,6 @@ function RiesgosPage() {
                           displayData.data &&
                           (selectedDataType == "vialidad" ? (
                             <div>Ver data from </div>
-                            
                           ) : (
                             <TableView data={displayData.data} />
                           )),
@@ -272,7 +277,8 @@ function RiesgosPage() {
                           <ViewPredio
                             data={displayData.data}
                             predio={claveData.features.filter(
-                              (predio) => predio.properties.clave_cata === clave
+                              (predio) =>
+                                predio.properties.clave_cata === clave,
                             )}
                           />
                         ),
@@ -286,11 +292,53 @@ function RiesgosPage() {
               title: "Detalle de predio",
               body: claveData && (
                 <div>
-                  <Typography>
-                    Aqui va Información del predio agregar informaction de tipo
-                    información del predio, bASE, como edificación, estado de
-                    edificación, estado de
+                  <Typography variant="h6">General</Typography>
+                  <Typography variant="body1">
+                    determinar el nivel de riesgos es accionar parte{" "}
                   </Typography>
+                  <Accordion>
+                    <AccordionSummary
+                      /* expandIcon={<ExpandMoreIcon/>} */
+                      aria-controls="panel1a-content"
+                    >
+                      <Typography variant="h6">Vulnerabilidad </Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <Typography variant="body2">
+                        la suscptibilidad del predio indica los niveles de
+                        riesgo asociados a factores como la topografía, el tipo
+                        de suelo, la proximidad a cuerpos de agua, entre otros.
+                        Un predio con alta susceptibilidad puede ser más
+                        vulnerable a deslizamientos, inundaciones u otros
+                        eventos naturales, lo que implica que se deben tomar
+                        medidas preventivas adicionales para mitigar estos
+                        riesgos.
+                        
+                      </Typography>
+<Divider/>
+                      <Typography> Vulnerailidad Fisica </Typography>
+                      <Typography variant="body2">
+                        {" "}
+                        Está relacionada con la calidad o tipo de material uti
+                        lizado y el tipo de construcción de las viviendas, esta
+                        blecimientos económicos (comerciales e industriales) y
+                        de servicios (salud, educación, instituciones públicas),
+                        e infra estructura socioeconómica (centrales
+                        hidroeléctricas, vías, puentes y sistemas de riesgo),
+                        para asimilar los efectos de los fenómenos que
+                        constituyen una amenaza. Otro aspecto importante es la
+                        calidad del suelo y el lugar donde se encuentran los
+                        centros poblados, cerca de fallas geológicas, laderas de
+                        cerros, riberas de ríos, áreas 32 costeras; situación
+                        que incrementa significativamente su nivel de
+                        vulnerabilidad. En el plan departamental de gestión del
+                        riesgo será de terminado el nivel de vulnerabilidad
+                        física únicamente para la infraestructura vital
+                        departamental (vías, puentes, hospitales, estaciones de
+                        bomberos, estaciones de policía, entre otros)
+                      </Typography>
+                    </AccordionDetails>
+                  </Accordion>
                 </div>
               ),
             }}

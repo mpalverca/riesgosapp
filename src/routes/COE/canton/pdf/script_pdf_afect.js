@@ -259,9 +259,9 @@ export async function generarPDFAfect(
     });
     // Actualizar yPosition después de la descripción
     yPosition += descHeight;
-    // Línea divisoria
-    divisoriaLine();
+    // Línea divisoria   
     checkPageBreak(yPosition + 40);
+     divisoriaLine();
     // SITUACIÓN ACTUAL
     doc.setFont("helvetica", "bold");
     doc.text("Situación Actual del evento:", leftMargin, yPosition);
@@ -325,7 +325,6 @@ export async function generarPDFAfect(
       doc.text(String(item[key] || ""), leftMargin + 100, yPosition);
       yPosition += 8;
     });
-
     doc.setFont("helvetica", "bold");
     doc.setTextColor(0, 0, 0);
     doc.text("4. Anexo Fotografico", leftMargin, yPosition);
@@ -349,34 +348,27 @@ export async function generarPDFAfect(
     }
     checkPageBreak(80);
     if (files && Array.isArray(files) && files.length > 0) {
-     
       const maxImages = 6;
       const imagesToShow = files.slice(0, maxImages);
       const imgWidth = (pageWidth - leftMargin - rightMargin - 10) / 2;
       const imgHeight = 80;
-
       let x = leftMargin;
       let y = yPosition;
       let count = 0;
-
       for (let i = 0; i < imagesToShow.length; i++) {
         try {
           const item = imagesToShow[i];
           const file = item.file;
           const detail = item.detail || "";
-
           // Crear URL para el File object
           const imgUrl =
             file instanceof File ? URL.createObjectURL(file) : file;
-
           if (count > 0 && count % 2 === 0) {
             x = leftMargin;
             y += imgHeight + 20; // Espacio extra para el detalle
           }
-
           // Agregar imagen
           doc.addImage(imgUrl, "JPEG", x, y, imgWidth, imgHeight);
-
           // Agregar detalle
           doc.setFontSize(7);
           doc.text(
@@ -384,10 +376,8 @@ export async function generarPDFAfect(
             x + 5,
             y + imgHeight + 5,
           );
-
           x += imgWidth + 10;
           count++;
-
           // Liberar memoria del objeto URL
           if (file instanceof File) {
             URL.revokeObjectURL(imgUrl);
@@ -396,7 +386,6 @@ export async function generarPDFAfect(
           console.error(`Error imagen ${i}:`, error);
         }
       }
-
       yPosition = y + imgHeight + 30;
     }
     // Verificar si necesitamos nueva página para las firmas
@@ -404,8 +393,7 @@ export async function generarPDFAfect(
     const storedMember = localStorage.getItem("memberD");
     const parsedMember = JSON.parse(storedMember);
     const storedApoyo = localStorage.getItem("apoyoD");
-    const parsedApoyo = JSON.parse(storedApoyo);
-  
+    const parsedApoyo = JSON.parse(storedApoyo);  
     const findLider = parsedApoyo.find((item) => item.cargo_COE === "Lider");
       console.log(findLider);
     // Espacio para firmas
