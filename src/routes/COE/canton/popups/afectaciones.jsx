@@ -33,6 +33,7 @@ export const AfectacionesView = ({
   mtt,
   polAfect,
   setTypeInput,
+  files,
   ...props
 }) => {
   const [openEdit, setOpenEdit] = useState(false);
@@ -87,10 +88,9 @@ export const AfectacionesView = ({
                   {pol_row?.planC} -{" "}
                   {marker.data.event || pol_row?.event || "Evento"}
                 </h4>
-                <p>
+               {/*  <p>
                   <strong>Descripción General:</strong> {pol_row?.desc_plan}
-                </p>
-
+                </p> */}
                 <p>
                   <strong>Fecha del evento:</strong>{" "}
                   {formatDate(marker.data.date_event || pol_row?.date_event)}
@@ -99,9 +99,7 @@ export const AfectacionesView = ({
                   <strong>Última actualización:</strong>{" "}
                   {formatDate(marker.data.date_act)}
                 </p>
-
                 <Divider />
-
                 {byData && !byData.error && (
                   <>
                     <Divider />
@@ -150,7 +148,6 @@ export const AfectacionesView = ({
                     <strong>Radio:</strong> {marker.data.radio}
                   </li>
                 </ul>
-
                 <Divider />
                 {openEdit ? (
                   <>
@@ -178,7 +175,7 @@ export const AfectacionesView = ({
                     {/* Mostrar datos de afectación si existen */}
                     <div style={{ fontSize: "0.9em" }}>
                       <p>
-                        <strong>Estadísticas:</strong>
+                        <strong>AFectaciones a nivel de {mtt}:</strong>
                       </p>
                       <ul className="disaster-data-list">
                         {mtt === "MTT1"
@@ -311,12 +308,11 @@ export const AfectacionesView = ({
                   </>
                 )}
               </Box>
-
               <Box sx={{ display: "flex", gap: 2 }}>
                 <Button
                   fullWidth
                   variant="outlined"
-                  onClick={() => props.setOpenDialog(true)}
+                  onClick={() => {props.setOpenDialog(true)}}
                 >
                   Registro
                 </Button>
@@ -333,6 +329,7 @@ export const AfectacionesView = ({
                       byData,
                       pol_row,
                       mtt,
+                      files
                     )
                   }
                 >

@@ -23,9 +23,8 @@ const VisuallyHiddenInput = styled("input")({
   width: 1,
 });
 
-const ImageUploadDialog = ({ openDialog, setOpenDialog, typeInput }) => {
-  const [files, setFiles] = useState([]);
-console.log(files)
+const ImageUploadDialog = ({ openDialog, setOpenDialog, typeInput,files,setFiles }) => {
+  
   // Función para crear URLs de preview
   const createPreviewURL = (file) => {
     return URL.createObjectURL(file);
@@ -184,6 +183,7 @@ console.log(files)
           variant="contained" 
           color="primary"
           disabled={files.length === 0}
+          onClick={()=>setOpenDialog(false)}
         >
           Guardar Registro ({files.length} {files.length === 1 ? 'imagen' : 'imágenes'})
         </Button>

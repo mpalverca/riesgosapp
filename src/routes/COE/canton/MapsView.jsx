@@ -34,8 +34,6 @@ const MapClickHandler = ({ onMapClick }) => {
   return null;
 };
 
-
-
 function MapMark({
   position,
   zoom,
@@ -180,6 +178,7 @@ function MapMark({
             setOpenDialog={setOpenDialog}
             openDialog={openDialog}
             setTypeInput={setTypeInput}
+            files={files}
           />
         )}
 
@@ -193,6 +192,7 @@ function MapMark({
             setOpenDialog={setOpenDialog}
             openDialog={openDialog}
             setTypeInput={setTypeInput}
+            
           />
         )}
 
@@ -206,7 +206,6 @@ function MapMark({
             openDialog={openDialog}
           />
         )}
-
         {!loading.loadingPol && selectCapa.poligono && (
           <PolEventView
             polygon={dataPol}
@@ -215,13 +214,24 @@ function MapMark({
             mtt={mtt}
           />
         )}
-
         {children}
       </MapContainer>
-      <ImageUploadDialog openDialog={openDialog} setOpenDialog={setOpenDialog} typeInput={typeInput}
-      datapol={dataPol} dataGeneral={typeInput==="poligono"?dataPol:(typeInput==="afectaciones"?dataAF:(typeInput==="acciones"?dataAC:dataRE))}
-    
-
+      <ImageUploadDialog
+        openDialog={openDialog}
+        setOpenDialog={setOpenDialog}
+        typeInput={typeInput}
+        files={files}
+        setFiles={setFiles}
+        datapol={dataPol}
+        dataGeneral={
+          typeInput === "poligono"
+            ? dataPol
+            : typeInput === "afectaciones"
+              ? dataAF
+              : typeInput === "acciones"
+                ? dataAC
+                : dataRE
+        }
       />
       {/* Menú Contextual Popover */}
       <Popover
@@ -240,13 +250,10 @@ function MapMark({
               <CloseIcon fontSize="small" />
             </IconButton>
           </Box>
-
           <Typography variant="caption" display="block" color="text.secondary">
             Lat: {coordinates?.lat} | Lng: {coordinates?.lng}
           </Typography>
-
           <Divider sx={{ my: 1.5 }} />
-
           <Stack spacing={1}>
             {layersConfig.map((item) =>
               // CORRECCIÓN AQUÍ: usa ===

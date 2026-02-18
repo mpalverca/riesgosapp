@@ -22,7 +22,7 @@ export async function generarPDFAfect(
   data_V,
   polAF,
   mtt,
-  images,
+  files,
 ) {
   console.log(
     "titulo:",
@@ -36,6 +36,8 @@ export async function generarPDFAfect(
     data_V,
     "PolAfecta",
     polAF,
+    "images",
+    files,
   );
   try {
     const item = itemStr;
@@ -338,7 +340,8 @@ export async function generarPDFAfect(
       yPosition += 8;
     });
 
-      doc.setFont("helvetica", "bold");
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(0, 0, 0);
     doc.text("4. Anexo Fotografico", leftMargin, yPosition);
 
     // Agregar imagen (si existe)
@@ -359,108 +362,55 @@ export async function generarPDFAfect(
       }
     }
 
-    let imgDataString = `${images}`;
-    if (imgDataString) {
-      const imageUrls = imgDataString
-        .split(",")
-        .map((url) => url.trim())
-        .filter((url) => url);
+    if (files && Array.isArray(files) && files.length > 0) {
+      const maxImages = 6;
+      const imagesToShow = files.slice(0, maxImages);
+      const imgWidth = (pageWidth - leftMargin - rightMargin - 10) / 2;
+      const imgHeight = 80;
 
-      if (imageUrls.length > 0) {
-        // Configuración
-        const maxImagesToShow = 6;
-        const imagesToProcess = imageUrls.slice(0, maxImagesToShow);
-        const imagesPerRow = Math.min(imagesToProcess.length, 2);
-        const rows = Math.ceil(imagesToProcess.length / imagesPerRow);
+      let x = leftMargin;
+      let y = yPosition;
+      let count = 0;
 
-        // Altura dinámica basada en el espacio disponible
-        const pageHeight = doc.internal.pageSize.height;
-        const bottomMargin = 30;
-        const spaceLeftOnPage = pageHeight - yPosition - bottomMargin;
+      for (let i = 0; i < imagesToShow.length; i++) {
+        try {
+          const item = imagesToShow[i];
+          const file = item.file;
+          const detail = item.detail || "";
 
-        // Determinar altura óptima
-        let imageHeight = 100; // Altura por defecto
-        const minImageHeight = 50; // Altura mínima aceptable
+          // Crear URL para el File object
+          const imgUrl =
+            file instanceof File ? URL.createObjectURL(file) : file;
 
-        // Calcular altura máxima que cabe
-        const maxPossibleHeight = Math.max(
-          minImageHeight,
-          (spaceLeftOnPage - rows * 10 - 15) / rows,
-        );
-
-        if (imageHeight > maxPossibleHeight) {
-          // Si la altura por defecto no cabe, usar la máxima posible
-          imageHeight = Math.max(minImageHeight, maxPossibleHeight);
-        }
-
-        // Verificar si aún no cabe
-        const requiredHeight = imageHeight * rows + rows * 10 + 15;
-
-        // Solo crear nueva página si es absolutamente necesario
-        if (requiredHeight > spaceLeftOnPage && spaceLeftOnPage < 100) {
-          checkPageBreak(requiredHeight);
-        }
-
-        // Procesar imágenes
-        const availableWidth = pageWidth - leftMargin - rightMargin;
-        const spacing = 10;
-        const imgWidth =
-          imagesPerRow > 1 ? (availableWidth - spacing) / 2 : availableWidth;
-
-        let x = leftMargin,
-          y = yPosition,
-          count = 0;
-
-        for (let i = 0; i < imagesToProcess.length; i++) {
-          try {
-            let imgData = imagesToProcess[i];
-
-            if (imgData && !imgData.startsWith("data:image")) {
-              imgData = await getImageBase64(imgData);
-            }
-            if (imgData) {
-              // Nueva fila cada 2 imágenes
-              if (count > 0 && count % 2 === 0) {
-                x = leftMargin;
-                y += imageHeight + spacing;
-              }
-              // Agregar imagen
-              doc.addImage(imgData, "JPEG", x, y, imgWidth, imageHeight);
-              // Opcional: agregar número de imagen
-              doc.setFontSize(8);
-              doc.setFont("helvetica", "normal");
-              doc.text(`${i + 1}`, x + 5, y + 12);
-              x += imgWidth + spacing;
-              count++;
-            }
-          } catch (error) {
-            console.warn(`Error con imagen ${i + 1}:`, error);
+          if (count > 0 && count % 2 === 0) {
+            x = leftMargin;
+            y += imgHeight + 20; // Espacio extra para el detalle
           }
-        }
-        if (count > 0) {
-          // Actualizar posición Y
-          yPosition = y + imageHeight + 15;
 
-          // Línea separadora
-          doc.line(
-            leftMargin,
-            yPosition - 5,
-            pageWidth - rightMargin,
-            yPosition - 5,
+          // Agregar imagen
+          doc.addImage(imgUrl, "JPEG", x, y, imgWidth, imgHeight);
+
+          // Agregar detalle
+          doc.setFontSize(7);
+          doc.text(
+            detail.substring(0, 30) + (detail.length > 30 ? "..." : ""),
+            x + 5,
+            y + imgHeight + 5,
           );
-          yPosition += 5;
-          // Nota si hay más imágenes
-          if (imageUrls.length > maxImagesToShow) {
-            doc.setFontSize(9);
-            doc.text(
-              `* Se muestran ${maxImagesToShow} de ${imageUrls.length} imágenes`,
-              leftMargin,
-              yPosition,
-            );
-            yPosition += 10;
+
+          x += imgWidth + 10;
+          count++;
+
+          // Liberar memoria del objeto URL
+          if (file instanceof File) {
+            URL.revokeObjectURL(imgUrl);
           }
+        } catch (error) {
+          console.error(`Error imagen ${i}:`, error);
         }
       }
+
+      yPosition = y + imgHeight + 30;
     }
     // Verificar si necesitamos nueva página para las firmas
     checkPageBreak(10);
