@@ -3,8 +3,22 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Box,
+  Button,
+  Card,
+  CardContent,
   Divider,
+  FormControlLabel,
   Grid,
+  Paper,
+  Radio,
+  RadioGroup,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   Typography,
 } from "@mui/material";
 import GeoDataViewer from "./riesgos/GeoDataViewer.js";
@@ -167,6 +181,92 @@ function RiesgosPage() {
   };
   //checkbock controller
 
+
+  //vulneravilidad // Estado para almacenar los valores seleccionados
+  const [valores, setValores] = useState({
+    antiguedad: '0',
+    materiales: '0',
+    normatividad: '0',
+    caracteristicas: '0',
+    localizacion: '0'
+  });
+
+  // Datos de la tabla
+  const variables = [
+    {
+      id: 'antiguedad',
+      nombre: 'Antigüedad de la edificación',
+      opciones: [
+        { valor: 1, descripcion: 'Menos de 5 años' },
+        { valor: 2, descripcion: 'Entre 6 y 20 años' },
+        { valor: 3, descripcion: 'Mayor de 20 años' }
+      ]
+    },
+    {
+      id: 'materiales',
+      nombre: 'Materiales de construcción y estado de conservación',
+      opciones: [
+        { valor: 1, descripcion: 'Estructura con materiales de muy buena calidad, adecuada técnica constructiva y buen estado de conservación' },
+        { valor: 2, descripcion: 'Estructura de madera, concreto, adobe, bloque o acero, sin adecuada técnica constructiva y con un estado de deterioro moderado' },
+        { valor: 3, descripcion: 'Estructuras de adobe, madera u otros materiales, en estado precario de conservación' }
+      ]
+    },
+    {
+      id: 'normatividad',
+      nombre: 'Cumplimiento de la normatividad vigente',
+      opciones: [
+        { valor: 1, descripcion: 'Se cumple de forma estricta con las leyes' },
+        { valor: 2, descripcion: 'Se cumple medianamente con las leyes' },
+        { valor: 3, descripcion: 'No se cumple con las leyes' }
+      ]
+    },
+    {
+      id: 'caracteristicas',
+      nombre: 'Características geológicas y tipo de suelo',
+      opciones: [
+        { valor: 1, descripcion: 'Zonas que no presentan problemas de estabilidad, con buena cobertura vegetal' },
+        { valor: 2, descripcion: 'Zonas con indicios de inestabilidad y con poca cobertura vegetal' },
+        { valor: 3, descripcion: 'Zonas con problemas de estabilidad evidentes, llenos antrópicos y sin cobertura vegetal' }
+      ]
+    },
+    {
+      id: 'localizacion',
+      nombre: 'Localización de las edificaciones con respecto a zonas de retiro a fuentes de agua y zonas de riesgo identificadas',
+      opciones: [
+        { valor: 1, descripcion: 'Muy alejada' },
+        { valor: 2, descripcion: 'Medianamente cerca' },
+        { valor: 3, descripcion: 'Muy cercana' }
+      ]
+    }
+  ];
+
+  // Manejador de cambios en los radio buttons
+  const handleChange = (id, valor) => {
+    setValores(prev => ({
+      ...prev,
+      [id]: valor.toString()
+    }));
+  };
+
+  // Calcular la suma total
+  const calcularSuma = () => {
+    return Object.values(valores).reduce((total, valor) => {
+      return total + (parseInt(valor) || 0);
+    }, 0);
+  };
+
+  // Reiniciar todos los valores
+  const reiniciarValores = () => {
+    setValores({
+      antiguedad: '0',
+      materiales: '0',
+      normatividad: '0',
+      caracteristicas: '0',
+      localizacion: '0'
+    });
+  };
+
+
   return (
     <div className="App">
       <Grid container spacing={2}>
@@ -313,9 +413,8 @@ function RiesgosPage() {
                         eventos naturales, lo que implica que se deben tomar
                         medidas preventivas adicionales para mitigar estos
                         riesgos.
-                        
                       </Typography>
-<Divider/>
+                      <Divider />
                       <Typography> Vulnerailidad Fisica </Typography>
                       <Typography variant="body2">
                         {" "}
@@ -337,6 +436,201 @@ function RiesgosPage() {
                         departamental (vías, puentes, hospitales, estaciones de
                         bomberos, estaciones de policía, entre otros)
                       </Typography>
+                      <Box sx={{ p: 3 }}>
+                        <Typography
+                          variant="h5"
+                          gutterBottom
+                          sx={{ mb: 3, fontWeight: "bold" }}
+                        >
+                          Matriz de Vulnerabilidad Física
+                        </Typography>
+
+                        <TableContainer component={Paper} elevation={3}>
+                          <Table sx={{ minWidth: 650 }}>
+                            <TableHead>
+                              <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
+                                <TableCell
+                                  sx={{ fontWeight: "bold", width: "40%" }}
+                                >
+                                  Variable
+                                </TableCell>
+                                <TableCell
+                                  sx={{
+                                    fontWeight: "bold",
+                                    textAlign: "center",
+                                  }}
+                                  colSpan={3}
+                                >
+                                  Valor de Vulnerabilidad
+                                </TableCell>
+                              </TableRow>
+                              <TableRow sx={{ backgroundColor: "#fafafa" }}>
+                                <TableCell></TableCell>
+                                <TableCell
+                                  sx={{
+                                    textAlign: "center",
+                                    color: "#4caf50",
+                                    fontWeight: "bold",
+                                  }}
+                                >
+                                  Baja (1)
+                                </TableCell>
+                                <TableCell
+                                  sx={{
+                                    textAlign: "center",
+                                    color: "#ff9800",
+                                    fontWeight: "bold",
+                                  }}
+                                >
+                                  Media (2)
+                                </TableCell>
+                                <TableCell
+                                  sx={{
+                                    textAlign: "center",
+                                    color: "#f44336",
+                                    fontWeight: "bold",
+                                  }}
+                                >
+                                  Alta (3)
+                                </TableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {variables.map((variable) => (
+                                <TableRow key={variable.id} hover>
+                                  <TableCell sx={{ fontWeight: "medium" }}>
+                                    {variable.nombre}
+                                  </TableCell>
+                                  {variable.opciones.map((opcion, index) => (
+                                    <TableCell
+                                      key={index}
+                                      sx={{ textAlign: "center" }}
+                                    >
+                                      <RadioGroup
+                                        value={valores[variable.id]}
+                                        onChange={(e) =>
+                                          handleChange(
+                                            variable.id,
+                                            e.target.value,
+                                          )
+                                        }
+                                        sx={{
+                                          display: "flex",
+                                          justifyContent: "center",
+                                        }}
+                                      >
+                                        <FormControlLabel
+                                          value={opcion.valor.toString()}
+                                          control={<Radio />}
+                                          label={opcion.descripcion}
+                                          sx={{
+                                            m: 0,
+                                            "& .MuiFormControlLabel-label": {
+                                              fontSize: "0.875rem",
+                                              textAlign: "left",
+                                              maxWidth: "250px",
+                                            },
+                                          }}
+                                        />
+                                      </RadioGroup>
+                                    </TableCell>
+                                  ))}
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </TableContainer>
+
+                        {/* Tarjeta con el total */}
+                        <Card sx={{ mt: 3, backgroundColor: "#e3f2fd" }}>
+                          <CardContent>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                              }}
+                            >
+                              <Typography
+                                variant="h6"
+                                sx={{ fontWeight: "bold" }}
+                              >
+                                Total Vulnerabilidad Física:
+                              </Typography>
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 2,
+                                }}
+                              >
+                                <Typography
+                                  variant="h4"
+                                  sx={{ fontWeight: "bold", color: "#1976d2" }}
+                                >
+                                  {calcularSuma()}
+                                </Typography>
+                                <Typography
+                                  variant="body2"
+                                  color="textSecondary"
+                                >
+                                  / 15
+                                </Typography>
+                                <Button
+                                  variant="outlined"
+                                  onClick={reiniciarValores}
+                                  sx={{ ml: 2 }}
+                                >
+                                  Reiniciar
+                                </Button>
+                              </Box>
+                            </Box>
+
+                            {/* Indicador de nivel de vulnerabilidad */}
+                            <Box sx={{ mt: 2 }}>
+                              <Typography variant="body2" gutterBottom>
+                                Nivel de Vulnerabilidad:
+                              </Typography>
+                              <Box
+                                sx={{
+                                  width: "100%",
+                                  height: "10px",
+                                  backgroundColor: "#e0e0e0",
+                                  borderRadius: "5px",
+                                  overflow: "hidden",
+                                }}
+                              >
+                                <Box
+                                  sx={{
+                                    width: `${(calcularSuma() / 15) * 100}%`,
+                                    height: "100%",
+                                    backgroundColor:
+                                      calcularSuma() <= 8
+                                        ? "#4caf50"
+                                        : calcularSuma() <= 12
+                                          ? "#ff9800"
+                                          : "#f44336",
+                                    transition: "width 0.3s ease",
+                                  }}
+                                />
+                              </Box>
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  mt: 1,
+                                  color: "text.secondary",
+                                  fontSize: "0.875rem",
+                                }}
+                              >
+                                <span>Baja (5-8)</span>
+                                <span>Media (9-12)</span>
+                                <span>Alta (13-15)</span>
+                              </Box>
+                            </Box>
+                          </CardContent>
+                        </Card>
+                      </Box>
                     </AccordionDetails>
                   </Accordion>
                 </div>
