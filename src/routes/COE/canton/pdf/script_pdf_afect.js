@@ -24,21 +24,6 @@ export async function generarPDFAfect(
   mtt,
   files,
 ) {
-  console.log(
-    "titulo:",
-    titulo,
-    "Latitud",
-    lat,
-    lng,
-    "item:",
-    itemStr,
-    "Data",
-    data_V,
-    "PolAfecta",
-    polAF,
-    "images",
-    files,
-  );
   try {
     const item = itemStr;
     const doc = new jsPDF();
@@ -266,7 +251,7 @@ export async function generarPDFAfect(
     );
     // Verificar espacio necesario
     const descHeight = lines_desc_pol.length * 4; // 5px por línea
-    checkPageBreak(descHeight + 10);
+    checkPageBreak(descHeight + 40);
     // Mostrar descripción con sangría
     doc.text(lines_desc_pol, leftMargin + 30, yPosition, {
       align: "justify",
@@ -276,6 +261,7 @@ export async function generarPDFAfect(
     yPosition += descHeight;
     // Línea divisoria
     divisoriaLine();
+    checkPageBreak(yPosition + 40);
     // SITUACIÓN ACTUAL
     doc.setFont("helvetica", "bold");
     doc.text("Situación Actual del evento:", leftMargin, yPosition);
@@ -287,7 +273,7 @@ export async function generarPDFAfect(
     );
     // Calcular altura necesaria
     const situacionHeight = lines_situacion.length * 4;
-    checkPageBreak(situacionHeight + 10);
+    checkPageBreak(situacionHeight + 30);
 
     // Mostrar situación actual
     doc.text(lines_situacion, leftMargin + 5, yPosition, {
@@ -296,13 +282,13 @@ export async function generarPDFAfect(
     });
 
     // ACTUALIZAR yPosition DESPUÉS DEL TEXTO (¡esto es lo importante!)
-    yPosition += situacionHeight + 15;
+    yPosition += situacionHeight + 5;
 
     // Línea divisoria final
     divisoriaLine();
     // Campos principales
     // Verificar si necesitamos nueva página para el contenido siguiente
-    checkPageBreak(10);
+    checkPageBreak(100);
     // Campos principales
     doc.setFont("helvetica", "bold");
     doc.text("3. AFECTACIONES - RESUMEN", leftMargin, yPosition);
@@ -343,7 +329,7 @@ export async function generarPDFAfect(
     doc.setFont("helvetica", "bold");
     doc.setTextColor(0, 0, 0);
     doc.text("4. Anexo Fotografico", leftMargin, yPosition);
-
+    yPosition += 8;
     // Agregar imagen (si existe)
     async function getImageBase64(url) {
       try {
@@ -361,8 +347,9 @@ export async function generarPDFAfect(
         return null;
       }
     }
-
+    checkPageBreak(80);
     if (files && Array.isArray(files) && files.length > 0) {
+     
       const maxImages = 6;
       const imagesToShow = files.slice(0, maxImages);
       const imgWidth = (pageWidth - leftMargin - rightMargin - 10) / 2;
@@ -413,8 +400,14 @@ export async function generarPDFAfect(
       yPosition = y + imgHeight + 30;
     }
     // Verificar si necesitamos nueva página para las firmas
-    checkPageBreak(10);
-
+    checkPageBreak(55);
+    const storedMember = localStorage.getItem("memberD");
+    const parsedMember = JSON.parse(storedMember);
+    const storedApoyo = localStorage.getItem("apoyoD");
+    const parsedApoyo = JSON.parse(storedApoyo);
+  
+    const findLider = parsedApoyo.find((item) => item.cargo_COE === "Lider");
+      console.log(findLider);
     // Espacio para firmas
     divisoriaLine();
     doc.setFont("helvetica", "bold");
@@ -426,19 +419,48 @@ export async function generarPDFAfect(
 
     // Dibujar cajas para firmas
     const boxWidth = (pageWidth - leftMargin - rightMargin - 20) / 2;
-    const boxHeight = 40;
+    const boxHeight = 50;
 
     // Primera firma
     doc.setDrawColor(0, 0, 0);
     doc.rect(leftMargin, yPosition, boxWidth, boxHeight);
     doc.setFontSize(10);
-    doc.text("Nombre:", leftMargin + 5, yPosition + 10);
-    doc.text("Firma:", leftMargin + 5, yPosition + 30);
+    doc.text(parsedMember?.cargo_COE || "Cargo", leftMargin + 5, yPosition + 5);
+    doc.text(parsedMember?.miembro || "Miembro", leftMargin + 5, yPosition + 10);
+    doc.text(
+      parsedMember?.ci.toString() || "Cédula",
+      leftMargin + 5,
+      yPosition + 15,
+    );
+    doc.text(
+      `${parsedMember?.cargo || "Cargo"} - ${parsedMember?.inst || "Institución"}` ||
+        "Institución",
+      leftMargin + 5,
+      yPosition + 20,
+    );
+    doc.text("Firma:", leftMargin + 5, yPosition + 45);
 
     // Segunda firma
     doc.rect(leftMargin + boxWidth + 20, yPosition, boxWidth, boxHeight);
-    doc.text("Nombre:", leftMargin + boxWidth + 25, yPosition + 10);
-    doc.text("Firma:", leftMargin + boxWidth + 25, yPosition + 30);
+    
+    doc.text(findLider?.cargo_COE || "Cargo", leftMargin + boxWidth + 25, yPosition + 5);
+    doc.text(
+      findLider?.miembro || "Miembro",
+      leftMargin + boxWidth + 25,
+      yPosition + 10,
+    );
+     doc.text(
+      findLider?.ci.toString() || "Cédula",
+      leftMargin + boxWidth + 25,
+      yPosition + 15,
+    );
+    doc.text(
+      `${findLider?.cargo || "Cargo"} - ${findLider?.inst || "Institución"}` ||
+        "Institución",
+      leftMargin + boxWidth + 25,
+      yPosition + 20,
+    );
+    doc.text("Firma:", leftMargin + boxWidth + 25, yPosition + 45);
 
     yPosition += boxHeight + 10;
 
