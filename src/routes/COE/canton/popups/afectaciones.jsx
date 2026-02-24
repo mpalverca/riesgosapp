@@ -88,7 +88,7 @@ export const AfectacionesView = ({
                   {pol_row?.planC} -{" "}
                   {marker.data.event || pol_row?.event || "Evento"}
                 </h4>
-               {/*  <p>
+                {/*  <p>
                   <strong>Descripción General:</strong> {pol_row?.desc_plan}
                 </p> */}
                 <p>
@@ -265,44 +265,18 @@ export const AfectacionesView = ({
                                               </li>
                                             ),
                                         )
-                                      : mtt === "GT1"
-                                        ? fieldsGT1.map(
-                                            ({ key, label }) =>
-                                              marker.data[key] && (
-                                                <li
-                                                  key={key}
-                                                  className="disaster-data-item"
-                                                >
-                                                  <strong>{label}:</strong>{" "}
-                                                  {marker.data[key]}
-                                                </li>
-                                              ),
-                                          )
-                                        : mtt === "GT2"
-                                          ? fieldsGT2.map(
-                                              ({ key, label }) =>
-                                                marker.data[key] && (
-                                                  <li
-                                                    key={key}
-                                                    className="disaster-data-item"
-                                                  >
-                                                    <strong>{label}:</strong>{" "}
-                                                    {marker.data[key]}
-                                                  </li>
-                                                ),
-                                            )
-                                          : fieldsGT3.map(
-                                              ({ key, label }) =>
-                                                marker.data[key] && (
-                                                  <li
-                                                    key={key}
-                                                    className="disaster-data-item"
-                                                  >
-                                                    <strong>{label}:</strong>{" "}
-                                                    {marker.data[key]}
-                                                  </li>
-                                                ),
-                                            )}
+                                      : fieldsGT3.map(
+                                          ({ key, label }) =>
+                                            marker.data[key] && (
+                                              <li
+                                                key={key}
+                                                className="disaster-data-item"
+                                              >
+                                                <strong>{label}:</strong>{" "}
+                                                {marker.data[key]}
+                                              </li>
+                                            ),
+                                        )}
                       </ul>
                     </div>
                   </>
@@ -312,7 +286,9 @@ export const AfectacionesView = ({
                 <Button
                   fullWidth
                   variant="outlined"
-                  onClick={() => {props.setOpenDialog(true)}}
+                  onClick={() => {
+                    props.setOpenDialog(true);
+                  }}
                 >
                   Registro
                 </Button>
@@ -329,13 +305,13 @@ export const AfectacionesView = ({
                       byData,
                       pol_row,
                       mtt,
-                      files
+                      files,
                     )
                   }
                 >
                   PDF
                 </Button>
-             
+
                 <Button
                   fullWidth
                   variant="outlined"

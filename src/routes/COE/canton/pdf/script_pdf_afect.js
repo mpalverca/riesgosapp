@@ -1,8 +1,6 @@
 import jsPDF from "jspdf";
 import { captureMap } from "../../../analisis/afects/maptoimage";
 import {
-  fieldsGT1,
-  fieldsGT2,
   fieldsGT3,
   fieldsMTT1,
   fieldsMTT2,
@@ -151,7 +149,7 @@ export async function generarPDFAfect(
     divisoriaLine();
     doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
-    doc.text(`1. IDENTIFICACIÓN DEL EVENTO ADVERSO  `, leftMargin, yPosition, {
+    doc.text(`1. Identificación del avento adverso`, leftMargin, yPosition, {
       align: "left",
     });
     yPosition += 8;
@@ -259,12 +257,13 @@ export async function generarPDFAfect(
     });
     // Actualizar yPosition después de la descripción
     yPosition += descHeight;
-    // Línea divisoria   
+    // Línea divisoria
     checkPageBreak(yPosition + 40);
-     divisoriaLine();
+    divisoriaLine();
     // SITUACIÓN ACTUAL
-    doc.setFont("helvetica", "bold");
-    doc.text("Situación Actual del evento:", leftMargin, yPosition);
+  doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.text("2. Situación Actual del evento:", leftMargin, yPosition);
     yPosition += 5;
     doc.setFont("helvetica", "normal");
     const lines_situacion = doc.splitTextToSize(
@@ -308,27 +307,25 @@ export async function generarPDFAfect(
                   ? fieldsMTT6
                   : mtt === "MTT7"
                     ? fieldsMTT7
-                    : mtt === "GT1"
-                      ? fieldsGT1
-                      : mtt === "GT2"
-                        ? fieldsGT2
-                        : fieldsGT3;
+                    : fieldsGT3;
 
     currentField.forEach(({ key, label }) => {
       if (item[key]) {
         doc.setFont("helvetica", "bold");
         doc.setTextColor(41, 98, 255);
         doc.text(label, leftMargin, yPosition);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(255, 140, 0);
+        doc.text(String(item[key] || ""), leftMargin + 100, yPosition);
+        yPosition += 8;
       }
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(255, 140, 0);
-      doc.text(String(item[key] || ""), leftMargin + 100, yPosition);
-      yPosition += 8;
     });
+    checkPageBreak(100);
     doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
     doc.setTextColor(0, 0, 0);
     doc.text("4. Anexo Fotografico", leftMargin, yPosition);
-    yPosition += 8;
+    yPosition += 5;
     // Agregar imagen (si existe)
     async function getImageBase64(url) {
       try {
@@ -346,7 +343,7 @@ export async function generarPDFAfect(
         return null;
       }
     }
-    checkPageBreak(80);
+
     if (files && Array.isArray(files) && files.length > 0) {
       const maxImages = 6;
       const imagesToShow = files.slice(0, maxImages);
@@ -370,12 +367,12 @@ export async function generarPDFAfect(
           // Agregar imagen
           doc.addImage(imgUrl, "JPEG", x, y, imgWidth, imgHeight);
           // Agregar detalle
-          doc.setFontSize(7);
-          doc.text(
-            detail.substring(0, 30) + (detail.length > 30 ? "..." : ""),
-            x + 5,
-            y + imgHeight + 5,
-          );
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(8);
+          doc.text(detail, x, y + imgHeight + 5, {
+            maxWidth: imgWidth - 5,
+            align: "justify",
+          });
           x += imgWidth + 10;
           count++;
           // Liberar memoria del objeto URL
@@ -393,9 +390,9 @@ export async function generarPDFAfect(
     const storedMember = localStorage.getItem("memberD");
     const parsedMember = JSON.parse(storedMember);
     const storedApoyo = localStorage.getItem("apoyoD");
-    const parsedApoyo = JSON.parse(storedApoyo);  
+    const parsedApoyo = JSON.parse(storedApoyo);
     const findLider = parsedApoyo.find((item) => item.cargo_COE === "Lider");
-      console.log(findLider);
+    console.log(findLider);
     // Espacio para firmas
     divisoriaLine();
     doc.setFont("helvetica", "bold");
@@ -411,10 +408,15 @@ export async function generarPDFAfect(
 
     // Primera firma
     doc.setDrawColor(0, 0, 0);
-    doc.rect(leftMargin, yPosition, boxWidth, boxHeight);
+    //doc.rect(leftMargin, yPosition, boxWidth, boxHeight);
+    doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
     doc.text(parsedMember?.cargo_COE || "Cargo", leftMargin + 5, yPosition + 5);
-    doc.text(parsedMember?.miembro || "Miembro", leftMargin + 5, yPosition + 10);
+    doc.text(
+      parsedMember?.miembro || "Miembro",
+      leftMargin + 5,
+      yPosition + 10,
+    );
     doc.text(
       parsedMember?.ci.toString() || "Cédula",
       leftMargin + 5,
@@ -425,30 +427,42 @@ export async function generarPDFAfect(
         "Institución",
       leftMargin + 5,
       yPosition + 20,
+      { maxWidth: 70 },
     );
-    doc.text("Firma:", leftMargin + 5, yPosition + 45);
+
+    doc.text("Firma:___________________________", leftMargin + 5, yPosition + 45);
 
     // Segunda firma
-    doc.rect(leftMargin + boxWidth + 20, yPosition, boxWidth, boxHeight);
-    
-    doc.text(findLider?.cargo_COE || "Cargo", leftMargin + boxWidth + 25, yPosition + 5);
+    //doc.rect(leftMargin + boxWidth + 15, yPosition, boxWidth, boxHeight);
+
+    doc.text(
+      findLider?.cargo_COE || "Cargo",
+      leftMargin + boxWidth + 20,
+      yPosition + 5,
+    );
     doc.text(
       findLider?.miembro || "Miembro",
-      leftMargin + boxWidth + 25,
+      leftMargin + boxWidth + 20,
       yPosition + 10,
     );
-     doc.text(
+    doc.text(
       findLider?.ci.toString() || "Cédula",
-      leftMargin + boxWidth + 25,
+      leftMargin + boxWidth + 20,
       yPosition + 15,
     );
     doc.text(
       `${findLider?.cargo || "Cargo"} - ${findLider?.inst || "Institución"}` ||
         "Institución",
-      leftMargin + boxWidth + 25,
+      leftMargin + boxWidth + 20,
       yPosition + 20,
+      { maxWidth: 70 },
     );
-    doc.text("Firma:", leftMargin + boxWidth + 25, yPosition + 45);
+
+    doc.text(
+      "Firma:___________________________",
+      leftMargin + boxWidth + 20,
+      yPosition + 45,
+    );
 
     yPosition += boxHeight + 10;
 

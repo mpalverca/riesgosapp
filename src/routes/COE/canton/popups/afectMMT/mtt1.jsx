@@ -6,9 +6,9 @@ import {
   Paper,
   MenuItem,
 } from "@mui/material";
-import { fieldsMTT4 } from "./Fields_afect/fiels_mtt";
+import {  fieldsMTT1 } from "./Fields_afect/fiels_mtt";
 
-const MTT4Afect = ({ setFormData, formData }) => {
+const MTT1Afect = ({ setFormData, formData }) => {
   // Definición de campos organizados por categorías
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -56,7 +56,7 @@ const MTT4Afect = ({ setFormData, formData }) => {
 
         <Box sx={{ mt: 2 }}>
           <Grid container spacing={2}>
-            {fieldsMTT4.map(({ key, label }) => (
+            {fieldsMTT1.map(({ key, label }) => (
               <Grid item size={{ xs: 12 }} key={key}>
                 {renderField(key, label,"number")}
               </Grid>
@@ -68,4 +68,4 @@ const MTT4Afect = ({ setFormData, formData }) => {
   );
 };
 
-export default MTT4Afect
+export default MTT1Afect
