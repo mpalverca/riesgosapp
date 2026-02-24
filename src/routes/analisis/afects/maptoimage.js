@@ -35,7 +35,7 @@ export async function captureMap(lat, lng, zoom, polygon, title) {
     window.L.marker([lat, lng]).addTo(tempMap);
     // Verificar si hay polígono y agregarlo
     
-    /* if (polygon && Array.isArray(polygon) && polygon.length > 0) {
+     if (polygon && Array.isArray(polygon) && polygon.length > 0) {
       // Si el polígono viene como array de coordenadas [lat, lng]
       window.L.polygon(polygon, {
         color: '#FF5733',
@@ -51,7 +51,7 @@ export async function captureMap(lat, lng, zoom, polygon, title) {
       
       const bounds = window.L.latLngBounds(allPoints);
       tempMap.fitBounds(bounds, { padding: [30, 30] });
-    } */
+    } 
       
       
     // Esperar a que el mapa se cargue completamente

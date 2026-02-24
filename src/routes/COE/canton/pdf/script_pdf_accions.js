@@ -1,16 +1,5 @@
 import jsPDF from "jspdf";
 import { captureMap } from "../../../analisis/afects/maptoimage";
-import {
-  fieldsGT3,
-  fieldsMTT1,
-  fieldsMTT2,
-  fieldsMTT3,
-  fieldsMTT4,
-  fieldsMTT5,
-  fieldsMTT6,
-  fieldsMTT7,
-} from "../popups/afectMMT/Fields_afect/fiels_mtt";
-
 // Función generarPDF actualizada:
 export async function generarPDFAccions(
   titulo,
@@ -78,16 +67,13 @@ export async function generarPDFAccions(
         return null;
       }
     }
-
     // Función para formatear texto con guiones como lista
-    
     const Fondo1 = "https://i.imgur.com/bAcgjxK.png";
     // Agrega fondo antes de todo el contenido
     const fondoBase64 = await getImageFondo(Fondo1);
     if (fondoBase64) {
       doc.addImage(fondoBase64, "PNG", 0, 0, pageWidth, pageHeight);
     }
-
     // Fecha actual de descarga
     const fechaDescarga = new Date().toLocaleDateString("es-ES", {
       day: "2-digit",
@@ -103,13 +89,6 @@ export async function generarPDFAccions(
     doc.text(`Generado: ${fechaDescarga}`, pageWidth - rightMargin, 20, {
       align: "right",
     });
-
-    // Configuración inicial del documento
-
-    /*  const logo = "https://i.imgur.com/WwKwvX1.png";
-    if (logo) {
-      doc.addImage(logo, "PNG", 0, 0, pageWidth / 2, topMargin);
-    } */
     doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
     doc.text(
@@ -121,7 +100,7 @@ export async function generarPDFAccions(
     doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
     doc.text(
-      `Detalle de Información de afectación ${item?.provincia}-${item.canton}${item.parroq}-${item.sector}-${item.row_event}-${item.row} `,
+      `Detalle de Información de acciones realizadas ${item?.prov}-${item.canton}${item.parroq_aten}-${item.sector}-${item.event_row}-${item.row} `,
       pageWidth / 2,
       topMargin + 5,
       { align: "center" },
@@ -150,7 +129,7 @@ export async function generarPDFAccions(
     doc.text("Provincia", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(
-      String(item.provincia || polAF.prov || " "),
+      String(item.prov || polAF.prov || " "),
       leftMargin + 25,
       yPosition,
     );
@@ -168,7 +147,7 @@ export async function generarPDFAccions(
     doc.text("Parroquia", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(
-      String(item.parroq || polAF.parroq || ""),
+      String(item.parroq_aten || polAF.parroq || ""),
       leftMargin + 25,
       yPosition,
     );
@@ -231,7 +210,6 @@ export async function generarPDFAccions(
     yPosition += 5;
     divisoriaLine();
     //add descripcion event general
-    // DESCRIPCIÓN
     doc.setFont("helvetica", "bold");
     doc.text("Descripción:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
@@ -255,7 +233,7 @@ export async function generarPDFAccions(
     // SITUACIÓN ACTUAL
   doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
-    doc.text("2. Situación Actual del evento:", leftMargin, yPosition);
+    doc.text(`2. Acciones de Respuesta de ${mtt} `, leftMargin, yPosition);
     yPosition += 5;
     doc.setFont("helvetica", "normal");
     const lines_situacion = doc.splitTextToSize(
@@ -284,34 +262,6 @@ export async function generarPDFAccions(
     doc.setFont("helvetica", "bold");
     doc.text("3. AFECTACIONES - RESUMEN", leftMargin, yPosition);
     yPosition += 8;
-    const currentField =
-      mtt === "MTT1"
-        ? fieldsMTT1
-        : mtt === "MTT2"
-          ? fieldsMTT2
-          : mtt === "MTT3"
-            ? fieldsMTT3
-            : mtt === "MTT4"
-              ? fieldsMTT4
-              : mtt === "MTT5"
-                ? fieldsMTT5
-                : mtt === "MTT6"
-                  ? fieldsMTT6
-                  : mtt === "MTT7"
-                    ? fieldsMTT7
-                    : fieldsGT3;
-
-    currentField.forEach(({ key, label }) => {
-      if (item[key]) {
-        doc.setFont("helvetica", "bold");
-        doc.setTextColor(41, 98, 255);
-        doc.text(label, leftMargin, yPosition);
-        doc.setFont("helvetica", "normal");
-        doc.setTextColor(255, 140, 0);
-        doc.text(String(item[key] || ""), leftMargin + 100, yPosition);
-        yPosition += 8;
-      }
-    });
     checkPageBreak(100);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
@@ -368,7 +318,6 @@ export async function generarPDFAccions(
     const storedApoyo = localStorage.getItem("apoyoD");
     const parsedApoyo = JSON.parse(storedApoyo);
     const findLider = parsedApoyo.find((item) => item.cargo_COE === "Lider");
-    console.log(findLider);
     // Espacio para firmas
     divisoriaLine();
     doc.setFont("helvetica", "bold");

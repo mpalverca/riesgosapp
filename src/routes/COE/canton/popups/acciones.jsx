@@ -2,7 +2,7 @@ import DirectionsWalkIcon from "@mui/icons-material/DirectionsWalk";
 import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
-import { Box, Button, Divider, Tab, Tabs, Typography } from "@mui/material";
+import { Box, Button, Divider, Tab, Typography } from "@mui/material";
 import { divIcon } from "leaflet";
 import { useCallback, useState } from "react";
 import { renderToString } from "react-dom/server";
@@ -49,12 +49,6 @@ export const AccionesView = ({
     });
   }, []);
 
-  function a11yProps(index) {
-    return {
-      id: `simple-tab-${index}`,
-      "aria-controls": `simple-tabpanel-${index}`,
-    };
-  }
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
@@ -63,7 +57,7 @@ export const AccionesView = ({
     <>
       {acciones.map((marker) => {
         const byData = parseByField(marker.data.by);
-        const event_index = Number(marker.data.row_event); // ej: 5
+        const event_index = Number(marker.data.event_row); // ej: 5
         const pol_row = polAfect?.find((item) => item.row === event_index);
         return (
           <Marker
