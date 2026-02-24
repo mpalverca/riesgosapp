@@ -12,7 +12,7 @@ import {
 } from "../popups/afectMMT/Fields_afect/fiels_mtt";
 
 // Función generarPDF actualizada:
-export async function generarPDFAfect(
+export async function generarPDFAccions(
   titulo,
   lat,
   lng,
@@ -80,15 +80,7 @@ export async function generarPDFAfect(
     }
 
     // Función para formatear texto con guiones como lista
-    /* const formatListText = (text) => {
-      if (!text) return [];
-      // Dividir por guiones y limpiar cada elemento
-      return text
-        .split("-")
-        .map((item) => item.trim())
-        .filter((item) => item.length > 0)
-        .map((item) => `• ${item}`);
-    }; */
+    
     const Fondo1 = "https://i.imgur.com/bAcgjxK.png";
     // Agrega fondo antes de todo el contenido
     const fondoBase64 = await getImageFondo(Fondo1);
@@ -327,6 +319,7 @@ export async function generarPDFAfect(
     doc.text("4. Anexo Fotografico", leftMargin, yPosition);
     yPosition += 5;
     // Agregar imagen (si existe)
+    
     if (files && Array.isArray(files) && files.length > 0) {
       const maxImages = 6;
       const imagesToShow = files.slice(0, maxImages);

@@ -10,7 +10,6 @@ function App() {
       <Box sx={{ flex: 1 }}>
         <Routes />
       </Box>
-
      <Footer/>
     </Box>
   );

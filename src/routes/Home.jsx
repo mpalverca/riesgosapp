@@ -6,24 +6,14 @@ import {
   Grid,
   Card,
   CardContent,
-  CardMedia,
   Accordion,
   AccordionSummary,
   AccordionDetails,
   Divider,
-  Button,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Carousel from "../components/Navbar/carrusel";
-
-// Imágenes de ejemplo (URLs)
-const riskManagementImg =
-  "https://www.lahora.com.ec/__export/1744870377270/sites/lahora/img/2025/04/17/20250417_121248643_Las_zonas_de_Loja_mxs_vulnerables_a_fuertes_lluvias.jpg_1443152915.jpg";
-const disasterImg =
-  "https://www.eluniverso.com/resizer/v2/VFLD3MA5GJHUFEKIJEXJ4ZFTWQ.png?auth=4e159b9dcada17f27f80bbae6fd666b3d8c15a7b25bd3d44635c3f2e9748152b&width=640&height=359&quality=75&smart=true";
-const preventionImg =
-  "https://ubuinvestiga.es/wp-content/uploads/2022/04/riesgo-empresarial.jpg";
 
 // Tema personalizado
 const theme = createTheme({

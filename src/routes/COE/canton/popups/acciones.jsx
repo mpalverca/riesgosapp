@@ -7,14 +7,17 @@ import { divIcon } from "leaflet";
 import { useCallback, useState } from "react";
 import { renderToString } from "react-dom/server";
 import { Marker, Popup } from "react-leaflet";
+import { generarPDFAccions } from "../pdf/script_pdf_accions";
 
 export const AccionesView = ({
   acciones,
   parseByField,
   formatDate,
   mtt,
+  polAfect,
   setOpenDialog,
   setTypeInput,
+  files,
   ...props
 }) => {
   const [value, setValue] = useState("1");
@@ -60,6 +63,8 @@ export const AccionesView = ({
     <>
       {acciones.map((marker) => {
         const byData = parseByField(marker.data.by);
+        const event_index = Number(marker.data.row_event); // ej: 5
+        const pol_row = polAfect?.find((item) => item.row === event_index);
         return (
           <Marker
             key={marker.id}
@@ -144,15 +149,27 @@ export const AccionesView = ({
                 <Button
                   fullWidth
                   variant="outlined"
-                  onClick={() => setOpenDialog(true)}
+                  onClick={() => props.setOpenDialog(true)}
                 >
-                  Registro
+                  Registro 
                 </Button>
                 <Button
                   fullWidth
                   variant="outlined"
                   color="warning"
-                  onClick={() => setTypeInput("Acciones")}
+                  onClick={() => {
+                    setTypeInput("Acciones");
+                    generarPDFAccions(
+                      marker.data.event,
+                      marker.position[0],
+                      marker.position[1],
+                      marker.data,
+                      byData,
+                      pol_row,
+                      mtt,
+                      files,
+                    )
+                  }}
                 >
                   PDF
                 </Button>

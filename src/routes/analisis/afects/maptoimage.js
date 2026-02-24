@@ -33,7 +33,27 @@ export async function captureMap(lat, lng, zoom, polygon, title) {
 
     // Añadir marcador
     window.L.marker([lat, lng]).addTo(tempMap);
-    //window.L.polygon(polygon).addTo(tempMap)
+    // Verificar si hay polígono y agregarlo
+    
+    /* if (polygon && Array.isArray(polygon) && polygon.length > 0) {
+      // Si el polígono viene como array de coordenadas [lat, lng]
+      window.L.polygon(polygon, {
+        color: '#FF5733',
+        weight: 3,
+        opacity: 0.8,
+        fillColor: '#FF5733',
+        fillOpacity: 0.3
+      }).addTo(tempMap);
+       // Ajustar el zoom para mostrar todo el polígono y el marcador
+      const allPoints = polygon.map(coord => [coord[0], coord[1]]);
+      // Agregar también el punto del marcador
+      allPoints.push([lat, lng]);
+      
+      const bounds = window.L.latLngBounds(allPoints);
+      tempMap.fitBounds(bounds, { padding: [30, 30] });
+    } */
+      
+      
     // Esperar a que el mapa se cargue completamente
     await new Promise(resolve => setTimeout(resolve, 1000));
     

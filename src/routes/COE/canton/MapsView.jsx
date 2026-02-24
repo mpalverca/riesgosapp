@@ -1,13 +1,8 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { MapContainer, TileLayer, useMapEvents } from "react-leaflet";
 import {
   Box,
   Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
   Divider,
   IconButton,
   Popover,
@@ -46,7 +41,6 @@ function MapMark({
   selectCapa,
   loading,
   children,
-  member,
 }) {
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [coordinates, setCoordinates] = useState(null);
@@ -189,6 +183,7 @@ function MapMark({
             parseByField={parseByField}
             formatDate={formatDate}
             mtt={mtt}
+            polAfect={dataPol}
             setOpenDialog={setOpenDialog}
             openDialog={openDialog}
             setTypeInput={setTypeInput}

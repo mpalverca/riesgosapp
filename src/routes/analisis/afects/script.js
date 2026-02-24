@@ -9,29 +9,7 @@ const SUPABASE_KEY =
 const SUPABASE_O_URL = "https://strvklqwxyenoobrqtis.supabase.co";
 const SUPABASE_O_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0cnZrbHF3eHllbm9vYnJxdGlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI0NTU2MzQsImV4cCI6MjA2ODAzMTYzNH0.tBX7U1Bsq5de9man6iCDmq-AudmYr-NC86v62tz4IKg";
-// Colores para marcadores según prioridad
-/* const PRIORITY_COLORS = {
-  ALTA: "#dc3545",
-  MEDIA: "#ffc107",
-  BAJA: "#28a745",
-  DEFAULT: "#007bff",
-}; */
-/* const DAMAGE_COOPER = {
-  7: "#dc3545",
-  6: "#dc3545",
-  5: "#dc3545",
-  4: "#ffc107",
-  3: "#ffc107",
-  2: "#28a745",
-  1: "#28a745",
-  DEFAULT: "#007bff",
-}; */
 
-/* const cooper_icon = {
-  1: { icon: <FaHome />, color: "#1e90ff" },
-  2: { icon: <FaRoad />, color: "#8b4513" },
-  3: { icon: <FaRoad />, color: "#ff4500" },
-}; */
 const supabaseAfect = createClient(SUPABASE_URL, SUPABASE_KEY);
 const parroq = createClient(SUPABASE_O_URL, SUPABASE_O_KEY);
 
@@ -40,6 +18,35 @@ export const cargarDatosafec = async () => {
     const { data, error } = await supabaseAfect
       .from("bd_loja_1")
       .select("id,geom,date,prioridad,event,estado,parroq,afectacion,radio");
+    /* 
+    let query = supabaseAfect
+      .from("bd_loja_1")
+      .select("id,geom,date,prioridad,event,estado,parroq,afectacion,radio");
+    
+    // Aplicar filtros dinámicamente
+    if (filtros.event) {
+      query = query.eq("event", filtros.event);
+    }
+    
+    if (filtros.estado) {
+      query = query.eq("estado", filtros.estado);
+    }
+    
+    if (filtros.prioridad) {
+      query = query.eq("prioridad", filtros.prioridad);
+    }
+    
+    if (filtros.fechaInicio) {
+      query = query.gte("date", filtros.fechaInicio);
+    }
+    
+    if (filtros.fechaFin) {
+      query = query.lte("date", filtros.fechaFin);
+    }
+    
+    const { data, error } = await query;
+     */
+
     if (error) throw error;
     return data;
   } catch (error) {
@@ -62,27 +69,6 @@ export const cargardatoformId = async (id) => {
     throw error;
   }
 };
-/* try {
-    const afectResponse = await fetch(
-      `${SUPABASE_URL}/rest/v1/bd_loja_1?select=id,ST_AsGeoJSON(geom) as geometry,FECHA,prioridad,EVENTO,ESTADO,Parroquia,afectacion`,
-      {
-        headers: {
-          apikey: SUPABASE_KEY,
-          Authorization: `Bearer ${SUPABASE_KEY}`,
-        },
-      }
-    );
-
-    if (!afectResponse.ok) {
-      throw new Error(`Error HTTP: ${afectResponse.status}`);
-    }
-
-    return await afectResponse.json();
-     // Retorna los datos directamente
-  } catch (error) {
-    console.error("Error en cargar datos de afectaciones:", error);
-    throw error; // Relanza el error para manejo externo
-  } */
 
 export const cargarDatosParroquia = async () => {
   try {
@@ -94,26 +80,6 @@ export const cargarDatosParroquia = async () => {
     console.error("Error:", error);
     throw error;
   }
-  /* try {
-    const parrResponse = await fetch(
-      `${SUPABASE_O_URL}/rest/v1/parroquial?select=*`,
-      {
-        headers: {
-          apikey: SUPABASE_O_KEY,
-          authorization: `Bearer ${SUPABASE_O_KEY}`,
-        },
-      }
-    );
-    if (!parrResponse.ok) {
-      throw new Error(`Error HTTP: ${parrResponse.status}`);
-    }
-    const parroqData = await parrResponse.json();
-
-    return parroqData; //
-  } catch (error) {
-    console.log("erro cargar datos de parroquias", error);
-    throw error;
-  } */
 };
 // Función generarPDF actualizada:
 export async function generarPDF(titulo, lat, lng, itemStr, require) {
@@ -333,7 +299,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     yPosition += 5;
 
     // Verificar si necesitamos nueva página para el mapa
-    checkPageBreak(120);
+    checkPageBreak(120+marginBottom);
 
     // Mapa
     let imagemap = await captureMap(lat, lng, 18);
@@ -558,12 +524,17 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.rect(leftMargin, yPosition, boxWidth, boxHeight);
     doc.setFontSize(10);
     doc.text("Nombre:", leftMargin + 5, yPosition + 10);
-    doc.text("Firma:", leftMargin + 5, yPosition + 30);
+    doc.text("Firma:", leftMargin + 5, yPosition + 35);
 
     // Segunda firma
     doc.rect(leftMargin + boxWidth + 20, yPosition, boxWidth, boxHeight);
-    doc.text("Nombre:", leftMargin + boxWidth + 25, yPosition + 10);
-    doc.text("Firma:", leftMargin + boxWidth + 25, yPosition + 30);
+    doc.text("José Luis Lima Maza", leftMargin + boxWidth + 25, yPosition + 10);
+    doc.text(
+      "Coordinador de Gestión de Riesgos",
+      leftMargin + boxWidth + 25,
+      yPosition + 5,
+    );
+    doc.text("Firma:", leftMargin + boxWidth + 25, yPosition + 35);
 
     yPosition += boxHeight + 10;
 

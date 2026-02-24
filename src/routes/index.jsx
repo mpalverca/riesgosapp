@@ -39,11 +39,8 @@ export default function AppRouter() {
     const userData = localStorage.getItem("user");
     if (userData) {
       setUser(JSON.parse(userData));
-    
     }
-    
   }, []);
-
   return (
     <Router>
       <NavBar />

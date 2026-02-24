@@ -3,8 +3,6 @@ import CircleNotificationsIcon from "@mui/icons-material/CircleNotifications";
 import {
   Box,
   Button,
-  Dialog,
-  DialogTitle,
   Divider,
   Typography,
 } from "@mui/material";
@@ -13,8 +11,6 @@ import { renderToString } from "react-dom/server"; // Importa renderToString
 import { divIcon } from "leaflet";
 import { generarPDFAfect } from "../pdf/script_pdf_afect";
 import {
-  fieldsGT1,
-  fieldsGT2,
   fieldsGT3,
   fieldsMTT1,
   fieldsMTT2,
@@ -24,7 +20,7 @@ import {
   fieldsMTT6,
   fieldsMTT7,
 } from "./afectMMT/Fields_afect/fiels_mtt";
-import MTT4Afect from "./afectMMT/mtt4";
+
 
 export const AfectacionesView = ({
   afect,
@@ -311,7 +307,6 @@ export const AfectacionesView = ({
                 >
                   PDF
                 </Button>
-
                 <Button
                   fullWidth
                   variant="outlined"
