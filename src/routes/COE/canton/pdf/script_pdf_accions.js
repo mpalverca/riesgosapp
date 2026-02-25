@@ -231,28 +231,42 @@ export async function generarPDFAccions(
     checkPageBreak(yPosition + 40);
     divisoriaLine();
     // SITUACIÓN ACTUAL
-  doc.setFont("helvetica", "bold");
+    doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
     doc.text(`2. Acciones de Respuesta de ${mtt} `, leftMargin, yPosition);
     yPosition += 5;
     doc.setFont("helvetica", "normal");
-    const lines_situacion = doc.splitTextToSize(
-      String(item.desc || "No existe descripción de situación actual"),
-      maxWidth - 20,
+    doc.text(
+      ` Institucion que atiende: ${item.inst_atent || "No existe descripción de situación actual"}`,
+      leftMargin,
+      yPosition + 5,
+      { maxWidth: maxWidth - 15, align: "justify" },
     );
-    // Calcular altura necesaria
-    const situacionHeight = lines_situacion.length * 4;
-    checkPageBreak(situacionHeight + 30);
-
-    // Mostrar situación actual
-    doc.text(lines_situacion, leftMargin + 5, yPosition, {
-      align: "justify",
-      maxWidth: maxWidth - 10,
-    });
-
-    // ACTUALIZAR yPosition DESPUÉS DEL TEXTO (¡esto es lo importante!)
-    yPosition += situacionHeight + 5;
-
+    doc.text(
+      `Sector que atiendó - Según manual del COE_AR :   ${item.sector_COE || "No existe descripción de situación actual"}`,
+      leftMargin,
+      yPosition + 15,
+   { maxWidth: maxWidth - 15, align: "justify" },
+    );
+    doc.text(
+      `Acción de respuesta:   ${item.acc_resp || "No existe descripción de situación actual"}`,
+      leftMargin,
+      yPosition + 20,
+       { maxWidth: maxWidth - 15, align: "justify" },
+    );
+    doc.text(
+      `Observaciones:   ${item.obs || "No existe descripción de situación actual"}`,
+      leftMargin,
+      yPosition + 25,
+       { maxWidth: maxWidth - 15, align: "justify" },
+    );
+    doc.text(
+      `Detale:   ${item.detalle || "No existe descripción de situación actual"}`,
+      leftMargin,
+      yPosition+30,
+      { maxWidth: maxWidth - 15, align: "justify" },
+    );
+     yPosition += 35;
     // Línea divisoria final
     divisoriaLine();
     // Campos principales
@@ -269,7 +283,7 @@ export async function generarPDFAccions(
     doc.text("4. Anexo Fotografico", leftMargin, yPosition);
     yPosition += 5;
     // Agregar imagen (si existe)
-    
+
     if (files && Array.isArray(files) && files.length > 0) {
       const maxImages = 6;
       const imagesToShow = files.slice(0, maxImages);
@@ -355,7 +369,11 @@ export async function generarPDFAccions(
       { maxWidth: 70 },
     );
 
-    doc.text("Firma:___________________________", leftMargin + 5, yPosition + 45);
+    doc.text(
+      "Firma:___________________________",
+      leftMargin + 5,
+      yPosition + 45,
+    );
 
     // Segunda firma
     //doc.rect(leftMargin + boxWidth + 15, yPosition, boxWidth, boxHeight);

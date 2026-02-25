@@ -68,3 +68,72 @@ export const useDetailSector = () => {
     clearSectorData // Función para limpiar
   };
 };
+
+export const comit_data=()=>{
+   const [comiteData, setComData] = useState(null);
+  const [comLoading, setComLoading] = useState(false);
+  const [comError, setComError] = useState(null);
+
+  const detailSector = useCallback(async (sector) => {
+    // Validación inicial
+    if (!sector || sector.trim() === '') {
+      setComError('El barrio no puede estar vacío');
+      setComData(null);
+      return null;
+    }
+
+    setComLoading(true);
+    setComError(null);
+    setComData(null);
+
+    try {
+      const url = `${sector_info}?barrio=${encodeURIComponent(sector)}`;
+      console.log('🔍 Buscando sector:', sector);
+      console.log('📡 URL:', url);
+
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`Error HTTP: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('📦 Resultado:', result);
+
+      // Verificar la estructura de la respuesta
+      if (result.error) {
+        throw new Error(result.error);
+      }
+
+      // Si tu API usa "status": "success", verificar
+      if (result.status && result.status !== "success") {
+        throw new Error(`Error del servidor: ${result.message || 'Estado no exitoso'}`);
+      }
+
+      setComData(result);
+      return result;
+
+    } catch (error) {
+      console.error('❌ Error en detailSector:', error);
+      setComError(error.message);
+      return null;
+    } finally {
+      setComLoading(false);
+    }
+  }, []); // sector_info debe estar definida en el scope
+
+  // Función para limpiar datos
+  const clearSectorData = useCallback(() => {
+    setComData(null);
+    setComError(null);
+    setComLoading(false);
+  }, []);
+
+  return {
+    sectorData: comiteData,     // Datos del sector
+    sectorLoading: comLoading,  // Estado de carga (true/false)
+    sectorError: comError,    // Error si ocurre
+    detailSector,   // Función para buscar
+    clearSectorData // Función para limpiar
+  };
+}

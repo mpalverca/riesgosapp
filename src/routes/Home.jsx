@@ -114,9 +114,7 @@ const Home = () => {
             <Typography variant="body1" align="justify">
               La Ley de Gestión de Riesgos de Desastres (LOGIRD) contempla la
               posibilidad de ocurrencia de un evento que pueda afectar la
-              economía, bienes materiales o vidas humanas.
-            </Typography>
-            <Typography variant="body1" align="justify">
+              economía, bienes materiales o vidas humanas. <br />
               La Gestión del Riesgo se hace referencia al proceso social de
               planeación, ejecución, seguimiento y evaluación de políticas y
               acciones para el conocimiento del riesgo y promoción de una mayor
@@ -165,7 +163,7 @@ const Home = () => {
         </Card>
 
         {/* Sección de FAQ con Acordeones */}
-        <Box sx={{ mb: 6 }}>
+        <Card  elevation={3}  sx={{ my: 6 }}>
           <Typography
             variant="h1"
             component="h1"
@@ -176,7 +174,8 @@ const Home = () => {
             Preguntas Frecuentes
           </Typography>
 
-          <Accordion>
+          <Box sx={{mx:2, mb:2}}>
+            <Accordion>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               <Typography variant="h2">
                 ¿Qué es la Agenda de Reducción de Riesgos de Desastres?
@@ -258,7 +257,9 @@ const Home = () => {
               </ol>
             </AccordionDetails>
           </Accordion>
-        </Box>
+          </Box>
+
+        </Card>
 
         {/* Sección de Responsabilidades */}
         <Box
@@ -341,9 +342,10 @@ const Home = () => {
           sx={{
             bgcolor: "rgba(238, 237, 233, 0.33)",
             color: "white",
-            p: 4,
+            py: 2,
             borderRadius: 2,
             textAlign: "center",
+            mb:8
           }}
         >
           <Typography
