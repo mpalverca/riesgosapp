@@ -88,7 +88,6 @@ export const useGetInfo = () => {
   const [dataGet, setData] = useState(null);
 
   const searchGet = useCallback(async (mtt, tipe) => {
-    console.log(mtt,tipe)
     // Validaciones
     if (!mtt) {
       setError("Ingrese un mesa o grupo de trabajo");

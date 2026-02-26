@@ -113,7 +113,7 @@ const Coe = ({ role, ci, ...props }) => {
   // useEffect para actualizar cuando memberData cambia (nueva búsqueda)
   useEffect(() => {
     if (memberData?.member && Object.keys(memberData.member).length > 0) {
-      console.log("Actualizando estado con datos de la búsqueda");
+     // console.log("Actualizando estado con datos de la búsqueda");
       setMember(memberData.member);
       
       if (memberData?.apoyo) {

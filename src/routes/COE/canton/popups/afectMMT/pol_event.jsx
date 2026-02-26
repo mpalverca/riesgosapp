@@ -2,6 +2,8 @@ import React from "react";
 import { GeoJSON, Popup } from "react-leaflet";
 import { Box, Button, Divider, Typography } from "@mui/material";
 import { generarPDFEvent } from "../../pdf/script_pdf_event";
+import { coordForm } from "../../../../utils/Coords";
+import { geoJson } from "leaflet";
 
 export const PolEventView = ({ polygon, formatDate, mtt, files, ...props }) => {
   // Función para determinar el estilo según la alerta
@@ -35,19 +37,7 @@ export const PolEventView = ({ polygon, formatDate, mtt, files, ...props }) => {
           const accFilter = props.acciones?.filter(
             (afect) => Number(afect?.data.event_row) === item.row,
           );
-          let coords = null;
-          if (typeof item.ubi === "string") {
-            const cleanStr = item.ubi.replace(/[\[\]\s]/g, "");
-            const parts = cleanStr.split(",");
-            if (parts.length >= 2) {
-              const lat = parseFloat(parts[0]);
-              const lng = parseFloat(parts[1]);
-              if (!isNaN(lat) && !isNaN(lng)) coords = [lat, lng];
-            }
-          } else if (Array.isArray(item.ubi)) {
-            coords = item.ubi;
-          }
-          console.log(item.ubi);
+          let coords = coordForm(item.ubi); //convierte a coordenadas 
           try {
             if (typeof item.Poligono === "string") {
               // El parseo maneja automáticamente los \r\n
@@ -133,6 +123,7 @@ export const PolEventView = ({ polygon, formatDate, mtt, files, ...props }) => {
                         "evento",
                         afectFilter,
                         accFilter,
+                        geoJsonData.features[0].geometry.coordinates[0],
                         coords,                      
                         item,
                         mtt,

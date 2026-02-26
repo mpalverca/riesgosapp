@@ -20,11 +20,11 @@ import {
   fieldsMTT6,
   fieldsMTT7,
 } from "./afectMMT/Fields_afect/fiels_mtt";
+import { parseByField } from "../../../utils/utils";
 
 
 export const AfectacionesView = ({
   afect,
-  parseByField,
   formatDate,
   mtt,
   polAfect,
@@ -160,7 +160,7 @@ export const AfectacionesView = ({
                 ) : (
                   <>
                     {marker.data.desc && (
-                      <p>
+                      <p sx={{ fontSize: "0.9em", align: "justify" }}>
                         <strong>Descripción de la afectación:</strong>
                         <br />
                         {marker.data.desc}

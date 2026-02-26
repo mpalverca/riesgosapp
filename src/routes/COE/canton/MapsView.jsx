@@ -1,5 +1,12 @@
 import React, { useState, useMemo } from "react";
-import { MapContainer, TileLayer, useMapEvents } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  useMapEvents,
+  LayersControl,
+  LayerGroup,
+  FeatureGroup,
+} from "react-leaflet";
 import {
   Box,
   Button,
@@ -215,6 +222,24 @@ function MapMark({
           />
         )}
         {children}
+        <LayersControl position="topright">
+          <LayersControl.Overlay name="Poligono de afectación">
+            {!loading.loadingPol && selectCapa.poligono && (
+              <PolEventView
+                polygon={dataPol}
+                parseByField={parseByField}
+                formatDate={formatDate}
+                mtt={mtt}
+                setOpenDialog={setOpenDialog}
+                files={files}
+                openDialog={openDialog}
+                afect={afectaciones}
+                acciones={acciones}
+                recursos={requiere}
+              />
+            )}
+          </LayersControl.Overlay>
+        </LayersControl>
       </MapContainer>
       <ImageUploadDialog
         openDialog={openDialog}

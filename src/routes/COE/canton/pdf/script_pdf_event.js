@@ -10,34 +10,22 @@ import {
   fieldsMTT6,
   fieldsMTT7,
 } from "../popups/afectMMT/Fields_afect/fiels_mtt";
+import { afectDoc } from "./afect_int";
+import { parseByField } from "../../../utils/utils";
+import { coordForm } from "../../../utils/Coords";
 
 // Función generarPDF actualizada:
 export async function generarPDFEvent(
   titulo,
   afect,
   accions,
+  polygon,
   marker,
   polAF,
   mtt,
   files,
 ) {
-
-    const parseByField = (byString) => {
-    if (typeof byString !== "string") return byString;
-    try {
-      const fixedString = byString
-        .replace(/(\w+):/g, '"$1":')
-        .replace(/:\s*(\w+)(,|})/g, ': "$1"$2')
-        .replace(/'/g, '"');
-      return JSON.parse(fixedString);
-    } catch {
-      return { error: "Info no disponible" };
-    }
-  };
-
   try {
-    const item = afect[0]?.data || {};
-    console.log(marker);
     const doc = new jsPDF();
     // Configuración de márgenes
     const leftMargin = 10;
@@ -118,7 +106,6 @@ export async function generarPDFEvent(
       hour: "2-digit",
       minute: "2-digit",
     });
-
     // Fecha de descarga (más pequeña y en esquina superior derecha)
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
@@ -143,7 +130,7 @@ export async function generarPDFEvent(
     doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
     doc.text(
-      `Detalle de Información de afectación ${item?.provincia}-${item.canton}${item.parroq}-${item.sector}-${item.row_event}-${item.row} `,
+      `Detalle de Información de afectación ${polAF?.provincia}-${polAF.canton}${polAF.parroq}-${polAF.sector}-${polAF.row_event}-${polAF.row} `,
       pageWidth / 2,
       topMargin + 5,
       { align: "center" },
@@ -161,7 +148,7 @@ export async function generarPDFEvent(
     doc.text("Provincia", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(
-      String(item.provincia || polAF.prov || " "),
+      String(polAF.provincia || polAF.prov || " "),
       leftMargin + 25,
       yPosition,
     );
@@ -170,7 +157,7 @@ export async function generarPDFEvent(
     doc.text("Cantón", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(
-      String(item.canton || polAF.canton || ""),
+      String(polAF.canton || polAF.canton || ""),
       leftMargin + 25,
       yPosition,
     );
@@ -179,7 +166,7 @@ export async function generarPDFEvent(
     doc.text("Parroquia", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(
-      String(item.parroq || polAF.parroq || ""),
+      String(polAF.parroq || polAF.parroq || ""),
       leftMargin + 25,
       yPosition,
     );
@@ -188,7 +175,7 @@ export async function generarPDFEvent(
     doc.text("Sector ", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(
-      String(item.sector || polAF.sector || ""),
+      String(polAF.sector || polAF.sector || ""),
       leftMargin + 25,
       yPosition,
     );
@@ -197,7 +184,7 @@ export async function generarPDFEvent(
     doc.text("Fecha", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(
-      String(item.date_event || polAF.date_event, polAF.time || ""),
+      String(polAF.date_event + " " + polAF.time || ""),
       leftMargin + 25,
       yPosition,
     );
@@ -205,7 +192,7 @@ export async function generarPDFEvent(
     doc.setFont("helvetica", "bold");
     doc.text("Fecha", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
-    doc.text(String(item.date_act || ""), leftMargin + 25, yPosition);
+    doc.text(String(polAF.date_act || ""), leftMargin + 25, yPosition);
     yPosition += 8;
     doc.setFont("helvetica", "bold");
     doc.text("Alerta", leftMargin, yPosition);
@@ -226,11 +213,11 @@ export async function generarPDFEvent(
     doc.text("Evento", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(
-      String(item.event || polAF.event || ""),
+      String(polAF.event || polAF.event || ""),
       leftMargin + 25,
       yPosition,
     );
-    let imagemap = await captureMap(marker[0], marker[1], 18);
+    let imagemap = await captureMap(marker[0], marker[1], 18, polygon);
     doc.addImage(
       imagemap,
       "PNG",
@@ -267,20 +254,24 @@ export async function generarPDFEvent(
     doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
     doc.text("2. Situación Actual del evento:", leftMargin, yPosition);
-    yPosition += 5;
-    const afectMap = afect.map((afect) => {
-      const byData = parseByField(afect.by);
-      console.log("byData:", byData);
-      console.log("afect:", afect.data)
-
+    yPosition += 10;
+    afect.map(async (afect, index) => {
+      //afectDoc(afect, index, leftMargin, yPosition, maxWidth);
+      const byData = parseByField(afect.data.by);
+      const coord = coordForm(afect.data.ubi);
       doc.setFont("helvetica", "normal");
-      
-    doc.text("2. Afectación 1 ", leftMargin, yPosition);
-    yPosition += 5;
+      doc.text(
+        `- Afectación ${index + 1} (${coord?.[0] || "0"}, ${coord?.[1] || "0"}) - ${byData?.name || "Sin nombre"} - ${byData?.cargo || "Sin cargo"}`,
+        leftMargin,
+        yPosition,
+        //{ maxWidth: maxWidth / 2 },
+      );
+      yPosition += 5;
       const lines_situacion = doc.splitTextToSize(
         String(afect?.data.desc || "No existe descripción de situación actual"),
         maxWidth - 20,
       );
+      yPosition += 5;
       // Calcular altura necesaria
       const situacionHeight = lines_situacion.length * 4;
       checkPageBreak(situacionHeight + 30);
@@ -288,15 +279,24 @@ export async function generarPDFEvent(
       // Mostrar situación actual
       doc.text(lines_situacion, leftMargin + 5, yPosition, {
         align: "justify",
-        maxWidth: maxWidth - 10,
+        maxWidth: maxWidth - 15,
       });
+     /*  let imageAfec = await captureMap(coord?.[0], coord?.[1], 18);
+      doc.addImage(
+        imageAfec,
+        "PNG",
+        leftMargin + 90,
+        yPosition,
+        maxWidth / 2,
+        80,
+      ); */
       // ACTUALIZAR yPosition DESPUÉS DEL TEXTO (¡esto es lo importante!)
       yPosition += situacionHeight + 5;
     });
 
     doc.setFont("helvetica", "normal");
     const lines_situacion = doc.splitTextToSize(
-      String(item.desc || "No existe descripción de situación actual"),
+      String(polAF.desc || "No existe descripción de situación actual"),
       maxWidth - 20,
     );
     // Calcular altura necesaria
@@ -337,13 +337,13 @@ export async function generarPDFEvent(
                     : fieldsGT3;
 
     currentField.forEach(({ key, label }) => {
-      if (item[key]) {
+      if (polAF[key]) {
         doc.setFont("helvetica", "bold");
         doc.setTextColor(41, 98, 255);
         doc.text(label, leftMargin, yPosition);
         doc.setFont("helvetica", "normal");
         doc.setTextColor(255, 140, 0);
-        doc.text(String(item[key] || ""), leftMargin + 100, yPosition);
+        doc.text(String(polAF[key] || ""), leftMargin + 100, yPosition);
         yPosition += 8;
       }
     });
