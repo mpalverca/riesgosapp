@@ -52,13 +52,13 @@ const Coe = ({ role, ci, ...props }) => {
         if (storedMember) {
           const parsedMember = JSON.parse(storedMember);
           setMember(parsedMember);
-          console.log("Miembro cargado desde localStorage:", parsedMember);
+         // console.log("Miembro cargado desde localStorage:", parsedMember);
         }
         
         if (storedApoyo) {
           const parsedApoyo = JSON.parse(storedApoyo);
           setApoyo(parsedApoyo);
-          console.log("Apoyo cargado desde localStorage:", parsedApoyo);
+        //  console.log("Apoyo cargado desde localStorage:", parsedApoyo);
         }
       } catch (error) {
         console.error("Error parsing localStorage data:", error);
@@ -103,7 +103,7 @@ const Coe = ({ role, ci, ...props }) => {
       }
       
       // Si no está en localStorage o no coincide, buscar
-      console.log("Buscando miembro con CI:", ci);
+  //    console.log("Buscando miembro con CI:", ci);
       await memberData.search(ci);
     };
     
@@ -202,7 +202,6 @@ const SearchTerm = ({
   ci,
 }) => {
 
-  console.log("SearchTerm - Props recibidos:", member, apoyo, found, ci)
   // Función para obtener valores seguros del miembro
   const getSafeMemberValue = (key) => {
     if (!member) return "No especificado";
@@ -331,13 +330,11 @@ const SearchTerm = ({
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            mt: 2,
-            mb: 3,
-            p: 3,
+           
           }}
         >
           <CircularProgress size={30} sx={{ mr: 2 }} />
-          <Typography variant="body1">Buscando miembro...</Typography>
+          <Typography variant="body1">Actualizando...</Typography>
         </Box>
       )}
 

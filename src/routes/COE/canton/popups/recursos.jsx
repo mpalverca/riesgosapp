@@ -169,16 +169,16 @@ export const RequireView = ({
                     </>
                   )}
 
-                  <Divider />
+                  <Divider sx={{mb:2}}/>
                   <Box sx={{ display: "flex", gap: 2 }}>
-                    <Button
+                    {/* <Button
                       fullWidth
                       variant="outlined"
                       color="warning"
                       onClick={() => console.log("eliminar archivo")}
                     >
                       PDF
-                    </Button>
+                    </Button> */}
                     <Button
                       fullWidth
                       variant="outlined"
@@ -186,7 +186,7 @@ export const RequireView = ({
                     >
                       Editar
                     </Button>
-                    <Button
+                    {/* <Button
                       fullWidth
                       variant="outlined"
                       color="error"
@@ -194,7 +194,7 @@ export const RequireView = ({
                       onClick={() => console.log("eliminar archivo")}
                     >
                       Eliminar
-                    </Button>
+                    </Button> */}
                   </Box>
                   {/* Mostrar datos de afectación si existen */}
                 </div>

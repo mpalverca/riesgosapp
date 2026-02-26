@@ -140,14 +140,14 @@ export const AccionesView = ({
                 {/* Mostrar datos de afectación si existen */}
               </Box>
               <Box sx={{ display: "flex", gap: 2 }}>
-                <Button
+              {/*   <Button
                   fullWidth
                   variant="outlined"
                   onClick={() => props.setOpenDialog(true)}
                 >
                   Registro 
-                </Button>
-                <Button
+                </Button> */}
+                {/* <Button
                   fullWidth
                   variant="outlined"
                   color="warning"
@@ -166,7 +166,7 @@ export const AccionesView = ({
                   }}
                 >
                   PDF
-                </Button>
+                </Button> */}
                 <Button
                   fullWidth
                   variant="outlined"

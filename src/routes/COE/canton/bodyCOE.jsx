@@ -28,7 +28,6 @@ function BodyCOE({ mtt, member }) {
   const reqAcciones = useGetInfo();
   const reqRequ = useGetInfo();
   const reqPol = useGetPoligonos()
-  console.log(reqRequ)
  // console.log(reqPol.dataPol)
   // 2. Cache local para persistir datos si se apaga la capa
   const [cache, setCache] = useState({

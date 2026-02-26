@@ -279,7 +279,7 @@ export const AfectacionesView = ({
                 )}
               </Box>
               <Box sx={{ display: "flex", gap: 2 }}>
-                <Button
+                {/* <Button
                   fullWidth
                   variant="outlined"
                   onClick={() => {
@@ -287,8 +287,8 @@ export const AfectacionesView = ({
                   }}
                 >
                   Registro
-                </Button>
-                <Button
+                </Button> 
+                  <Button
                   fullWidth
                   variant="outlined"
                   color="warning"
@@ -306,7 +306,7 @@ export const AfectacionesView = ({
                   }
                 >
                   PDF
-                </Button>
+                </Button> */}
                 <Button
                   fullWidth
                   variant="outlined"

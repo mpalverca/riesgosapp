@@ -21,6 +21,8 @@ import { useAfectaciones } from "../script_add";
 
 export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
 
+
+
   const getUbiString = () => {
     if (
       !coordinates ||
@@ -144,7 +146,7 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
       label: label
     };
   });
-  console.log(options)
+
   // Agregamos la opción por defecto al inicio
   return [{ value: "", label: "Seleccione" }, ...options];
 

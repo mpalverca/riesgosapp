@@ -187,7 +187,6 @@ function MapMark({
             setOpenDialog={setOpenDialog}
             openDialog={openDialog}
             setTypeInput={setTypeInput}
-            
           />
         )}
 
@@ -207,6 +206,12 @@ function MapMark({
             parseByField={parseByField}
             formatDate={formatDate}
             mtt={mtt}
+            setOpenDialog={setOpenDialog}
+            files={files}
+            openDialog={openDialog}
+            afect={afectaciones}
+            acciones={acciones}
+            recursos={requiere}
           />
         )}
         {children}
