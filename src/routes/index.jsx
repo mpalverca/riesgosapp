@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { HashRouter as Router, Route, Routes } from "react-router-dom";
 import Home from "./Home";
-import Alerts from "./alerts";
+import Alerts from "./analisis/afects/alerts";
 
 //Geojson
 import NotFoud from "./NotFoud";

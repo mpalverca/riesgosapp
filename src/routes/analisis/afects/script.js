@@ -13,39 +13,43 @@ const SUPABASE_O_KEY =
 const supabaseAfect = createClient(SUPABASE_URL, SUPABASE_KEY);
 const parroq = createClient(SUPABASE_O_URL, SUPABASE_O_KEY);
 
-export const cargarDatosafec = async () => {
+export const cargarDatosafec = async (priority, estado, afect, parroq) => {
+  console.log(priority, estado, afect, parroq);
   try {
-    const { data, error } = await supabaseAfect
+     const { data, error } = await supabaseAfect
       .from("bd_loja_1")
-      .select("id,geom,date,prioridad,event,estado,parroq,afectacion,radio");
-    /* 
-    let query = supabaseAfect
+      .select("id,geom,date,prioridad,event,estado,parroq,afectacion,radio"); 
+
+   /*    let query = supabaseAfect
       .from("bd_loja_1")
       .select("id,geom,date,prioridad,event,estado,parroq,afectacion,radio");
     
     // Aplicar filtros dinámicamente
-    if (filtros.event) {
-      query = query.eq("event", filtros.event);
+  
+    
+    if (estado) {
+      query = query.eq("estado", estado);
     }
     
-    if (filtros.estado) {
-      query = query.eq("estado", filtros.estado);
+    if (priority) {
+      query = query.eq("prioridad", priority);
     }
-    
-    if (filtros.prioridad) {
-      query = query.eq("prioridad", filtros.prioridad);
+    if (afect){
+      query = query.eq("afectacion",afect)
     }
-    
-    if (filtros.fechaInicio) {
+     if (parroq){
+      query=query.eq("parroq",parroq)
+    } 
+     if (filtros.fechaInicio) {
       query = query.gte("date", filtros.fechaInicio);
     }
     
     if (filtros.fechaFin) {
       query = query.lte("date", filtros.fechaFin);
-    }
+    } 
     
-    const { data, error } = await query;
-     */
+    const { data, error } = await query; */
+      
 
     if (error) throw error;
     return data;
@@ -299,7 +303,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     yPosition += 5;
 
     // Verificar si necesitamos nueva página para el mapa
-    checkPageBreak(120+marginBottom);
+    checkPageBreak(120 + marginBottom);
 
     // Mapa
     let imagemap = await captureMap(lat, lng, 18);

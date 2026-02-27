@@ -90,9 +90,11 @@ export default function Panel({
           onChange={handleChange}
           placeholder="Ej: -3.99313"
           variant="outlined"
-          margin="normal"
+          //margin="normal"
+          size="small"
         />
         <TextField
+          sx={{ my: 1 }}
           fullWidth
           type="number"
           name="longitud"
@@ -101,7 +103,8 @@ export default function Panel({
           onChange={handleChange}
           placeholder="Ej: -79.20422"
           variant="outlined"
-          margin="normal"
+          // margin="normal"
+          size="small"
         />
         <Button
           id="search-btn"
@@ -109,8 +112,8 @@ export default function Panel({
           type="submit"
           style={{
             background: "linear-gradient(45deg, #FF5733 20%, #FFD700 90%)",
-            marginTop: "16px",
-            padding: "10px 0",
+            mt: "10px",
+            py: 1,
           }}
           fullWidth
           size="large"
@@ -137,16 +140,10 @@ export default function Panel({
       </div>
       <Divider />
       <Typography variant="subtitle1" align="center">
-        <strong>Total de afectaciones:</strong>
+        <strong>Afectaciones Encontradas:</strong>
         {cantAfects}
       </Typography>
       <Divider />
-      <Typography variant="subtitle1" align="center">
-        <strong>Eventos criticos:</strong>
-        {radioafect.length}
-      </Typography>
-      <Divider />
-
       <FormControl fullWidth margin="normal">
         <InputLabel id="priority-label">Prioridad</InputLabel>
         <Select
@@ -155,6 +152,7 @@ export default function Panel({
           value={selectedPriority}
           label="Prioridad"
           onChange={handlePriorityChange}
+          size="small"
         >
           <MenuItem value="Alta">Alta</MenuItem>
           <MenuItem value="Media">Media</MenuItem>
@@ -162,7 +160,6 @@ export default function Panel({
           <MenuItem value="Todos">Todos</MenuItem>
         </Select>
       </FormControl>
-
       <FormControl fullWidth margin="normal">
         <InputLabel id="state-label">Estado</InputLabel>
         <Select
@@ -171,13 +168,13 @@ export default function Panel({
           value={estado}
           label="Estado"
           onChange={handleStateChange}
+          size="small"
         >
           <MenuItem value="Pendiente">Pendiente</MenuItem>
           <MenuItem value="Atendido">Atendido</MenuItem>
           <MenuItem value="Todos">Todos</MenuItem>
         </Select>
       </FormControl>
-
       <FormControl fullWidth margin="normal">
         <InputLabel id="afect-label">afectacion</InputLabel>
         <Select
@@ -186,6 +183,7 @@ export default function Panel({
           value={afect}
           label="Afectación"
           onChange={handleAfectChange}
+          size="small"
         >
           <MenuItem value="Equipamiento">Equipamiento</MenuItem>
           <MenuItem value="Vialidad">Vialidad</MenuItem>
@@ -207,6 +205,7 @@ export default function Panel({
           value={parroq}
           label="Parroquia"
           onChange={handleParroqChange}
+          size="small"
         >
           <MenuItem value="Chantaco">Chantaco</MenuItem>
           <MenuItem value="Chuquiribamba">Chuquiribamba</MenuItem>
@@ -239,6 +238,7 @@ export default function Panel({
           value={parroq}
           label="Parroquia"
           onChange={handleParroqChange}
+          size="small"
         >
           <MenuItem value="Chantaco">Obras Publicas</MenuItem>
           <MenuItem value="Chuquiribamba">UMAPAL</MenuItem>

@@ -1,16 +1,16 @@
-import React, { useEffect, useState,lazy,Suspense } from "react";
+import React, { useEffect, useState, lazy, Suspense } from "react";
 
 // import MapAfects from "./analisis/afects/afects";
 import { Grid } from "@mui/material";
 // import Panel from "./analisis/afects/panel";
-import { cargarDatosafec, cargarDatosParroquia } from "./analisis/afects/script";
+import { cargarDatosafec, cargarDatosParroquia } from "./script";
 
-const MapAfects = lazy(() => import("./analisis/afects/afects"));
-const Panel = lazy(() => import("./analisis/afects/panel"));
+const MapAfects = lazy(() => import("./afects"));
+const Panel = lazy(() => import("./panel"));
 
 export default function Alerts() {
   const [afectData, setAfectData] = useState([]);
-  const [parroquia,setParroquia]=useState([]);
+  const [parroquia, setParroquia] = useState([]);
   const [coords, setCoords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -18,22 +18,22 @@ export default function Alerts() {
   const [estado, setEstado] = useState("Todos");
   const [afect, setAfect] = useState("Todos");
   const [selectedDate, setSelectedDate] = useState(null);
-  const [parroq, setParroq]=useState("Todos")
-
+  const [parroq, setParroq] = useState("Todos");
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await cargarDatosafec();
-        const data2=await cargarDatosParroquia();
+        const data = await cargarDatosafec(priority, estado, afect, parroq);
+        const data2 = await cargarDatosParroquia();
         // Filtramos solo elementos con geometría válida
         const filteredData = data.filter(
           (item) =>
             item?.geom?.coordinates &&
             Array.isArray(item.geom.coordinates) &&
-            item.geom.coordinates.length > 0
+            item.geom.coordinates.length > 0,
         );
         setAfectData(filteredData);
-        setParroquia(data2)
+        setParroquia(data2);
       } catch (err) {
         console.error("Error al cargar datos:", err);
         setError("Error al cargar datos de afectaciones");
@@ -59,9 +59,9 @@ export default function Alerts() {
   const selFecha = (value) => {
     setSelectedDate(value);
   };
-  const selParroq=(value)=>{
-    setParroq(value)
-  }
+  const selParroq = (value) => {
+    setParroq(value);
+  };
   const extractCoordinates = (geom) => {
     if (!geom || !geom.coordinates) return null;
     try {
@@ -134,71 +134,71 @@ export default function Alerts() {
       : filteredState.filter((item) => item.afectacion === afect);
 
   const filteredByDate = selectedDate
-  ? fiterByAfect.filter((item) => {
-      const itemTime = new Date(item.date).setHours(0, 0, 0, 0);
-      const selectedTime = new Date(selectedDate).setHours(0, 0, 0, 0);
-      // Cambiar a >= para mostrar desde la fecha seleccionada hacia adelante (más recientes)
-      return itemTime >= selectedTime;
-    })
-  : fiterByAfect;
+    ? fiterByAfect.filter((item) => {
+        const itemTime = new Date(item.date).setHours(0, 0, 0, 0);
+        const selectedTime = new Date(selectedDate).setHours(0, 0, 0, 0);
+        // Cambiar a >= para mostrar desde la fecha seleccionada hacia adelante (más recientes)
+        return itemTime >= selectedTime;
+      })
+    : fiterByAfect;
 
   // Puedes colocar esta función donde la necesites
-function getRadio(afectData) {
-  return afectData
-    .filter(
-      (item) =>
-        item.prioridad=== "Alta" &&
-        item.radio > 0 &&
-        item.estado === "Pendiente"
-    )
-    .map((item) => ({
-      id: item.id,
-      nombre: item.nombre,
-      prioridad: item.prioridad,
-      radio: item.radio,
-      Estado: item.estado,
-      coords: item.geom?.coordinates || null,
-      // Agrega aquí otras propiedades que necesites
-    }));
-}
+  function getRadio(afectData) {
+    return afectData
+      .filter(
+        (item) =>
+          item.prioridad === "Alta" &&
+          item.radio > 0 &&
+          item.estado === "Pendiente",
+      )
+      .map((item) => ({
+        id: item.id,
+        nombre: item.nombre,
+        prioridad: item.prioridad,
+        radio: item.radio,
+        Estado: item.estado,
+        coords: item.geom?.coordinates || null,
+        // Agrega aquí otras propiedades que necesites
+      }));
+  }
   return (
-  <Suspense fallback={<div>Cargando...</div>}>
-  <div style={{ margin: "10px" }}>
-      <Grid container spacing={2}>
-        <Grid
-          size={{ xs: 12, md: 3 }}
-          style={{ height: "80vh", overflowY: "auto" }}
-        >
-          <Panel
-            addbar={addvar}
-            prioridad={select}
-            selectPriority={priority}
-            estado={estado}
-            setestado={state}
-            afect={afect}
-            setAfect={afectview}
-            cantAfects={filteredByDate.length}
-          radioafect={getRadio(afectData)}
-          parroq={parroq}
-          setParroq={selParroq}
-          />
+    <Suspense fallback={<div>Cargando...</div>}>
+      <div style={{ margin: "10px" }}>
+        <Grid container spacing={2}>
+          <Grid
+            size={{ xs: 12, md: 3 }}
+            style={{ height: "80vh", overflowY: "auto" }}
+          >
+            <Panel
+              addbar={addvar}
+              prioridad={select}
+              selectPriority={priority}
+              estado={estado}
+              setestado={state}
+              afect={afect}
+              setAfect={afectview}
+              cantAfects={filteredByDate.length}
+              radioafect={getRadio(afectData)}
+              parroq={parroq}
+              setParroq={selParroq}
+            />
+          </Grid>
+          <Grid size={{ xs: 12, md: 9 }}>
+            <MapAfects
+              afectData={filteredByDate}
+              parroquia={parroquia}
+              error={error}
+              loading={loading}
+              coords={coords}
+              selectedDate={selectedDate}
+              extractCoordinates={extractCoordinates}
+              setSelectedDate={selFecha}
+              minFecha={minFecha}
+              maxFecha={maxFecha}
+            />
+          </Grid>
         </Grid>
-        <Grid size={{ xs: 12, md: 9 }}>
-          <MapAfects
-            afectData={filteredByDate}
-            parroquia={parroquia}
-            error={error}
-            loading={loading}
-            coords={coords}
-            selectedDate={selectedDate}
-            extractCoordinates={extractCoordinates}
-            setSelectedDate={selFecha}
-            minFecha={minFecha}
-            maxFecha={maxFecha}
-          
-          />
-        </Grid>
-      </Grid>
-    </div></Suspense>
+      </div>
+    </Suspense>
   );
 }
