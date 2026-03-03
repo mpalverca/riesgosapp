@@ -9,10 +9,18 @@ import {
   useMapEvents,
 } from "react-leaflet";
 import L from "leaflet";
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
+} from "@mui/material";
 
 // Componente para detectar clics en el mapa y dibujar
-function DrawingHandler({ mode, onDrawComplete, color = "#3388ff",setOpenD }) {
+function DrawingHandler({ mode, onDrawComplete, color = "#3388ff", setOpenD }) {
   const [points, setPoints] = useState([]);
   /* const map = useMapEvents({
     click(e) {
@@ -123,126 +131,120 @@ const MapViewer = ({
   onClick,
   height = "800px",
 }) => {
-  const [openD,setOpenD]=useState(false)
+  const [openD, setOpenD] = useState(false);
   return (
     <Box>
       <MapContainer
-      center={center}
-      zoom={zoom}
-      style={{ height, width: "100%" }}
-      scrollWheelZoom={true}
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-
-      {/* Handler para clics normales del mapa */}
-      {onClick && <MapClickHandler onClick={onClick} />}
-
-      {/* Handler para dibujo cuando hay un modo activo */}
-      {drawingMode && onDrawComplete && (
-        <DrawingHandler
-        setOpenD={setOpenD}
-          mode={drawingMode}
-          onDrawComplete={onDrawComplete}
-          color={drawingColor}
+        center={center}
+        zoom={zoom}
+        style={{ height, width: "100%" }}
+        scrollWheelZoom={true}
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-      )}
 
-      {/* Marcadores existentes */}
-      {markers.map((marker, index) => (
-        <Marker key={`marker-${index}`} position={marker.position}>
-          <Popup>
-            <strong>{marker.title}</strong>
-            <br />
-            {marker.description}
-          </Popup>
-        </Marker>
-      ))}
+        {/* Handler para clics normales del mapa */}
+        {onClick && <MapClickHandler onClick={onClick} />}
 
-      {/* Dibujos existentes (polígonos, líneas, puntos personalizados) */}
-      {drawings.map((drawing, index) => {
-        switch (drawing.type) {
-          case "polygon":
-            return (
-              <Polygon
-                key={`drawing-${index}`}
-                positions={drawing.positions}
-                color={drawing.color || drawingColor}
-                weight={3}
-                opacity={0.7}
-                fillOpacity={0.2}
-              >
-                <Popup>
-                  <strong>Polígono</strong>
-                  <br />
-                  Puntos: {drawing.positions.length}
-                </Popup>
-              </Polygon>
-            );
+        {/* Handler para dibujo cuando hay un modo activo */}
+        {drawingMode && onDrawComplete && (
+          <DrawingHandler
+            setOpenD={setOpenD}
+            mode={drawingMode}
+            onDrawComplete={onDrawComplete}
+            color={drawingColor}
+          />
+        )}
 
-          case "line":
-            return (
-              <Polyline
-                key={`drawing-${index}`}
-                positions={drawing.positions}
-                color={drawing.color || drawingColor}
-                weight={3}
-                opacity={0.7}
-              >
-                <Popup>
-                  <strong>Línea</strong>
-                  <br />
-                  Segmentos: {drawing.positions.length - 1}
-                </Popup>
-              </Polyline>
-            );
+        {/* Marcadores existentes */}
+        {markers.map((marker, index) => (
+          <Marker key={`marker-${index}`} position={marker.position}>
+            <Popup>
+              <strong>{marker.title}</strong>
+              <br />
+              {marker.description}
+            </Popup>
+          </Marker>
+        ))}
 
-          case "point":
-            return (
-              <Marker
-                key={`drawing-${index}`}
-                position={drawing.position}
-                icon={L.divIcon({
-                  className: "custom-point",
-                  html: `<div style="background-color: ${
-                    drawing.color || drawingColor
-                  }; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>`,
-                  iconSize: [16, 16],
-                })}
-              >
-                <Popup>
-                  <strong>Punto personalizado</strong>
-                  <br />
-                  Lat: {drawing.position[0].toFixed(4)}, Lng:{" "}
-                  {drawing.position[1].toFixed(4)}
-                </Popup>
-              </Marker>
-            );
+        {/* Dibujos existentes (polígonos, líneas, puntos personalizados) */}
+        {drawings.map((drawing, index) => {
+          switch (drawing.type) {
+            case "polygon":
+              return (
+                <Polygon
+                  key={`drawing-${index}`}
+                  positions={drawing.positions}
+                  color={drawing.color || drawingColor}
+                  weight={3}
+                  opacity={0.7}
+                  fillOpacity={0.2}
+                >
+                  <Popup>
+                    <strong>Polígono</strong>
+                    <br />
+                    Puntos: {drawing.positions.length}
+                  </Popup>
+                </Polygon>
+              );
 
-          default:
-            return null;
-        }
-      })}
-    </MapContainer>
-    <Dialog
-    open={openD}
-    >
-      <DialogTitle>
-        Agrege Detalle
-      </DialogTitle>
-      <DialogContent>
-        Aquí va el formulario o contenido adicional para el detalle del dibujo.
-        <TextField
-        fullWidth
-        label="Detalle"
-        />
-      </DialogContent>
-      <DialogActions>
-      <Button onClick={()=>setOpenD(false)}>Cerrar</Button>
-      </DialogActions>
-    </Dialog>
+            case "line":
+              return (
+                <Polyline
+                  key={`drawing-${index}`}
+                  positions={drawing.positions}
+                  color={drawing.color || drawingColor}
+                  weight={3}
+                  opacity={0.7}
+                >
+                  <Popup>
+                    <strong>Línea</strong>
+                    <br />
+                    Segmentos: {drawing.positions.length - 1}
+                  </Popup>
+                </Polyline>
+              );
+
+            case "point":
+              return (
+                <Marker
+                  key={`drawing-${index}`}
+                  position={drawing.position}
+                  icon={L.divIcon({
+                    className: "custom-point",
+                    html: `<div style="background-color: ${
+                      drawing.color || drawingColor
+                    }; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>`,
+                    iconSize: [16, 16],
+                  })}
+                >
+                  <Popup>
+                    <strong>Punto personalizado</strong>
+                    <br />
+                    Lat: {drawing.position[0].toFixed(4)}, Lng:{" "}
+                    {drawing.position[1].toFixed(4)}
+                  </Popup>
+                </Marker>
+              );
+
+            default:
+              return null;
+          }
+        })}
+      </MapContainer>
+      <Dialog open={openD}>
+        <DialogTitle>Agrege Detalle</DialogTitle>
+        <DialogContent>
+          Aquí va el formulario o contenido adicional para el detalle del
+          dibujo.
+          <TextField fullWidth label="Detalle" />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenD(false)}>Cerrar</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
