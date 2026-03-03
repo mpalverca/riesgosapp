@@ -14,7 +14,7 @@ export default function Alerts() {
   const [coords, setCoords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [priority, setPriority] = useState("Todos");
+  const [prioridad, setPriority] = useState("Todos");
   const [estado, setEstado] = useState("Todos");
   const [afect, setAfect] = useState("Todos");
   const [selectedDate, setSelectedDate] = useState(null);
@@ -23,7 +23,7 @@ export default function Alerts() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await cargarDatosafec(priority, estado, afect, parroq);
+        const data = await cargarDatosafec(prioridad, estado, afect, parroq);
         const data2 = await cargarDatosParroquia();
         // Filtramos solo elementos con geometría válida
         const filteredData = data.filter(
@@ -42,12 +42,12 @@ export default function Alerts() {
       }
     };
     fetchData();
-  }, []);
+  }, [parroq,afect,estado, prioridad]);
 
   const addvar = (lat, long) => {
     setCoords([...coords, lat, long]);
   };
-  const select = (value) => {
+  const priority = (value) => {
     setPriority(value);
   };
   const state = (value) => {
@@ -117,9 +117,9 @@ export default function Alerts() {
 
   // Filtra por prioridad
   const filteredPriority =
-    priority === "Todos"
+    prioridad === "Todos"
       ? afectData
-      : afectData.filter((item) => item.prioridad === priority);
+      : afectData.filter((item) => item.prioridad === prioridad);
 
   // Filtra por estado
   const filteredState =
@@ -171,8 +171,8 @@ export default function Alerts() {
           >
             <Panel
               addbar={addvar}
-              prioridad={select}
-              selectPriority={priority}
+              prioridad={prioridad}
+              setPriority={priority}
               estado={estado}
               setestado={state}
               afect={afect}

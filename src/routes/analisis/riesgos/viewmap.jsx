@@ -713,7 +713,7 @@ export const PolylineMap = ({
         {capa[0] && renderSector()}
         {capa[1] && renderPredio()}
         {/* Renderizar geometrías principales */}
-        {loading == true ? (
+        {loading === true ? (
           <Box sx={{ display: "flex" }}>
             <CircularProgress />
           </Box>

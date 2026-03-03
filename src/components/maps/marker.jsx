@@ -30,7 +30,7 @@ export const MarkerSimple=({iconMark,position})=>{
           iconSize: [30, 30],
           iconAnchor: [15, 30],
         });
-      }, []);
+      }, [iconMark]);
 
     return  (
         <Marker

@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
-import { Typography, Divider, Box } from "@mui/material";
-import { styled } from "@mui/material/styles";
+
+import { Typography, Divider} from "@mui/material";
+//import { styled } from "@mui/material/styles";
 
 // Styled component para los items de la lista
-const AlertItem = styled(Box)(({ theme }) => ({
+/* const AlertItem = styled(Box)(({ theme }) => ({
   display: "flex",
   alignItems: "flex-start",
   marginBottom: theme.spacing(1),
@@ -11,9 +11,9 @@ const AlertItem = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.grey[50],
   borderRadius: theme.spacing(1),
   borderLeft: `4px solid ${theme.palette.primary.main}`,
-}));
+})); */
 
-const BulletPoint = styled(Box)(({ theme }) => ({
+/* const BulletPoint = styled(Box)(({ theme }) => ({
   minWidth: "24px",
   height: "24px",
   backgroundColor: theme.palette.primary.main,
@@ -26,16 +26,16 @@ const BulletPoint = styled(Box)(({ theme }) => ({
   fontWeight: "bold",
   marginRight: theme.spacing(1.5),
   marginTop: "2px",
-}));
+})); */
 
 export default function Panels({title, body, ...props}) {
  
-  const n_color = {
+/*   const n_color = {
     ALTA: "#dc3545",
     MEDIA: "#ffc107",
     BAJA: "#28a745",
     DEFAULT: "#007bff",
-  };
+  }; */
   
   // Obtener las acciones según el nivel de alerta
 

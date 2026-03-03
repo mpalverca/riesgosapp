@@ -10,12 +10,12 @@ const SUPABASE_O_KEY =
 // Colores para marcadores según prioridad
 
 
-const color_prioridad = {
+/* const color_prioridad = {
   Alta: "#dc3545",
   Media: "#ffc107",
   Baja: "#28a745",
   DEFAULT: "#007bff",
-};
+}; */
 
 const FireData = createClient(SUPABASE_O_URL, SUPABASE_O_KEY);
 

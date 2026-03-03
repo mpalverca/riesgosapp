@@ -11,8 +11,7 @@ import {
   Button,
   Tooltip,
   MenuItem,
-  useMediaQuery,
-  useTheme,
+  //useTheme,
   Avatar,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -35,7 +34,7 @@ const userSettings = [
 ];
 
 export default function ResponsiveNavBar() {
-  const theme = useTheme();
+  //const theme = useTheme();
   //const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);

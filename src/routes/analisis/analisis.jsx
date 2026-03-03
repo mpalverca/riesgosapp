@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Avatar,
   Typography,
@@ -9,7 +8,6 @@ import {
 } from "@mui/material";
 import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
 import EditNoteIcon from "@mui/icons-material/EditNote";
-import PlaylistAddCheckCircleIcon from "@mui/icons-material/PlaylistAddCheckCircle";
 import TerrainIcon from "@mui/icons-material/Terrain";
 import LocalFireDepartmentIcon from "@mui/icons-material/LocalFireDepartment";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";

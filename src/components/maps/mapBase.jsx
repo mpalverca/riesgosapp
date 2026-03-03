@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Polygon } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -31,15 +30,15 @@ const MapBase = (props) => {
               positions={leafletCoords}
               pathOptions={{
                 color:
-                  item.n_alert == "Alto"
+                  item.n_alert === "Alto"
                     ? n_color.ALTA
-                    : item.n_alert == "Medio"
+                    : item.n_alert === "Medio"
                     ? n_color.BAJA
                     : n_color.BAJA,
                 fillColor:
-                  item.n_alert == "Alto"
+                  item.n_alert === "Alto"
                     ? n_color.ALTA
-                    : item.n_alert == "Medio"
+                    : item.n_alert === "Medio"
                     ? n_color.BAJA
                     : n_color.BAJA,
                 fillOpacity: 0.2,
@@ -76,15 +75,15 @@ const MapBase = (props) => {
                 positions={polyCoords}
                 pathOptions={{
                   color:
-                    item.n_alert == "Alto"
+                    item.n_alert === "Alto"
                       ? n_color.ALTA
-                      : item.n_alert == "Medio"
+                      : item.n_alert === "Medio"
                       ? n_color.MEDIA
                       : n_color.BAJA,
                   fillColor:
-                    item.n_alert == "Alto"
+                    item.n_alert === "Alto"
                       ? n_color.ALTA
-                      : item.n_alert == "Medio"
+                      : item.n_alert === "Medio"
                       ? n_color.MEDIA
                       : n_color.BAJA,
                   fillOpacity: 0.2,

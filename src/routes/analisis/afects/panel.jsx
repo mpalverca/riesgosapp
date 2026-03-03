@@ -13,7 +13,7 @@ import {
 export default function Panel({
   addbar,
   prioridad,
-  selectedPriority,
+ setPriority,
   estado,
   setestado,
   afect,
@@ -29,7 +29,7 @@ export default function Panel({
     setForm({ ...form, [e.target.name]: e.target.value });
   };
   const handlePriorityChange = (e) => {
-    prioridad(e.target.value);
+    setPriority(e.target.value);
     // Llama la función pasada por props
   };
 
@@ -56,7 +56,7 @@ export default function Panel({
 
   return (
     <div>
-      <Typography variant="h5">
+      <Typography variant="h5" align="center" alignContent="center">
         <strong>Visor Territorial de Afectaciones</strong>
       </Typography>
       <div
@@ -149,7 +149,7 @@ export default function Panel({
         <Select
           labelId="priority-label"
           id="priority-select"
-          value={selectedPriority}
+          value={prioridad}
           label="Prioridad"
           onChange={handlePriorityChange}
           size="small"

@@ -9,7 +9,7 @@ import {
 import { Marker, Popup } from "react-leaflet";
 import { renderToString } from "react-dom/server"; // Importa renderToString
 import { divIcon } from "leaflet";
-import { generarPDFAfect } from "../pdf/script_pdf_afect";
+//import { generarPDFAfect } from "../pdf/script_pdf_afect";
 import {
   fieldsGT3,
   fieldsMTT1,

@@ -3,7 +3,6 @@ import { GeoJSON, Popup } from "react-leaflet";
 import { Box, Button, Divider, Typography } from "@mui/material";
 import { generarPDFEvent } from "../../pdf/script_pdf_event";
 import { coordForm } from "../../../../utils/Coords";
-import { geoJson } from "leaflet";
 
 export const PolEventView = ({ polygon, formatDate, mtt, files, ...props }) => {
   // Función para determinar el estilo según la alerta
@@ -51,7 +50,7 @@ export const PolEventView = ({ polygon, formatDate, mtt, files, ...props }) => {
           }
 
           if (!geoJsonData) return null;
-          if (item.estado == "Finalizado") return null;
+          if (item.estado === "Finalizado") return null;
           return (
             <GeoJSON
               key={`poly-${item.id || index}`}

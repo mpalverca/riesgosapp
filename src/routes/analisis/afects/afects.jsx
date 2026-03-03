@@ -5,7 +5,6 @@ import {
   Marker,
   Popup,
   Polygon,
-  useMapEvents
 } from "react-leaflet";
 import L from "leaflet";
 import {
@@ -16,7 +15,6 @@ import {
   Checkbox,
   FormControlLabel,
   Paper,
-  CircularProgress,
   Alert,
 } from "@mui/material";
 import { FaWater, FaMountain, FaBuilding, FaExclamationTriangle } from "react-icons/fa";
@@ -278,7 +276,7 @@ const MapAfects = ({
     // Tamaños proporcionales
     const outerCircleSize = calculatedSize;
     const middleCircleSize = calculatedSize * 0.75;
-    const innerCircleSize = calculatedSize * 0.6;
+   // const innerCircleSize = calculatedSize * 0.6;
 
     const html = renderToString(
       <div style={{
@@ -359,7 +357,7 @@ const MapAfects = ({
             <Marker
               key={`marker-${item.id || `index-${index}`}`}
               position={[coords.lat, coords.lng]}
-              icon={item.radio > 0 && priority=="Alta" && item.estado=="Pendiente" ?  getEventIconPulso(eventType, priority,item.radio):getEventIcon(eventType, priority) }
+              icon={item.radio > 0 && priority==="Alta" && item.estado==="Pendiente" ?  getEventIconPulso(eventType, priority,item.radio):getEventIcon(eventType, priority) }
               eventHandlers={{
                 click: () => handleIconClick(item.id),
               }}
@@ -438,7 +436,7 @@ const MapAfects = ({
         }
       })
       .filter(Boolean);
-  }, [afectData, selectedItem, user, formatCoords, getEventIcon, handleIconClick, extractCoordinates]);
+  }, [afectData, selectedItem, user, formatCoords, getEventIcon, handleIconClick, extractCoordinates,getEventIconPulso]);
 
   const renderPoligonos = useMemo(() => {
     if (!showLayer || loadingPoligonos) return null;

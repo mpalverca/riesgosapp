@@ -11,7 +11,7 @@ import {
   Alert
 } from "@mui/material";
 import { useRecursos } from "./script";
-import { TableRH, TablePA, TableRM } from "./tablesView";
+import { TableRH, } from "./tablesView";
 
 // Definir tablas primero para que estén disponibles
 const recursosHumanos = {

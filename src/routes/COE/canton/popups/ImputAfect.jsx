@@ -36,7 +36,7 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
   const handleClose = () => {
     onClose();
   };
-  const { loadingIAF, errorIAF, dataIAF, createIAF } = useAfectaciones();
+  const {createIAF } = useAfectaciones();
   const [fixData, setFixData] = useState({
     date_event: null,
     date_act: null,
@@ -46,7 +46,6 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
     provincia: "Loja",
     canton: "Loja_",
     parroq: "",
-    event: "",
     radio: "",
     sector: "",
     desc: "",
@@ -139,7 +138,7 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
 
     // Creamos el value: "sector+event.date" 
     // Usamos replace para quitar espacios si prefieres un value más limpio
-    const value = `${item.sector}+${item.event}.${item.date_event}`.replace(/\s+/g, '_');
+    //const value = `${item.sector}+${item.event}.${item.date_event}`.replace(/\s+/g, '_');
 
     return {
       value: item.row,

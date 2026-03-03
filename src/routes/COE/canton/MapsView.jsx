@@ -1,12 +1,5 @@
 import React, { useState, useMemo } from "react";
-import {
-  MapContainer,
-  TileLayer,
-  useMapEvents,
-  LayersControl,
-  LayerGroup,
-  FeatureGroup,
-} from "react-leaflet";
+import { LayersControl, MapContainer, TileLayer, useMapEvents, } from "react-leaflet";
 import {
   Box,
   Button,
@@ -27,6 +20,7 @@ import { AccionesView } from "./popups/acciones";
 import { RequireView } from "./popups/recursos";
 import { PolEventView } from "./popups/afectMMT/pol_event";
 import ImageUploadDialog from "./popups/inputs/inputsDialog";
+import { coordForm } from "../../utils/Coords";
 
 // Componente interno para capturar clicks
 const MapClickHandler = ({ onMapClick }) => {
@@ -64,21 +58,10 @@ function MapMark({
     return rawData
       .map((item, index) => {
         if (!item.ubi) return null;
-        let coords = null;
+       // let coords = null;
 
         try {
-          if (typeof item.ubi === "string") {
-            const cleanStr = item.ubi.replace(/[\[\]\s]/g, "");
-            const parts = cleanStr.split(",");
-            if (parts.length >= 2) {
-              const lat = parseFloat(parts[0]);
-              const lng = parseFloat(parts[1]);
-              if (!isNaN(lat) && !isNaN(lng)) coords = [lat, lng];
-            }
-          } else if (Array.isArray(item.ubi)) {
-            coords = item.ubi;
-          }
-
+          const coords=coordForm(item.ubi)
           return coords
             ? { id: item._id || index, position: coords, data: item }
             : null;

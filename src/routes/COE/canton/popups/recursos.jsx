@@ -7,7 +7,6 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { mt } from "date-fns/locale";
 import { divIcon } from "leaflet";
 import { useCallback, useState } from "react";
 import { renderToString } from "react-dom/server";
@@ -19,7 +18,7 @@ export const RequireView = ({
   formatDate,
   mtt,
 }) => {
-  const memberData = localStorage.getItem("memberD");
+ // const memberData = localStorage.getItem("memberD");
   const [formData, setFormData] = useState({
     code_req_atent: "",
     acc_impl_atent: "",

@@ -10,7 +10,7 @@ import {
   fieldsMTT6,
   fieldsMTT7,
 } from "../popups/afectMMT/Fields_afect/fiels_mtt";
-import { afectDoc } from "./afect_int";
+//import { afectDoc } from "./afect_int";
 import { parseByField } from "../../../utils/utils";
 import { coordForm } from "../../../utils/Coords";
 

@@ -108,7 +108,7 @@ const Coe = ({ role, ci, ...props }) => {
     };
     
     searchMember();
-  }, [ci]); // Dependencia solo en ci
+  }, [ci,memberData]); // Dependencia solo en ci
 
   // useEffect para actualizar cuando memberData cambia (nueva búsqueda)
   useEffect(() => {

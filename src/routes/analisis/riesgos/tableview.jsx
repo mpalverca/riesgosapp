@@ -304,8 +304,8 @@ export function ViewPredio({ data, predio }) {
 
       // 2. Procesar cada feature
       const processedData = [];
-      let featuresConInterseccion =0
-      let featuresConAreaValida = 0
+      //let featuresConInterseccion =0
+      //let featuresConAreaValida = 0
 
       data.features.forEach((feature, index) => {
         try {
@@ -356,7 +356,7 @@ export function ViewPredio({ data, predio }) {
           if (intersects === true) {
            
           }
-          featuresConInterseccion++;
+          //featuresConInterseccion++;
 
           // Calcular intersección exacta
              const intersection = turf.intersect(turf.featureCollection([featurePolygon, predioPolygon]));
@@ -368,7 +368,7 @@ export function ViewPredio({ data, predio }) {
             return;
           }
 
-          featuresConAreaValida++;
+          //featuresConAreaValida++;
 
           const properties = feature.properties || {};
          

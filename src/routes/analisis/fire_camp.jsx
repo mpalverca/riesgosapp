@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Box, Grid, Typography } from "@mui/material";
-import InfoPanel from "../../components/maps/controlPanel";
 import MapBase from "../../components/maps/mapBase";
 import {
   cargarDatosFire,

@@ -1,5 +1,5 @@
 // components/maps/mapaView.jsx
-import { MapContainer, TileLayer, LayersControl } from "react-leaflet";
+import { MapContainer, TileLayer, } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
 export default function MapMark({ position, zoom, renderPolygons, ...props }) {

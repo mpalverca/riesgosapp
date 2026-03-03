@@ -6,7 +6,6 @@ import { cargarDatosPol } from "../../../components/maps/script/script.js";
 import { Box } from "@mui/material";
 
 const MapViewer = ({ coord }) => {
-  const [map, setMap] = useState(null);
   const [polygonData, setPolygonData] = useState();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

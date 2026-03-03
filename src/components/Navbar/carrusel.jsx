@@ -15,7 +15,7 @@ const Carousel = ({
   const navigate = useNavigate();
 
   const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % slides.length);
-  const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+  //const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
   const goToSlide = (index) => setCurrentSlide(index);
 
   useEffect(() => {

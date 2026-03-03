@@ -15,7 +15,7 @@ import {
   Select,
   Divider,
 } from "@mui/material";
-import { control } from "leaflet";
+
 import { fetchData } from "./searchTramite";
 
 const GeoDataViewer = ({

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { client } from "../../utils/authkey";
 import validator from "ecuador-validator";
-import { useNavigate } from "react-router-dom";
 
 const inputStyle = {
   width: "100%",
@@ -9,7 +8,7 @@ const inputStyle = {
   margin: "8px 0",
   borderRadius: "4px",
   border: "1px solid #ddd",
-  fontSize: "16px"
+  fontSize: "16px",
 };
 
 const buttonStyle = {
@@ -17,21 +16,20 @@ const buttonStyle = {
   backgroundColor: "#FF5733",
   color: "white",
   border: "none",
-  cursor: "pointer"
+  cursor: "pointer",
 };
 
 const LoginForm = ({ switchToRegister, onLoginSuccess }) => {
   const [formData, setFormData] = useState({
     email: "",
-    password: ""
+    password: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -40,15 +38,19 @@ const LoginForm = ({ switchToRegister, onLoginSuccess }) => {
     setError(null);
 
     try {
-      const { data, error: signInError } = await client.auth.signInWithPassword({
-        email: formData.email,
-        password: formData.password
-      });
+      const { data, error: signInError } = await client.auth.signInWithPassword(
+        {
+          email: formData.email,
+          password: formData.password,
+        },
+      );
 
       if (signInError) {
         // Manejo específico de errores
         if (signInError.message.includes("Invalid login credentials")) {
-          throw new Error("Credenciales incorrectas. Verifica tu email y contraseña.");
+          throw new Error(
+            "Credenciales incorrectas. Verifica tu email y contraseña.",
+          );
         } else if (signInError.message.includes("Email not confirmed")) {
           throw new Error("Por favor verifica tu correo electrónico primero.");
         } else {
@@ -57,28 +59,33 @@ const LoginForm = ({ switchToRegister, onLoginSuccess }) => {
       }
       // Verificar si el usuario está confirmado
       if (data?.user?.confirmation_sent_at && !data?.user?.email_confirmed_at) {
-        throw new Error("Por favor verifica tu correo electrónico antes de iniciar sesión.");
+        throw new Error(
+          "Por favor verifica tu correo electrónico antes de iniciar sesión.",
+        );
       }
 
       // Obtener los datos completos del usuario
-      const { data: { user }, error: userError } = await client.auth.getUser();
-     // console.log("User data:", { user });
+      const {
+        data: { user },
+        error: userError,
+      } = await client.auth.getUser();
+      // console.log("User data:", { user });
       if (userError) throw userError;
 
       // Guardar en localStorage
       const userData = {
         id: user.id,
         email: user.email,
-        name: user.user_metadata?.name || '',
-        phone: user.user_metadata?.phone || '',
-        ci: user.user_metadata?.ci || '',
-        rol:user.user_metadata?.role || 'user'
+        name: user.user_metadata?.name || "",
+        phone: user.user_metadata?.phone || "",
+        ci: user.user_metadata?.ci || "",
+        rol: user.user_metadata?.role || "user",
       };
-      
-      localStorage.setItem('user', JSON.stringify(userData));
-      
+
+      localStorage.setItem("user", JSON.stringify(userData));
+
       onLoginSuccess();
-      
+
       // Redirigir a la URL externa
       window.location.href = "https://mpalverca.github.io/riesgosapp/";
     } catch (error) {
@@ -119,7 +126,7 @@ const LoginForm = ({ switchToRegister, onLoginSuccess }) => {
           disabled={loading}
           style={{
             ...buttonStyle,
-            backgroundColor: loading ? "#ccc" : "#FF5733"
+            backgroundColor: loading ? "#ccc" : "#FF5733",
           }}
         >
           {loading ? "Iniciando sesión..." : "Iniciar sesión"}
@@ -127,7 +134,7 @@ const LoginForm = ({ switchToRegister, onLoginSuccess }) => {
 
         <p style={{ textAlign: "center", marginTop: "15px" }}>
           ¿No tienes cuenta?{" "}
-          <button 
+          <button
             onClick={switchToRegister}
             style={{
               background: "none",
@@ -135,7 +142,7 @@ const LoginForm = ({ switchToRegister, onLoginSuccess }) => {
               color: "#FF5733",
               cursor: "pointer",
               textDecoration: "underline",
-              padding: 0
+              padding: 0,
             }}
           >
             Regístrate
@@ -153,14 +160,14 @@ const RegisterForm = ({ switchToLogin, onRegisterSuccess }) => {
     phone: "",
     password: "",
     cPassword: "",
-    name: ""
+    name: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const validateForm = () => {
@@ -183,7 +190,7 @@ const RegisterForm = ({ switchToLogin, onRegisterSuccess }) => {
     try {
       validateForm();
 
-      const { data, error: signUpError } = await client.auth.signUp({
+      const { error: signUpError } = await client.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
@@ -191,23 +198,23 @@ const RegisterForm = ({ switchToLogin, onRegisterSuccess }) => {
             name: formData.name,
             phone: formData.phone,
             ci: formData.ci,
-            role: "user"
-          }
-        }
+            role: "user",
+          },
+        },
       });
 
       if (signUpError) throw signUpError;
-      
+
       // Guardar en localStorage antes de redirigir
       const userData = {
         email: formData.email,
         name: formData.name,
         phone: formData.phone,
         ci: formData.ci,
-        role:"user"
+        role: "user",
       };
-      localStorage.setItem('user', JSON.stringify(userData));
-      
+      localStorage.setItem("user", JSON.stringify(userData));
+
       alert("¡Usuario registrado correctamente! Por favor inicia sesión.");
       onRegisterSuccess();
       switchToLogin();
@@ -286,7 +293,7 @@ const RegisterForm = ({ switchToLogin, onRegisterSuccess }) => {
           disabled={loading}
           style={{
             ...buttonStyle,
-            backgroundColor: loading ? "#ccc" : "#FF5733"
+            backgroundColor: loading ? "#ccc" : "#FF5733",
           }}
         >
           {loading ? "Registrando..." : "Registrarse"}
@@ -294,7 +301,7 @@ const RegisterForm = ({ switchToLogin, onRegisterSuccess }) => {
 
         <p style={{ textAlign: "center", marginTop: "15px" }}>
           ¿Ya tienes cuenta?{" "}
-          <button 
+          <button
             onClick={switchToLogin}
             style={{
               background: "none",
@@ -302,7 +309,7 @@ const RegisterForm = ({ switchToLogin, onRegisterSuccess }) => {
               color: "#FF5733",
               cursor: "pointer",
               textDecoration: "underline",
-              padding: 0
+              padding: 0,
             }}
           >
             Inicia sesión
@@ -318,7 +325,7 @@ const AuthPage = () => {
 
   // Verificar si ya está autenticado
   useEffect(() => {
-    const user = localStorage.getItem('user');
+    const user = localStorage.getItem("user");
     if (user) {
       window.location.href = "https://mpalverca.github.io/riesgosapp/";
     }
@@ -327,13 +334,13 @@ const AuthPage = () => {
   return (
     <div>
       {isLogin ? (
-        <LoginForm 
-          switchToRegister={() => setIsLogin(false)} 
+        <LoginForm
+          switchToRegister={() => setIsLogin(false)}
           onLoginSuccess={() => alert("¡Bienvenido de vuelta!")}
         />
       ) : (
-        <RegisterForm 
-          switchToLogin={() => setIsLogin(true)} 
+        <RegisterForm
+          switchToLogin={() => setIsLogin(true)}
           onRegisterSuccess={() => {
             // Esta función se llama después del registro exitoso
           }}

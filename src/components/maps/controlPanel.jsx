@@ -5,13 +5,7 @@ import {
   TextField,
   Button,
   Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
   Grid,
-  Container,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
@@ -37,17 +31,17 @@ const InfoPanel = ({coords,setCoords}) => {
     verticalAlign: "middle",
   }));
 
-  const RiskHigh = styled("span")(({ theme }) => ({
+  /* const RiskHigh = styled("span")(({ theme }) => ({
     color: theme.palette.error.main,
-  }));
+  })); */
 
-  const RiskMedium = styled("span")(({ theme }) => ({
+ /*  const RiskMedium = styled("span")(({ theme }) => ({
     color: theme.palette.warning.main,
-  }));
+  })); */
 
-  const RiskLow = styled("span")(({ theme }) => ({
+/*   const RiskLow = styled("span")(({ theme }) => ({
     color: theme.palette.success.main,
-  }));
+  })); */
 
   const InfoSection = styled(Paper)(({ theme }) => ({
     padding: theme.spacing(2),
@@ -55,7 +49,7 @@ const InfoPanel = ({coords,setCoords}) => {
     backgroundColor: theme.palette.background.paper,
   }));
 
-  const StyledTableCell = styled(TableCell)(({ theme }) => ({
+ /*  const StyledTableCell = styled(TableCell)(({ theme }) => ({
     "&.low": {
       backgroundColor: theme.palette.success.light,
       fontWeight: "bold",
@@ -68,7 +62,7 @@ const InfoPanel = ({coords,setCoords}) => {
       backgroundColor: theme.palette.error.light,
       fontWeight: "bold",
     },
-  }));
+  })); */
 
   return (
     <Box

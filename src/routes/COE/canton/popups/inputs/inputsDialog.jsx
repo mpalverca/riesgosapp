@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, } from 'react';
 import {
   Dialog, DialogTitle, DialogContent, DialogContentText,
   DialogActions, Button, Box, Typography, IconButton,
@@ -7,7 +7,6 @@ import {
 import {
   Delete as DeleteIcon,
   Image as ImageIcon,
-  Description as FileIcon
 } from '@mui/icons-material';
 
 import { styled } from "@mui/material/styles";

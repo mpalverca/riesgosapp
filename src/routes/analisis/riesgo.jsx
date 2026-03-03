@@ -56,7 +56,7 @@ function RiesgosPage() {
     selectedDataType === "vialidad" ? selectedParroquia : "",
     selectedDataType === "vialidad" ? selectedSector : "",
   );
-  const { claveData, claveL, claveE } = useClaveData(
+  const { claveData} = useClaveData(
     selectedParroquia,
     selectedSector,
     clave,
@@ -110,7 +110,7 @@ function RiesgosPage() {
     if (activeData.data && !activeData.loading && !isTransitioning) {
       setPreviousData(activeData);
     }
-  }, [activeData.data, activeData.loading, isTransitioning]);
+  }, [activeData.data, activeData.loading, isTransitioning,activeData]);
 
   const handleDataTypeChange = (dataType) => {
     // Iniciar transición
@@ -365,7 +365,7 @@ function RiesgosPage() {
                         title: "Información Sector",
                         body:
                           displayData.data &&
-                          (selectedDataType == "vialidad" ? (
+                          (selectedDataType === "vialidad" ? (
                             <div>Ver data from </div>
                           ) : (
                             <TableView data={displayData.data} />

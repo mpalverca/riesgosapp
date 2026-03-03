@@ -4,7 +4,6 @@ import {
   Paper,
   TextField,
   Typography,
- 
   Button,
   Divider,
   InputAdornment,
@@ -14,13 +13,7 @@ import {
   Place as PlaceIcon,
   MyLocation as MyLocationIcon,
 } from "@mui/icons-material";
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  Popup,
-  useMapEvents,
-} from "react-leaflet";
+
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import MapViewer from "./maps/ubiMap";
@@ -39,20 +32,20 @@ const InformacionGeneral = () => {
     ubicacion: "",
     barrio: "",
     parroquia: "",
-    espacio:{
-      privado:false,
-      publico:false
+    espacio: {
+      privado: false,
+      publico: false,
     },
     tipoEspacio: {
       casaComunal: false,
       viaPublica: false,
-      parque:false,
+      parque: false,
       predio: false,
       infraestructuraMovil: false,
-      comercial:false,
+      comercial: false,
       otro: false,
     },
-    comercial:"",
+    comercial: "",
     otroEspacio: "",
     coordenadas: [-4.007, -79.211], // Coordenadas de Loja, Ecuador por defecto
   });
@@ -72,7 +65,8 @@ const InformacionGeneral = () => {
         tipoEspacio: {
           ...prev.tipoEspacio,
           [name]: checked,
-        }, espacio: {
+        },
+        espacio: {
           ...prev.espacio,
           [name]: checked,
         },
@@ -84,7 +78,7 @@ const InformacionGeneral = () => {
       }));
     }
   };
- /*  const handleEspacioChange = (e) => {
+  /*  const handleEspacioChange = (e) => {
     const { name, value, type, checked } = e.target;
 
     if (type === "checkbox") {
@@ -123,9 +117,9 @@ const InformacionGeneral = () => {
         (error) => {
           console.error("Error obteniendo la ubicación:", error);
           alert(
-            "No se pudo obtener la ubicación actual. Asegúrate de permitir el acceso a la ubicación."
+            "No se pudo obtener la ubicación actual. Asegúrate de permitir el acceso a la ubicación.",
           );
-        }
+        },
       );
     } else {
       alert("La geolocalización no es compatible con este navegador.");
@@ -138,7 +132,6 @@ const InformacionGeneral = () => {
       <SpaceData formData={formData} handleInputChange={handleInputChange} />
 
       <Paper elevation={3} sx={{ p: 2, mb: 2 }}>
-       
         <Divider sx={{ mb: 3 }} />
         <Box>
           <Typography variant="h5" gutterBottom>
@@ -242,40 +235,5 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
 });
 
-// Componente para detectar clics en el mapa
-function MapClickHandler({ onClick }) {
-  useMapEvents({
-    click(e) {
-      onClick([e.latlng.lat, e.latlng.lng]);
-    },
-  });
-  return null;
-}
 
-/* const MapViewerUbi = ({ center, zoom, markers, onClick, height = "400px" }) => {
-  return (
-    <MapContainer
-      center={center}
-      zoom={zoom}
-      style={{ height, width: "100%" }}
-      scrollWheelZoom={true}
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
 
-      <MapClickHandler onClick={onClick} />
-
-      {markers.map((marker, index) => (
-        <Marker key={index} position={marker.position}>
-          <Popup>
-            <strong>{marker.title}</strong>
-            <br />
-            {marker.description}
-          </Popup>
-        </Marker>
-      ))}
-    </MapContainer>
-  );
-}; */
