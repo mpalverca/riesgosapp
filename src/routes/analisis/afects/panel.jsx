@@ -22,6 +22,8 @@ export default function Panel({
   radioafect,
   parroq,
   setParroq,
+  event,
+  setEvent
 }) {
   const [form, setForm] = useState({ latitud: "", longitud: "" });
 
@@ -35,18 +37,19 @@ export default function Panel({
 
   const handleStateChange = (e) => {
     setestado(e.target.value);
-
     // Llama la función pasada por props
   };
   const handleAfectChange = (e) => {
     setAfect(e.target.value);
-
     // Llama la función pasada por props
   };
 
   const handleParroqChange = (e) => {
     setParroq(e.target.value);
-
+    // Llama la función pasada por props
+  };
+  const handleEventChange = (e) => {
+    setEvent(e.target.value);
     // Llama la función pasada por props
   };
   const handleSubmit = (e) => {
@@ -176,6 +179,21 @@ export default function Panel({
         </Select>
       </FormControl>
       <FormControl fullWidth margin="normal">
+        <InputLabel id="event-label">Evento</InputLabel>
+        <Select
+          labelId="event-label"
+          id="event-select"
+          value={event}
+          label="Evento"
+          onChange={handleEventChange}
+          size="small"
+        >
+          <MenuItem value="Inundación">Inundación</MenuItem>
+          <MenuItem value="Movimiento en masas">Movimiento en masas</MenuItem>
+          <MenuItem value="Todos">Todos</MenuItem>
+        </Select>
+      </FormControl>
+      <FormControl fullWidth margin="normal">
         <InputLabel id="afect-label">afectacion</InputLabel>
         <Select
           labelId="afect-label"
@@ -251,6 +269,14 @@ export default function Panel({
           <MenuItem value="Taquil">Todos</MenuItem>
         </Select>
       </FormControl>
+
+    <Button
+    fullWidth
+    disabled
+    variant="contained"
+    >
+      Buscaf Afectaciones
+    </Button>
     </div>
   );
 }

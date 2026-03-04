@@ -13,42 +13,43 @@ const SUPABASE_O_KEY =
 const supabaseAfect = createClient(SUPABASE_URL, SUPABASE_KEY);
 const parroq = createClient(SUPABASE_O_URL, SUPABASE_O_KEY);
 
-export const cargarDatosafec = async (priority, estado, afect, parroq) => {
+export const cargarDatosafec = async (
+  priority,
+  estado,
+  afect,
+  parroq,
+  event,
+) => {
   console.log(priority, estado, afect, parroq);
   try {
-    const { data, error } = await supabaseAfect
+    /*  const { data, error } = await supabaseAfect
       .from("bd_loja_1")
-      .select("id,geom,date,prioridad,event,estado,parroq,afectacion,radio");
+      .select("id,geom,date,prioridad,event,estado,parroq,afectacion,radio");  */
 
-    /*    let query = supabaseAfect
+    let query = supabaseAfect
       .from("bd_loja_1")
       .select("id,geom,date,prioridad,event,estado,parroq,afectacion,radio");
-    
     // Aplicar filtros dinámicamente
-  
-    
-    if (estado) {
+
+    if (estado && estado !== "Todos") {
       query = query.eq("estado", estado);
     }
-    
-    if (priority) {
+
+    if (priority && priority !== "Todos") {
       query = query.eq("prioridad", priority);
     }
-    if (afect){
-      query = query.eq("afectacion",afect)
+    if (afect && afect !== "Todos") {
+      query = query.eq("afectacion", afect);
     }
-     if (parroq){
-      query=query.eq("parroq",parroq)
-    } 
-     if (filtros.fechaInicio) {
-      query = query.gte("date", filtros.fechaInicio);
+    if (parroq && parroq !== "Todos") {
+      query = query.eq("parroq", parroq);
     }
-    
-    if (filtros.fechaFin) {
-      query = query.lte("date", filtros.fechaFin);
-    } 
-    
-    const { data, error } = await query; */
+    if (event && event !== "Todos") {
+      query = query.eq("parroq", event);
+    }
+
+    const { data, error } = await query;
+    console.log(data);
 
     if (error) throw error;
     return data;
@@ -72,6 +73,7 @@ export const cargardatoformId = async (id) => {
     throw error;
   }
 };
+
 export const cargarDatosParroquia = async () => {
   try {
     const { data, error } = await parroq.from("parroquial").select("*");
@@ -180,7 +182,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
 
     // Configuración inicial del documento
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
+    doc.setFontSize(12);
     doc.text(
       `FICHA TÉCNICA DE RIESGOS Nro. CGR-${item.id}`,
       pageWidth / 2,
@@ -189,32 +191,33 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     );
 
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
+    doc.setFontSize(12);
     doc.text(
       `FORMATO PARA EVALUACIÓN INICIAL DE AFECTACION`,
       pageWidth / 2,
       topMargin + 5,
       { align: "center" },
     );
+
     divisoriaLine();
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
+    doc.setFontSize(12);
     doc.text(`Información Solicitante`, pageWidth / 2, yPosition, {
       align: "center",
     });
     yPosition += 5;
+
     // Datos personales
     doc.setFont("helvetica", "bold");
     doc.text("Nombre:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
-    doc.text(String(require.name || ""), leftMargin + 25, yPosition, {
-      maxWidth: 90,
-    });
+    doc.text(String(require.name || ""), leftMargin + 25, yPosition);
     doc.setFont("helvetica", "bold");
     doc.text("Cédula:", leftMargin + 90, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(String(require.ci || ""), leftMargin + 110, yPosition);
     yPosition += 5;
+
     doc.setFont("helvetica", "bold");
     doc.text("Teléfono:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
@@ -223,7 +226,8 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.text("Correo:", leftMargin + 90, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(String(require.email || ""), leftMargin + 110, yPosition);
-    yPosition += 3;
+    yPosition += 5;
+
     divisoriaLine();
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
@@ -231,6 +235,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
       align: "center",
     });
     yPosition += 5;
+
     doc.setFont("helvetica", "bold");
     doc.text("Parroquia:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
@@ -240,15 +245,17 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.setFont("helvetica", "normal");
     doc.text(String(lat.toFixed(6) || ""), leftMargin + 110, yPosition);
     yPosition += 5;
+
     doc.setFont("helvetica", "bold");
     doc.text("Sector:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
-    doc.text(String(item.sector || ""), leftMargin + 25, yPosition);
+    doc.text(String(item.sector || ""), leftMargin + 26, yPosition);
     doc.setFont("helvetica", "bold");
     doc.text("Longitud:", leftMargin + 90, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(String(lng.toFixed(6) || ""), leftMargin + 110, yPosition);
-    yPosition += 3;
+    yPosition += 5;
+
     divisoriaLine();
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
@@ -256,6 +263,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
       align: "center",
     });
     yPosition += 7;
+
     doc.setFont("helvetica", "bold");
     doc.text("Evento:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
@@ -284,7 +292,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.text("Prioridad:", leftMargin + 90, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(String(item.prioridad || ""), leftMargin + 120, yPosition);
-    yPosition += 3;
+    yPosition += 5;
 
     divisoriaLine();
     doc.setFont("helvetica", "bold");
@@ -368,20 +376,9 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
         });
         yPosition += 10;
       }
-      yPosition += 5;
+      yPosition += 7;
     }
-    doc.setFontSize(9);
-   // doc.setTextColor(150, 150, 150);
-    doc.text(
-      "Las acciones indicadas se rigen a recomendaciones y estan sujetas a la disponibilidad y equipo de cada dependencia",
-      leftMargin,
-      yPosition,
-    );
-    yPosition += 5;
-     doc.setFontSize(11);
-    doc.setFont("helvetica", "bold");
-    doc.text("Anexo Fotografico:", leftMargin, yPosition);
-    yPosition += 5;
+
     // Agregar imagen (si existe)
     async function getImageBase64(url) {
       try {
@@ -420,7 +417,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
         const spaceLeftOnPage = pageHeight - yPosition - bottomMargin;
 
         // Determinar altura óptima
-        let imageHeight = 80; // Altura por defecto
+        let imageHeight = 100; // Altura por defecto
         const minImageHeight = 50; // Altura mínima aceptable
 
         // Calcular altura máxima que cabe
@@ -441,6 +438,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
         if (requiredHeight > spaceLeftOnPage && spaceLeftOnPage < 100) {
           checkPageBreak(requiredHeight);
         }
+
         // Procesar imágenes
         const availableWidth = pageWidth - leftMargin - rightMargin;
         const spacing = 10;
@@ -487,13 +485,13 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
           yPosition = y + imageHeight + 15;
 
           // Línea separadora
-          /*  doc.line(
+          doc.line(
             leftMargin,
             yPosition - 5,
             pageWidth - rightMargin,
             yPosition - 5,
           );
-          yPosition += 5; */
+          yPosition += 5;
 
           // Nota si hay más imágenes
           if (imageUrls.length > maxImagesToShow) {
@@ -510,9 +508,9 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     }
 
     // Verificar si necesitamos nueva página para las firmas
-    // checkPageBreak(60);
+    checkPageBreak(60);
 
-    /*  // Espacio para firmas
+    // Espacio para firmas
     divisoriaLine();
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
@@ -543,22 +541,15 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.text("Firma:", leftMargin + boxWidth + 25, yPosition + 35);
 
     yPosition += boxHeight + 10;
- */
+
     // Pie de página
-    doc.setFontSize(9);
+    doc.setFontSize(10);
     doc.setTextColor(150, 150, 150);
     doc.text(
       "Reporte generado automáticamente",
       pageWidth / 2,
-      doc.internal.pageSize.getHeight() - 25,
+      doc.internal.pageSize.getHeight() - 10,
       { align: "center" },
-    );
-    doc.setFontSize(8);
-    doc.text(
-      "En base al Literal d, articulo 113 de la ordenanza 070-2025, REFORMA A LA ORDENANZA DE ACTUALIZACIÓN DE LOS PLANES: DE DESARROLLO Y ORDENAMIENTO TERRITORIAL (PDOT) 2023-2027 Y DE USO Y GESTIÓN DE SUELO (PUGS) 2023-2033 URBANO Y RURAL DEL CANTÓN LOJA ",
-      pageWidth / 2,
-      doc.internal.pageSize.getHeight() - 20,
-      { align: "center", maxWidth: 90 },
     );
 
     // Guardar el PDF

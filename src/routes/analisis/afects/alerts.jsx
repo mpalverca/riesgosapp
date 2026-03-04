@@ -16,14 +16,21 @@ export default function Alerts() {
   const [error, setError] = useState(null);
   const [prioridad, setPriority] = useState("Todos");
   const [estado, setEstado] = useState("Todos");
+  const [event, setEvent] = useState("Todos");
   const [afect, setAfect] = useState("Todos");
   const [selectedDate, setSelectedDate] = useState(null);
   const [parroq, setParroq] = useState("Todos");
-  
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await cargarDatosafec(prioridad, estado, afect, parroq);
+        const data = await cargarDatosafec(
+          prioridad,
+          estado,
+          afect,
+          parroq,
+          event,
+        );
         const data2 = await cargarDatosParroquia();
         // Filtramos solo elementos con geometría válida
         const filteredData = data.filter(
@@ -42,26 +49,14 @@ export default function Alerts() {
       }
     };
     fetchData();
-  }, [parroq,afect,estado, prioridad]);
+  }, [parroq, afect, estado, prioridad]);
 
   const addvar = (lat, long) => {
     setCoords([...coords, lat, long]);
   };
-  const priority = (value) => {
-    setPriority(value);
-  };
-  const state = (value) => {
-    setEstado(value);
-  };
-  const afectview = (value) => {
-    setAfect(value);
-  };
-  const selFecha = (value) => {
-    setSelectedDate(value);
-  };
-  const selParroq = (value) => {
-    setParroq(value);
-  };
+
+  const selFecha = (value) => {};
+
   const extractCoordinates = (geom) => {
     if (!geom || !geom.coordinates) return null;
     try {
@@ -132,7 +127,11 @@ export default function Alerts() {
     afect === "Todos"
       ? filteredState
       : filteredState.filter((item) => item.afectacion === afect);
-
+/*   const filterEvent =
+    event === "Todos"
+      ? fiterByAfect
+      : fiterByAfect.filter((item) => (item.event = event));
+console.log(event) */
   const filteredByDate = selectedDate
     ? fiterByAfect.filter((item) => {
         const itemTime = new Date(item.date).setHours(0, 0, 0, 0);
@@ -172,15 +171,17 @@ export default function Alerts() {
             <Panel
               addbar={addvar}
               prioridad={prioridad}
-              setPriority={priority}
+              setPriority={setPriority}
               estado={estado}
-              setestado={state}
+              setestado={setEstado}
               afect={afect}
-              setAfect={afectview}
+              setAfect={setAfect}
               cantAfects={filteredByDate.length}
               radioafect={getRadio(afectData)}
               parroq={parroq}
-              setParroq={selParroq}
+              setParroq={setParroq}
+              event={event}
+              setEvent={setEvent}
             />
           </Grid>
           <Grid size={{ xs: 12, md: 9 }}>
@@ -192,7 +193,7 @@ export default function Alerts() {
               coords={coords}
               selectedDate={selectedDate}
               extractCoordinates={extractCoordinates}
-              setSelectedDate={selFecha}
+              setSelectedDate={setSelectedDate}
               minFecha={minFecha}
               maxFecha={maxFecha}
             />
