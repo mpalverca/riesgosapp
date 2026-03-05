@@ -30,10 +30,9 @@ import { cargarDatosPol } from "../../../components/maps/script/script.js";
 import "leaflet/dist/leaflet.css";
 //cecium
 import * as Cesium from "cesium";
-import { Cartesian3, Math as CesiumMath,Cesium3DTileset} from "cesium";
-import { Viewer, Entity, CzmlDataSource,GeoJsonDataSource } from "resium";
+import { Cartesian3, Math as CesiumMath, Cesium3DTileset } from "cesium";
+import { Viewer, Entity, CzmlDataSource, GeoJsonDataSource } from "resium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
-
 
 // Configuración de iconos para Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -626,10 +625,16 @@ const MapAfects = ({
         textAlign="center"
         p={3}
       >
-        <Typography variant="h5" gutterBottom color="textSecondary">
-          No hay datos de afectaciones
+        <Typography variant="h5" gutterBottom>
+          Afectaciones
         </Typography>
-        <Typography variant="body1" color="textSecondary">
+        <Typography variant="body1" align="justify">
+          Es una situación, suceso o hecho que produce alteración en la Vida de
+          las personas, de la economía, los sistemas sociales y el ambiente,
+          causado por fenómenos de origen natural o provocado por los seres
+          humanos (Lit. 8, art. 5 de la LOGIRD)
+        </Typography>
+        <Typography variant="body1" align="justify" color="textSecondary">
           La búsqueda realizada no ha encontrado datos de afectaciones. Por
           favor, intente con otra fecha, prioridad o criterios de búsqueda.
         </Typography>
@@ -668,7 +673,7 @@ const MapAfects = ({
         onToggle={(e) => setShowLayer(e.target.checked)}
       />
 
-    {/*   <MapaCesium
+      {/* <MapaCesium
         puntos={renderAfectMarkers}
         poligonos={renderPoligonos}
         parroquias={renderParroquiaPolygons}
@@ -684,22 +689,24 @@ const MapAfects = ({
           url="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
           attribution="&copy; Google Maps"
         />
-        
+
         {renderAfectMarkers}
         {renderPoligonos}
         {renderParroquiaPolygons}
-        
+
         {loadingPoligonos && (
-          <div style={{
-            position: "absolute",
-            top: "10px",
-            left: "10px",
-            zIndex: 1000,
-            background: "white",
-            padding: "5px 10px",
-            borderRadius: "4px",
-            fontSize: "12px",
-          }}>
+          <div
+            style={{
+              position: "absolute",
+              top: "10px",
+              left: "10px",
+              zIndex: 1000,
+              background: "white",
+              padding: "5px 10px",
+              borderRadius: "4px",
+              fontSize: "12px",
+            }}
+          >
             Cargando polígonos...
           </div>
         )}
@@ -836,7 +843,7 @@ const MapaCesium = ({ puntos, poligonos, parroquias }) => {
     >
       {/* Cargar Photorealistic 3D Tiles de Google */}
       <Cesium3DTileset
-        url={Cesium.IonResource.fromAssetId(Cesium.Ion.defaultAccessToken )}
+        url={Cesium.IonResource.fromAssetId(Cesium.Ion.defaultAccessToken)}
         // El asset ID de Photorealistic 3D Tiles lo obtienes de Cesium ion
         onReady={(tileset) => {
           console.log("Tileset de Google 3D listo");
@@ -862,18 +869,22 @@ const MapaCesium = ({ puntos, poligonos, parroquias }) => {
       </GeoJsonDataSource>
 
       {/* Si tienes puntos (marcadores) */}
-      {puntos.map((punto, idx) => (
-        <Entity
-          key={idx}
-          position={Cartesian3.fromDegrees(punto.lng, punto.lat)}
-          point={{
-            pixelSize: 10,
-            color: Cesium.Color.YELLOW,
-            outlineColor: Cesium.Color.BLACK,
-            outlineWidth: 2,
-          }}
-        />
-      ))}
+      {puntos.map((punto, idx) => {
+        console.log(punto);
+
+        return (
+          <Entity
+            key={idx}
+            position={Cartesian3.fromDegrees(punto.lng, punto.lat)}
+            point={{
+              pixelSize: 10,
+              color: Cesium.Color.YELLOW,
+              outlineColor: Cesium.Color.BLACK,
+              outlineWidth: 2,
+            }}
+          />
+        );
+      })}
     </Viewer>
   );
 };

@@ -4,7 +4,6 @@ import React, { useEffect, useState, lazy, Suspense } from "react";
 import { Grid } from "@mui/material";
 // import Panel from "./analisis/afects/panel";
 import { cargarDatosafec, cargarDatosParroquia } from "./script";
-
 const MapAfects = lazy(() => import("./afects"));
 const Panel = lazy(() => import("./panel"));
 
@@ -20,27 +19,23 @@ export default function Alerts() {
   const [afect, setAfect] = useState("Todos");
   const [selectedDate, setSelectedDate] = useState(null);
   const [parroq, setParroq] = useState("Todos");
-
+  const handleAfect = async () => {
+    const data = await cargarDatosafec(prioridad, estado, afect, parroq, event);
+    const filteredData = data.filter(
+      (item) =>
+        item?.geom?.coordinates &&
+        Array.isArray(item.geom.coordinates) &&
+        item.geom.coordinates.length > 0,
+    );
+    setAfectData(filteredData);
+  };
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await cargarDatosafec(
-          prioridad,
-          estado,
-          afect,
-          parroq,
-          event,
-        );
-        const data2 = await cargarDatosParroquia();
+        const data = await cargarDatosParroquia();
         // Filtramos solo elementos con geometría válida
-        const filteredData = data.filter(
-          (item) =>
-            item?.geom?.coordinates &&
-            Array.isArray(item.geom.coordinates) &&
-            item.geom.coordinates.length > 0,
-        );
-        setAfectData(filteredData);
-        setParroquia(data2);
+
+        setParroquia(data);
       } catch (err) {
         console.error("Error al cargar datos:", err);
         setError("Error al cargar datos de afectaciones");
@@ -55,7 +50,7 @@ export default function Alerts() {
     setCoords([...coords, lat, long]);
   };
 
-  const selFecha = (value) => {};
+  console.log(event)
 
   const extractCoordinates = (geom) => {
     if (!geom || !geom.coordinates) return null;
@@ -101,7 +96,6 @@ export default function Alerts() {
       return null;
     }
   };
-
   const fechas = afectData.map((item) => new Date(item.date));
   const minFecha = fechas.length
     ? Math.min(...fechas.map((f) => f.getTime()))
@@ -114,7 +108,7 @@ export default function Alerts() {
   const filteredPriority =
     prioridad === "Todos"
       ? afectData
-      : afectData.filter((item) => item.prioridad === prioridad);
+      : afectData?.filter((item) => item.prioridad === prioridad);
 
   // Filtra por estado
   const filteredState =
@@ -127,19 +121,20 @@ export default function Alerts() {
     afect === "Todos"
       ? filteredState
       : filteredState.filter((item) => item.afectacion === afect);
-/*   const filterEvent =
-    event === "Todos"
-      ? fiterByAfect
-      : fiterByAfect.filter((item) => (item.event = event));
-console.log(event) */
-  const filteredByDate = selectedDate
-    ? fiterByAfect.filter((item) => {
-        const itemTime = new Date(item.date).setHours(0, 0, 0, 0);
-        const selectedTime = new Date(selectedDate).setHours(0, 0, 0, 0);
-        // Cambiar a >= para mostrar desde la fecha seleccionada hacia adelante (más recientes)
+
+// Filtro por evento
+const filteredEvent = event === "Todos"
+    ? fiterByAfect
+    : fiterByAfect.filter(item => item.event === event);
+
+// Filtro por fecha (si selectedDate existe)
+const filteredByDate = selectedDate
+    ? filteredEvent.filter((item) => {
+        const itemTime = new Date(item.date).setHours(0,0,0,0);
+        const selectedTime = new Date(selectedDate).setHours(0,0,0,0);
         return itemTime >= selectedTime;
       })
-    : fiterByAfect;
+    : filteredEvent;
 
   // Puedes colocar esta función donde la necesites
   function getRadio(afectData) {
@@ -182,6 +177,7 @@ console.log(event) */
               setParroq={setParroq}
               event={event}
               setEvent={setEvent}
+              handleAfect={handleAfect}
             />
           </Grid>
           <Grid size={{ xs: 12, md: 9 }}>

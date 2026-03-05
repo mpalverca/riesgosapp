@@ -23,7 +23,8 @@ export default function Panel({
   parroq,
   setParroq,
   event,
-  setEvent
+  setEvent,
+  handleAfect
 }) {
   const [form, setForm] = useState({ latitud: "", longitud: "" });
 
@@ -189,7 +190,7 @@ export default function Panel({
           size="small"
         >
           <MenuItem value="Inundación">Inundación</MenuItem>
-          <MenuItem value="Movimiento en masas">Movimiento en masas</MenuItem>
+          <MenuItem value="Movimiento en masa">Movimiento en masa</MenuItem>
           <MenuItem value="Todos">Todos</MenuItem>
         </Select>
       </FormControl>
@@ -258,22 +259,22 @@ export default function Panel({
           onChange={handleParroqChange}
           size="small"
         >
-          <MenuItem value="Chantaco">Obras Publicas</MenuItem>
-          <MenuItem value="Chuquiribamba">UMAPAL</MenuItem>
-          <MenuItem value="El Cisne">Ornato</MenuItem>
-          <MenuItem value="Gualel">Gestión Ambiental</MenuItem>
-          <MenuItem value="Jimbilla">Higiene</MenuItem>
-          <MenuItem value="Loja">Gestión de Riesgos</MenuItem>
-          <MenuItem value="Malacatos">CBL-Bomberos</MenuItem>
-          <MenuItem value="Taquil">Seguridad Ciudadana</MenuItem>
-          <MenuItem value="Taquil">Todos</MenuItem>
+          <MenuItem value="Obras Públicas">Obras Públicas</MenuItem>
+          <MenuItem value="Umapal">UMAPAL</MenuItem>
+          <MenuItem value="Ornato">Comisaria Ornato</MenuItem>
+          <MenuItem value="Gestión Albiental">Gestión Ambiental</MenuItem>
+          <MenuItem value="Higiene">Higiene</MenuItem>
+          <MenuItem value="Gestión de Riesgos">Gestión de Riesgos</MenuItem>
+          <MenuItem value="CBL">CBL-Bomberos</MenuItem>
+          <MenuItem value="Seguridad">Seguridad Ciudadana</MenuItem>
+          <MenuItem value="Todos">Todos</MenuItem>
         </Select>
       </FormControl>
 
     <Button
     fullWidth
-    disabled
     variant="contained"
+    onClick={handleAfect}
     >
       Buscaf Afectaciones
     </Button>

@@ -20,7 +20,6 @@ export const cargarDatosafec = async (
   parroq,
   event,
 ) => {
-  console.log(priority, estado, afect, parroq);
   try {
     /*  const { data, error } = await supabaseAfect
       .from("bd_loja_1")
@@ -34,7 +33,6 @@ export const cargarDatosafec = async (
     if (estado && estado !== "Todos") {
       query = query.eq("estado", estado);
     }
-
     if (priority && priority !== "Todos") {
       query = query.eq("prioridad", priority);
     }
@@ -44,13 +42,10 @@ export const cargarDatosafec = async (
     if (parroq && parroq !== "Todos") {
       query = query.eq("parroq", parroq);
     }
-    if (event && event !== "Todos") {
+   /*  if (event && event !== "Todos") {
       query = query.eq("parroq", event);
-    }
-
+    } */
     const { data, error } = await query;
-    console.log(data);
-
     if (error) throw error;
     return data;
   } catch (error) {
