@@ -1,11 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  Popup,
-  Polygon,
-} from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Polygon } from "react-leaflet";
 import L from "leaflet";
 import {
   Slider,
@@ -17,10 +11,15 @@ import {
   Paper,
   Alert,
 } from "@mui/material";
-import { FaWater, FaMountain, FaBuilding, FaExclamationTriangle } from "react-icons/fa";
+import {
+  FaWater,
+  FaMountain,
+  FaBuilding,
+  FaExclamationTriangle,
+} from "react-icons/fa";
 import { renderToString } from "react-dom/server";
 import { divIcon } from "leaflet";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 
 // Importaciones locales
 import imageLoad from "../../../assets/loading_map_3.gif";
@@ -29,6 +28,12 @@ import { cargarDatosPol } from "../../../components/maps/script/script.js";
 
 // Estilos CSS de Leaflet
 import "leaflet/dist/leaflet.css";
+//cecium
+import * as Cesium from "cesium";
+import { Cartesian3, Math as CesiumMath,Cesium3DTileset} from "cesium";
+import { Viewer, Entity, CzmlDataSource,GeoJsonDataSource } from "resium";
+import "cesium/Build/Cesium/Widgets/widgets.css";
+
 
 // Configuración de iconos para Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -46,6 +51,9 @@ const COLOR_PRIORIDAD = {
   Baja: "#28a745",
   DEFAULT: "#007bff",
 };
+// Configura tu token de Cesium ion
+Cesium.Ion.defaultAccessToken =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI0ODVlMmU4MC0xZmFhLTQxMmMtYTgwZS0yNGZkYzQyOWE5NDgiLCJpZCI6Mzk4MzE5LCJpYXQiOjE3NzI2NzgxNDh9.CJ5ChMExu_ggxR0ExpjZatG9mF8MbohlarQDyQsMrmE";
 
 const POLYGON_COLORS = {
   tipo1: { color: "#ffff00", fillColor: "#ffff00", fillOpacity: 0.2 },
@@ -55,9 +63,9 @@ const POLYGON_COLORS = {
 
 const EVENT_ICONS = {
   "Movimiento en masas": { icon: FaMountain, color: "#FF5733" },
-  "Inundación": { icon: FaWater, color: "Blue" },
+  Inundación: { icon: FaWater, color: "Blue" },
   "Colapso estructural": { icon: FaBuilding, color: "Blue" },
-  "default": { icon: FaExclamationTriangle, color: "#080808" },
+  default: { icon: FaExclamationTriangle, color: "#080808" },
 };
 
 // Componente para imagen expandida
@@ -230,7 +238,7 @@ const MapAfects = ({
   }, []);
 
   const formatCoords = useCallback((coord) => {
-    return typeof coord === 'number' ? coord.toFixed(6) : '0.000000';
+    return typeof coord === "number" ? coord.toFixed(6) : "0.000000";
   }, []);
 
   const getEventIcon = useCallback((eventType, priority) => {
@@ -252,7 +260,7 @@ const MapAfects = ({
     const html = renderToString(
       <div style={circleStyle}>
         <IconComponent color={eventConfig.color} size={14} />
-      </div>
+      </div>,
     );
 
     return divIcon({
@@ -270,61 +278,69 @@ const MapAfects = ({
 
     // Calcular tamaño basado en el radio
     const baseSize = 40; // Tamaño base en píxeles
-    const radioFactor = radio/25 //Math.min(Math.max(radio / 100, 1), 5); // Factor entre 1 y 5
+    const radioFactor = radio / 25; //Math.min(Math.max(radio / 100, 1), 5); // Factor entre 1 y 5
     const calculatedSize = baseSize * radioFactor;
-    
+
     // Tamaños proporcionales
     const outerCircleSize = calculatedSize;
     const middleCircleSize = calculatedSize * 0.75;
-   // const innerCircleSize = calculatedSize * 0.6;
+    // const innerCircleSize = calculatedSize * 0.6;
 
     const html = renderToString(
-      <div style={{
-        position: 'relative',
-        width: `${outerCircleSize}px`,
-        height: `${outerCircleSize}px`,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        {/* Círculos concéntricos animados - tamaño basado en radio */}
-        <div style={{
-          position: 'absolute',
+      <div
+        style={{
+          position: "relative",
           width: `${outerCircleSize}px`,
           height: `${outerCircleSize}px`,
-          borderRadius: '50%',
-          backgroundColor: color,
-          opacity: 0.3,
-          animation: 'pulse 2s infinite',
-        }} />
-        
-        <div style={{
-          position: 'absolute',
-          width: `${middleCircleSize}px`,
-          height: `${middleCircleSize}px`,
-          borderRadius: '50%',
-          backgroundColor: color,
-          opacity: 0.5,
-          animation: 'pulse 2s infinite',
-          animationDelay: '0.5s',
-        }} />
-        
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        {/* Círculos concéntricos animados - tamaño basado en radio */}
+        <div
+          style={{
+            position: "absolute",
+            width: `${outerCircleSize}px`,
+            height: `${outerCircleSize}px`,
+            borderRadius: "50%",
+            backgroundColor: color,
+            opacity: 0.3,
+            animation: "pulse 2s infinite",
+          }}
+        />
+
+        <div
+          style={{
+            position: "absolute",
+            width: `${middleCircleSize}px`,
+            height: `${middleCircleSize}px`,
+            borderRadius: "50%",
+            backgroundColor: color,
+            opacity: 0.5,
+            animation: "pulse 2s infinite",
+            animationDelay: "0.5s",
+          }}
+        />
+
         {/* Círculo central con icono */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: color,
-          borderRadius: '50%',
-          width: `24px`,
-          height: `24px`,
-          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-          zIndex: 10,
-          position: 'relative',
-        }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: color,
+            borderRadius: "50%",
+            width: `24px`,
+            height: `24px`,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+            zIndex: 10,
+            position: "relative",
+          }}
+        >
           <IconComponent color="white" size={12} />
         </div>
-      </div>
+      </div>,
     );
 
     return divIcon({
@@ -345,19 +361,29 @@ const MapAfects = ({
           }
 
           const coords = extractCoordinates?.(item.geom);
-          if (!coords || typeof coords.lat !== 'number' || typeof coords.lng !== 'number') {
+          if (
+            !coords ||
+            typeof coords.lat !== "number" ||
+            typeof coords.lng !== "number"
+          ) {
             console.warn("Coordenadas inválidas para el item:", item);
             return null;
           }
 
           const eventType = item.event || "default";
           const priority = item.prioridad || "DEFAULT";
-      
+
           return (
             <Marker
               key={`marker-${item.id || `index-${index}`}`}
               position={[coords.lat, coords.lng]}
-              icon={item.radio > 0 && priority==="Alta" && item.estado==="Pendiente" ?  getEventIconPulso(eventType, priority,item.radio):getEventIcon(eventType, priority) }
+              icon={
+                item.radio > 0 &&
+                priority === "Alta" &&
+                item.estado === "Pendiente"
+                  ? getEventIconPulso(eventType, priority, item.radio)
+                  : getEventIcon(eventType, priority)
+              }
               eventHandlers={{
                 click: () => handleIconClick(item.id),
               }}
@@ -366,7 +392,7 @@ const MapAfects = ({
                 <Popup>
                   <div>
                     <h4>{`${item.id} - ${eventType}`}</h4>
-                    
+
                     {selectedItem.anex_foto && (
                       <div style={{ marginTop: "10px" }}>
                         <img
@@ -381,42 +407,69 @@ const MapAfects = ({
                             border: "1px solid #ddd",
                             cursor: "pointer",
                           }}
-                          onClick={() => setExpandedImage(selectedItem.anex_foto)}
+                          onClick={() =>
+                            setExpandedImage(selectedItem.anex_foto)
+                          }
                         />
-                        <p style={{ fontSize: "0.8em", color: "#666", textAlign: "center" }}>
+                        <p
+                          style={{
+                            fontSize: "0.8em",
+                            color: "#666",
+                            textAlign: "center",
+                          }}
+                        >
                           Haz clic para ampliar
                         </p>
                       </div>
                     )}
 
-                    <p><strong>Fecha:</strong> {selectedItem.date || "No disponible"}</p>
-                    <p><strong>Sector:</strong> {selectedItem.sector || "No disponible"}</p>
                     <p>
-                      <strong>Ubicación:</strong> {formatCoords(coords.lat)}, {formatCoords(coords.lng)}
+                      <strong>Fecha:</strong>{" "}
+                      {selectedItem.date || "No disponible"}
+                    </p>
+                    <p>
+                      <strong>Sector:</strong>{" "}
+                      {selectedItem.sector || "No disponible"}
+                    </p>
+                    <p>
+                      <strong>Ubicación:</strong> {formatCoords(coords.lat)},{" "}
+                      {formatCoords(coords.lng)}
                     </p>
                     <p>
                       <strong>Prioridad:</strong>
-                      <span style={{ color: COLOR_PRIORIDAD[priority] || COLOR_PRIORIDAD.DEFAULT }}>
-                        {" "}{priority}
+                      <span
+                        style={{
+                          color:
+                            COLOR_PRIORIDAD[priority] ||
+                            COLOR_PRIORIDAD.DEFAULT,
+                        }}
+                      >
+                        {" "}
+                        {priority}
                       </span>
                     </p>
-                    
+
                     {selectedItem.descripcio && (
-                      <p><strong>Descripción:</strong> {selectedItem.descripcio}</p>
+                      <p>
+                        <strong>Descripción:</strong> {selectedItem.descripcio}
+                      </p>
                     )}
 
                     {user && (
                       <Button
-                        onClick={() => generarPDF(
-                          selectedItem.event,
-                          coords.lat,
-                          coords.lng,
-                          selectedItem,
-                          user
-                        )}
+                        onClick={() =>
+                          generarPDF(
+                            selectedItem.event,
+                            coords.lat,
+                            coords.lng,
+                            selectedItem,
+                            user,
+                          )
+                        }
                         fullWidth
                         sx={{
-                          background: "linear-gradient(45deg, #FF5733 20%, #FFD700 90%)",
+                          background:
+                            "linear-gradient(45deg, #FF5733 20%, #FFD700 90%)",
                           marginTop: "16px",
                           fontWeight: "bold",
                         }}
@@ -436,71 +489,88 @@ const MapAfects = ({
         }
       })
       .filter(Boolean);
-  }, [afectData, selectedItem, user, formatCoords, getEventIcon, handleIconClick, extractCoordinates,getEventIconPulso]);
+  }, [
+    afectData,
+    selectedItem,
+    user,
+    formatCoords,
+    getEventIcon,
+    handleIconClick,
+    extractCoordinates,
+    getEventIconPulso,
+  ]);
 
   const renderPoligonos = useMemo(() => {
     if (!showLayer || loadingPoligonos) return null;
 
-    return poligonosData.flatMap((item, index) => {
-      try {
-        if (!item?.geom?.coordinates) return null;
+    return poligonosData
+      .flatMap((item, index) => {
+        try {
+          if (!item?.geom?.coordinates) return null;
 
-        return item.geom.coordinates.map((polygon, polyIndex) => {
-          const polyCoords = polygon[0].map(coord => [coord[1], coord[0]]);
-          const colors = item.tipo === 1 ? POLYGON_COLORS.tipo1 : POLYGON_COLORS.tipo2;
+          return item.geom.coordinates.map((polygon, polyIndex) => {
+            const polyCoords = polygon[0].map((coord) => [coord[1], coord[0]]);
+            const colors =
+              item.tipo === 1 ? POLYGON_COLORS.tipo1 : POLYGON_COLORS.tipo2;
+
+            return (
+              <Polygon
+                key={`poligono-${item.id}-${index}-${polyIndex}`}
+                positions={polyCoords}
+                pathOptions={{
+                  color: colors.color,
+                  fillColor: colors.fillColor,
+                  fillOpacity: colors.fillOpacity,
+                  weight: 2,
+                }}
+              >
+                <Popup>
+                  <div>
+                    <h4>Polígono {item.id}</h4>
+                    <p>
+                      <strong>Descripción:</strong>{" "}
+                      {item.Descripcio || "Sin descripción"}
+                    </p>
+                  </div>
+                </Popup>
+              </Polygon>
+            );
+          });
+        } catch (error) {
+          console.error("Error al renderizar polígono:", item, error);
+          return null;
+        }
+      })
+      .filter(Boolean);
+  }, [poligonosData, showLayer, loadingPoligonos]);
+
+  const renderParroquiaPolygons = useMemo(() => {
+    return parroquia
+      .flatMap((item, index) => {
+        if (!item?.geom || item.geom.type !== "MultiPolygon") return null;
+
+        return item.geom.coordinates.map((poly, polyIdx) => {
+          const polyCoords = poly[0].map((coord) => [coord[1], coord[0]]);
 
           return (
             <Polygon
-              key={`poligono-${item.id}-${index}-${polyIndex}`}
+              key={`parroquia-${item.id || index}-${polyIdx}`}
               positions={polyCoords}
               pathOptions={{
-                color: colors.color,
-                fillColor: colors.fillColor,
-                fillOpacity: colors.fillOpacity,
+                color: POLYGON_COLORS.parroquia.color,
+                fillColor: POLYGON_COLORS.parroquia.fillColor,
+                fillOpacity: POLYGON_COLORS.parroquia.fillOpacity,
                 weight: 2,
               }}
             >
               <Popup>
-                <div>
-                  <h4>Polígono {item.id}</h4>
-                  <p><strong>Descripción:</strong> {item.Descripcio || "Sin descripción"}</p>
-                </div>
+                <strong>Parroquia:</strong> {item.DPA_DESPAR || "Sin nombre"}
               </Popup>
             </Polygon>
           );
         });
-      } catch (error) {
-        console.error("Error al renderizar polígono:", item, error);
-        return null;
-      }
-    }).filter(Boolean);
-  }, [poligonosData, showLayer, loadingPoligonos]);
-
-  const renderParroquiaPolygons = useMemo(() => {
-    return parroquia.flatMap((item, index) => {
-      if (!item?.geom || item.geom.type !== "MultiPolygon") return null;
-
-      return item.geom.coordinates.map((poly, polyIdx) => {
-        const polyCoords = poly[0].map(coord => [coord[1], coord[0]]);
-        
-        return (
-          <Polygon
-            key={`parroquia-${item.id || index}-${polyIdx}`}
-            positions={polyCoords}
-            pathOptions={{
-              color: POLYGON_COLORS.parroquia.color,
-              fillColor: POLYGON_COLORS.parroquia.fillColor,
-              fillOpacity: POLYGON_COLORS.parroquia.fillOpacity,
-              weight: 2,
-            }}
-          >
-            <Popup>
-              <strong>Parroquia:</strong> {item.DPA_DESPAR || "Sin nombre"}
-            </Popup>
-          </Polygon>
-        );
-      });
-    }).filter(Boolean);
+      })
+      .filter(Boolean);
   }, [parroquia]);
 
   // Calcular posición del mapa
@@ -525,9 +595,9 @@ const MapAfects = ({
         alignItems="center"
         minHeight="60vh"
       >
-        <img 
-          src={imageLoad} 
-          alt="Cargando mapa..." 
+        <img
+          src={imageLoad}
+          alt="Cargando mapa..."
           //style={{ maxWidth: "200px" }}
         />
         <Typography variant="body1" sx={{ mt: 2 }}>
@@ -560,8 +630,8 @@ const MapAfects = ({
           No hay datos de afectaciones
         </Typography>
         <Typography variant="body1" color="textSecondary">
-          La búsqueda realizada no ha encontrado datos de afectaciones.
-          Por favor, intente con otra fecha, prioridad o criterios de búsqueda.
+          La búsqueda realizada no ha encontrado datos de afectaciones. Por
+          favor, intente con otra fecha, prioridad o criterios de búsqueda.
         </Typography>
       </Box>
     );
@@ -593,10 +663,16 @@ const MapAfects = ({
         `}
       </style>
 
-      <LayerControl 
-        showLayer={showLayer} 
-        onToggle={(e) => setShowLayer(e.target.checked)} 
+      <LayerControl
+        showLayer={showLayer}
+        onToggle={(e) => setShowLayer(e.target.checked)}
       />
+
+    {/*   <MapaCesium
+        puntos={renderAfectMarkers}
+        poligonos={renderPoligonos}
+        parroquias={renderParroquiaPolygons}
+      /> */}
 
       <MapContainer
         center={mapCenter}
@@ -630,9 +706,9 @@ const MapAfects = ({
       </MapContainer>
 
       {expandedImage && (
-        <ExpandedImageModal 
-          src={expandedImage} 
-          onClose={() => setExpandedImage(null)} 
+        <ExpandedImageModal
+          src={expandedImage}
+          onClose={() => setExpandedImage(null)}
         />
       )}
 
@@ -655,11 +731,11 @@ const MapAfects = ({
             sx={{
               color: "orange",
               height: 8,
-              '& .MuiSlider-thumb': {
+              "& .MuiSlider-thumb": {
                 backgroundColor: "#fff",
                 border: "2px solid orange",
               },
-              '& .MuiSlider-valueLabel': {
+              "& .MuiSlider-valueLabel": {
                 backgroundColor: "orange",
                 color: "#fff",
                 borderRadius: "4px",
@@ -699,23 +775,29 @@ const MapAfects = ({
 
 // PropTypes para validación de props
 MapAfects.propTypes = {
-  afectData: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    geom: PropTypes.string,
-    event: PropTypes.string,
-    prioridad: PropTypes.string,
-  })),
-  parroquia: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    geom: PropTypes.shape({
-      type: PropTypes.string,
-      coordinates: PropTypes.array,
+  afectData: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      geom: PropTypes.string,
+      event: PropTypes.string,
+      prioridad: PropTypes.string,
     }),
-    DPA_DESPAR: PropTypes.string,
-  })),
+  ),
+  parroquia: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      geom: PropTypes.shape({
+        type: PropTypes.string,
+        coordinates: PropTypes.array,
+      }),
+      DPA_DESPAR: PropTypes.string,
+    }),
+  ),
   loading: PropTypes.bool,
   error: PropTypes.string,
-  coords: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number])),
+  coords: PropTypes.arrayOf(
+    PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  ),
   extractCoordinates: PropTypes.func.isRequired,
   selectedDate: PropTypes.number,
   setSelectedDate: PropTypes.func,
@@ -735,6 +817,65 @@ MapAfects.defaultProps = {
   minFecha: null,
   maxFecha: null,
   radioAfect: 1000,
+};
+
+const MapaCesium = ({ puntos, poligonos, parroquias }) => {
+  // Función para cargar datos GeoJSON (tus polígonos)
+  const handleDataSource = (dataSource) => {
+    // Aquí puedes acceder y personalizar los datos cargados
+    console.log("Datos cargados:", dataSource.entities.values);
+  };
+
+  return (
+    <Viewer
+      style={{ height: "75vh", width: "100%" }}
+      timeline={false}
+      animation={false}
+      baseLayer={false} // Desactivamos la capa base por defecto
+      full
+    >
+      {/* Cargar Photorealistic 3D Tiles de Google */}
+      <Cesium3DTileset
+        url={Cesium.IonResource.fromAssetId(Cesium.Ion.defaultAccessToken )}
+        // El asset ID de Photorealistic 3D Tiles lo obtienes de Cesium ion
+        onReady={(tileset) => {
+          console.log("Tileset de Google 3D listo");
+        }}
+      />
+
+      {/* Si tus datos vienen como GeoJSON (polígonos) */}
+      <GeoJsonDataSource
+        data={poligonos}
+        onLoad={handleDataSource}
+        clampToGround={true}
+      >
+        {(dataSource) => (
+          // Personalizar estilo de los polígonos
+          <Entity
+            polygon={{
+              material: Cesium.Color.fromCssColorString("rgba(255,0,0,0.5)"),
+              outline: true,
+              outlineColor: Cesium.Color.RED,
+            }}
+          />
+        )}
+      </GeoJsonDataSource>
+
+      {/* Si tienes puntos (marcadores) */}
+      {puntos.map((punto, idx) => (
+        <Entity
+          key={idx}
+          position={Cartesian3.fromDegrees(punto.lng, punto.lat)}
+          point={{
+            pixelSize: 10,
+            color: Cesium.Color.YELLOW,
+            outlineColor: Cesium.Color.BLACK,
+            outlineWidth: 2,
+          }}
+        />
+      ))}
+    </Viewer>
+  );
 };
 
 export default React.memo(MapAfects);
