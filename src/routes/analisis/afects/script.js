@@ -542,21 +542,21 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     yPosition += boxHeight + 10;
  */
     // Pie de página
-    doc.setFontSize(9);
+    doc.setFontSize(10);
     doc.setTextColor(150, 150, 150);
     doc.text(
       "Reporte generado automáticamente",
       pageWidth / 2,
-      doc.internal.pageSize.getHeight() - 25,
+      doc.internal.pageSize.getHeight() - 15,
       { align: "center" },
     );
-    doc.setFontSize(8);
+    /* doc.setFontSize(8);
     doc.text(
       "En base al Literal d, artículo 113 de la ordenanza 070-2025, REFORMA A LA ORDENANZA DE ACTUALIZACIÓN DE LOS PLANES: DE DESARROLLO Y ORDENAMIENTO TERRITORIAL (PDOT) 2023-2027 Y DE USO Y GESTIÓN DE SUELO (PUGS) 2023-2033 URBANO Y RURAL DEL CANTÓN LOJA ",
       pageWidth / 2,
       doc.internal.pageSize.getHeight() - 20,
       { align: "center", maxWidth: 90 },
-    );
+    ); */
 
     // Guardar el PDF
     doc.save(
