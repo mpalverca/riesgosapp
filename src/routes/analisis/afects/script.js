@@ -370,7 +370,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.setFontSize(9);
    // doc.setTextColor(150, 150, 150);
     doc.text(
-      "Las acciones indicadas se rigen a recomendaciones y estan sujetas a la disponibilidad y equipo de cada dependencia",
+      "Las acciones indicadas son de carácter recomendativo y su realización estará sujeta a la disponibilidad de recursos y equipos de las instancias competentes.",
       leftMargin,
       yPosition,
     );
@@ -552,7 +552,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     );
     doc.setFontSize(8);
     doc.text(
-      "En base al Literal d, articulo 113 de la ordenanza 070-2025, REFORMA A LA ORDENANZA DE ACTUALIZACIÓN DE LOS PLANES: DE DESARROLLO Y ORDENAMIENTO TERRITORIAL (PDOT) 2023-2027 Y DE USO Y GESTIÓN DE SUELO (PUGS) 2023-2033 URBANO Y RURAL DEL CANTÓN LOJA ",
+      "En base al Literal d, artículo 113 de la ordenanza 070-2025, REFORMA A LA ORDENANZA DE ACTUALIZACIÓN DE LOS PLANES: DE DESARROLLO Y ORDENAMIENTO TERRITORIAL (PDOT) 2023-2027 Y DE USO Y GESTIÓN DE SUELO (PUGS) 2023-2033 URBANO Y RURAL DEL CANTÓN LOJA ",
       pageWidth / 2,
       doc.internal.pageSize.getHeight() - 20,
       { align: "center", maxWidth: 90 },
