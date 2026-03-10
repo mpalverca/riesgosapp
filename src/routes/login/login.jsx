@@ -87,7 +87,8 @@ const LoginForm = ({ switchToRegister, onLoginSuccess }) => {
       onLoginSuccess();
 
       // Redirigir a la URL externa
-      window.location.href = "https://mpalverca.github.io/riesgosapp/";
+      //window.location.href = "https://mpalverca.github.io/riesgosapp/";
+      window.location.href = "https://riesgosapp.vercel.app/";
     } catch (error) {
       setError(error.message);
       console.error("Error de autenticación:", error);

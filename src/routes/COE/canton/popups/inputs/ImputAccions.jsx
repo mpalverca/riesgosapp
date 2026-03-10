@@ -21,8 +21,6 @@ import { useAfectaciones } from "../script_add";
 
 export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
 
-
-
   const getUbiString = () => {
     if (
       !coordinates ||
@@ -38,7 +36,7 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
   };
   const {createIAF } = useAfectaciones();
   const [fixData, setFixData] = useState({
-    date_event: null,
+  
     date_act: null,
     by: props.member,
     event: null,
@@ -50,52 +48,12 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
     sector: "",
     desc: "",
   });
-  const [formData4, setFormData4] = useState({
-    perm_dam: null,
-    fam_damn: null,
-    perf_afect: null,
-    fam_afect: null,
-    per_ind: null,
-    fam_ind: null,
-    perd_desp: null,
-    fam_despl: null,
-    alb_afect: null,
-    camp_afect: null,
-    per_fam: null,
-    fam_fam: null,
-    per_cam: null,
-    fam_camp: null,
-    per_ref: null,
-    fam_ref: null,
-    per_emerg: null,
-    fami_emerg: null,
-  });
+
   // Verificar coordenadas antes de usarlas
-
-  const getMMData = (mttValue) => {
-    switch (mttValue) {
-      case "MTT1":
-        return <MTT1Afect />;
-      case "MTT2":
-        return "blue";
-      case "MTT3":
-        return "green";
-      case "MTT4":
-        return <MTT4Afect setFormData={setFormData4} formData={formData4} />;
-      case "MTT5":
-        return "purple";
-      default:
-        return "cargndo información";
-    }
-  };
-
-  const CurrentMTT = getMMData(mtt);
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFixData((prev) => ({ ...prev, [name]: value }));
   };
-
   const renderField = (
     name,
     label,
@@ -124,9 +82,7 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
         ))}
     </TextField>
   );
-
   const transformDataToOptions = (rawData) => {
-    
   // Verificamos que sea un array válido
   if (!rawData || !Array.isArray(rawData)) {
     return [{ value: "", label: "Seleccione" }];
@@ -155,7 +111,7 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
     <>
       <Dialog onClose={handleClose} open={open}>
         <DialogTitle>
-          Ingrese Afectaciones en la Mesa técnica de trabajo/Grupo de Trabajo -{" "}
+          Ingrese Acciones en la Mesa técnica de trabajo/Grupo de Trabajo -{" "}
           {mtt}
         </DialogTitle>
         <DialogContent>
@@ -177,19 +133,7 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
                   <Grid item size={{ xs: 12, sm: 12 }}>
                     {renderField("evento", "Evento", "select", transformDataToOptions(props.dataPol))}
                   </Grid>
-                  {/* <Grid item size={{ xs: 12, sm: 6 }}>
-                    <DatePicker
-                      format="dd/MM/yyyy"
-                      label="Fecha del Evento"
-                      value={fixData.date_event}
-                      onChange={(value) =>
-                        setFixData((prev) => ({ ...prev, date_event: value }))
-                      }
-                      slotProps={{
-                        textField: { fullWidth: true, required: true },
-                      }}
-                    />
-                  </Grid> */}
+                 
                   <Grid item size={{ xs: 12, sm: 6 }}>
                     <DatePicker
                       label="Fecha de Actuación"
@@ -204,51 +148,7 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
                     />
                   </Grid>
                   
-                 {/*  <Grid item size={{ xs: 12, sm: 6 }}>
-                    {renderField("parroq", "Parroquia", "select", [
-                      { value: "carigan", label: "Carigan" },
-                      { value: "el_sagrario", label: "El Sagrario" },
-                      { value: "el_valle", label: "El Valle" },
-                      { value: "punzara", label: "Punzara" },
-                      { value: "san_sebastian", label: "San Sebastián" },
-                      { value: "sucre", label: "Sucre" },
-                      { value: "chantaco", label: "Chantaco" },
-                      { value: " chuquiribamba,", label: " Chuquiribamba" },
-                      { value: "el_cisne", label: "El Cisne" },
-                      { value: "gualel", label: "Gualel" },
-                      { value: "jimbilla", label: "Jimbilla" },
-                      { value: "malacatos", label: "Malacatos" },
-                      { value: "quinara", label: "Quinara" },
-                      { value: "san_lucas", label: "San Lucas" },
-                      {
-                        value: "san_pedro_de_vilcabamba",
-                        label: "San Pedro de Vilcabamba",
-                      },
-                      { value: "santiago", label: "Santiago" },
-                      { value: "taquil", label: "Taquil" },
-                      { value: "vilcabamba", label: "Vilcabamba" },
-                      { value: "yangana", label: "Yangana" },
-                    ])}
-                  </Grid> */}
-                  
-                  {/* <Grid item size={{ xs: 12, sm: 6 }}>
-                    {renderField("sector", "Sector")}
-                  </Grid>
-                  <Grid item size={{ xs: 12, sm: 6 }}>
-                    {renderField("event", "Tipo de Evento", "select", [
-                      { value: "", label: "Seleccione" },
-                      { value: "deslizamiento", label: "Movimiento en masa" },
-                      { value: "colapso", label: "Colapso Estructural" },
-                      { value: "granizada", label: "Granizada" },
-                      { value: "helada", label: "Helada" },
-                      { value: "hundimiento", label: "Hundimiento" },
-                      { value: "inundacion", label: "Inundación" },
-                      { value: "socavamiento", label: "Socavamiento" },
-                      { value: "subsidencia", label: "Subsidencia" },
-                      { value: "tormenta", label: "Tormenta Eléctrica" },
-                      { value: "vendaval,", label: "Vendaval" },
-                    ])}
-                  </Grid> */}
+               
                   <Grid item size={{ xs: 12, sm: 6 }}>
                     {renderField("radio", "Radio (m)", "number")}
                   </Grid>
@@ -259,7 +159,6 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
               </Box>
             </LocalizationProvider>
           </Paper>
-          {CurrentMTT}
         </DialogContent>
         <DialogActions>
           <Button
@@ -275,14 +174,6 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
           </Button>
         </DialogActions>
       </Dialog>
-    </>
-  );
-};
-
-const MTT1Afect = () => {
-  return (
-    <>
-      <TextField></TextField>
     </>
   );
 };

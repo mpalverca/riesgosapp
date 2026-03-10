@@ -95,8 +95,8 @@ const GeoDataViewer = ({
       <Typography variant="h4" component="h2" gutterBottom>
         Análisis de Riesgos
       </Typography>
-      <Divider/>
-      <Typography variant="h6" component="h2" gutterBottom>
+      <Divider />
+      <Typography variant="subtitle1" component="h2" gutterBottom>
         Ingrese número de trámite para realizar consulta
       </Typography>
       <TextField
@@ -113,7 +113,8 @@ const GeoDataViewer = ({
       <Button
         type="submit"
         variant="contained"
-        color="primary"
+        sx={{ color: "" }}
+        //color="primary"
         // disabled={!parroquia && !sector && !clave && !tramite}
         size="large"
         fullWidth
@@ -124,7 +125,7 @@ const GeoDataViewer = ({
             setParroquia,
             setSector,
             setClave,
-            setLoading
+            setLoading,
           )
         }
       >
@@ -230,7 +231,7 @@ const GeoDataViewer = ({
           >
             realizar análisis
           </Button>
-<Divider/>
+          <Divider />
           <FormControl>
             <Typography align="center">
               <strong> Capas de control</strong>
@@ -259,11 +260,18 @@ const GeoDataViewer = ({
               //value={controlCheck[1]}
             />
           </FormControl>
-          <Divider/>
+          <Divider />
           <FormControl>
             <Typography align="center">
               <strong> Capas de Análisis</strong>
             </Typography>
+            <FormControlLabel
+              control={
+                <Checkbox checked={checked[0]} onChange={handleChange2} />
+              }
+              label={`Sector ${sector}`}
+            />
+            
             <RadioGroup
               value={selectedDataType}
               onChange={handleDataTypeChange}

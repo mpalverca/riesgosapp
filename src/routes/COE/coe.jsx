@@ -41,24 +41,24 @@ const Coe = ({ role, ci, ...props }) => {
   const memberData = useSearchMembers();
   const [member, setMember] = useState(null);
   const [apoyo, setApoyo] = useState(null);
-  
+
   // useEffect para cargar desde localStorage al inicio
   useEffect(() => {
     const loadFromStorage = () => {
       try {
         const storedMember = localStorage.getItem("memberD");
         const storedApoyo = localStorage.getItem("apoyoD");
-        
+
         if (storedMember) {
           const parsedMember = JSON.parse(storedMember);
           setMember(parsedMember);
-         // console.log("Miembro cargado desde localStorage:", parsedMember);
+          // console.log("Miembro cargado desde localStorage:", parsedMember);
         }
-        
+
         if (storedApoyo) {
           const parsedApoyo = JSON.parse(storedApoyo);
           setApoyo(parsedApoyo);
-        //  console.log("Apoyo cargado desde localStorage:", parsedApoyo);
+          //  console.log("Apoyo cargado desde localStorage:", parsedApoyo);
         }
       } catch (error) {
         console.error("Error parsing localStorage data:", error);
@@ -67,7 +67,7 @@ const Coe = ({ role, ci, ...props }) => {
         localStorage.removeItem("apoyoD");
       }
     };
-    
+
     loadFromStorage();
   }, []); // Solo al montar el componente
 
@@ -75,19 +75,19 @@ const Coe = ({ role, ci, ...props }) => {
   useEffect(() => {
     const searchMember = async () => {
       if (!ci || ci.trim() === "") return;
-      
+
       // Verificar si ya tenemos el miembro en localStorage
       const storedMember = localStorage.getItem("memberD");
-      
+
       if (storedMember) {
         try {
           const parsedMember = JSON.parse(storedMember);
-          
+
           // Si el CI coincide, actualizar estado local
           if (parsedMember.ci === ci) {
             //console.log("Miembro encontrado en localStorage");
             setMember(parsedMember);
-            
+
             // Cargar apoyo si existe
             const storedApoyo = localStorage.getItem("apoyoD");
             if (storedApoyo) {
@@ -101,21 +101,21 @@ const Coe = ({ role, ci, ...props }) => {
           localStorage.removeItem("apoyoD");
         }
       }
-      
+
       // Si no está en localStorage o no coincide, buscar
-  //    console.log("Buscando miembro con CI:", ci);
+      //    console.log("Buscando miembro con CI:", ci);
       await memberData.search(ci);
     };
-    
+
     searchMember();
-  }, [ci,memberData]); // Dependencia solo en ci
+  }, [ci, memberData]); // Dependencia solo en ci
 
   // useEffect para actualizar cuando memberData cambia (nueva búsqueda)
   useEffect(() => {
     if (memberData?.member && Object.keys(memberData.member).length > 0) {
-     // console.log("Actualizando estado con datos de la búsqueda");
+      // console.log("Actualizando estado con datos de la búsqueda");
       setMember(memberData.member);
-      
+
       if (memberData?.apoyo) {
         setApoyo(memberData.apoyo);
       }
@@ -132,7 +132,7 @@ const Coe = ({ role, ci, ...props }) => {
 
   useEffect(() => {
     if (apoyo && Object.keys(apoyo).length > 0) {
-    //  console.log("Guardando apoyo en localStorage");
+      //  console.log("Guardando apoyo en localStorage");
       localStorage.setItem("apoyoD", JSON.stringify(apoyo));
     }
   }, [apoyo]);
@@ -143,7 +143,18 @@ const Coe = ({ role, ci, ...props }) => {
 
   return (
     <Box sx={{ p: 1, margin: "0 auto" }}>
-      <Typography variant="h4" gutterBottom color="primary" align="center">
+      <Typography
+        variant="h4"
+        gutterBottom
+        color="white"
+        align="center"
+        sx={{ background: "linear-gradient(45deg, #FF5733 20%, #FFD700 90%)",
+          borderRadius:2,
+          borderColor:"red",
+          p:2,
+          m:2
+         }}
+      >
         🚨 Comité Operativo de Emergencias (COE) - MTT/GT
       </Typography>
 
@@ -156,7 +167,7 @@ const Coe = ({ role, ci, ...props }) => {
             <Tab label="Acciones" value="4" />
           </TabList>
         </Box>
-        
+
         <TabPanel value="1">
           <SearchTerm
             setSelectedSheet={setSelectedSheet}
@@ -169,19 +180,19 @@ const Coe = ({ role, ci, ...props }) => {
             found={memberData.found || !!member} // true si hay miembro
           />
         </TabPanel>
-        
+
         <TabPanel value="2">
           <Paper elevation={3} sx={{ p: 1, mb: 1, borderRadius: 1 }}>
             <BodyCOE mtt={member?.mtt} member={member} />
           </Paper>
         </TabPanel>
-        
+
         <TabPanel value="3">
           <Paper elevation={3} sx={{ p: 1, mb: 1, borderRadius: 1 }}>
             <VisualRecursos mtt={member?.mtt} />
           </Paper>
         </TabPanel>
-        
+
         <TabPanel value="4">
           <Typography>En desarrollo...</Typography>
         </TabPanel>
@@ -201,7 +212,6 @@ const SearchTerm = ({
   found,
   ci,
 }) => {
-
   // Función para obtener valores seguros del miembro
   const getSafeMemberValue = (key) => {
     if (!member) return "No especificado";
@@ -241,15 +251,16 @@ const SearchTerm = ({
           sx={{
             mt: 1,
             p: 2,
-            bgcolor: "#e8f5e9",
+          bgcolor: "linear-gradient(45deg, #FF5733 20%, #FFD700 90%)",
+            //bgcolor: "#e8f5e9",
             borderRadius: 2,
-            border: "1px solid #c8e6c9",
+          //  border: "1px solid #c8e6c9",
             mb: 3,
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-            <CheckCircleIcon color="success" sx={{ mr: 1 }} />
-            <Typography variant="h6" fontWeight="bold" color="success.main">
+            <CheckCircleIcon color="white" sx={{ mr: 1 }} />
+            <Typography variant="h6" fontWeight="bold" color="black">
               Miembro encontrado
             </Typography>
           </Box>
@@ -330,7 +341,6 @@ const SearchTerm = ({
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-           
           }}
         >
           <CircularProgress size={30} sx={{ mr: 2 }} />
@@ -354,7 +364,7 @@ const SearchTerm = ({
               {/* Encabezado del Componente */}
               <Paper
                 elevation={2}
-                sx={{ p: 2, mb: 3, bgcolor: "#1976d2", color: "white" }}
+                sx={{ p: 2, mb: 3, bgcolor: "#FF5733", color: "white" }}
               >
                 <Typography variant="h5" align="center" fontWeight="bold">
                   {getComponentType(mtt.codigo)}
@@ -373,7 +383,7 @@ const SearchTerm = ({
               <Paper elevation={1} sx={{ p: 2, mb: 3 }}>
                 <Typography
                   variant="h6"
-                  color="primary"
+                  color="error"
                   sx={{ mb: 1, fontWeight: "bold" }}
                 >
                   <BusinessIcon sx={{ verticalAlign: "middle", mr: 1 }} />
@@ -391,7 +401,7 @@ const SearchTerm = ({
               <Paper elevation={1} sx={{ p: 2, mb: 3 }}>
                 <Typography
                   variant="h6"
-                  color="primary"
+                  color="error"
                   sx={{ mb: 1, fontWeight: "bold" }}
                 >
                   <GroupIcon sx={{ verticalAlign: "middle", mr: 1 }} />
@@ -435,7 +445,7 @@ const SearchTerm = ({
                 <Paper elevation={1} sx={{ p: 2, mb: 3 }}>
                   <Typography
                     variant="h6"
-                    color="primary"
+                    color="error"
                     sx={{ mb: 1, fontWeight: "bold" }}
                   >
                     <PeopleIcon sx={{ verticalAlign: "middle", mr: 1 }} />
@@ -480,7 +490,7 @@ const SearchTerm = ({
               <Paper elevation={1} sx={{ p: 2, mb: 3 }}>
                 <Typography
                   variant="h6"
-                  color="primary"
+                  color="error"
                   sx={{ mb: 1, fontWeight: "bold" }}
                 >
                   {/* <TargetIco sx={{ verticalAlign: 'middle', mr: 1 }} /> */}
@@ -496,7 +506,7 @@ const SearchTerm = ({
               <Paper elevation={1} sx={{ p: 2, mb: 3 }}>
                 <Typography
                   variant="h6"
-                  color="primary"
+                  color="error"
                   sx={{ mb: 1, fontWeight: "bold" }}
                 >
                   <ListAltIcon sx={{ verticalAlign: "middle", mr: 1 }} />
@@ -530,7 +540,7 @@ const SearchTerm = ({
                                     fontSize: 10,
                                     mt: 0.5,
                                     mr: 1.5,
-                                    color: "primary.main",
+                                    color: "red",
                                   }}
                                 />
                                 <Typography variant="body2">{resp}</Typography>
