@@ -360,12 +360,12 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
           yPosition += 10;
         }
         doc.text(accionesList[i], leftMargin + 5, yPosition, {
-          maxWidth: maxWidth - 30,
+          maxWidth: maxWidth - 15,
           align: "justify",
         });
         yPosition += 10;
       }
-      yPosition += 5;
+      //yPosition += 5;
     }
     doc.setFontSize(9);
    // doc.setTextColor(150, 150, 150);
@@ -373,8 +373,11 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
       "Las acciones indicadas son de carácter recomendativo y su realización estará sujeta a la disponibilidad de recursos y equipos de las instancias competentes.",
       leftMargin,
       yPosition,
+      {
+        maxWidth:maxWidth - 15,
+      }
     );
-    yPosition += 5;
+    yPosition += 10;
      doc.setFontSize(11);
     doc.setFont("helvetica", "bold");
     doc.text("Anexo Fotografico:", leftMargin, yPosition);
