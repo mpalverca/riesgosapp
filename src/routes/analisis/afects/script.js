@@ -19,6 +19,7 @@ export const cargarDatosafec = async (
   afect,
   parroq,
   event,
+  atiende
 ) => {
   try {
     /*  const { data, error } = await supabaseAfect
@@ -27,7 +28,7 @@ export const cargarDatosafec = async (
 
     let query = supabaseAfect
       .from("bd_loja_1")
-      .select("id,geom,date,prioridad,event,estado,parroq,afectacion,radio");
+      .select("id,geom,date,depen,prioridad,event,estado,parroq,afectacion,radio");
     // Aplicar filtros dinámicamente
 
     if (estado && estado !== "Todos") {
@@ -42,10 +43,14 @@ export const cargarDatosafec = async (
     if (parroq && parroq !== "Todos") {
       query = query.eq("parroq", parroq);
     }
-   /*  if (event && event !== "Todos") {
-      query = query.eq("parroq", event);
-    } */
+    if (event && event !== "Todos") {
+      query = query.eq("event", event);
+    }
+    if (atiende && atiende!=="Todos"){
+      query = query.eq("depen",atiende)
+    }
     const { data, error } = await query;
+    console.log(data)
     if (error) throw error;
     return data;
   } catch (error) {
@@ -346,13 +351,10 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
       doc.setFont("helvetica", "bold");
       doc.text("Acciones a desarrollar:", leftMargin, yPosition);
       yPosition += 7;
-
       // Formatear texto con guiones como lista
       const accionesList = formatListText(item.accions);
-
       // Verificar si necesitamos nueva página para las acciones
       checkPageBreak(accionesList.length * 10);
-
       doc.setFont("helvetica", "normal");
       for (let i = 0; i < accionesList.length; i++) {
         // Verificar si necesitamos nueva página para cada línea

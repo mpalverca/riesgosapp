@@ -8,61 +8,46 @@ import {
   InputLabel,
   MenuItem,
   Divider,
+  IconButton,
 } from "@mui/material";
+
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 
 export default function Panel({
   addbar,
-  prioridad,
- setPriority,
-  estado,
-  setestado,
-  afect,
-  setAfect,
+  filters,
   cantAfects,
-  radioafect,
-  parroq,
-  setParroq,
-  event,
-  setEvent,
-  handleAfect
+  setFilters,
+  handleAfect,
 }) {
   const [form, setForm] = useState({ latitud: "", longitud: "" });
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
-  const handlePriorityChange = (e) => {
-    setPriority(e.target.value);
-    // Llama la función pasada por props
-  };
 
-  const handleStateChange = (e) => {
-    setestado(e.target.value);
-    // Llama la función pasada por props
-  };
-  const handleAfectChange = (e) => {
-    setAfect(e.target.value);
-    // Llama la función pasada por props
-  };
-
-  const handleParroqChange = (e) => {
-    setParroq(e.target.value);
-    // Llama la función pasada por props
-  };
-  const handleEventChange = (e) => {
-    setEvent(e.target.value);
-    // Llama la función pasada por props
-  };
   const handleSubmit = (e) => {
     e.preventDefault();
     addbar(form.latitud, form.longitud);
   };
 
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
   return (
     <div>
-      <Typography variant="h5" align="center" alignContent="center">
+      {/* <Typography variant="h5" align="center" alignContent="center">
         <strong>Visor Territorial de Afectaciones</strong>
-      </Typography>
+        <IconButton onClick={() => setSidebarOpen(false)} size="small">
+                <ChevronLeftIcon />
+              </IconButton>
+      </Typography> */}
+
       <div
         style={{
           padding: "10px",
@@ -153,9 +138,10 @@ export default function Panel({
         <Select
           labelId="priority-label"
           id="priority-select"
-          value={prioridad}
           label="Prioridad"
-          onChange={handlePriorityChange}
+          name="prioridad"
+          value={filters.prioridad}
+          onChange={handleFilterChange}
           size="small"
         >
           <MenuItem value="Alta">Alta</MenuItem>
@@ -169,9 +155,10 @@ export default function Panel({
         <Select
           labelId="state-label"
           id="state-select"
-          value={estado}
+          value={filters.estado}
+          name="estado"
           label="Estado"
-          onChange={handleStateChange}
+          onChange={handleFilterChange}
           size="small"
         >
           <MenuItem value="Pendiente">Pendiente</MenuItem>
@@ -184,9 +171,10 @@ export default function Panel({
         <Select
           labelId="event-label"
           id="event-select"
-          value={event}
+          value={filters.event}
+          name="event"
           label="Evento"
-          onChange={handleEventChange}
+          onChange={handleFilterChange}
           size="small"
         >
           <MenuItem value="Inundación">Inundación</MenuItem>
@@ -199,9 +187,10 @@ export default function Panel({
         <Select
           labelId="afect-label"
           id="afect-select"
-          value={afect}
+          value={filters.afect}
+          name="afect"
           label="Afectación"
-          onChange={handleAfectChange}
+          onChange={handleFilterChange}
           size="small"
         >
           <MenuItem value="Equipamiento">Equipamiento</MenuItem>
@@ -221,9 +210,10 @@ export default function Panel({
         <Select
           labelId="Parroq-label"
           id="Parroq-select"
-          value={parroq}
+          value={filters.parroq}
+          name="parroq"
           label="Parroquia"
-          onChange={handleParroqChange}
+          onChange={handleFilterChange}
           size="small"
         >
           <MenuItem value="Chantaco">Chantaco</MenuItem>
@@ -242,7 +232,7 @@ export default function Panel({
           <MenuItem value="Sucre">Sucre</MenuItem>
           <MenuItem value="Taquil">Taquil</MenuItem>
           <MenuItem value="Quinara">Quinara</MenuItem>
-          <MenuItem value="Valle">Valle</MenuItem>
+          <MenuItem value="El Valle"> El Valle</MenuItem>
           <MenuItem value="Vilcabamba">Vilcabamba</MenuItem>
           <MenuItem value="Yangana">Yangana</MenuItem>
           <MenuItem value="Todos">Todos</MenuItem>
@@ -254,30 +244,27 @@ export default function Panel({
         <Select
           labelId="Parroq-label"
           id="Parroq-select"
-          value={parroq}
+          value={filters.atiende}
+          name="atiende"
           label="Parroquia"
-          onChange={handleParroqChange}
+          onChange={handleFilterChange}
           size="small"
         >
+          <MenuItem value="CBL">CBL-Bomberos</MenuItem>
+          <MenuItem value="Comisarias">Comisarías</MenuItem>
+          <MenuItem value="Gestión Ambiental">Gestión Ambiental</MenuItem>
+          <MenuItem value="Gestión de Riesgos">Gestión de Riesgos</MenuItem>
+          <MenuItem value="Higiene">Higiene</MenuItem>
           <MenuItem value="Obras Públicas">Obras Públicas</MenuItem>
           <MenuItem value="Umapal">UMAPAL</MenuItem>
-          <MenuItem value="Ornato">Comisaria Ornato</MenuItem>
-          <MenuItem value="Gestión Albiental">Gestión Ambiental</MenuItem>
-          <MenuItem value="Higiene">Higiene</MenuItem>
-          <MenuItem value="Gestión de Riesgos">Gestión de Riesgos</MenuItem>
-          <MenuItem value="CBL">CBL-Bomberos</MenuItem>
           <MenuItem value="Seguridad">Seguridad Ciudadana</MenuItem>
           <MenuItem value="Todos">Todos</MenuItem>
         </Select>
       </FormControl>
 
-    <Button
-    fullWidth
-    variant="contained"
-    onClick={handleAfect}
-    >
-      Buscaf Afectaciones
-    </Button>
+      <Button fullWidth variant="contained" onClick={handleAfect}>
+        Buscaf Afectaciones
+      </Button>
     </div>
   );
 }

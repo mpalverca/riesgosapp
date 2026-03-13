@@ -1,5 +1,13 @@
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
 import { MapContainer, TileLayer, Marker, Popup, Polygon } from "react-leaflet";
+
+import "leaflet-simple-map-screenshoter";
 import L from "leaflet";
 import {
   Slider,
@@ -594,14 +602,15 @@ const MapAfects = ({
         alignItems="center"
         minHeight="60vh"
       >
+        <Typography variant="body1" sx={{ mt: 2 }}>
+          Cargando datos del mapa
+        </Typography>
         <img
           src={imageLoad}
           alt="Cargando mapa..."
           //style={{ maxWidth: "200px" }}
         />
-        <Typography variant="body1" sx={{ mt: 2 }}>
-          Cargando datos del mapa...
-        </Typography>
+        
       </Box>
     );
   }
@@ -614,7 +623,7 @@ const MapAfects = ({
     );
   }
 
-  if (!afectData.length) {
+  /*   if (!afectData.length) {
     return (
       <Box
         display="flex"
@@ -640,45 +649,28 @@ const MapAfects = ({
         </Typography>
       </Box>
     );
-  }
+  } */
+
+
+    const handleDateChange = (name, date) => {
+  setSelectedDate(prev => ({
+    ...prev,
+    [name]: date
+  }));
+};
 
   return (
     <Box sx={{ position: "relative" }}>
-      <style>
-        {`
-          .leaflet-pulse-circle {
-            animation: pulse 2s infinite;
-            opacity: 0.3;
-          }
-          
-          @keyframes pulse {
-            0% {
-              transform: scale(0.9);
-              opacity: 0.5;
-            }
-            70% {
-              transform: scale(1.2);
-              opacity: 0.2;
-            }
-            100% {
-              transform: scale(0.9);
-              opacity: 0.5;
-            }
-          }
-        `}
-      </style>
-
       <LayerControl
         showLayer={showLayer}
         onToggle={(e) => setShowLayer(e.target.checked)}
       />
-
-      {/* <MapaCesium
-        puntos={renderAfectMarkers}
-        poligonos={renderPoligonos}
-        parroquias={renderParroquiaPolygons}
-      /> */}
-
+      {!afectData.length ? (
+        <Alert variant="filled" severity="error">
+          No se ha encontrado datos de afectaciones. Por favor, intente con otra
+          fecha, prioridad o criterios de búsqueda.
+        </Alert>
+      ) : null}
       <MapContainer
         center={mapCenter}
         zoom={14}
@@ -690,7 +682,7 @@ const MapAfects = ({
           attribution="&copy; Google Maps"
         />
 
-        {renderAfectMarkers}
+        {afectData && renderAfectMarkers}
         {renderPoligonos}
         {renderParroquiaPolygons}
 
@@ -720,13 +712,13 @@ const MapAfects = ({
       )}
 
       {minFecha && maxFecha && (
-        <Box sx={{ width: "90%", margin: "30px auto 0 auto" }}>
+        <Box sx={{ width: "100%", margin: "20px auto 0 auto" }}>
           <Slider
             value={selectedDate || maxFecha}
             min={minFecha}
             max={maxFecha}
             step={24 * 60 * 60 * 1000}
-            onChange={(_, value) => setSelectedDate(value)}
+            onChange={(_, value) => handleDateChange('selectedDate',value)}
             valueLabelDisplay="auto"
             valueLabelFormat={(value) =>
               new Date(value).toLocaleDateString("es-EC", {
@@ -737,7 +729,7 @@ const MapAfects = ({
             }
             sx={{
               color: "orange",
-              height: 8,
+              height: 4,
               "& .MuiSlider-thumb": {
                 backgroundColor: "#fff",
                 border: "2px solid orange",
@@ -746,7 +738,7 @@ const MapAfects = ({
                 backgroundColor: "orange",
                 color: "#fff",
                 borderRadius: "4px",
-                padding: "4px 8px",
+                padding: "4px 4px",
               },
             }}
           />

@@ -1,26 +1,40 @@
 import React, { useEffect, useState, lazy, Suspense } from "react";
-
+import MenuIcon from "@mui/icons-material/Menu";
 // import MapAfects from "./analisis/afects/afects";
-import { Grid } from "@mui/material";
+import { Grid, IconButton } from "@mui/material";
 // import Panel from "./analisis/afects/panel";
 import { cargarDatosafec, cargarDatosParroquia } from "./script";
+import PagesBody from "../../../components/pagesbody";
 const MapAfects = lazy(() => import("./afects"));
 const Panel = lazy(() => import("./panel"));
 
 export default function Alerts() {
   const [afectData, setAfectData] = useState([]);
-  const [parroquia, setParroquia] = useState([]);
-  const [coords, setCoords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [prioridad, setPriority] = useState("Todos");
-  const [estado, setEstado] = useState("Todos");
-  const [event, setEvent] = useState("Todos");
-  const [afect, setAfect] = useState("Todos");
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [parroq, setParroq] = useState("Todos");
+  const [coords, setCoords] = useState([]);
+  const [parroquia, setParroquia] = useState([]);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [filters, setFilters] = useState({
+    parroquia: "Todos",
+    prioridad: "Todos",
+    estado: "Todos",
+    event: "Todos",
+    afect: "Todos",
+    selectedDate: null,
+    parroq: "Todos",
+    atiende:"Todos"
+  });
+
   const handleAfect = async () => {
-    const data = await cargarDatosafec(prioridad, estado, afect, parroq, event);
+    const data = await cargarDatosafec(
+      filters.prioridad,
+      filters.estado,
+      filters.afect,
+      filters.parroq,
+      filters.event,
+      filters.atiende,
+    );
     const filteredData = data.filter(
       (item) =>
         item?.geom?.coordinates &&
@@ -29,6 +43,7 @@ export default function Alerts() {
     );
     setAfectData(filteredData);
   };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -44,13 +59,11 @@ export default function Alerts() {
       }
     };
     fetchData();
-  }, [parroq, afect, estado, prioridad]);
+  }, [filters]);
 
   const addvar = (lat, long) => {
     setCoords([...coords, lat, long]);
   };
-
-  console.log(event)
 
   const extractCoordinates = (geom) => {
     if (!geom || !geom.coordinates) return null;
@@ -104,37 +117,41 @@ export default function Alerts() {
     ? Math.max(...fechas.map((f) => f.getTime()))
     : null;
 
-  // Filtra por prioridad
-  const filteredPriority =
-    prioridad === "Todos"
+  
+   /* const filteredPriority =
+    filters.prioridad === "Todos"
       ? afectData
-      : afectData?.filter((item) => item.prioridad === prioridad);
+      : afectData?.filter((item) => item.prioridad === filters.prioridad);
 
-  // Filtra por estado
   const filteredState =
-    estado === "Todos"
-      ? filteredPriority
-      : filteredPriority.filter((item) => item.estado === estado);
+    filters.estado === "Todos"
+      ? afectData
+      : afectData.filter((item) => item.estado === filters.estado);
 
-  //filter byafectacion
   const fiterByAfect =
-    afect === "Todos"
+    filters.afect === "Todos"
       ? filteredState
-      : filteredState.filter((item) => item.afectacion === afect);
+      : filteredState.filter((item) => item.afectacion === filters.afect); 
 
-// Filtro por evento
-const filteredEvent = event === "Todos"
-    ? fiterByAfect
-    : fiterByAfect.filter(item => item.event === event);
+  // Filtro por evento
+  const filteredEvent =
+    filters.event === "Todos"
+      ? afectData
+      : afectData.filter((item) => item.event === filters.event);*/
 
-// Filtro por fecha (si selectedDate existe)
-const filteredByDate = selectedDate
-    ? filteredEvent.filter((item) => {
-        const itemTime = new Date(item.date).setHours(0,0,0,0);
-        const selectedTime = new Date(selectedDate).setHours(0,0,0,0);
+  // Filtro por fecha (si selectedDate existe)
+  const filteredByDate = filters.selectedDate
+    ? afectData.filter((item) => {
+        const itemTime = new Date(item.date).setHours(0, 0, 0, 0);
+        const selectedTime = new Date(filters.selectedDate).setHours(
+          0,
+          0,
+          0,
+          0,
+        );
         return itemTime >= selectedTime;
       })
-    : filteredEvent;
+    : afectData;
 
   // Puedes colocar esta función donde la necesites
   function getRadio(afectData) {
@@ -158,43 +175,35 @@ const filteredByDate = selectedDate
   return (
     <Suspense fallback={<div>Cargando...</div>}>
       <div style={{ margin: "10px" }}>
-        <Grid container spacing={2}>
-          <Grid
-            size={{ xs: 12, md: 3 }}
-            style={{ height: "80vh", overflowY: "auto" }}
-          >
+        <PagesBody
+          title={<strong>Visor Territorial de Afectaciones</strong>}
+          panel={
             <Panel
               addbar={addvar}
-              prioridad={prioridad}
-              setPriority={setPriority}
-              estado={estado}
-              setestado={setEstado}
-              afect={afect}
-              setAfect={setAfect}
               cantAfects={filteredByDate.length}
               radioafect={getRadio(afectData)}
-              parroq={parroq}
-              setParroq={setParroq}
-              event={event}
-              setEvent={setEvent}
+              filters={filters}
+              setFilters={setFilters}
               handleAfect={handleAfect}
+              setSidebarOpen={setSidebarOpen}
             />
-          </Grid>
-          <Grid size={{ xs: 12, md: 9 }}>
+          }
+          body={
             <MapAfects
               afectData={filteredByDate}
               parroquia={parroquia}
               error={error}
               loading={loading}
               coords={coords}
-              selectedDate={selectedDate}
+              selectedDate={filters.selectedDate}
               extractCoordinates={extractCoordinates}
-              setSelectedDate={setSelectedDate}
+              setSelectedDate={setFilters}
               minFecha={minFecha}
               maxFecha={maxFecha}
             />
-          </Grid>
-        </Grid>
+          }
+        />
+       
       </div>
     </Suspense>
   );
