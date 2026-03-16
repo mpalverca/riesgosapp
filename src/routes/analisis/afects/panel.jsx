@@ -8,10 +8,7 @@ import {
   InputLabel,
   MenuItem,
   Divider,
-  IconButton,
 } from "@mui/material";
-
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 
 export default function Panel({
   addbar,
@@ -228,6 +225,9 @@ export default function Panel({
           <MenuItem value="Santiago">Santiago</MenuItem>
           <MenuItem value="San Pedro de Vilcabamba">
             San Pedro de Vilcabamba
+          </MenuItem>
+          <MenuItem value="San sebastián">
+            San Sebastián
           </MenuItem>
           <MenuItem value="Sucre">Sucre</MenuItem>
           <MenuItem value="Taquil">Taquil</MenuItem>

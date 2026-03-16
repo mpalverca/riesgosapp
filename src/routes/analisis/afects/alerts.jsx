@@ -1,8 +1,4 @@
 import React, { useEffect, useState, lazy, Suspense } from "react";
-import MenuIcon from "@mui/icons-material/Menu";
-// import MapAfects from "./analisis/afects/afects";
-import { Grid, IconButton } from "@mui/material";
-// import Panel from "./analisis/afects/panel";
 import { cargarDatosafec, cargarDatosParroquia } from "./script";
 import PagesBody from "../../../components/pagesbody";
 const MapAfects = lazy(() => import("./afects"));
@@ -23,7 +19,7 @@ export default function Alerts() {
     afect: "Todos",
     selectedDate: null,
     parroq: "Todos",
-    atiende:"Todos"
+    atiende: "Todos",
   });
 
   const handleAfect = async () => {
@@ -117,8 +113,7 @@ export default function Alerts() {
     ? Math.max(...fechas.map((f) => f.getTime()))
     : null;
 
-  
-   /* const filteredPriority =
+  /* const filteredPriority =
     filters.prioridad === "Todos"
       ? afectData
       : afectData?.filter((item) => item.prioridad === filters.prioridad);
@@ -185,6 +180,7 @@ export default function Alerts() {
               filters={filters}
               setFilters={setFilters}
               handleAfect={handleAfect}
+              sidebarOpen={sidebarOpen}
               setSidebarOpen={setSidebarOpen}
             />
           }
@@ -203,7 +199,6 @@ export default function Alerts() {
             />
           }
         />
-       
       </div>
     </Suspense>
   );

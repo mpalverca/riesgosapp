@@ -19,7 +19,7 @@ export const cargarDatosafec = async (
   afect,
   parroq,
   event,
-  atiende
+  atiende,
 ) => {
   try {
     /*  const { data, error } = await supabaseAfect
@@ -28,7 +28,9 @@ export const cargarDatosafec = async (
 
     let query = supabaseAfect
       .from("bd_loja_1")
-      .select("id,geom,date,depen,prioridad,event,estado,parroq,afectacion,radio");
+      .select(
+        "id,geom,date,depen,prioridad,event,estado,parroq,afectacion,radio",
+      );
     // Aplicar filtros dinámicamente
 
     if (estado && estado !== "Todos") {
@@ -46,11 +48,11 @@ export const cargarDatosafec = async (
     if (event && event !== "Todos") {
       query = query.eq("event", event);
     }
-    if (atiende && atiende!=="Todos"){
-      query = query.eq("depen",atiende)
+    if (atiende && atiende !== "Todos") {
+      query = query.eq("depen", atiende);
     }
     const { data, error } = await query;
-    console.log(data)
+    // console.log(data);
     if (error) throw error;
     return data;
   } catch (error) {
@@ -89,9 +91,12 @@ export const cargarDatosParroquia = async () => {
 export async function generarPDF(titulo, lat, lng, itemStr, require) {
   try {
     const item = itemStr;
+    console.log(item);
     //console.log("Generando PDF para el ítem:", item)
     const doc = new jsPDF();
-
+    const title = 11;
+    const subtitle = 10;
+    const textPar = 9;
     // Configuración de márgenes
     const leftMargin = 15;
     const rightMargin = 15;
@@ -121,14 +126,12 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
         doc.addImage(fondoBase64, "PNG", 0, 0, pageWidth, pageHeight);
       }
     };
-
     // Función para línea divisoria
     const divisoriaLine = () => {
       doc.setDrawColor(200, 200, 200);
       doc.line(leftMargin, yPosition, pageWidth - rightMargin, yPosition);
       yPosition += 5;
     };
-
     // Cargar imagen de fondo desde public
     async function getImageFondo(url) {
       try {
@@ -146,7 +149,6 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
         return null;
       }
     }
-
     // Función para formatear texto con guiones como lista
     const formatListText = (text) => {
       if (!text) return [];
@@ -157,13 +159,11 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
         .filter((item) => item.length > 0)
         .map((item) => `• ${item}`);
     };
-
     // Agrega fondo antes de todo el contenido
     const fondoBase64 = await getImageFondo(Fondo1);
     if (fondoBase64) {
       doc.addImage(fondoBase64, "PNG", 0, 0, pageWidth, pageHeight);
     }
-
     // Fecha actual de descarga
     const fechaDescarga = new Date().toLocaleDateString("es-ES", {
       day: "2-digit",
@@ -172,44 +172,39 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
       hour: "2-digit",
       minute: "2-digit",
     });
-
     // Fecha de descarga (más pequeña y en esquina superior derecha)
-    doc.setFontSize(10);
+    doc.setFontSize(textPar);
     doc.setFont("helvetica", "normal");
     doc.text(`Generado: ${fechaDescarga}`, pageWidth - rightMargin, 20, {
       align: "right",
     });
-
     // Configuración inicial del documento
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
+    doc.setFontSize(title);
     doc.text(
       `FICHA TÉCNICA DE RIESGOS Nro. CGR-${item.id}`,
       pageWidth / 2,
       topMargin,
       { align: "center" },
     );
-
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
-    doc.text(
-      `FORMATO PARA EVALUACIÓN INICIAL DE AFECTACION`,
-      pageWidth / 2,
-      topMargin + 5,
-      { align: "center" },
-    );
+    doc.setFontSize(subtitle);
+    doc.text(`EVALUACIÓN INICIAL DE AFECTACION`, pageWidth / 2, topMargin + 5, {
+      align: "center",
+    });
     divisoriaLine();
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
+    doc.setFontSize(subtitle);
     doc.text(`Información Solicitante`, pageWidth / 2, yPosition, {
       align: "center",
     });
     yPosition += 5;
     // Datos personales
+    doc.setFontSize(textPar);
     doc.setFont("helvetica", "bold");
     doc.text("Nombre:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
-    doc.text(String(require.name || ""), leftMargin + 25, yPosition, {
+    doc.text(String(require.name || ""), leftMargin + 20, yPosition, {
       maxWidth: 90,
     });
     doc.setFont("helvetica", "bold");
@@ -220,23 +215,24 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.setFont("helvetica", "bold");
     doc.text("Teléfono:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
-    doc.text(String(require.phone || ""), leftMargin + 25, yPosition);
+    doc.text(String(require.phone || ""), leftMargin + 20, yPosition);
     doc.setFont("helvetica", "bold");
     doc.text("Correo:", leftMargin + 90, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(String(require.email || ""), leftMargin + 110, yPosition);
     yPosition += 3;
     divisoriaLine();
+    doc.setFontSize(subtitle);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
     doc.text(`Información General`, pageWidth / 2, yPosition, {
       align: "center",
     });
     yPosition += 5;
+    doc.setFontSize(textPar);
     doc.setFont("helvetica", "bold");
     doc.text("Parroquia:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
-    doc.text(String(item.parroq || ""), leftMargin + 25, yPosition);
+    doc.text(String(item.parroq || ""), leftMargin + 20, yPosition);
     doc.setFont("helvetica", "bold");
     doc.text("Latitud:", leftMargin + 90, yPosition);
     doc.setFont("helvetica", "normal");
@@ -245,7 +241,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.setFont("helvetica", "bold");
     doc.text("Sector:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
-    doc.text(String(item.sector || ""), leftMargin + 25, yPosition);
+    doc.text(String(item.sector || ""), leftMargin + 20, yPosition);
     doc.setFont("helvetica", "bold");
     doc.text("Longitud:", leftMargin + 90, yPosition);
     doc.setFont("helvetica", "normal");
@@ -253,11 +249,12 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     yPosition += 3;
     divisoriaLine();
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
+    doc.setFontSize(subtitle);
     doc.text(`Descripción del evento`, pageWidth / 2, yPosition, {
       align: "center",
     });
     yPosition += 7;
+    doc.setFontSize(textPar);
     doc.setFont("helvetica", "bold");
     doc.text("Evento:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
@@ -265,9 +262,8 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.setFont("helvetica", "bold");
     doc.text("Afectación:", leftMargin + 90, yPosition);
     doc.setFont("helvetica", "normal");
-    doc.text(String(item.afectacion || ""), leftMargin + 120, yPosition);
+    doc.text(String(item.afectacion || ""), leftMargin + 110, yPosition);
     yPosition += 5;
-
     doc.setFont("helvetica", "bold");
     doc.text("Fecha:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
@@ -285,102 +281,128 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.setFont("helvetica", "bold");
     doc.text("Prioridad:", leftMargin + 90, yPosition);
     doc.setFont("helvetica", "normal");
-    doc.text(String(item.prioridad || ""), leftMargin + 120, yPosition);
+    doc.text(String(item.prioridad || ""), leftMargin + 110, yPosition);
     yPosition += 3;
 
     divisoriaLine();
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
+    doc.setFontSize(subtitle);
     doc.text(`Mapa de Ubicación`, pageWidth / 2, yPosition, {
       align: "center",
     });
     yPosition += 5;
-
     // Verificar si necesitamos nueva página para el mapa
-    checkPageBreak(120 + marginBottom);
-
+    // checkPageBreak(120 + marginBottom);
     // Mapa
     let imagemap = await captureMap(lat, lng, 18);
     doc.addImage(imagemap, "PNG", leftMargin, yPosition, maxWidth, 100);
     yPosition += 105;
-
+    doc.setFontSize(textPar);
     doc.setFont("helvetica", "bold");
     doc.text("Descripción:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
-    const lines = doc.splitTextToSize(
+    const linesDesp = doc.splitTextToSize(
       String(item.descripcio || "No existe Descripción"),
       maxWidth - 40,
     );
-
     // Verificar si necesitamos nueva página para la descripción
-    checkPageBreak(lines.length * 7);
-
-    doc.text(lines, leftMargin + 30, yPosition, {
-      align: "justify",
-      maxWidth: maxWidth - 30,
+    // checkPageBreak(lines.length * 7);
+    linesDesp.forEach((line) => {
+      if (yPosition + 5 > pageHeight - marginBottom) {
+        addNewPage();
+        yPosition = topMargin;
+      }
+      doc.text(line, leftMargin + 30, yPosition, {
+        align: "justify",
+        maxWidth: maxWidth - 30,
+      });
+      //yPosition += Math.max(10, lines.length * 5);
+      yPosition += 5;
     });
-    yPosition += Math.max(10, lines.length * 5);
+    divisoriaLine();
     // Campos principales
     doc.setFont("helvetica", "bold");
     doc.text("Detalle:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
-    doc.text(
+    const linesDetail = doc.splitTextToSize(
       String(
-        item.info_afect || "No existe personas afectadas, heridas o fallecidas",
+        item.info_afec || "No existe personas afectadas, heridas o fallecidas",
+      ),
+      maxWidth - 40,
+    );
+    // Verificar si necesitamos nueva página para la descripción
+    // checkPageBreak(lines.length * 7);
+    linesDetail.forEach((line) => {
+      if (yPosition + 5 > pageHeight - marginBottom) {
+        addNewPage();
+        yPosition = topMargin;
+      }
+      doc.text(line, leftMargin + 30, yPosition, {
+        align: "justify",
+        maxWidth: maxWidth - 30,
+      });
+      //yPosition += Math.max(10, lines.length * 5);
+      yPosition += 5;
+    });
+    /* doc.text(
+      String(
+        item.info_afec || "No existe personas afectadas, heridas o fallecidas",
       ),
       leftMargin + 30,
       yPosition,
       { maxWidth: maxWidth - 30 },
     );
-    yPosition += 5;
-
+    yPosition += 5; */
     divisoriaLine();
-
     // Verificar si necesitamos nueva página para el contenido siguiente
     checkPageBreak(50);
-
     // Campos principales
     doc.setFont("helvetica", "bold");
     doc.text("Atiende:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(String(item.depen || ""), leftMargin + 30, yPosition);
     yPosition += 7;
-
     // Acciones a desarrollar con manejo de texto largo
     if (item.accions) {
+      doc.setFontSize(subtitle);
       doc.setFont("helvetica", "bold");
       doc.text("Acciones a desarrollar:", leftMargin, yPosition);
       yPosition += 7;
       // Formatear texto con guiones como lista
       const accionesList = formatListText(item.accions);
       // Verificar si necesitamos nueva página para las acciones
-      checkPageBreak(accionesList.length * 10);
       doc.setFont("helvetica", "normal");
+      doc.setFontSize(textPar);
       for (let i = 0; i < accionesList.length; i++) {
-        // Verificar si necesitamos nueva página para cada línea
-        if (checkPageBreak(7)) {
-          yPosition += 10;
+        // Verificar si la línea actual cabe
+        if (checkPageBreak(10)) {
+          // Si se añadió página, continuar
         }
+
         doc.text(accionesList[i], leftMargin + 5, yPosition, {
           maxWidth: maxWidth - 15,
           align: "justify",
         });
         yPosition += 10;
       }
-      //yPosition += 5;
+
+      yPosition += 5; // Espacio después de las acciones
     }
-    doc.setFontSize(9);
-   // doc.setTextColor(150, 150, 150);
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(255, 0, 0);
+    // doc.setTextColor(150, 150, 150);
     doc.text(
       "Las acciones indicadas son de carácter recomendativo y su realización estará sujeta a la disponibilidad de recursos y equipos de las instancias competentes.",
       leftMargin,
       yPosition,
       {
-        maxWidth:maxWidth - 15,
-      }
+        maxWidth: maxWidth - 15,
+      },
     );
     yPosition += 10;
-     doc.setFontSize(11);
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(subtitle);
     doc.setFont("helvetica", "bold");
     doc.text("Anexo Fotografico:", leftMargin, yPosition);
     yPosition += 5;
@@ -402,16 +424,15 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
       }
     }
 
-    let imgDataString = `${item.anex_foto}`;
-    if (imgDataString) {
-      const imageUrls = imgDataString
+    if (item.anex_foto) {
+      const imageUrls = item.anex_foto
         .split(",")
         .map((url) => url.trim())
         .filter((url) => url);
 
       if (imageUrls.length > 0) {
         // Configuración
-        const maxImagesToShow = 6;
+        const maxImagesToShow = 4;
         const imagesToProcess = imageUrls.slice(0, maxImagesToShow);
         const imagesPerRow = Math.min(imagesToProcess.length, 2);
         const rows = Math.ceil(imagesToProcess.length / imagesPerRow);
@@ -437,15 +458,17 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
         }
 
         // Verificar si aún no cabe
-        const requiredHeight = imageHeight * rows + rows * 10 + 15;
+        const requiredHeight =
+          imageHeight * rows + rows * 10 + 15 + marginBottom;
 
         // Solo crear nueva página si es absolutamente necesario
         if (requiredHeight > spaceLeftOnPage && spaceLeftOnPage < 100) {
           checkPageBreak(requiredHeight);
         }
+
         // Procesar imágenes
         const availableWidth = pageWidth - leftMargin - rightMargin;
-        const spacing = 10;
+        const spacing = 5;
         const imgWidth =
           imagesPerRow > 1 ? (availableWidth - spacing) / 2 : availableWidth;
 
@@ -467,15 +490,13 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
                 x = leftMargin;
                 y += imageHeight + spacing;
               }
-
               // Agregar imagen
               doc.addImage(imgData, "JPEG", x, y, imgWidth, imageHeight);
-
               // Opcional: agregar número de imagen
               doc.setFontSize(8);
-              doc.setFont("helvetica", "normal");
-              doc.text(`${i + 1}`, x + 5, y + 12);
-
+              doc.setFillColor(255, 255, 255);
+              doc.circle(x + 5, y + 4, 2, "FD");
+              doc.text(`${i + 1}`, x + 4, y + 5);
               x += imgWidth + spacing;
               count++;
             }
@@ -483,20 +504,9 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
             console.warn(`Error con imagen ${i + 1}:`, error);
           }
         }
-
         if (count > 0) {
           // Actualizar posición Y
           yPosition = y + imageHeight + 15;
-
-          // Línea separadora
-          /*  doc.line(
-            leftMargin,
-            yPosition - 5,
-            pageWidth - rightMargin,
-            yPosition - 5,
-          );
-          yPosition += 5; */
-
           // Nota si hay más imágenes
           if (imageUrls.length > maxImagesToShow) {
             doc.setFontSize(9);

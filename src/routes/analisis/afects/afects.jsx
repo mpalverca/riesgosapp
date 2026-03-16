@@ -3,11 +3,11 @@ import React, {
   useState,
   useCallback,
   useMemo,
-  useRef,
+
 } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Polygon } from "react-leaflet";
 
-import "leaflet-simple-map-screenshoter";
+//import "leaflet-simple-map-screenshoter";
 import L from "leaflet";
 import {
   Slider,
@@ -397,7 +397,9 @@ const MapAfects = ({
             >
               {selectedItem?.id === item.id && (
                 <Popup>
-                  <div>
+                  <Box
+                  sx={{ height: "60vh", overflowY: "auto", maxWidth: "450px" }}
+                  >
                     <h4>{`${item.id} - ${eventType}`}</h4>
 
                     {selectedItem.anex_foto && (
@@ -457,9 +459,9 @@ const MapAfects = ({
                     </p>
 
                     {selectedItem.descripcio && (
-                      <p>
-                        <strong>Descripción:</strong> {selectedItem.descripcio}
-                      </p>
+                      <Typography align="justify" variant="subtitle2" >
+                        <strong>Descripción:</strong> {selectedItem.descripcio.substring(0, 150) + "..."}
+                      </Typography>
                     )}
 
                     {user && (
@@ -485,7 +487,7 @@ const MapAfects = ({
                         Generar Reporte PDF
                       </Button>
                     )}
-                  </div>
+                  </Box>
                 </Popup>
               )}
             </Marker>
