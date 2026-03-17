@@ -1,4 +1,5 @@
 import html2canvas from "html2canvas";
+//import { image } from "html2canvas/dist/types/css/types/image";
 
 // Función para capturar un mapa basado en coordenadas y generar un PDF
 export async function captureMap(lat, lng, zoom, polygon) {
@@ -104,4 +105,10 @@ export function loadStyle(href) {
     link.onerror = reject;
     document.head.appendChild(link);
   });
+}
+
+
+
+const imageleaftlef=()=>{
+
 }

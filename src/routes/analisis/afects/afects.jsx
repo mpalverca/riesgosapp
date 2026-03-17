@@ -1,10 +1,4 @@
-import React, {
-  useEffect,
-  useState,
-  useCallback,
-  useMemo,
-
-} from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Polygon } from "react-leaflet";
 
 //import "leaflet-simple-map-screenshoter";
@@ -25,6 +19,12 @@ import {
   FaBuilding,
   FaExclamationTriangle,
 } from "react-icons/fa";
+import WhatshotIcon from "@mui/icons-material/Whatshot";
+import DomainDisabledIcon from "@mui/icons-material/DomainDisabled";
+import LandscapeIcon from "@mui/icons-material/Landscape";
+import WaterDropIcon from "@mui/icons-material/WaterDrop";
+import WaterIcon from "@mui/icons-material/Water";
+import FloodIcon from "@mui/icons-material/Flood";
 import { renderToString } from "react-dom/server";
 import { divIcon } from "leaflet";
 import PropTypes from "prop-types";
@@ -69,9 +69,12 @@ const POLYGON_COLORS = {
 };
 
 const EVENT_ICONS = {
-  "Movimiento en masas": { icon: FaMountain, color: "#FF5733" },
-  Inundación: { icon: FaWater, color: "Blue" },
-  "Colapso estructural": { icon: FaBuilding, color: "Blue" },
+  "Movimiento en Masa": { icon: LandscapeIcon, color: "#FF5733" },
+  Inundación: { icon: FloodIcon, color: "#0205a7" },
+  "Colapso estructural": { icon: DomainDisabledIcon, color: "Blue" },
+  "Incenido estructural": { icon: WhatshotIcon, color: "red" },
+  "Erosión Hídrica": { icon: WaterIcon, color: "red" },
+  "Epoca Lluviosa": { icon: WaterDropIcon, color: "Blue" },
   default: { icon: FaExclamationTriangle, color: "#080808" },
 };
 
@@ -398,9 +401,15 @@ const MapAfects = ({
               {selectedItem?.id === item.id && (
                 <Popup>
                   <Box
-                  sx={{ height: "60vh", overflowY: "auto", maxWidth: "450px" }}
+                    sx={{
+                      height: "60vh",
+                      overflowY: "auto",
+                      maxWidth: "450px",
+                    }}
                   >
-                    <h4>{`${item.id} - ${eventType}`}</h4>
+                      <Typography align="justify" variant="subtitle1" sx={{ }}>
+                      {`${item.id} - ${eventType}-       ${selectedItem.date || "Fecha no disponible"}`}
+                    </Typography>
 
                     {selectedItem.anex_foto && (
                       <div style={{ marginTop: "10px" }}>
@@ -432,19 +441,12 @@ const MapAfects = ({
                       </div>
                     )}
 
-                    <p>
-                      <strong>Fecha:</strong>{" "}
-                      {selectedItem.date || "No disponible"}
-                    </p>
-                    <p>
+                    <Typography align="justify" variant="body2">
                       <strong>Sector:</strong>{" "}
-                      {selectedItem.sector || "No disponible"}
-                    </p>
-                    <p>
-                      <strong>Ubicación:</strong> {formatCoords(coords.lat)},{" "}
-                      {formatCoords(coords.lng)}
-                    </p>
-                    <p>
+                      {selectedItem.sector || "No disponible"} - (
+                      {formatCoords(coords.lat)}, {formatCoords(coords.lng)})
+                    </Typography>
+                    <Typography align="justify" variant="body2">
                       <strong>Prioridad:</strong>
                       <span
                         style={{
@@ -456,11 +458,11 @@ const MapAfects = ({
                         {" "}
                         {priority}
                       </span>
-                    </p>
-
+                    </Typography>
                     {selectedItem.descripcio && (
-                      <Typography align="justify" variant="subtitle2" >
-                        <strong>Descripción:</strong> {selectedItem.descripcio.substring(0, 150) + "..."}
+                      <Typography align="justify" variant="body2">
+                        <strong>Descripción:</strong>{" "}
+                        {selectedItem.descripcio.substring(0, 150) + "..."}
                       </Typography>
                     )}
 
@@ -612,7 +614,6 @@ const MapAfects = ({
           alt="Cargando mapa..."
           //style={{ maxWidth: "200px" }}
         />
-        
       </Box>
     );
   }
@@ -653,13 +654,12 @@ const MapAfects = ({
     );
   } */
 
-
-    const handleDateChange = (name, date) => {
-  setSelectedDate(prev => ({
-    ...prev,
-    [name]: date
-  }));
-};
+  const handleDateChange = (name, date) => {
+    setSelectedDate((prev) => ({
+      ...prev,
+      [name]: date,
+    }));
+  };
 
   return (
     <Box sx={{ position: "relative" }}>
@@ -720,7 +720,7 @@ const MapAfects = ({
             min={minFecha}
             max={maxFecha}
             step={24 * 60 * 60 * 1000}
-            onChange={(_, value) => handleDateChange('selectedDate',value)}
+            onChange={(_, value) => handleDateChange("selectedDate", value)}
             valueLabelDisplay="auto"
             valueLabelFormat={(value) =>
               new Date(value).toLocaleDateString("es-EC", {

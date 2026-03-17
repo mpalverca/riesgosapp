@@ -105,12 +105,12 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
     const maxWidth = pageWidth - leftMargin - rightMargin;
-    const marginBottom = 20;
+    const bottomMargin = 20;
     let yPosition = topMargin + 7;
 
     // Función para verificar y agregar nueva página si es necesario
     const checkPageBreak = (requiredSpace) => {
-      if (yPosition + requiredSpace > pageHeight - marginBottom) {
+      if (yPosition + requiredSpace > pageHeight - bottomMargin) {
         addNewPage();
         return true;
       }
@@ -132,6 +132,30 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
       doc.line(leftMargin, yPosition, pageWidth - rightMargin, yPosition);
       yPosition += 5;
     };
+
+    const someText = (text, max, maxOne, left) => {
+      doc.setFontSize(textPar);
+      doc.setFont("helvetica", "normal");
+      const linesaccion = doc.splitTextToSize(
+        String(text || "No existe personas afectadas, heridas o fallecidas"),
+        maxWidth - max,
+      );
+      // Verificar si necesitamos nueva página para la descripción
+      // checkPageBreak(lines.length * 7);
+      linesaccion.forEach((line) => {
+        if (yPosition + 5 > pageHeight - bottomMargin) {
+          addNewPage();
+          yPosition = topMargin;
+        }
+        doc.text(line, leftMargin + left, yPosition, {
+          align: "justify",
+          maxWidth: maxWidth - maxOne,
+        });
+        //yPosition += Math.max(10, lines.length * 5);
+        yPosition += 5;
+      });
+    };
+
     // Cargar imagen de fondo desde public
     async function getImageFondo(url) {
       try {
@@ -227,43 +251,46 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.text(`Información General`, pageWidth / 2, yPosition, {
       align: "center",
     });
-    yPosition += 5;
+    yPosition += 8;
     doc.setFontSize(textPar);
     doc.setFont("helvetica", "bold");
     doc.text("Parroquia:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(String(item.parroq || ""), leftMargin + 20, yPosition);
-    doc.setFont("helvetica", "bold");
-    doc.text("Latitud:", leftMargin + 90, yPosition);
-    doc.setFont("helvetica", "normal");
-    doc.text(String(lat.toFixed(6) || ""), leftMargin + 110, yPosition);
-    yPosition += 5;
+    yPosition += 7;
     doc.setFont("helvetica", "bold");
     doc.text("Sector:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(String(item.sector || ""), leftMargin + 20, yPosition);
+    yPosition += 7;
     doc.setFont("helvetica", "bold");
-    doc.text("Longitud:", leftMargin + 90, yPosition);
+    doc.text("Latitud:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
-    doc.text(String(lng.toFixed(6) || ""), leftMargin + 110, yPosition);
-    yPosition += 3;
+    doc.text(String(lat.toFixed(6) || ""), leftMargin + 20, yPosition);
+    yPosition += 7;
+    doc.setFont("helvetica", "bold");
+    doc.text("Longitud:", leftMargin, yPosition);
+    doc.setFont("helvetica", "normal");
+    doc.text(String(lng.toFixed(6) || ""), leftMargin + 20, yPosition);
+    /* yPosition += 3;
     divisoriaLine();
     doc.setFont("helvetica", "bold");
     doc.setFontSize(subtitle);
     doc.text(`Descripción del evento`, pageWidth / 2, yPosition, {
       align: "center",
-    });
+    }); */
     yPosition += 7;
     doc.setFontSize(textPar);
     doc.setFont("helvetica", "bold");
     doc.text("Evento:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(String(titulo || ""), leftMargin + 20, yPosition);
+    yPosition += 7;
     doc.setFont("helvetica", "bold");
-    doc.text("Afectación:", leftMargin + 90, yPosition);
+    doc.text("Afectación:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
-    doc.text(String(item.afectacion || ""), leftMargin + 110, yPosition);
-    yPosition += 5;
+    doc.text(String(item.afectacion || ""), leftMargin + 20, yPosition);
+    yPosition += 7;
     doc.setFont("helvetica", "bold");
     doc.text("Fecha:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
@@ -278,92 +305,89 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
       leftMargin + 20,
       yPosition,
     );
+    yPosition += 7;
     doc.setFont("helvetica", "bold");
-    doc.text("Prioridad:", leftMargin + 90, yPosition);
+    doc.text("Prioridad:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
-    doc.text(String(item.prioridad || ""), leftMargin + 110, yPosition);
-    yPosition += 3;
-
-    divisoriaLine();
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(subtitle);
-    doc.text(`Mapa de Ubicación`, pageWidth / 2, yPosition, {
-      align: "center",
-    });
-    yPosition += 5;
+    doc.text(String(item.prioridad || ""), leftMargin + 20, yPosition);
     // Verificar si necesitamos nueva página para el mapa
     // checkPageBreak(120 + marginBottom);
     // Mapa
     let imagemap = await captureMap(lat, lng, 18);
-    doc.addImage(imagemap, "PNG", leftMargin, yPosition, maxWidth, 100);
-    yPosition += 105;
+    doc.addImage(
+      imagemap,
+      "PNG",
+      leftMargin + 80,
+      topMargin + 35,
+      // maxWidth / 2,
+      (pageWidth - leftMargin) / 2,
+      70,
+    );
+    yPosition += 20;
+    divisoriaLine();
     doc.setFontSize(textPar);
     doc.setFont("helvetica", "bold");
     doc.text("Descripción:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
-    const linesDesp = doc.splitTextToSize(
+    someText(item.descripcio, 20, 15, 20);
+
+    /* const linesDesp = doc.splitTextToSize(
       String(item.descripcio || "No existe Descripción"),
-      maxWidth - 40,
+      maxWidth - 20,
     );
     // Verificar si necesitamos nueva página para la descripción
     // checkPageBreak(lines.length * 7);
     linesDesp.forEach((line) => {
-      if (yPosition + 5 > pageHeight - marginBottom) {
+      if (yPosition + 5 > pageHeight - bottomMargin) {
         addNewPage();
         yPosition = topMargin;
       }
-      doc.text(line, leftMargin + 30, yPosition, {
+      doc.text(line, leftMargin + 20, yPosition, {
         align: "justify",
-        maxWidth: maxWidth - 30,
+        maxWidth: maxWidth - 20,
       });
       //yPosition += Math.max(10, lines.length * 5);
       yPosition += 5;
-    });
+    }); */
     divisoriaLine();
     // Campos principales
     doc.setFont("helvetica", "bold");
-    doc.text("Detalle:", leftMargin, yPosition);
+    doc.text("Detalle de afectados:", leftMargin, yPosition, {
+      maxWidth: leftMargin + 17,
+    });
+    yPosition += 5;
     doc.setFont("helvetica", "normal");
-    const linesDetail = doc.splitTextToSize(
+    someText(item.info_afec, 20, 15, 20);
+    /*   const linesDetail = doc.splitTextToSize(
       String(
         item.info_afec || "No existe personas afectadas, heridas o fallecidas",
       ),
-      maxWidth - 40,
+      maxWidth - 20,
     );
     // Verificar si necesitamos nueva página para la descripción
     // checkPageBreak(lines.length * 7);
     linesDetail.forEach((line) => {
-      if (yPosition + 5 > pageHeight - marginBottom) {
+      if (yPosition + 5 > pageHeight - bottomMargin) {
         addNewPage();
         yPosition = topMargin;
       }
-      doc.text(line, leftMargin + 30, yPosition, {
+      doc.text(line, leftMargin + 20, yPosition, {
         align: "justify",
-        maxWidth: maxWidth - 30,
+        maxWidth: maxWidth - 15,
       });
       //yPosition += Math.max(10, lines.length * 5);
       yPosition += 5;
-    });
-    /* doc.text(
-      String(
-        item.info_afec || "No existe personas afectadas, heridas o fallecidas",
-      ),
-      leftMargin + 30,
-      yPosition,
-      { maxWidth: maxWidth - 30 },
-    );
-    yPosition += 5; */
+    }); */
     divisoriaLine();
     // Verificar si necesitamos nueva página para el contenido siguiente
-    checkPageBreak(50);
     // Campos principales
     doc.setFont("helvetica", "bold");
     doc.text("Atiende:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
-    doc.text(String(item.depen || ""), leftMargin + 30, yPosition);
+    doc.text(String(item.depen || ""), leftMargin + 20, yPosition);
     yPosition += 7;
     // Acciones a desarrollar con manejo de texto largo
-    if (item.accions) {
+    /* if (item.accions) {
       doc.setFontSize(subtitle);
       doc.setFont("helvetica", "bold");
       doc.text("Acciones a desarrollar:", leftMargin, yPosition);
@@ -387,13 +411,41 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
       }
 
       yPosition += 5; // Espacio después de las acciones
-    }
+    } */
+    doc.setFontSize(subtitle);
+    doc.setFont("helvetica", "bold");
+    doc.text("Recomendaciones", leftMargin, yPosition);
+    yPosition += 5;
+    doc.setFontSize(textPar);
+    doc.setFont("helvetica", "normal");
+    someText(item.accions, 20, 15, 20);
+    /*  const linesaccion = doc.splitTextToSize(
+      String(
+        item.accions || "No existe personas afectadas, heridas o fallecidas",
+      ),
+      maxWidth - 20,
+    );
+    // Verificar si necesitamos nueva página para la descripción
+    // checkPageBreak(lines.length * 7);
+    linesaccion.forEach((line) => {
+      if (yPosition + 5 > pageHeight - bottomMargin) {
+        addNewPage();
+        yPosition = topMargin;
+      }
+      doc.text(line, leftMargin + 20, yPosition, {
+        align: "justify",
+        maxWidth: maxWidth - 15,
+      });
+      //yPosition += Math.max(10, lines.length * 5);
+      yPosition += 5;
+    }); */
+
     doc.setFontSize(8);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(255, 0, 0);
     // doc.setTextColor(150, 150, 150);
     doc.text(
-      "Las acciones indicadas son de carácter recomendativo y su realización estará sujeta a la disponibilidad de recursos y equipos de las instancias competentes.",
+      "Las acciones planteadas tienen carácter orientativo y su materialización dependerá de la disponibilidad de recursos y equipos, correspondiendo su ejecución tanto a las instancias competentes como a los usuarios, de acuerdo al grado de competencia definido para cada caso",
       leftMargin,
       yPosition,
       {
@@ -432,95 +484,170 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
 
       if (imageUrls.length > 0) {
         // Configuración
-        const maxImagesToShow = 4;
+        const maxImagesToShow = 6;
         const imagesToProcess = imageUrls.slice(0, maxImagesToShow);
         const imagesPerRow = Math.min(imagesToProcess.length, 2);
-        const rows = Math.ceil(imagesToProcess.length / imagesPerRow);
 
-        // Altura dinámica basada en el espacio disponible
-        const pageHeight = doc.internal.pageSize.height;
-        const bottomMargin = 30;
-        const spaceLeftOnPage = pageHeight - yPosition - bottomMargin;
+        // Dimensiones de página
+        //const pageHeight = doc.internal.pageSize.height;
+        // const pageWidth = doc.internal.pageSize.width;
+        // const bottomMargin = 30;
+        // const topMargin = 20;
 
-        // Determinar altura óptima
-        let imageHeight = 80; // Altura por defecto
-        const minImageHeight = 50; // Altura mínima aceptable
-
-        // Calcular altura máxima que cabe
-        const maxPossibleHeight = Math.max(
-          minImageHeight,
-          (spaceLeftOnPage - rows * 10 - 15) / rows,
-        );
-
-        if (imageHeight > maxPossibleHeight) {
-          // Si la altura por defecto no cabe, usar la máxima posible
-          imageHeight = Math.max(minImageHeight, maxPossibleHeight);
-        }
-
-        // Verificar si aún no cabe
-        const requiredHeight =
-          imageHeight * rows + rows * 10 + 15 + marginBottom;
-
-        // Solo crear nueva página si es absolutamente necesario
-        if (requiredHeight > spaceLeftOnPage && spaceLeftOnPage < 100) {
-          checkPageBreak(requiredHeight);
-        }
-
-        // Procesar imágenes
+        // Espacio disponible para imágenes
         const availableWidth = pageWidth - leftMargin - rightMargin;
         const spacing = 5;
         const imgWidth =
           imagesPerRow > 1 ? (availableWidth - spacing) / 2 : availableWidth;
+        const imgHeight = 60; // Altura fija por imagen
+        const rowHeight = imgHeight + spacing;
 
-        let x = leftMargin,
-          y = yPosition,
-          count = 0;
+        let currentImageIndex = 0;
 
-        for (let i = 0; i < imagesToProcess.length; i++) {
-          try {
-            let imgData = imagesToProcess[i];
+        while (currentImageIndex < imagesToProcess.length) {
+          // Calcular cuántas filas caben en la página actual
+          const spaceLeftOnPage = pageHeight - yPosition - bottomMargin;
+          const maxRowsInCurrentPage = Math.floor(spaceLeftOnPage / rowHeight);
+          const imagesPerRow = 2; // Máximo 2 imágenes por fila
+          const maxImagesInCurrentPage = maxRowsInCurrentPage * imagesPerRow;
 
-            if (imgData && !imgData.startsWith("data:image")) {
-              imgData = await getImageBase64(imgData);
-            }
+          // Si no cabe ninguna imagen en la página actual, crear nueva página
+          if (maxImagesInCurrentPage <= 0) {
+            addNewPage(); // Usa tu función existente
+            yPosition = topMargin;
+            continue;
+          }
 
-            if (imgData) {
-              // Nueva fila cada 2 imágenes
-              if (count > 0 && count % 2 === 0) {
-                x = leftMargin;
-                y += imageHeight + spacing;
+          // Calcular cuántas imágenes procesar en esta página
+          const imagesRemaining = imagesToProcess.length - currentImageIndex;
+          const imagesToProcessInThisPage = Math.min(
+            imagesRemaining,
+            maxImagesInCurrentPage,
+          );
+
+          // Variables para posicionamiento
+          let x = leftMargin;
+          let y = yPosition;
+          let countInRow = 0;
+          let imagesProcessedInThisPage = 0;
+
+          // Procesar imágenes para esta página
+          for (let i = 0; i < imagesToProcessInThisPage; i++) {
+            const imgIndex = currentImageIndex + i;
+            const imgUrl = imagesToProcess[imgIndex];
+
+            try {
+              let imgData = imgUrl;
+              if (imgData && !imgData.startsWith("data:image")) {
+                imgData = await getImageBase64(imgData);
               }
-              // Agregar imagen
-              doc.addImage(imgData, "JPEG", x, y, imgWidth, imageHeight);
-              // Opcional: agregar número de imagen
-              doc.setFontSize(8);
-              doc.setFillColor(255, 255, 255);
-              doc.circle(x + 5, y + 4, 2, "FD");
-              doc.text(`${i + 1}`, x + 4, y + 5);
-              x += imgWidth + spacing;
-              count++;
+
+              if (imgData) {
+                // Nueva fila cada 2 imágenes
+                if (countInRow > 0 && countInRow % 2 === 0) {
+                  x = leftMargin;
+                  y += imgHeight + spacing;
+                }
+
+                // Agregar imagen
+                doc.addImage(imgData, "JPEG", x, y, imgWidth, imgHeight);
+
+                // Número de imagen
+                doc.setFontSize(8);
+                doc.setFillColor(255, 255, 255);
+                doc.circle(x + 5, y + 4, 2, "FD");
+                doc.text(`${imgIndex + 1}`, x + 4, y + 5);
+
+                x += imgWidth + spacing;
+                countInRow++;
+                imagesProcessedInThisPage++;
+              }
+            } catch (error) {
+              console.warn(`Error con imagen ${imgIndex + 1}:`, error);
             }
-          } catch (error) {
-            console.warn(`Error con imagen ${i + 1}:`, error);
           }
-        }
-        if (count > 0) {
-          // Actualizar posición Y
-          yPosition = y + imageHeight + 15;
-          // Nota si hay más imágenes
-          if (imageUrls.length > maxImagesToShow) {
-            doc.setFontSize(9);
-            doc.text(
-              `* Se muestran ${maxImagesToShow} de ${imageUrls.length} imágenes`,
-              leftMargin,
-              yPosition,
+
+          // Actualizar posición Y para la siguiente página
+          if (countInRow > 0) {
+            // Calcular la última posición Y después de todas las imágenes de esta página
+            const rowsInThisPage = Math.ceil(
+              imagesProcessedInThisPage / imagesPerRow,
             );
-            yPosition += 10;
+            yPosition = y + imgHeight + spacing;
+
+            // Si todavía quedan imágenes por procesar, preparar para siguiente página
+            if (
+              currentImageIndex + imagesProcessedInThisPage <
+              imagesToProcess.length
+            ) {
+              // Verificar si hay espacio para un separador
+              if (yPosition + 10 < pageHeight - bottomMargin) {
+                doc.setFontSize(9);
+                doc.setTextColor(150, 150, 150);
+                doc.text(
+                  `Continúa en la siguiente página...`,
+                  leftMargin,
+                  yPosition,
+                );
+                yPosition += 10;
+              }
+
+              // Pequeño margen antes de la siguiente página
+              yPosition += 5;
+            }
+          }
+
+          // Avanzar al siguiente lote de imágenes
+          currentImageIndex += imagesProcessedInThisPage;
+
+          // Si quedan imágenes, crear nueva página (excepto en la última iteración)
+          if (currentImageIndex < imagesToProcess.length) {
+            addNewPage();
+            yPosition = topMargin;
           }
         }
+
+        // Nota si hay más imágenes de las que mostramos
+        if (imageUrls.length > maxImagesToShow) {
+          // Verificar si necesitamos nueva página para la nota
+          if (yPosition + 10 > pageHeight - bottomMargin) {
+            addNewPage();
+            yPosition = topMargin;
+          }
+
+          doc.setFontSize(9);
+          doc.setTextColor(100, 100, 100);
+          doc.text(
+            `* Se muestran ${maxImagesToShow} de ${imageUrls.length} imágenes`,
+            leftMargin,
+            yPosition,
+          );
+          yPosition += 10;
+        }
+
+        // Espacio después de las imágenes
+        yPosition += 5;
       }
     }
 
+    doc.setFontSize(textPar);
+    doc.setFont("helvetica", "normal");
+    someText(item.desc_img, 0, 0, 0);
+    /* const lineImg = doc.splitTextToSize(String(item.desc_img || " "), maxWidth);
+    // Verificar si necesitamos nueva página para la descripción
+    // checkPageBreak(lines.length * 7);
+    lineImg.forEach((line) => {
+      if (yPosition + 5 > pageHeight - bottomMargin) {
+        addNewPage();
+        yPosition = topMargin;
+      }
+      doc.text(line, leftMargin, yPosition, {
+        align: "justify",
+        maxWidth: maxWidth,
+      });
+      //yPosition += Math.max(10, lines.length * 5);
+      yPosition += 5;
+    }); */
     // Verificar si necesitamos nueva página para las firmas
     // checkPageBreak(60);
 
@@ -557,6 +684,54 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     yPosition += boxHeight + 10;
  */
     // Pie de página
+    divisoriaLine();
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(subtitle);
+    doc.text(`Alcance y responsabilidades`, pageWidth / 2, yPosition, {
+      align: "center",
+    });
+    yPosition += 5;
+    doc.setFontSize(8);
+    doc.setFontSize(textPar);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(0, 0, 0);
+    someText(
+      "Cabe destacar que el presente documento no constituye un estudio técnico vinculante, ya que se fundamenta en una inspección visual de campo y revisión de información secundaria existente. Para la emisión de un dictamen técnico con validez certificada, se requerirían estudios especializados que incluyan levantamientos topográficos detallados, obtención y análisis de muestras de suelo, ensayos de laboratorio y demás necesarios.",
+      0,
+      0,
+      0,
+    );
+    yPosition += 5;
+    someText(
+      "De conformidad con la normativa vigente, en especial la Ley Orgánica de Gestión Integral de Riesgos de Desastres (LOGIRD) y el Código Orgánico de Organización Territorial, Autonomía y Descentralización (COOTAD), la institución emisora no asume responsabilidad por las decisiones que se adopten con base en este análisis técnico de carácter referencial, cuya aplicación corresponde exclusivamente al encargado de la infraestructura o autoridad competente. En observancia del principio de autoprotección, será responsabilidad de los usuarios ejecutar las acciones básicas de mantenimiento, conservación y adecuación funcional necesarias para mantener las condiciones de seguridad, conforme a la normativa vigente.",
+      0,
+      0,
+      0,
+    );
+    // doc.setTextColor(150, 150, 150);
+    /*  doc.text(
+      "Cabe destacar que el presente documento no constituye un estudio técnico vinculante, ya que se fundamenta en una inspección visual de campo y revisión de información secundaria existente. Para la emisión de un dictamen técnico con validez certificada, se requerirían estudios especializados que incluyan levantamientos topográficos detallados, obtención y análisis de muestras de suelo, ensayos de laboratorio y demás necesarios.",
+      leftMargin,
+      yPosition,
+      {
+        align: "justify",
+        maxWidth: maxWidth - 15,
+      },
+    );
+    yPosition += 20;
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "normal");
+    // doc.setTextColor(150, 150, 150);
+    doc.text(
+      "De conformidad con la normativa vigente, en especial la Ley Orgánica de Gestión Integral de Riesgos de Desastres (LOGIRD) y el Código Orgánico de Organización Territorial, Autonomía y Descentralización (COOTAD), la institución emisora no asume responsabilidad por las decisiones que se adopten con base en este análisis técnico de carácter referencial, cuya aplicación corresponde exclusivamente al encargado de la infraestructura o autoridad competente. En observancia del principio de autoprotección, será responsabilidad de los usuarios ejecutar las acciones básicas de mantenimiento, conservación y adecuación funcional necesarias para mantener las condiciones de seguridad, conforme a la normativa vigente.",
+      leftMargin,
+      yPosition,
+      {
+        align: "justify",
+        maxWidth: maxWidth - 15,
+      },
+    ); */
+
     doc.setFontSize(10);
     doc.setTextColor(150, 150, 150);
     doc.text(

@@ -175,7 +175,11 @@ export default function Panel({
           size="small"
         >
           <MenuItem value="Inundación">Inundación</MenuItem>
-          <MenuItem value="Movimiento en masa">Movimiento en masa</MenuItem>
+          <MenuItem value="Movimiento en masa">Movimiento en masa</MenuItem>          
+          <MenuItem value="Incendio Estructural">Incendio Estructural</MenuItem>          
+          <MenuItem value="Colapso Estructural">Colapso Estructural</MenuItem>                 
+          <MenuItem value="Época Lluviosa">Época Lluviosa</MenuItem>                        
+          <MenuItem value="Maxima Precipitación">Maxima Precipitación</MenuItem>
           <MenuItem value="Todos">Todos</MenuItem>
         </Select>
       </FormControl>
