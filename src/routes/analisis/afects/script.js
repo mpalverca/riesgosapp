@@ -206,16 +206,11 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(title);
     doc.text(
-      `FICHA TÉCNICA DE RIESGOS Nro. CGR-${item.id}`,
+      `FICHA REGISTRO DE AFECTACIÓN Nro. CGR-${item.id}`,
       pageWidth / 2,
       topMargin,
       { align: "center" },
     );
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(subtitle);
-    doc.text(`EVALUACIÓN INICIAL DE AFECTACION`, pageWidth / 2, topMargin + 5, {
-      align: "center",
-    });
     divisoriaLine();
     doc.setFont("helvetica", "bold");
     doc.setFontSize(subtitle);
@@ -443,16 +438,18 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.setFontSize(8);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(255, 0, 0);
+    checkPageBreak(bottomMargin+20)
     // doc.setTextColor(150, 150, 150);
     doc.text(
       "Las acciones planteadas tienen carácter orientativo y su materialización dependerá de la disponibilidad de recursos y equipos, correspondiendo su ejecución tanto a las instancias competentes como a los usuarios, de acuerdo al grado de competencia definido para cada caso",
       leftMargin,
       yPosition,
       {
+        align:"justify",
         maxWidth: maxWidth - 15,
       },
     );
-    yPosition += 10;
+    yPosition += 15;
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(subtitle);
     doc.setFont("helvetica", "bold");
@@ -629,7 +626,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
         yPosition += 5;
       }
     }
-
+    doc.setTextColor(0, 0, 0);
     doc.setFontSize(textPar);
     doc.setFont("helvetica", "normal");
     someText(item.desc_img, 0, 0, 0);
@@ -684,14 +681,15 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     yPosition += boxHeight + 10;
  */
     // Pie de página
-    divisoriaLine();
+       checkPageBreak(bottomMargin+20)
+    divisoriaLine(); 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(subtitle);
     doc.text(`Alcance y responsabilidades`, pageWidth / 2, yPosition, {
       align: "center",
     });
     yPosition += 5;
-    doc.setFontSize(8);
+    doc.setFontSize(7);
     doc.setFontSize(textPar);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(0, 0, 0);
@@ -702,12 +700,6 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
       0,
     );
     yPosition += 5;
-    someText(
-      "De conformidad con la normativa vigente, en especial la Ley Orgánica de Gestión Integral de Riesgos de Desastres (LOGIRD) y el Código Orgánico de Organización Territorial, Autonomía y Descentralización (COOTAD), la institución emisora no asume responsabilidad por las decisiones que se adopten con base en este análisis técnico de carácter referencial, cuya aplicación corresponde exclusivamente al encargado de la infraestructura o autoridad competente. En observancia del principio de autoprotección, será responsabilidad de los usuarios ejecutar las acciones básicas de mantenimiento, conservación y adecuación funcional necesarias para mantener las condiciones de seguridad, conforme a la normativa vigente.",
-      0,
-      0,
-      0,
-    );
     // doc.setTextColor(150, 150, 150);
     /*  doc.text(
       "Cabe destacar que el presente documento no constituye un estudio técnico vinculante, ya que se fundamenta en una inspección visual de campo y revisión de información secundaria existente. Para la emisión de un dictamen técnico con validez certificada, se requerirían estudios especializados que incluyan levantamientos topográficos detallados, obtención y análisis de muestras de suelo, ensayos de laboratorio y demás necesarios.",
@@ -740,6 +732,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
       doc.internal.pageSize.getHeight() - 15,
       { align: "center" },
     );
+    
     /* doc.setFontSize(8);
     doc.text(
       "En base al Literal d, artículo 113 de la ordenanza 070-2025, REFORMA A LA ORDENANZA DE ACTUALIZACIÓN DE LOS PLANES: DE DESARROLLO Y ORDENAMIENTO TERRITORIAL (PDOT) 2023-2027 Y DE USO Y GESTIÓN DE SUELO (PUGS) 2023-2033 URBANO Y RURAL DEL CANTÓN LOJA ",

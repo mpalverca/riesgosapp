@@ -11,6 +11,7 @@ import {
   Typography,
   Paper,
   MenuItem,
+  Divider,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -77,7 +78,6 @@ export const DialogAccions = ({
     to_mtt_gt: "",
     need: "",
     state_req: "",
-    
   });
 
   useEffect(() => {
@@ -178,19 +178,6 @@ export const DialogAccions = ({
                       transformDataToOptions(props.dataPol),
                     )}
                   </Grid>
-                  {/* <Grid item size={{ xs: 12, sm: 6 }}>
-                    <DatePicker
-                      format="dd/MM/yyyy"
-                      label="Fecha del Evento"
-                      value={fixData.date_event}
-                      onChange={(value) =>
-                        setFixData((prev) => ({ ...prev, date_event: value }))
-                      }
-                      slotProps={{
-                        textField: { fullWidth: true, required: true },
-                      }}
-                    />
-                  </Grid> */}
                   <Grid item size={{ xs: 12, sm: 6 }}>
                     <DatePicker
                       label="Fecha de Actuación"
@@ -204,57 +191,167 @@ export const DialogAccions = ({
                       }}
                     />
                   </Grid>
-
-                  {/*  <Grid item size={{ xs: 12, sm: 6 }}>
-                    {renderField("parroq", "Parroquia", "select", [
-                      { value: "carigan", label: "Carigan" },
-                      { value: "el_sagrario", label: "El Sagrario" },
-                      { value: "el_valle", label: "El Valle" },
-                      { value: "punzara", label: "Punzara" },
-                      { value: "san_sebastian", label: "San Sebastián" },
-                      { value: "sucre", label: "Sucre" },
-                      { value: "chantaco", label: "Chantaco" },
-                      { value: " chuquiribamba,", label: " Chuquiribamba" },
-                      { value: "el_cisne", label: "El Cisne" },
-                      { value: "gualel", label: "Gualel" },
-                      { value: "jimbilla", label: "Jimbilla" },
-                      { value: "malacatos", label: "Malacatos" },
-                      { value: "quinara", label: "Quinara" },
-                      { value: "san_lucas", label: "San Lucas" },
-                      {
-                        value: "san_pedro_de_vilcabamba",
-                        label: "San Pedro de Vilcabamba",
-                      },
-                      { value: "santiago", label: "Santiago" },
-                      { value: "taquil", label: "Taquil" },
-                      { value: "vilcabamba", label: "Vilcabamba" },
-                      { value: "yangana", label: "Yangana" },
-                    ])}
-                  </Grid> */}
-
-                  {/* <Grid item size={{ xs: 12, sm: 6 }}>
-                    {renderField("sector", "Sector")}
-                  </Grid>
-                  <Grid item size={{ xs: 12, sm: 6 }}>
-                    {renderField("event", "Tipo de Evento", "select", [
-                      { value: "", label: "Seleccione" },
-                      { value: "deslizamiento", label: "Movimiento en masa" },
-                      { value: "colapso", label: "Colapso Estructural" },
-                      { value: "granizada", label: "Granizada" },
-                      { value: "helada", label: "Helada" },
-                      { value: "hundimiento", label: "Hundimiento" },
-                      { value: "inundacion", label: "Inundación" },
-                      { value: "socavamiento", label: "Socavamiento" },
-                      { value: "subsidencia", label: "Subsidencia" },
-                      { value: "tormenta", label: "Tormenta Eléctrica" },
-                      { value: "vendaval,", label: "Vendaval" },
-                    ])}
-                  </Grid> */}
                   <Grid item size={{ xs: 12, sm: 6 }}>
                     {renderField("radio", "Radio (m)", "number")}
                   </Grid>
                   <Grid item size={{ xs: 12 }}>
                     {renderField("desc", "Descripción", "textarea")}
+                  </Grid>
+                  <Grid container spacing={2} sx={{ p: 2 }}>
+                    {/* Primera sección: Información básica */}
+                    <Grid item size={{ xs: 12, md: 6 }}>
+                      {renderField(
+                        "acc_resp",
+                        "Acción de respuesta_AR",
+                        "text",
+                      )}
+                    </Grid>
+                    <Grid item size={{ xs: 12, md: 6 }}>
+                      {renderField(
+                        "sector_COE",
+                        "Sector que atiendó - Según manual del COE_AR",
+                        "text",
+                      )}
+                    </Grid>
+
+                    <Grid item size={{ xs: 12, md: 4 }}>
+                      {renderField("estado", "Estado_AR", "select", {
+                        options: [
+                        {value:  "Vigente", label:  "Vigente"},
+                           
+                        
+                         {value: "Finalizada", label: "Finalizada"},
+                        ],
+                      })}
+                    </Grid>
+                    <Grid item size={{ xs: 12, md: 4 }}>
+                      {renderField("obs", "Observación_AR", "textarea")}
+                    </Grid>
+                    <Grid item size={{ xs: 12, md: 4 }}>
+                      {renderField("detalle", "Detalle", "textarea")}
+                    </Grid>
+
+                    {/* Separador visual */}
+                    <Grid item size={{ xs: 12 }}>
+                      <Divider sx={{ my: 2 }} />
+                      <Typography variant="h6">
+                        Información de Movilización
+                      </Typography>
+                    </Grid>
+
+                    {/* Fecha de Movilización e Institución */}
+                    <Grid item size={{ xs: 12, md: 6 }}>
+                      {renderField("date_mov", "Fecha de Movilización", "date")}
+                    </Grid>
+                    <Grid item size={{ xs: 12, md: 6 }}>
+                      {renderField(
+                        "Inst_atie",
+                        "Institución que atiende",
+                        "text",
+                      )}
+                    </Grid>
+
+                    {/* Ubicación */}
+                    <Grid item size={{ xs: 12, md: 4 }}>
+                      {renderField("prov", "Provincia", "text")}
+                    </Grid>
+                    <Grid item size={{ xs: 12, md: 4 }}>
+                      {renderField("canton", "Cantón", "text")}
+                    </Grid>
+                    <Grid item size={{ xs: 12, md: 4 }}>
+                      {renderField("ubicacion", "Ubicación", "text")}
+                    </Grid>
+
+                    {/* Separador */}
+                    <Grid item size={{ xs: 12 }}>
+                      <Divider sx={{ my: 2 }} />
+                      <Typography variant="h6">Recursos Asignados</Typography>
+                    </Grid>
+
+                    {/* Recursos numéricos */}
+                    <Grid item size={{ xs: 12, md: 3 }}>
+                      {renderField("n_herramientas", "Herramientas", "number")}
+                    </Grid>
+                    <Grid item size={{ xs: 12, md: 3 }}>
+                      {renderField("n_personal", "#Personal", "number")}
+                    </Grid>
+                    <Grid item size={{ xs: 12, md: 3 }}>
+                      {renderField(
+                        "u_emerg",
+                        "#Unidades de Emergencia",
+                        "number",
+                      )}
+                    </Grid>
+                    <Grid item size={{ xs: 12, md: 3 }}>
+                      {renderField(
+                        "n_livianos",
+                        "#Vehículos livianos",
+                        "number",
+                      )}
+                    </Grid>
+
+                    <Grid item size={{ xs: 12, md: 3 }}>
+                      {renderField("n_pesados", "#Vehículos Pesados", "number")}
+                    </Grid>
+                    <Grid item size={{ xs: 12, md: 3 }}>
+                      {renderField("u_aereas", "#Unidades aéreas", "number")}
+                    </Grid>
+                    <Grid item size={{ xs: 12, md: 3 }}>
+                      {renderField("otro", "#Otro", "number")}
+                    </Grid>
+                    <Grid item size={{ xs: 12, md: 3 }}>
+                      {renderField("obser", "Observaciones", "textarea")}
+                    </Grid>
+
+                    {/* Separador */}
+                    <Grid item size={{ xs: 12 }}>
+                      <Divider sx={{ my: 2 }} />
+                      <Typography variant="h6">
+                        Información del Requerimiento
+                      </Typography>
+                    </Grid>
+
+                    {/* Código y fechas de requerimiento */}
+                    <Grid item size={{ xs: 12, md: 4 }}>
+                      {renderField(
+                        "code",
+                        "Código Requerimiento (MTTX-XXXX)",
+                        "text",
+                      )}
+                    </Grid>
+                    <Grid item size={{ xs: 12, md: 4 }}>
+                      {renderField("code_req", "Código Requerimiento", "text")}
+                    </Grid>
+                    <Grid item size={{ xs: 12, md: 4 }}>
+                      {renderField(
+                        "date_req",
+                        "Fecha del requerimiento",
+                        "date",
+                      )}
+                    </Grid>
+
+                    <Grid item size={{ xs: 12, md: 4 }}>
+                      {renderField("to_mtt_gt", "Dirigido a MTT-GT", "text")}
+                    </Grid>
+                    <Grid item size={{ xs: 12, md: 4 }}>
+                      {renderField("need", "Necesidad", "textarea")}
+                    </Grid>
+                    <Grid item size={{ xs: 12, md: 4 }}>
+                      {renderField(
+                        "state_req",
+                        "Estado del requerimiento",
+                        "select",
+                        {
+                          options: [
+                            "Pendiente",
+                            "Aprobado",
+                            "Rechazado",
+                            "En Ejecución",
+                            "Completado",
+                          ],
+                        },
+                      )}
+                    </Grid>
                   </Grid>
                 </Grid>
               </Box>
