@@ -17,9 +17,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { useEffect, useState } from "react";
-
 import { useGetInfo } from "../../Crud";
-
 export const DialogAccions = ({
   open,
   onClose,
@@ -27,8 +25,7 @@ export const DialogAccions = ({
   coordinates,
   ...props
 }) => {
-
-  console.log(props.length)
+  
   const getUbiString = () => {
     if (
       !coordinates ||
@@ -40,9 +37,6 @@ export const DialogAccions = ({
 
     return `[${coordinates.lat}, ${coordinates.lng}]`;
   };
-  
-   
-  
   console.log(coordinates?.lat);
   const { post, dataGet } = useGetInfo();
   const [fixData, setFixData] = useState({
@@ -74,7 +68,8 @@ export const DialogAccions = ({
     u_aereas: "",
     otro: "",
     obser: "",
-    code: "",
+    code: `Loja-Loja_${mtt}-${props.length + 1}-`,
+    date_req:null,
     code_req: "",
     date_req: "",
     to_mtt_gt: "",
@@ -82,6 +77,49 @@ export const DialogAccions = ({
     state_req: "",
   });
 
+  const mesas = [
+    {
+      value: "MTT1",
+      label: "MTT1-Agua segura, saneamiento y gestión de residuos",
+    },
+    {
+      value: "MTT2",
+      label: "MTT2-Salud y ATención Prehospitalaria",
+    },
+    {
+      value: "MTT3",
+      label: "MTT3-Servicios básicos esenciales",
+    },
+    {
+      value: "MTT4",
+      label: "MTT4-Alojamientos Temporales y Asistencia Humanitaria",
+    },
+    {
+      value: "MTT5",
+      label: "MTT5-Educación en emergencia",
+    },
+    {
+      value: "MTT6",
+      label: "MTT6-Medios de vida y productividad",
+    },
+    {
+      value: "MTT7",
+      label: "MTT7-Infraestructura esencial y Vivienda",
+    },
+    {
+      value: "GT1",
+      label: "GT1-Logística",
+    },
+    {
+      value: "GT2",
+      label: "GT2-Seguridad y Control",
+    },
+    {
+      value: "GT3",
+      label: "GT3-Búsqueda, salvamento y rescate",
+    },
+  ];
+console.log(fixData.code + fixData.to_mtt_gt)
   useEffect(() => {
     setFixData((prev) => ({
       ...prev,
@@ -907,61 +945,21 @@ export const DialogAccions = ({
                     )}
                   </Grid>
                   <Grid item size={{ xs: 12 }}>
-                    {renderField("acc_resp",
-                        "Acción de respuesta_AR", "textarea")}
+                    {renderField(
+                      "acc_resp",
+                      "Acción de respuesta_AR",
+                      "textarea",
+                    )}
                   </Grid>
                   <Grid container spacing={2} sx={{ p: 2 }}>
                     {/* Primera sección: Información básica */}
-                    
+
                     <Grid item size={{ xs: 12, md: 6 }}>
                       {renderField(
                         "sector_COE",
                         "Sector que atiendó - Según manual del COE_AR",
-                       "select", [
-                          {
-                            value: "MTT1",
-                            label:
-                              "MTT1-Agua segura, saneamiento y gestión de residuos",
-                          },
-                          {
-                            value: "MTT2",
-                            label: "MTT2-Salud y ATención Prehospitalaria",
-                          },
-                          {
-                            value: "MTT3",
-                            label: "MTT3-Servicios básicos esenciales",
-                          },
-                          {
-                            value: "MTT4",
-                            label:
-                              "MTT4-Alojamientos Temporales y Asistencia Humanitaria",
-                          },
-                          {
-                            value: "MTT5",
-                            label: "MTT5-Educación en emergencia",
-                          },
-                          {
-                            value: "MTT6",
-                            label: "MTT16-Medios de vida y productividad",
-                          },
-                          {
-                            value: "MTT7",
-                            label: "MTTt-Infraestructura esencial y Vivienda",
-                          },
-                          {
-                            value: "GT1",
-                            label: "GT1-Logística",
-                          },
-                          {
-                            value: "GT2",
-                            label: "GT2-Seguridad y Control",
-                          },
-                          {
-                            value: "GT3",
-                            label: "GT3-Búsqueda, salvamento y rescate",
-                          },
-
-                        ],
+                        "select",
+                        mesas
                       )}
                     </Grid>
 
@@ -973,7 +971,7 @@ export const DialogAccions = ({
                     </Grid>
                     <Grid item size={{ xs: 12, md: 12 }}>
                       {renderField("obs", "Observación_AR", "textarea")}
-                    </Grid>                  
+                    </Grid>
                     {/* Separador visual */}
                     <Grid item size={{ xs: 12 }}>
                       <Divider sx={{ my: 2 }} />
@@ -995,8 +993,9 @@ export const DialogAccions = ({
 
                     {/* Separador */}
                     <Grid item size={{ xs: 12 }}>
-                      
-                      <Typography variant="body1">Recursos Asignados</Typography>
+                      <Typography variant="body1">
+                        Recursos Asignados
+                      </Typography>
                     </Grid>
 
                     {/* Recursos numéricos */}
@@ -1043,17 +1042,17 @@ export const DialogAccions = ({
                     </Grid>
 
                     {/* Código y fechas de requerimiento */}
-                    <Grid item size={{ xs: 12, md: 4 }}>
-                      {renderField(
-                        "code",
-                        "Código Requerimiento (MTTX-XXXX)",
-                        "text",
-                      )}
+                    <Grid item size={{ xs: 12, md: 6 }}>
+                      <Typography
+                      align="center"
+                      alignItems="center"
+                      alignContent="center"
+                      >{fixData.code + fixData.to_mtt_gt}</Typography>
                     </Grid>
-                    <Grid item size={{ xs: 12, md: 4 }}>
+                    <Grid item size={{ xs: 12, md: 6 }}>
                       {renderField("code_req", "Código Requerimiento", "text")}
                     </Grid>
-                    <Grid item size={{ xs: 12, md: 4 }}>
+                    <Grid item size={{ xs: 12, md: 6 }}>
                       {renderField(
                         "date_req",
                         "Fecha del requerimiento",
@@ -1061,8 +1060,8 @@ export const DialogAccions = ({
                       )}
                     </Grid>
 
-                    <Grid item size={{ xs: 12, md: 4 }}>
-                      {renderField("to_mtt_gt", "Dirigido a MTT-GT", "text")}
+                    <Grid item size={{ xs: 12, md: 6 }}>
+                      {renderField("to_mtt_gt", "Dirigido a MTT-GT", "select",mesas)}
                     </Grid>
                     <Grid item size={{ xs: 12, md: 4 }}>
                       {renderField("need", "Necesidad", "textarea")}
@@ -1089,8 +1088,9 @@ export const DialogAccions = ({
         </DialogContent>
         <DialogActions>
           <Button
+            disable={!props.length || props.length>0 ? false : true}
             onClick={() => {
-              post(mtt, "Acciones", { fixData });
+              post(mtt, "Acciones", { code_req:fixData.code + fixData.to_mtt_gt , ...fixData });
               onClose();
               if (dataGet?.success == true) {
                 alert(
