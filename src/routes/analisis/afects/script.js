@@ -308,6 +308,11 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     // Verificar si necesitamos nueva página para el mapa
     // checkPageBreak(120 + marginBottom);
     // Mapa
+    yPosition += 7;
+    doc.setFont("helvetica", "bold");
+    doc.text("Reporta:", leftMargin, yPosition);
+    doc.setFont("helvetica", "normal");
+    doc.text(String(item.report || ""), leftMargin + 20, yPosition);
     let imagemap = await captureMap(lat, lng, 18);
     doc.addImage(
       imagemap,
