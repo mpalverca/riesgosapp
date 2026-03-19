@@ -91,7 +91,7 @@ export const cargarDatosParroquia = async () => {
 export async function generarPDF(titulo, lat, lng, itemStr, require) {
   try {
     const item = itemStr;
-    console.log(item);
+    //console.log(item);
     //console.log("Generando PDF para el ítem:", item)
     const doc = new jsPDF();
     const title = 11;
@@ -443,14 +443,14 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.setFontSize(8);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(255, 0, 0);
-    checkPageBreak(bottomMargin+20)
+    checkPageBreak(bottomMargin + 20);
     // doc.setTextColor(150, 150, 150);
     doc.text(
       "Las acciones planteadas tienen carácter orientativo y su materialización dependerá de la disponibilidad de recursos y equipos, correspondiendo su ejecución tanto a las instancias competentes como a los usuarios, de acuerdo al grado de competencia definido para cada caso",
       leftMargin,
       yPosition,
       {
-        align:"justify",
+        align: "justify",
         maxWidth: maxWidth - 15,
       },
     );
@@ -652,8 +652,8 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     }); */
     // Verificar si necesitamos nueva página para las firmas
     // checkPageBreak(60);
-    checkPageBreak(bottomMargin+20)
-    divisoriaLine(); 
+    checkPageBreak(bottomMargin + 20);
+    divisoriaLine();
     doc.setFont("helvetica", "bold");
     doc.setFontSize(subtitle);
     doc.text(`Alcance y responsabilidades`, pageWidth / 2, yPosition, {
@@ -695,45 +695,69 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
       },
     ); */
 
-    
-     // Espacio para firmas
-     console.log(require.ci == 1150511853)
-if (require.ci == 1150511853) {
-  checkPageBreak(bottomMargin + 20);
-  divisoriaLine();
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(12);
-  doc.text("FIRMAS DE RESPONSABLES", pageWidth / 2, yPosition, {
-    align: "center",
-  });
-  yPosition += 5;
+    // Espacio para firmas
+    const codigosPermitidos = [
+      "1150511853",
+      "1104914260",
+      "1104998370",
+      "1105867459",
+    ];
+    if (codigosPermitidos.includes(require.ci)) {
+      checkPageBreak(bottomMargin + 20);
+      divisoriaLine();
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(12);
+      doc.text("FIRMAS DE RESPONSABLES", pageWidth / 2, yPosition, {
+        align: "center",
+      });
+      yPosition += 5;
 
-  // Dibujar cajas para firmas
-  const boxWidth = (pageWidth - leftMargin - rightMargin - 20) / 2;
-  const boxHeight = 45;
+      // Dibujar cajas para firmas
+      const boxWidth = (pageWidth - leftMargin - rightMargin - 20) / 2;
+      const boxHeight = 45;
 
-  // Primera firma
-  doc.setDrawColor(0, 0, 0);
-  doc.rect(leftMargin, yPosition, boxWidth, boxHeight);
-   doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
-    doc.text("Firma:______________________________", leftMargin + 5, yPosition + 25);
-    doc.text("Nombre:_____________________________", leftMargin + 5, yPosition + 35);
-    doc.text("Cargo:______________________________", leftMargin + 5, yPosition + 42);
+      // Primera firma
+      doc.setDrawColor(0, 0, 0);
+      doc.rect(leftMargin, yPosition, boxWidth, boxHeight);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.text(
+        "Firma:______________________________",
+        leftMargin + 5,
+        yPosition + 25,
+      );
+      doc.text(
+        "Nombre:_____________________________",
+        leftMargin + 5,
+        yPosition + 35,
+      );
+      doc.text(
+        "Cargo:______________________________",
+        leftMargin + 5,
+        yPosition + 42,
+      );
 
-  // Segunda firma
-  doc.rect(leftMargin + boxWidth + 20, yPosition, boxWidth, boxHeight);
-  
-  doc.text("Firma:______________________________", leftMargin + boxWidth + 25, yPosition + 25);
-  doc.text("Ing.José Luis Lima Maza", leftMargin + boxWidth + 25, yPosition + 35);
-  doc.text(
-    "Coordinador de Gestión de Riesgos",
-    leftMargin + boxWidth + 25,
-    yPosition + 42, // Corregido: estaba en yPosition + 5
-  );
+      // Segunda firma
+      doc.rect(leftMargin + boxWidth + 20, yPosition, boxWidth, boxHeight);
 
-  yPosition += boxHeight + 10;
-}
+      doc.text(
+        "Firma:______________________________",
+        leftMargin + boxWidth + 25,
+        yPosition + 25,
+      );
+      doc.text(
+        "Ing.José Luis Lima Maza",
+        leftMargin + boxWidth + 25,
+        yPosition + 35,
+      );
+      doc.text(
+        "Coordinador de Gestión de Riesgos",
+        leftMargin + boxWidth + 25,
+        yPosition + 42, // Corregido: estaba en yPosition + 5
+      );
+
+      yPosition += boxHeight + 10;
+    }
 
     doc.setFontSize(10);
     doc.setTextColor(150, 150, 150);
@@ -743,7 +767,7 @@ if (require.ci == 1150511853) {
       doc.internal.pageSize.getHeight() - 15,
       { align: "center" },
     );
-    
+
     /* doc.setFontSize(8);
     doc.text(
       "En base al Literal d, artículo 113 de la ordenanza 070-2025, REFORMA A LA ORDENANZA DE ACTUALIZACIÓN DE LOS PLANES: DE DESARROLLO Y ORDENAMIENTO TERRITORIAL (PDOT) 2023-2027 Y DE USO Y GESTIÓN DE SUELO (PUGS) 2023-2033 URBANO Y RURAL DEL CANTÓN LOJA ",
