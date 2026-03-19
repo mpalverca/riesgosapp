@@ -21,6 +21,7 @@ import Panels from "../../../components/panels/Panels";
 import MapMark from "./MapsView";
 import { DialogAfect } from "./popups/ImputAfect";
 import { useGetInfo, useGetPoligonos } from "../script";
+import { DialogAccions } from "./popups/ImputAccions";
 
 function BodyCOE({ mtt, member }) {
   // 1. Instancias independientes para evitar colisiones de datos
@@ -38,6 +39,8 @@ function BodyCOE({ mtt, member }) {
 
   const [coordinates, setCoordinates] = useState(null);
   const [openAF, setOpenAF] = useState(false);
+  
+  const [openAC, setOpenAC] = useState(false);
   const [selectedCapa, setSelectedCapa] = useState({
     afectaciones: false,
     acciones: false,
@@ -85,7 +88,7 @@ function BodyCOE({ mtt, member }) {
       icon: <DirectionsWalkIcon />,
       instance: reqAcciones,
       searchType: "Acciones",
-      accion: (coords) => console.log("Afectaciones en:", coords),
+      accion: (coords) => handleClickAC(coords),
     },
     {
       key: "requerimientos",
@@ -98,10 +101,12 @@ function BodyCOE({ mtt, member }) {
   ];
   const handleClickOpen = (coordenate) => {
     setOpenAF(true);
-
     setCoordinates(coordenate);
   };
-
+ const handleClickAC= (coordenate) => {
+    setOpenAF(true);
+    setCoordinates(coordenate);
+  };
   /* const handleClose = (value) => {
     setOpenAF(false);
   }; */
@@ -229,6 +234,14 @@ function BodyCOE({ mtt, member }) {
         coordinates={coordinates}
         member={member}
         onClose={() => setOpenAF(false)}
+      />
+      <DialogAccions
+      mtt={mtt}
+        open={openAF}
+        dataPol={reqPol.dataPol?.data}
+        coordinates={coordinates}
+        member={member}
+        onClose={() => setOpenAC(false)}
       />
     </Grid>
   );

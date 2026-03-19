@@ -16,10 +16,16 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { useEffect, useState } from "react";
-import MTT4Afect from "./afectMMT/mtt4";
+
 import { useGetInfo } from "../../Crud";
 
-export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
+export const DialogAccions = ({
+  open,
+  onClose,
+  mtt,
+  coordinates,
+  ...props
+}) => {
   const getUbiString = () => {
     if (
       !coordinates ||
@@ -34,8 +40,8 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
   const handleClose = () => {
     onClose();
   };
+  console.log(coordinates?.lat);
   const { post, dataGet } = useGetInfo();
-  //const {createIAF } = useAfectaciones();
   const [fixData, setFixData] = useState({
     date_event: null,
     date_act: null,
@@ -48,26 +54,30 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
     radio: "",
     sector: "",
     desc: "",
-  });
-  const [formData4, setFormData4] = useState({
-    perm_dam: null,
-    fam_damn: null,
-    perf_afect: null,
-    fam_afect: null,
-    per_ind: null,
-    fam_ind: null,
-    perd_desp: null,
-    fam_despl: null,
-    alb_afect: null,
-    camp_afect: null,
-    per_fam: null,
-    fam_fam: null,
-    per_cam: null,
-    fam_camp: null,
-    per_ref: null,
-    fam_ref: null,
-    per_emerg: null,
-    fami_emerg: null,
+    acc_resp: "",
+    sector_COE: "",
+    estado: "",
+    obs: "",
+    detalle: "",
+    date_mov: "",
+    Inst_atie: "",
+    prov: "Loja",
+    canton: "Loja",
+    n_herramientas: "",
+    n_personal: "",
+    u_emerg: "",
+    n_livianos: "",
+    n_pesados: "",
+    u_aereas: "",
+    otro: "",
+    obser: "",
+    code: "",
+    code_req: "",
+    date_req: "",
+    to_mtt_gt: "",
+    need: "",
+    state_req: "",
+    
   });
 
   useEffect(() => {
@@ -78,25 +88,6 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
   }, [coordinates?.lat, coordinates?.lng]); // Dependencias específicas
 
   // Verificar coordenadas antes de usarlas
-
-  const getMMData = (mttValue) => {
-    switch (mttValue) {
-      case "MTT1":
-        return <MTT1Afect />;
-      case "MTT2":
-        return "blue";
-      case "MTT3":
-        return "green";
-      case "MTT4":
-        return <MTT4Afect setFormData={setFormData4} formData={formData4} />;
-      case "MTT5":
-        return "purple";
-      default:
-        return "cargndo información";
-    }
-  };
-
-  const CurrentMTT = getMMData(mtt);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -155,12 +146,12 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
     // Agregamos la opción por defecto al inicio
     return [{ value: "", label: "Seleccione" }, ...options];
   };
-  
+
   return (
     <>
       <Dialog onClose={handleClose} open={open}>
         <DialogTitle>
-          Ingrese Afectaciones en la Mesa técnica de trabajo/Grupo de Trabajo -{" "}
+          Ingrese Acciones en la Mesa técnica de trabajo/Grupo de Trabajo -{" "}
           {mtt}
         </DialogTitle>
         <DialogContent>
@@ -181,7 +172,7 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
                 <Grid container spacing={2}>
                   <Grid item size={{ xs: 12, sm: 12 }}>
                     {renderField(
-                      "row_event",
+                      "evento",
                       "Evento",
                       "select",
                       transformDataToOptions(props.dataPol),
@@ -269,28 +260,16 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
               </Box>
             </LocalizationProvider>
           </Paper>
-          {CurrentMTT}
         </DialogContent>
         <DialogActions>
           <Button
-            disabled={
-              props.dataPol?.length === 0 ||
-              !props.dataPol ||
-              !fixData.date_act ||
-              !fixData.row_event
-                ? true
-                : false
-            }
             onClick={() => {
-              // createIAF(mtt, "Afectaciones",{ ...formData4, ...fixData });
-
-              post(mtt, "Afectaciones", { ...formData4, ...fixData });
+              post(mtt, "Acciones", { fixData });
               handleClose();
               if (dataGet?.success == true) {
                 alert(
-                  "Se ha agregado la información correctamente, recargue las afectaciones",
+                  "Se ha agregado la información correctamente, recargue las acciones",
                 );
-                setFixData({});
               }
             }}
           >

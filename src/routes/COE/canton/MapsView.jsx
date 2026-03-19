@@ -267,7 +267,7 @@ function MapMark({
               // CORRECCIÓN AQUÍ: usa ===
               item.key === "requerimientos" ? null : (
                 <Button
-                  color="success"
+                  color= {item.key === "afectaciones"? "error":"success"}
                   key={item.key}
                   variant="outlined"
                   startIcon={item.icon}
@@ -275,7 +275,7 @@ function MapMark({
                   onClick={() => handleLayerClick(item)}
                   sx={{ justifyContent: "flex-start", textTransform: "none" }}
                 >
-                  Añadir {item.label}
+                  {item.label}
                 </Button>
               ),
             )}

@@ -1,11 +1,6 @@
 import { useCallback, useState } from "react";
 import CircleNotificationsIcon from "@mui/icons-material/CircleNotifications";
-import {
-  Box,
-  Button,
-  Divider,
-  Typography,
-} from "@mui/material";
+import { Box, Button, Divider, Typography } from "@mui/material";
 import { Marker, Popup } from "react-leaflet";
 import { renderToString } from "react-dom/server"; // Importa renderToString
 import { divIcon } from "leaflet";
@@ -21,7 +16,6 @@ import {
   fieldsMTT7,
 } from "./afectMMT/Fields_afect/fiels_mtt";
 import { parseByField } from "../../../utils/utils";
-
 
 export const AfectacionesView = ({
   afect,
@@ -78,12 +72,8 @@ export const AfectacionesView = ({
                 sx={{ height: "60vh", overflowY: "auto", maxWidth: "450px" }}
               >
                 <h3 style={{ color: "#e21111" }}>
-                  {`Afectación - (${marker.data.row})`}
+                  {`Afectación - (${marker.data.row}) - ${pol_row?.planC} - ${marker.data.event || pol_row?.event || "Evento"} `}
                 </h3>
-                <h4 style={{ color: "#e21111" }}>
-                  {pol_row?.planC} -{" "}
-                  {marker.data.event || pol_row?.event || "Evento"}
-                </h4>
                 {/*  <p>
                   <strong>Descripción General:</strong> {pol_row?.desc_plan}
                 </p> */}
@@ -91,41 +81,8 @@ export const AfectacionesView = ({
                   <strong>Fecha del evento:</strong>{" "}
                   {formatDate(marker.data.date_event || pol_row?.date_event)}
                 </p>
-                <p>
-                  <strong>Última actualización:</strong>{" "}
-                  {formatDate(marker.data.date_act)}
-                </p>
                 <Divider />
-                {byData && !byData.error && (
-                  <>
-                    <Divider />
-                    <p>
-                      <strong>Reportado por:</strong>
-                    </p>
-                    <ul style={{ paddingLeft: "20px" }}>
-                      <li>
-                        <strong>Nombre:</strong> {byData.name}
-                      </li>
-                      <li>
-                        <strong>Cargo:</strong> {byData.cargo}
-                      </li>
-                      <li>
-                        <strong>CI:</strong> {byData.ci}
-                      </li>
-                      {byData.contact && (
-                        <li>
-                          <strong>Contacto:</strong> {byData.contact}
-                        </li>
-                      )}
-                    </ul>
-                  </>
-                )}
-                <Divider />
-                <p>
-                  <strong>Ubicación:</strong> Lat:{" "}
-                  {marker.position[0].toFixed(6)}, Lng:{" "}
-                  {marker.position[1].toFixed(6)}
-                </p>
+
                 <ul style={{ paddingLeft: "20px" }}>
                   <li>
                     <strong>Provincia:</strong> {marker.data.provincia}
@@ -139,6 +96,11 @@ export const AfectacionesView = ({
                   <li>
                     <strong>Sector:</strong>{" "}
                     {marker.data.sector || pol_row?.sector}
+                  </li>
+                  <li>
+                    <strong>Ubicación:</strong>
+                    {marker.position[0].toFixed(6)},{" "}
+                    {marker.position[1].toFixed(6)}
                   </li>
                   <li>
                     <strong>Radio:</strong> {marker.data.radio}
@@ -159,6 +121,35 @@ export const AfectacionesView = ({
                   </>
                 ) : (
                   <>
+                  <p>
+                      <strong>Última actualización:</strong>{" "}
+                      {formatDate(marker.data.date_act)}
+                    </p>
+                    <Divider/>
+                    {byData && !byData.error && (
+                      <>
+                        <Divider />
+                        <p>
+                          <strong>Reportado por:</strong>
+                        </p>
+                        <ul style={{ paddingLeft: "20px" }}>
+                          <li>
+                            <strong>Nombre:</strong> {byData.name}
+                          </li>
+                          <li>
+                            <strong>Cargo:</strong> {byData.cargo}
+                          </li>
+                          <li>
+                            <strong>CI:</strong> {byData.ci}
+                          </li>
+                          {byData.contact && (
+                            <li>
+                              <strong>Contacto:</strong> {byData.contact}
+                            </li>
+                          )}
+                        </ul>
+                      </>
+                    )} <Divider />
                     {marker.data.desc && (
                       <p sx={{ fontSize: "0.9em", align: "justify" }}>
                         <strong>Descripción de la afectación:</strong>
