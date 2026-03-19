@@ -214,7 +214,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     divisoriaLine();
     doc.setFont("helvetica", "bold");
     doc.setFontSize(subtitle);
-    doc.text(`Información Solicitante`, pageWidth / 2, yPosition, {
+    doc.text(`Información Requiriente`, pageWidth / 2, yPosition, {
       align: "center",
     });
     yPosition += 5;
@@ -647,41 +647,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     }); */
     // Verificar si necesitamos nueva página para las firmas
     // checkPageBreak(60);
-
-    /*  // Espacio para firmas
-    divisoriaLine();
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.text("FIRMAS DE RESPONSABLES", pageWidth / 2, yPosition, {
-      align: "center",
-    });
-    yPosition += 10;
-
-    // Dibujar cajas para firmas
-    const boxWidth = (pageWidth - leftMargin - rightMargin - 20) / 2;
-    const boxHeight = 40;
-
-    // Primera firma
-    doc.setDrawColor(0, 0, 0);
-    doc.rect(leftMargin, yPosition, boxWidth, boxHeight);
-    doc.setFontSize(10);
-    doc.text("Nombre:", leftMargin + 5, yPosition + 10);
-    doc.text("Firma:", leftMargin + 5, yPosition + 35);
-
-    // Segunda firma
-    doc.rect(leftMargin + boxWidth + 20, yPosition, boxWidth, boxHeight);
-    doc.text("José Luis Lima Maza", leftMargin + boxWidth + 25, yPosition + 10);
-    doc.text(
-      "Coordinador de Gestión de Riesgos",
-      leftMargin + boxWidth + 25,
-      yPosition + 5,
-    );
-    doc.text("Firma:", leftMargin + boxWidth + 25, yPosition + 35);
-
-    yPosition += boxHeight + 10;
- */
-    // Pie de página
-       checkPageBreak(bottomMargin+20)
+    checkPageBreak(bottomMargin+20)
     divisoriaLine(); 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(subtitle);
@@ -723,6 +689,46 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
         maxWidth: maxWidth - 15,
       },
     ); */
+
+    
+     // Espacio para firmas
+     console.log(require.ci == 1150511853)
+if (require.ci == 1150511853) {
+  checkPageBreak(bottomMargin + 20);
+  divisoriaLine();
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(12);
+  doc.text("FIRMAS DE RESPONSABLES", pageWidth / 2, yPosition, {
+    align: "center",
+  });
+  yPosition += 5;
+
+  // Dibujar cajas para firmas
+  const boxWidth = (pageWidth - leftMargin - rightMargin - 20) / 2;
+  const boxHeight = 45;
+
+  // Primera firma
+  doc.setDrawColor(0, 0, 0);
+  doc.rect(leftMargin, yPosition, boxWidth, boxHeight);
+   doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+    doc.text("Firma:______________________________", leftMargin + 5, yPosition + 25);
+    doc.text("Nombre:_____________________________", leftMargin + 5, yPosition + 35);
+    doc.text("Cargo:______________________________", leftMargin + 5, yPosition + 42);
+
+  // Segunda firma
+  doc.rect(leftMargin + boxWidth + 20, yPosition, boxWidth, boxHeight);
+  
+  doc.text("Firma:______________________________", leftMargin + boxWidth + 25, yPosition + 25);
+  doc.text("Ing.José Luis Lima Maza", leftMargin + boxWidth + 25, yPosition + 35);
+  doc.text(
+    "Coordinador de Gestión de Riesgos",
+    leftMargin + boxWidth + 25,
+    yPosition + 42, // Corregido: estaba en yPosition + 5
+  );
+
+  yPosition += boxHeight + 10;
+}
 
     doc.setFontSize(10);
     doc.setTextColor(150, 150, 150);

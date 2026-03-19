@@ -230,7 +230,7 @@ export default function Panel({
           <MenuItem value="San Pedro de Vilcabamba">
             San Pedro de Vilcabamba
           </MenuItem>
-          <MenuItem value="San sebastián">
+          <MenuItem value="San Sebastián">
             San Sebastián
           </MenuItem>
           <MenuItem value="Sucre">Sucre</MenuItem>

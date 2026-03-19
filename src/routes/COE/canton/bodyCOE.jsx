@@ -241,6 +241,7 @@ function BodyCOE({ mtt, member }) {
         dataPol={reqPol.dataPol?.data}
         coordinates={coordinates}
         member={member}
+      length={reqAcciones.dataGet?.data.length}
         onClose={() => setOpenAC(false)}
       />
     </Grid>
