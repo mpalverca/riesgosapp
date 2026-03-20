@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef } from "react";
 import { LayersControl, MapContainer, TileLayer, useMapEvents, } from "react-leaflet";
+import leafletImage from 'leaflet-image';
 import {
   Box,
   Button,
@@ -45,12 +46,10 @@ function MapMark({
 }) {
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [coordinates, setCoordinates] = useState(null);
-
   const [openDialog, setOpenDialog] = useState(false);
   const [typeInput, setTypeInput] = useState("");
   const [files, setFiles] = useState([]);
   // --- UTILIDADES ---
-
   // Función centralizada para procesar cualquier tipo de marcador (Afectaciones, Acciones, etc.)
   const processMarkers = (rawData) => {
     if (!rawData || !Array.isArray(rawData)) return [];
@@ -72,6 +71,24 @@ function MapMark({
       .filter(Boolean);
   };
 
+   const mapRef = useRef(null); // da valor l mapa para print
+   
+   const printToPDF = () => {
+    if (!mapRef.current) {
+      alert("El mapa no está listo aún");
+      return;
+    }
+    const map = mapRef.current;
+    leafletImage(map, (err, canvas) => {
+      if (err) {
+        console.error("Error:", err);
+        return;
+      }
+      
+      const imgData = canvas.toDataURL('image/png');
+      return imgData
+    });
+  };
   // Memorizar marcadores para evitar cálculos innecesarios
   const afectaciones = useMemo(() => processMarkers(dataAF), [dataAF]);
   const acciones = useMemo(() => processMarkers(dataAC), [dataAC]);

@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
 import { MapContainer, TileLayer, Marker, Popup, Polygon } from "react-leaflet";
 
 //import "leaflet-simple-map-screenshoter";
@@ -41,6 +47,8 @@ import * as Cesium from "cesium";
 import { Cartesian3, Math as CesiumMath, Cesium3DTileset } from "cesium";
 import { Viewer, Entity, CzmlDataSource, GeoJsonDataSource } from "resium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
+import leafletImage from "leaflet-image";
+import html2canvas from "html2canvas";
 
 // Configuración de iconos para Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -155,15 +163,15 @@ const LayerControl = ({ showLayer, onToggle }) => (
       top: 10,
       right: 10,
       zIndex: 1000,
-      padding: 2,
+      // padding: 2,
       backgroundColor: "rgba(255, 255, 255, 0.95)",
       borderRadius: 2,
       boxShadow: 3,
-      minWidth: 200,
+      minWidth: 100,
     }}
   >
     <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-      Control de Capas
+      Capas
     </Typography>
     <FormControlLabel
       control={
@@ -174,7 +182,7 @@ const LayerControl = ({ showLayer, onToggle }) => (
           aria-label="Mostrar capa de polígonos"
         />
       }
-      label="Mostrar capa de polígonos"
+      label="influencia"
     />
   </Paper>
 );
@@ -204,6 +212,66 @@ const MapAfects = ({
   const [selectedItem, setSelectedItem] = useState(null);
   const [poligonosData, setPoligonosData] = useState([]);
   const [loadingPoligonos, setLoadingPoligonos] = useState(false);
+
+  // const mapRef = useRef(null); // da valor l mapa para print
+  const mapContainerRef = useRef(null); // Contenedor para html2canvas
+  const mapRef = useRef(null); // Referencia para Leaflet
+
+  // Referencia para guardar el estado de los popups abiertos
+  const popupElRef = useRef(null);
+  const hidePopup = () => {
+    if (mapRef) {
+      mapRef.current.closePopup();
+      //  console.log("Popup cerrado desde useMap")// ← Método de Leaflet para cerrar el popup activo
+    }
+  };
+  // Función para cerrar todos los popups
+  const printToPDF = () => {
+    return new Promise((resolve, reject) => {
+      if (!mapRef.current || !mapContainerRef.current) {
+        reject("El mapa no está listo");
+        return;
+      }
+
+      // Obtener el elemento correcto del mapa
+      const mapElement = mapRef.current.getContainer(); // ← Elemento DOM del mapa
+
+      if (!mapElement) {
+        reject("No se encontró el elemento del mapa");
+        return;
+      }
+
+     // console.log("Capturando elemento:", mapElement);
+    //  console.log("Elemento tiene hijos:", mapElement.children.length);
+
+      setTimeout(() => {
+        html2canvas(mapElement, {
+          scale: 2,
+          useCORS: true,
+          logging: true,
+          backgroundColor: "#ffffff",
+          allowTaint: false,
+          foreignObjectRendering: false,
+          onclone: (clonedDoc, element) => {
+            // console.log("Clonado completado");
+            // Verificar si los polígonos están en el clon
+            const polygons = clonedDoc.querySelectorAll(
+              ".leaflet-overlay-pane svg",
+            );
+           // console.log("Polígonos en clon:", polygons.length);
+          },
+        })
+          .then((canvas) => {
+            const imgData = canvas.toDataURL("image/png");
+            resolve(imgData);
+          })
+          .catch((error) => {
+            console.error("Error en html2canvas:", error);
+            reject(error);
+          });
+      }, 1000);
+    });
+  };
 
   // Cargar usuario desde localStorage
   useEffect(() => {
@@ -399,7 +467,7 @@ const MapAfects = ({
               }}
             >
               {selectedItem?.id === item.id && (
-                <Popup>
+                <Popup ref={popupElRef}>
                   <Box
                     sx={{
                       height: "60vh",
@@ -407,7 +475,7 @@ const MapAfects = ({
                       maxWidth: "450px",
                     }}
                   >
-                      <Typography align="justify" variant="subtitle1" sx={{ }}>
+                    <Typography align="justify" variant="subtitle1" sx={{}}>
                       {`${item.id} - ${eventType}-       ${selectedItem.date || "Fecha no disponible"}`}
                     </Typography>
 
@@ -465,18 +533,19 @@ const MapAfects = ({
                         {selectedItem.descripcio.substring(0, 150) + "..."}
                       </Typography>
                     )}
-
                     {user && (
                       <Button
-                        onClick={() =>
+                        onClick={() => {
+                          hidePopup();
                           generarPDF(
                             selectedItem.event,
                             coords.lat,
                             coords.lng,
                             selectedItem,
                             user,
-                          )
-                        }
+                            printToPDF,
+                          );
+                        }}
                         fullWidth
                         sx={{
                           background:
@@ -534,6 +603,7 @@ const MapAfects = ({
                   fillOpacity: colors.fillOpacity,
                   weight: 2,
                 }}
+                interactive={true}
               >
                 <Popup>
                   <div>
@@ -660,9 +730,8 @@ const MapAfects = ({
       [name]: date,
     }));
   };
-
   return (
-    <Box sx={{ position: "relative" }}>
+    <Box sx={{ position: "relative" }} ref={mapContainerRef}>
       <LayerControl
         showLayer={showLayer}
         onToggle={(e) => setShowLayer(e.target.checked)}
@@ -675,6 +744,15 @@ const MapAfects = ({
       ) : null}
       <MapContainer
         center={mapCenter}
+        ref={mapRef}
+        whenCreated={(map) => {
+          mapRef.current = map;
+
+          // Esperar a que los tiles estén cargados
+          map.on("load", () => {
+            console.log("Mapa completamente cargado");
+          });
+        }}
         zoom={14}
         style={{ height: "75vh", width: "100%" }}
         scrollWheelZoom={true}
@@ -683,7 +761,6 @@ const MapAfects = ({
           url="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
           attribution="&copy; Google Maps"
         />
-
         {afectData && renderAfectMarkers}
         {renderPoligonos}
         {renderParroquiaPolygons}

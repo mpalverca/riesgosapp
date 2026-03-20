@@ -88,9 +88,17 @@ export const cargarDatosParroquia = async () => {
   }
 };
 // Función generarPDF actualizada:
-export async function generarPDF(titulo, lat, lng, itemStr, require) {
+export async function generarPDF(
+  titulo,
+  lat,
+  lng,
+  itemStr,
+  require,
+  printToPDF,
+) {
   try {
     const item = itemStr;
+    const imgData = await printToPDF();
     //console.log(item);
     //console.log("Generando PDF para el ítem:", item)
     const doc = new jsPDF();
@@ -313,7 +321,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.text(String(item.afectacion || ""), leftMargin + 20, yPosition);
     yPosition += 7;
     doc.setFont("helvetica", "bold");
-    doc.text("Fecha:", leftMargin, yPosition);
+    doc.text("F. Registro:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(
       String(
@@ -338,11 +346,11 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.setFont("helvetica", "bold");
     doc.text("Reporta:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
-    doc.text(String(item.report || ""), leftMargin + 20, yPosition,{
-      maxWidth:90,
+    doc.text(String(item.report || ""), leftMargin + 20, yPosition, {
+      maxWidth: 90,
     });
-    let imagemap = await captureMap(lat, lng, 18);
-    doc.addImage(
+    /* let imagemap = await captureMap(lat, lng, 18);
+     doc.addImage(
       imagemap,
       "PNG",
       leftMargin + 80,
@@ -350,8 +358,17 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
       // maxWidth / 2,
       (pageWidth - leftMargin) / 2,
       70,
+    ); */
+    doc.addImage(
+      imgData,
+      "PNG",
+      leftMargin + 75,
+      !codigosPermitidos.includes(require.ci)?topMargin+35:topMargin+17,
+      // maxWidth / 2,
+      (pageWidth - leftMargin) / 2,
+      70,
     );
-    yPosition += 20;
+    yPosition += 15;
     divisoriaLine();
     doc.setFontSize(textPar);
     doc.setFont("helvetica", "bold");
@@ -728,12 +745,12 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     if (codigosPermitidos.includes(require.ci)) {
       checkPageBreak(bottomMargin + 20);
       divisoriaLine();
-      doc.setFont("helvetica", "bold");
+      /* doc.setFont("helvetica", "bold");
       doc.setFontSize(12);
       doc.text("FIRMAS DE RESPONSABLES", pageWidth / 2, yPosition, {
         align: "center",
       });
-      yPosition += 5;
+      yPosition += 5; */
 
       // Dibujar cajas para firmas
       const boxWidth = (pageWidth - leftMargin - rightMargin - 20) / 2;
@@ -742,7 +759,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
       // Primera firma
       if (String(require.ci) !== "1150511853") {
         const empleadoEncontrado = employed.find(
-          (emp) => employed.ci === String(require.ci),
+          (emp) => emp.ci === String(require.ci),
         );
         doc.setDrawColor(0, 0, 0);
         doc.rect(leftMargin, yPosition, boxWidth, boxHeight);
@@ -753,8 +770,8 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
           leftMargin + 5,
           yPosition + 25,
         );
-        doc.text(empleadoEncontrado.name, leftMargin + 5, yPosition + 35);
-        doc.text(empleadoEncontrado.cargo, leftMargin + 5, yPosition + 42);
+        doc.text(empleadoEncontrado?.name, leftMargin + 5, yPosition + 35);
+        doc.text(empleadoEncontrado?.cargo, leftMargin + 5, yPosition + 42);
       }
 
       // Segunda firma

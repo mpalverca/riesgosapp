@@ -174,12 +174,15 @@ export default function Panel({
           onChange={handleFilterChange}
           size="small"
         >
+          Erosión Hídrica
+          <MenuItem value="Colapso Estructural">Colapso Estructural</MenuItem>
+          <MenuItem value="Época Lluviosa">Época Lluviosa</MenuItem>         
+         <MenuItem value="Erosión Hídrica">Erosión Hídrica</MenuItem>
           <MenuItem value="Inundación">Inundación</MenuItem>
-          <MenuItem value="Movimiento en masa">Movimiento en masa</MenuItem>          
-          <MenuItem value="Incendio Estructural">Incendio Estructural</MenuItem>          
-          <MenuItem value="Colapso Estructural">Colapso Estructural</MenuItem>                 
-          <MenuItem value="Época Lluviosa">Época Lluviosa</MenuItem>                        
-          <MenuItem value="Maxima Precipitación">Maxima Precipitación</MenuItem>
+          <MenuItem value="Incendio Estructural">Incendio Estructural</MenuItem>
+          <MenuItem value="Máxima Precipitación">Máxima Precipitación</MenuItem>
+          <MenuItem value="Movimiento en masa">Movimiento en masa</MenuItem>
+
           <MenuItem value="Todos">Todos</MenuItem>
         </Select>
       </FormControl>
@@ -224,15 +227,14 @@ export default function Panel({
           <MenuItem value="Jimbilla">Jimbilla</MenuItem>
           <MenuItem value="Loja">Loja</MenuItem>
           <MenuItem value="Malacatos">Malacatos</MenuItem>
+          <MenuItem value="Punzara">Punzara</MenuItem>
           <MenuItem value="Taquil">Sagrario</MenuItem>
           <MenuItem value="San Lucas">San Lucas</MenuItem>
           <MenuItem value="Santiago">Santiago</MenuItem>
           <MenuItem value="San Pedro de Vilcabamba">
             San Pedro de Vilcabamba
           </MenuItem>
-          <MenuItem value="San Sebastián">
-            San Sebastián
-          </MenuItem>
+          <MenuItem value="San Sebastián">San Sebastián</MenuItem>
           <MenuItem value="Sucre">Sucre</MenuItem>
           <MenuItem value="Taquil">Taquil</MenuItem>
           <MenuItem value="Quinara">Quinara</MenuItem>
