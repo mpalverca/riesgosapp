@@ -59,7 +59,9 @@ const Coe = ({ role, ci, ...props }) => {
 
     // Verificar localStorage primero
     const storedMember = localStorage.getItem("memberD");
-    
+    await memberData.search(ci);
+   
+    //console.log(memberData.member)
     if (storedMember) {
       try {
         const parsedMember = JSON.parse(storedMember);

@@ -11,11 +11,10 @@ import {
   CircleNotifications as CircleNotificationsIcon,
   DirectionsWalk as DirectionsWalkIcon,
   CheckCircleOutline as CheckCircleOutlineIcon,
-
 } from "@mui/icons-material";
 import MapIcon from "@mui/icons-material/Map";
-import WarningIcon from '@mui/icons-material/Warning';
-import AppsOutageIcon from '@mui/icons-material/AppsOutage';
+import WarningIcon from "@mui/icons-material/Warning";
+import AppsOutageIcon from "@mui/icons-material/AppsOutage";
 
 import Panels from "../../../components/panels/Panels";
 import MapMark from "./MapsView";
@@ -28,8 +27,8 @@ function BodyCOE({ mtt, member }) {
   const reqAfect = useGetInfo();
   const reqAcciones = useGetInfo();
   const reqRequ = useGetInfo();
-  const reqPol = useGetPoligonos()
- // console.log(reqPol.dataPol)
+  const reqPol = useGetPoligonos();
+  // console.log(reqPol.dataPol)
   // 2. Cache local para persistir datos si se apaga la capa
   const [cache, setCache] = useState({
     afectaciones: null,
@@ -39,15 +38,14 @@ function BodyCOE({ mtt, member }) {
 
   const [coordinates, setCoordinates] = useState(null);
   const [openAF, setOpenAF] = useState(false);
-  
   const [openAC, setOpenAC] = useState(false);
   const [selectedCapa, setSelectedCapa] = useState({
     afectaciones: false,
     acciones: false,
     requerimientos: false,
     poligono: false,
-    susceptibilidad:false,
-    afect_register:false
+    susceptibilidad: false,
+    afect_register: false,
   });
 
   // Manejador optimizado
@@ -64,8 +62,7 @@ function BodyCOE({ mtt, member }) {
         result = await reqAcciones.searchGet(mtt, "Acciones");
       if (layer === "requerimientos")
         result = await reqRequ.searchGet(mtt, "Requerimiento");
-      if (layer ==="poligono")
-        result = await reqPol.searchPol()
+      if (layer === "poligono") result = await reqPol.searchPol();
       // Guardar en cache local si searchGet retorna la data directamente o usar el dataGet de la instancia
       if (result?.data) {
         setCache((prev) => ({ ...prev, [layer]: result.data }));
@@ -80,7 +77,7 @@ function BodyCOE({ mtt, member }) {
       icon: <CircleNotificationsIcon />,
       instance: reqAfect,
       searchType: "Afectaciones",
-      accion: (coords) => handleClickOpen(coords),
+      accion: (coords) => handleClickAF(coords),
     },
     {
       key: "acciones",
@@ -96,20 +93,21 @@ function BodyCOE({ mtt, member }) {
       icon: <CheckCircleOutlineIcon />,
       instance: reqRequ,
       searchType: "Requerimientos",
-      accion: (coords) => handleClickOpen(coords),
+      accion: (coords) => console.log(coords),
     },
   ];
-  const handleClickOpen = (coordenate) => {
+  const handleClickAF = (coordenate) => {
     setOpenAF(true);
+  // console.log(openAF)
     setCoordinates(coordenate);
   };
- const handleClickAC= (coordenate) => {
-    setOpenAF(true);
+  const handleClickAC = (coordenate) => {
+    setOpenAC(true);
+   //   console.log(openAC)
     setCoordinates(coordenate);
   };
-  /* const handleClose = (value) => {
-    setOpenAF(false);
-  }; */
+
+
   return (
     <Grid container spacing={2} sx={{ padding: 2 }}>
       {/* Sidebar - Usando Grid size v2 */}
@@ -142,25 +140,26 @@ function BodyCOE({ mtt, member }) {
               <Typography variant="subtitle2" sx={{}}>
                 2. Cargue la capa de Acciones de {mtt}
               </Typography>
-         
-              {reqPol.dataPol && layersConfig.map((layer) => (
-                <Box
-                  key={layer.key}
-                  sx={{ display: "flex", alignItems: "center", mb: 1 }}
-                >
-                  <FormControlLabel
-                    sx={{ flexGrow: 1 }}
-                    control={
-                      <Checkbox
-                        checked={selectedCapa[layer.key]}
-                        onChange={() => handleLayerToggle(layer.key)}
-                        icon={layer.icon}
-                        checkedIcon={layer.icon}
-                      />
-                    }
-                    label={`${layer.label} ${layer.instance.loadingGet ? "Cargando" : `(${layer.instance.dataGet?.data?.length || 0})`}`}
-                  />
-                  {/*    <IconButton
+
+              {reqPol.dataPol &&
+                layersConfig.map((layer) => (
+                  <Box
+                    key={layer.key}
+                    sx={{ display: "flex", alignItems: "center", mb: 1 }}
+                  >
+                    <FormControlLabel
+                      sx={{ flexGrow: 1 }}
+                      control={
+                        <Checkbox
+                          checked={selectedCapa[layer.key]}
+                          onChange={() => handleLayerToggle(layer.key)}
+                          icon={layer.icon}
+                          checkedIcon={layer.icon}
+                        />
+                      }
+                      label={`${layer.label} ${layer.instance.loadingGet ? "Cargando" : `(${layer.instance.dataGet?.data?.length || 0})`}`}
+                    />
+                    {/*    <IconButton
                     onClick={() =>
                       layer.instance.searchGet(mtt, layer.searchType)
                     }
@@ -168,13 +167,13 @@ function BodyCOE({ mtt, member }) {
                   >
                     <Refresh fontSize="small" />
                   </IconButton> */}
-                </Box>
-              ))}
-              <Divider/>
-              <Typography variant="body2" sx={{ }}>
+                  </Box>
+                ))}
+              <Divider />
+              <Typography variant="body2" sx={{}}>
                 3. visualice afectaciones y areas de influencia registradas
               </Typography>
-               <FormControlLabel
+              <FormControlLabel
                 sx={{ flexGrow: 1 }}
                 control={
                   <Checkbox
@@ -186,7 +185,7 @@ function BodyCOE({ mtt, member }) {
                 }
                 label={`Afectaciones registradas`}
               />
-               <FormControlLabel
+              <FormControlLabel
                 sx={{ flexGrow: 1 }}
                 control={
                   <Checkbox
@@ -198,7 +197,6 @@ function BodyCOE({ mtt, member }) {
                 }
                 label={`Susceptibilidad`}
               />
-
             </Box>
           }
         />
@@ -213,7 +211,7 @@ function BodyCOE({ mtt, member }) {
             loadingAF: reqAfect.loadingGet,
             loadingAC: reqAcciones?.loadingGet,
             loadingRE: reqRequ?.loadingGet,
-            loadingPol: reqPol?.loadinPol
+            loadingPol: reqPol?.loadinPol,
           }}
           dataAF={reqAfect.dataGet?.data}
           dataAC={reqAcciones.dataGet?.data}
@@ -223,7 +221,7 @@ function BodyCOE({ mtt, member }) {
           mtt={mtt}
           layersConfig={layersConfig}
           setCoordinates={setCoordinates}
-          onOpenDialog={() => setOpenAF(true)}
+   
         />
       </Grid>
 
@@ -236,12 +234,12 @@ function BodyCOE({ mtt, member }) {
         onClose={() => setOpenAF(false)}
       />
       <DialogAccions
-      mtt={mtt}
-        open={openAF}
+        mtt={mtt}
+        open={openAC}
         dataPol={reqPol.dataPol?.data}
         coordinates={coordinates}
         member={member}
-      length={reqAcciones.dataGet?.data.length}
+        length={reqAcciones.dataGet?.data.length}
         onClose={() => setOpenAC(false)}
       />
     </Grid>

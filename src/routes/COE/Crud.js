@@ -49,7 +49,7 @@ export const useGetInfo = () => {
       setError("No existe información");
       return;
     }
-    console.log(dPost)
+  //  console.log(dPost)
     console.log("is print");
     setLoading(true);
     setError(null);

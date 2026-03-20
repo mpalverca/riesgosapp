@@ -1,0 +1,702 @@
+[
+  {
+    "value": "Agencia de Aseguramiento de la Calidad de los Servicios de Salud y Medicina Prepagada (ACESS)",
+    "label": "Agencia de Aseguramiento de la Calidad de los Servicios de Salud y Medicina Prepagada (ACESS)"
+  },
+  {
+    "value": "Agencia de Regulación y Control de Energía y Recursos Naturales no Renovables (ARCERNNR)",
+    "label": "Agencia de Regulación y Control de Energía y Recursos Naturales no Renovables (ARCERNNR)"
+  },
+  {
+    "value": "Agencia de Regulación y Control de la Bioseguridad y Cuarentena para Galápagos (ABG)",
+    "label": "Agencia de Regulación y Control de la Bioseguridad y Cuarentena para Galápagos (ABG)"
+  },
+  {
+    "value": "Agencia de Regulación y Control del Agua (ARCA)",
+    "label": "Agencia de Regulación y Control del Agua (ARCA)"
+  },
+  {
+    "value": "Agencia de Regulación y Control de las Telecomunicaciones (ARCOTEL)",
+    "label": "Agencia de Regulación y Control de las Telecomunicaciones (ARCOTEL)"
+  },
+  {
+    "value": "Agencia de Regulación y Control Fito y Zoosanitario (ARCFZ)",
+    "label": "Agencia de Regulación y Control Fito y Zoosanitario (ARCFZ)"
+  },
+  {
+    "value": "Agencia Nacional de Regulación, Control y Vigilancia Sanitaria (ARCSA)",
+    "label": "Agencia Nacional de Regulación, Control y Vigilancia Sanitaria (ARCSA)"
+  },
+  {
+    "value": "Agencia Nacional de Tránsito (ANT)",
+    "label": "Agencia Nacional de Tránsito (ANT)"
+  },
+  {
+    "value": "Asamblea Nacional (AN)",
+    "label": "Asamblea Nacional (AN)"
+  },
+  {
+    "value": "Asociación de Municipalidades Ecuatorianas (AME)",
+    "label": "Asociación de Municipalidades Ecuatorianas (AME)"
+  },
+  {
+    "value": "Astilleros Navales Ecuatorianos (ASTINAVEEP)",
+    "label": "Astilleros Navales Ecuatorianos (ASTINAVEEP)"
+  },
+  {
+    "value": "Autoridad Portuaria de Esmeraldas (APE)",
+    "label": "Autoridad Portuaria de Esmeraldas (APE)"
+  },
+  {
+    "value": "Autoridad Portuaria de Guayaquil (APG)",
+    "label": "Autoridad Portuaria de Guayaquil (APG)"
+  },
+  {
+    "value": "Autoridad Portuaria de Manta (APM)",
+    "label": "Autoridad Portuaria de Manta (APM)"
+  },
+  {
+    "value": "Autoridad Portuaria de Puerto Bolívar (APPB)",
+    "label": "Autoridad Portuaria de Puerto Bolívar (APPB)"
+  },
+  {
+    "value": "Banca para el Desarrollo Productivo Rural y Urbano (BANECUADOR BP)",
+    "label": "Banca para el Desarrollo Productivo Rural y Urbano (BANECUADOR BP)"
+  },
+  {
+    "value": "Banco Central del Ecuador (BCE)",
+    "label": "Banco Central del Ecuador (BCE)"
+  },
+  {
+    "value": "Banco de Desarrollo del Ecuador B.P. (BDE)",
+    "label": "Banco de Desarrollo del Ecuador B.P. (BDE)"
+  },
+  {
+    "value": "Banco del Instituto Ecuatoriano de Seguridad Social (BIESS)",
+    "label": "Banco del Instituto Ecuatoriano de Seguridad Social (BIESS)"
+  },
+  {
+    "value": "Casa de la Cultura, Danza y Orquesta Sinfónica (CCDOS)",
+    "label": "Casa de la Cultura, Danza y Orquesta Sinfónica (CCDOS)"
+  },
+  {
+    "value": "Casa de la Cultura Ecuatoriana Benjamín Carrión (CCE)",
+    "label": "Casa de la Cultura Ecuatoriana Benjamín Carrión (CCE)"
+  },
+  {
+    "value": "Centro Interamericano de Artesanías y Artes Populares (CIDAP)",
+    "label": "Centro Interamericano de Artesanías y Artes Populares (CIDAP)"
+  },
+  {
+    "value": "Comando Conjunto de las Fuerzas Armadas (CCFFAA)",
+    "label": "Comando Conjunto de las Fuerzas Armadas (CCFFAA)"
+  },
+  {
+    "value": "Comisión de Tránsito del Ecuador (CTE)",
+    "label": "Comisión de Tránsito del Ecuador (CTE)"
+  },
+  {
+    "value": "Consejo de Aseguramiento de la Calidad de la Educación Superior (CACES)",
+    "label": "Consejo de Aseguramiento de la Calidad de la Educación Superior (CACES)"
+  },
+  {
+    "value": "Consejo de Gobierno del Régimen Especial de Galápagos (CGREG)",
+    "label": "Consejo de Gobierno del Régimen Especial de Galápagos (CGREG)"
+  },
+  {
+    "value": "Consejo de la Judicatura (CJ)",
+    "label": "Consejo de la Judicatura (CJ)"
+  },
+  {
+    "value": "Consejo de Participación Ciudadana y Control Social (CPCCS)",
+    "label": "Consejo de Participación Ciudadana y Control Social (CPCCS)"
+  },
+  {
+    "value": "Consejo de Regulación, Desarrollo y Promoción de la Información y Comunicación (CRDPIC)",
+    "label": "Consejo de Regulación, Desarrollo y Promoción de la Información y Comunicación (CRDPIC)"
+  },
+  {
+    "value": "Consejo Nacional de Competencias (CNC)",
+    "label": "Consejo Nacional de Competencias (CNC)"
+  },
+  {
+    "value": "Consejo Nacional de Salud (CONASA)",
+    "label": "Consejo Nacional de Salud (CONASA)"
+  },
+  {
+    "value": "Consejo Nacional Electoral (CNE)",
+    "label": "Consejo Nacional Electoral (CNE)"
+  },
+  {
+    "value": "Consejo Nacional para la Igualdad de Discapacidades (CONADIS)",
+    "label": "Consejo Nacional para la Igualdad de Discapacidades (CONADIS)"
+  },
+  {
+    "value": "Consejo Nacional para la Igualdad de Género (CNIG)",
+    "label": "Consejo Nacional para la Igualdad de Género (CNIG)"
+  },
+  {
+    "value": "Consejo Nacional para la Igualdad de Movilidad Humana (CNIMH)",
+    "label": "Consejo Nacional para la Igualdad de Movilidad Humana (CNIMH)"
+  },
+  {
+    "value": "Consejo Nacional para la Igualdad de Pueblos y Nacionalidades (CNIPN)",
+    "label": "Consejo Nacional para la Igualdad de Pueblos y Nacionalidades (CNIPN)"
+  },
+  {
+    "value": "Consejo Nacional para la Igualdad Intergeneracional (CNII)",
+    "label": "Consejo Nacional para la Igualdad Intergeneracional (CNII)"
+  },
+  {
+    "value": "Corporación Ciudad Alfaro (CCA)",
+    "label": "Corporación Ciudad Alfaro (CCA)"
+  },
+  {
+    "value": "Corporación del Seguro de Depósitos (COSEDE)",
+    "label": "Corporación del Seguro de Depósitos (COSEDE)"
+  },
+  {
+    "value": "Corporación Eléctrica del Ecuador (CELEC EP)",
+    "label": "Corporación Eléctrica del Ecuador (CELEC EP)"
+  },
+  {
+    "value": "Corporación Financiera Nacional (CFN)",
+    "label": "Corporación Financiera Nacional (CFN)"
+  },
+  {
+    "value": "Corporación Nacional de Electricidad (CNEL)",
+    "label": "Corporación Nacional de Electricidad (CNEL)"
+  },
+  {
+    "value": "Corporación Nacional de Finanzas Populares y Solidarias (CONAFIPS)",
+    "label": "Corporación Nacional de Finanzas Populares y Solidarias (CONAFIPS)"
+  },
+  {
+    "value": "Corporación Nacional de Telecomunicaciones (CNT)",
+    "label": "Corporación Nacional de Telecomunicaciones (CNT)"
+  },
+  {
+    "value": "Correos del Ecuador (CDE)",
+    "label": "Correos del Ecuador (CDE)"
+  },
+  {
+    "value": "Cuerpo de Bomberos",
+    "label": "Cuerpo de Bomberos"
+  },
+  {
+    "value": "Defensoría del Pueblo (DPE)",
+    "label": "Defensoría del Pueblo (DPE)"
+  },
+  {
+    "value": "Defensoría Pública de Ecuador (DP)",
+    "label": "Defensoría Pública de Ecuador (DP)"
+  },
+  {
+    "value": "Dirección del Parque Nacional Galápagos (DPNG)",
+    "label": "Dirección del Parque Nacional Galápagos (DPNG)"
+  },
+  {
+    "value": "Dirección General de Aviación Civil (DGAC)",
+    "label": "Dirección General de Aviación Civil (DGAC)"
+  },
+  {
+    "value": "Dirección General de Registro Civil Identificación y Cedulación (DGRCIC)",
+    "label": "Dirección General de Registro Civil Identificación y Cedulación (DGRCIC)"
+  },
+  {
+    "value": "Dirección Nacional de Registro de Datos Públicos (DINARDAP)",
+    "label": "Dirección Nacional de Registro de Datos Públicos (DINARDAP)"
+  },
+  {
+    "value": "Ecuador Estratégico EP (EEEP)",
+    "label": "Ecuador Estratégico EP (EEEP)"
+  },
+  {
+    "value": "EMELNORTE S. A. (EMELNORTE)",
+    "label": "EMELNORTE S. A. (EMELNORTE)"
+  },
+  {
+    "value": "Empresa Coordinadora de Empresas Públicas (EMCOEP)",
+    "label": "Empresa Coordinadora de Empresas Públicas (EMCOEP)"
+  },
+  {
+    "value": "Empresa Eléctrica Ambato Regional Centro Norte S.A. (EEASA)",
+    "label": "Empresa Eléctrica Ambato Regional Centro Norte S.A. (EEASA)"
+  },
+  {
+    "value": "Empresa Eléctrica Azogues C.A (EEA)",
+    "label": "Empresa Eléctrica Azogues C.A (EEA)"
+  },
+  {
+    "value": "Empresa Eléctrica Provincial Cotopaxi S.A. (EEPC)",
+    "label": "Empresa Eléctrica Provincial Cotopaxi S.A. (EEPC)"
+  },
+  {
+    "value": "Empresa Eléctrica Provincial Galápagos (EEPG)",
+    "label": "Empresa Eléctrica Provincial Galápagos (EEPG)"
+  },
+  {
+    "value": "Empresa Eléctrica Regional del Sur S.A. (EERSSA)",
+    "label": "Empresa Eléctrica Regional del Sur S.A. (EERSSA)"
+  },
+  {
+    "value": "Empresa Nacional Minera (ENAMI)",
+    "label": "Empresa Nacional Minera (ENAMI)"
+  },
+  {
+    "value": "Empresa Pública Casa para Todos (EPCPT)",
+    "label": "Empresa Pública Casa para Todos (EPCPT)"
+  },
+  {
+    "value": "Empresa Pública del Agua (EPA)",
+    "label": "Empresa Pública del Agua (EPA)"
+  },
+  {
+    "value": "Empresa Pública Flota Petrolera Ecuatoriana (FLOPEC)",
+    "label": "Empresa Pública Flota Petrolera Ecuatoriana (FLOPEC)"
+  },
+  {
+    "value": "Empresa Pública Municipal de Agua Potable y Saneamiento de Portoviejo PORTOAGUAS EP (EPMAPSP)",
+    "label": "Empresa Pública Municipal de Agua Potable y Saneamiento de Portoviejo PORTOAGUAS EP (EPMAPSP)"
+  },
+  {
+    "value": "Empresa Pública Municipal Registro de la Propiedad del Cantón Santo Domingo (EPMRP-SD)",
+    "label": "Empresa Pública Municipal Registro de la Propiedad del Cantón Santo Domingo (EPMRP-SD)"
+  },
+  {
+    "value": "EP PETROECUADOR (EP)",
+    "label": "EP PETROECUADOR (EP)"
+  },
+  {
+    "value": "GAD Cantonal",
+    "label": "GAD Cantonal"
+  },
+  {
+    "value": "GAD Provincial",
+    "label": "GAD Provincial"
+  },
+  {
+    "value": "GAD Parroquial",
+    "label": "GAD Parroquial"
+  },
+  {
+    "value": "Instituto de Fomento a la Creatividad e Innovación (IFCI)",
+    "label": "Instituto de Fomento a la Creatividad e Innovación (IFCI)"
+  },
+  {
+    "value": "Instituto de Investigación Geológico y Energético (IIGE)",
+    "label": "Instituto de Investigación Geológico y Energético (IIGE)"
+  },
+  {
+    "value": "Instituto de Seguridad Social de las Fuerzas Armadas (ISSFA)",
+    "label": "Instituto de Seguridad Social de las Fuerzas Armadas (ISSFA)"
+  },
+  {
+    "value": "Instituto Ecuatoriano de Seguridad Social (IESS)",
+    "label": "Instituto Ecuatoriano de Seguridad Social (IESS)"
+  },
+  {
+    "value": "Instituto Geográfico Militar (IGM)",
+    "label": "Instituto Geográfico Militar (IGM)"
+  },
+  {
+    "value": "Instituto Nacional de Biodiversidad (INABIO)",
+    "label": "Instituto Nacional de Biodiversidad (INABIO)"
+  },
+  {
+    "value": "Instituto Nacional de Donación y Trasplante de Órganos, Tejidos y Células (INDOT)",
+    "label": "Instituto Nacional de Donación y Trasplante de Órganos, Tejidos y Células (INDOT)"
+  },
+  {
+    "value": "Instituto Nacional de Economía Popular y Solidaria (IEPS)",
+    "label": "Instituto Nacional de Economía Popular y Solidaria (IEPS)"
+  },
+  {
+    "value": "Instituto Nacional de Estadística y Censos (INEC)",
+    "label": "Instituto Nacional de Estadística y Censos (INEC)"
+  },
+  {
+    "value": "Instituto Nacional de Evaluación Educativa (INEVAL)",
+    "label": "Instituto Nacional de Evaluación Educativa (INEVAL)"
+  },
+  {
+    "value": "Instituto Nacional de Investigación en Salud Pública Dr. Leopoldo Izquieta Pérez (INSPI)",
+    "label": "Instituto Nacional de Investigación en Salud Pública Dr. Leopoldo Izquieta Pérez (INSPI)"
+  },
+  {
+    "value": "Instituto Nacional de Investigaciones Agropecuarias (INIAP)",
+    "label": "Instituto Nacional de Investigaciones Agropecuarias (INIAP)"
+  },
+  {
+    "value": "Instituto Nacional de Meteorología e Hidrología (INAMHI)",
+    "label": "Instituto Nacional de Meteorología e Hidrología (INAMHI)"
+  },
+  {
+    "value": "Instituto Nacional de Patrimonio Cultural (INPC)",
+    "label": "Instituto Nacional de Patrimonio Cultural (INPC)"
+  },
+  {
+    "value": "Instituto Oceanográfico y Antártico de la Armada (INOCAR)",
+    "label": "Instituto Oceanográfico y Antártico de la Armada (INOCAR)"
+  },
+  {
+    "value": "Instituto Público de Investigación de Acuicultura y Pesca (IPIAP)",
+    "label": "Instituto Público de Investigación de Acuicultura y Pesca (IPIAP)"
+  },
+  {
+    "value": "Ministerio de Agricultura y Ganadería (MAG)",
+    "label": "Ministerio de Agricultura y Ganadería (MAG)"
+  },
+  {
+    "value": "Ministerio de Coordinación de la Política y Gobierno Autónomos Descentralizados (MCPGAD)",
+    "label": "Ministerio de Coordinación de la Política y Gobierno Autónomos Descentralizados (MCPGAD)"
+  },
+  {
+    "value": "Ministerio de Cultura y Patrimonio (MC)",
+    "label": "Ministerio de Cultura y Patrimonio (MC)"
+  },
+  {
+    "value": "Ministerio de Defensa Nacional (MIDENA)",
+    "label": "Ministerio de Defensa Nacional (MIDENA)"
+  },
+  {
+    "value": "Ministerio de Desarrollo Urbano y Vivienda (MIDUVI)",
+    "label": "Ministerio de Desarrollo Urbano y Vivienda (MIDUVI)"
+  },
+  {
+    "value": "Ministerio de Economía y Finanzas (MEF)",
+    "label": "Ministerio de Economía y Finanzas (MEF)"
+  },
+  {
+    "value": "Ministerio de Educación (MINEDUC)",
+    "label": "Ministerio de Educación (MINEDUC)"
+  },
+  {
+    "value": "Ministerio de Energía y Minas",
+    "label": "Ministerio de Energía y Minas"
+  },
+  {
+    "value": "Ministerio de Gobierno (MDG)",
+    "label": "Ministerio de Gobierno (MDG)"
+  },
+  {
+    "value": "Ministerio de Inclusión Económica y Social (MIES)",
+    "label": "Ministerio de Inclusión Económica y Social (MIES)"
+  },
+  {
+    "value": "Ministerio del Ambiente, Agua y Transición Ecológica (MAATE)",
+    "label": "Ministerio del Ambiente, Agua y Transición Ecológica (MAATE)"
+  },
+  {
+    "value": "Ministerio del Deporte (MD)",
+    "label": "Ministerio del Deporte (MD)"
+  },
+  {
+    "value": "Ministerio de Producción, Comercio Exterior, Inversiones y Pesca (MPCEIP)",
+    "label": "Ministerio de Producción, Comercio Exterior, Inversiones y Pesca (MPCEIP)"
+  },
+  {
+    "value": "Ministerio de Relaciones Exteriores y Movilidad Humana (MREMH)",
+    "label": "Ministerio de Relaciones Exteriores y Movilidad Humana (MREMH)"
+  },
+  {
+    "value": "Ministerio de Salud Pública (MSP)",
+    "label": "Ministerio de Salud Pública (MSP)"
+  },
+  {
+    "value": "Ministerio de Telecomunicaciones y de la Sociedad de la Información (MINTEL)",
+    "label": "Ministerio de Telecomunicaciones y de la Sociedad de la Información (MINTEL)"
+  },
+  {
+    "value": "Ministerio de Trabajo (MT)",
+    "label": "Ministerio de Trabajo (MT)"
+  },
+  {
+    "value": "Ministerio de Transporte y Obras Públicas (MTOP)",
+    "label": "Ministerio de Transporte y Obras Públicas (MTOP)"
+  },
+  {
+    "value": "Ministerio de Turismo (MINTUR)",
+    "label": "Ministerio de Turismo (MINTUR)"
+  },
+  {
+    "value": "Operador Nacional de Electricidad - CENACE (CENACE)",
+    "label": "Operador Nacional de Electricidad - CENACE (CENACE)"
+  },
+  {
+    "value": "Policía Nacional del Ecuador (PN)",
+    "label": "Policía Nacional del Ecuador (PN)"
+  },
+  {
+    "value": "Presidencia de la República (PR)",
+    "label": "Presidencia de la República (PR)"
+  },
+  {
+    "value": "Procuraduría General del Estado (PGE)",
+    "label": "Procuraduría General del Estado (PGE)"
+  },
+  {
+    "value": "Santa Bárbara EP (SBEP)",
+    "label": "Santa Bárbara EP (SBEP)"
+  },
+  {
+    "value": "Ministerio de la Mujer y Derechos Humanos",
+    "label": "Ministerio de la Mujer y Derechos Humanos"
+  },
+  {
+    "value": "Secretaría de Educación Superior, Ciencia, Tecnología e Innovación (SENESCYT)",
+    "label": "Secretaría de Educación Superior, Ciencia, Tecnología e Innovación (SENESCYT)"
+  },
+  {
+    "value": "Secretaría de Gestión y Desarrollo de Pueblos y Nacionalidades (SGDPN)",
+    "label": "Secretaría de Gestión y Desarrollo de Pueblos y Nacionalidades (SGDPN)"
+  },
+  {
+    "value": "Secretaría de Gestión de Riesgos",
+    "label": "Secretaría de Gestión de Riesgos"
+  },
+  {
+    "value": "Secretaría del Sistema de Educación Intercultural Bilingüe (SESEIB)",
+    "label": "Secretaría del Sistema de Educación Intercultural Bilingüe (SESEIB)"
+  },
+  {
+    "value": "Secretaría Nacional de Planificación (SNP)",
+    "label": "Secretaría Nacional de Planificación (SNP)"
+  },
+  {
+    "value": "Secretaría Técnica de Gestión Inmobiliaria del Sector Público (SETEGISP)",
+    "label": "Secretaría Técnica de Gestión Inmobiliaria del Sector Público (SETEGISP)"
+  },
+  {
+    "value": "Secretaría Técnica de Juventudes (SETEJU)",
+    "label": "Secretaría Técnica de Juventudes (SETEJU)"
+  },
+  {
+    "value": "Secretaría Técnica de la Circunscripción Territorial Amazónica (STCTEA)",
+    "label": "Secretaría Técnica de la Circunscripción Territorial Amazónica (STCTEA)"
+  },
+  {
+    "value": "Secretaría Técnica del Comité Interinstitucional de Prevención de Asentamientos Irregulares (STCPAHI)",
+    "label": "Secretaría Técnica del Comité Interinstitucional de Prevención de Asentamientos Irregulares (STCPAHI)"
+  },
+  {
+    "value": "Secretaría Técnica del Plan Ecuador (STPE)",
+    "label": "Secretaría Técnica del Plan Ecuador (STPE)"
+  },
+  {
+    "value": "Secretaría Técnica del Plan Toda una Vida (STPTV)",
+    "label": "Secretaría Técnica del Plan Toda una Vida (STPTV)"
+  },
+  {
+    "value": "Servicio de Acreditación Ecuatoriano (SAE)",
+    "label": "Servicio de Acreditación Ecuatoriano (SAE)"
+  },
+  {
+    "value": "Servicio de Contratación de Obras (SECOB)",
+    "label": "Servicio de Contratación de Obras (SECOB)"
+  },
+  {
+    "value": "Servicio de Rentas Internas (SRI)",
+    "label": "Servicio de Rentas Internas (SRI)"
+  },
+  {
+    "value": "Servicio Ecuatoriano de Capacitación Profesional (SECAP)",
+    "label": "Servicio Ecuatoriano de Capacitación Profesional (SECAP)"
+  },
+  {
+    "value": "Servicio Ecuatoriano de Normalización (INEN)",
+    "label": "Servicio Ecuatoriano de Normalización (INEN)"
+  },
+  {
+    "value": "Servicio Integrado de Seguridad (ECU 911)",
+    "label": "Servicio Integrado de Seguridad (ECU 911)"
+  },
+  {
+    "value": "Servicio Nacional de Aduana del Ecuador (SENAE)",
+    "label": "Servicio Nacional de Aduana del Ecuador (SENAE)"
+  },
+  {
+    "value": "Servicio Nacional de Atención Integral a Personas Adultas Privadas de la Libertad y a Adolescentes Infractores (SNAI)",
+    "label": "Servicio Nacional de Atención Integral a Personas Adultas Privadas de la Libertad y a Adolescentes Infractores (SNAI)"
+  },
+  {
+    "value": "Servicio Nacional de Contratación Pública (SERCOP)",
+    "label": "Servicio Nacional de Contratación Pública (SERCOP)"
+  },
+  {
+    "value": "Servicio Nacional de Derechos Intelectuales (SENADI)",
+    "label": "Servicio Nacional de Derechos Intelectuales (SENADI)"
+  },
+  {
+    "value": "Fiscalía General del Estado",
+    "label": "Fiscalía General del Estado"
+  },
+  {
+    "value": "Servicio Nacional de Medicina Legal y Ciencias Forenses (SNMLCF)",
+    "label": "Servicio Nacional de Medicina Legal y Ciencias Forenses (SNMLCF)"
+  },
+  {
+    "value": "Servicio Público para pago de Accidentes de Tránsito (SPPAT)",
+    "label": "Servicio Público para pago de Accidentes de Tránsito (SPPAT)"
+  },
+  {
+    "value": "SS Sin Sector (PA)",
+    "label": "SS Sin Sector (PA)"
+  },
+  {
+    "value": "Superintendencia de Bancos (SB)",
+    "label": "Superintendencia de Bancos (SB)"
+  },
+  {
+    "value": "Superintendencia de Compañías, Valores y Seguros (SCVS)",
+    "label": "Superintendencia de Compañías, Valores y Seguros (SCVS)"
+  },
+  {
+    "value": "Superintendencia de Control del Poder de Mercado (SCPM)",
+    "label": "Superintendencia de Control del Poder de Mercado (SCPM)"
+  },
+  {
+    "value": "Superintendencia de Economía Popular y Solidaria (SEPS)",
+    "label": "Superintendencia de Economía Popular y Solidaria (SEPS)"
+  },
+  {
+    "value": "Vicepresidencia de la República (VPR)",
+    "label": "Vicepresidencia de la República (VPR)"
+  },
+  {
+    "value": "Cruz Roja Ecuatoriana (CRE)",
+    "label": "Cruz Roja Ecuatoriana (CRE)"
+  },
+  {
+    "value": "Secretaría de Seguridad y Gobernabilidad",
+    "label": "Secretaría de Seguridad y Gobernabilidad"
+  },
+  {
+    "value": "Secretaría de Movilidad",
+    "label": "Secretaría de Movilidad"
+  },
+  {
+    "value": "Secretario de Educación, Recreación y Deporte",
+    "label": "Secretario de Educación, Recreación y Deporte"
+  },
+  {
+    "value": "Secretaría de Comunicación",
+    "label": "Secretaría de Comunicación"
+  },
+  {
+    "value": "Secretaría de Ambiente",
+    "label": "Secretaría de Ambiente"
+  },
+  {
+    "value": "Secretaría de Cultura",
+    "label": "Secretaría de Cultura"
+  },
+  {
+    "value": "Secretaría de Salud",
+    "label": "Secretaría de Salud"
+  },
+  {
+    "value": "Secretaría de Inclusión Social",
+    "label": "Secretaría de Inclusión Social"
+  },
+  {
+    "value": "Secretaría de Coordinación Territorial y Participación Ciudadana",
+    "label": "Secretaría de Coordinación Territorial y Participación Ciudadana"
+  },
+  {
+    "value": "Secretaría de Desarrollo Productivo y Competitividad",
+    "label": "Secretaría de Desarrollo Productivo y Competitividad"
+  },
+  {
+    "value": "Secretaría General de Planificación",
+    "label": "Secretaría General de Planificación"
+  },
+  {
+    "value": "Secretaría de Territorio, Hábitat y Vivienda",
+    "label": "Secretaría de Territorio, Hábitat y Vivienda"
+  },
+  {
+    "value": "Secretaría de TICS",
+    "label": "Secretaría de TICS"
+  },
+  {
+    "value": "EPMSA",
+    "label": "EPMSA"
+  },
+  {
+    "value": "EP EMSEGURIDAD",
+    "label": "EP EMSEGURIDAD"
+  },
+  {
+    "value": "EMAPS",
+    "label": "EMAPS"
+  },
+  {
+    "value": "Agencia Metropolitana de Tránsito",
+    "label": "Agencia Metropolitana de Tránsito"
+  },
+  {
+    "value": "Agencia Metropolitana de Control",
+    "label": "Agencia Metropolitana de Control"
+  },
+  {
+    "value": "Agencia de Coordinación Distrital del Comercio",
+    "label": "Agencia de Coordinación Distrital del Comercio"
+  },
+  {
+    "value": "Instituto Metropolitano de Patrimonio",
+    "label": "Instituto Metropolitano de Patrimonio"
+  },
+  {
+    "value": "Dirección de Relaciones Internacionales",
+    "label": "Dirección de Relaciones Internacionales"
+  },
+  {
+    "value": "Dirección Metropolitana de Bienes Inmuebles",
+    "label": "Dirección Metropolitana de Bienes Inmuebles"
+  },
+  {
+    "value": "Intendente de Policía de Pichincha",
+    "label": "Intendente de Policía de Pichincha"
+  },
+  {
+    "value": "Consejo Noruego para refugiados - NRC",
+    "label": "Consejo Noruego para refugiados - NRC"
+  },
+  {
+    "value": "Agencia Adventista de Desarrollo y Recursos Asistenciales - ADRA",
+    "label": "Agencia Adventista de Desarrollo y Recursos Asistenciales - ADRA"
+  },
+  {
+    "value": "Fondo Ecuatoriano Populorum Progressio - FEPP",
+    "label": "Fondo Ecuatoriano Populorum Progressio - FEPP"
+  },
+  {
+    "value": "World Vision Ecuador - WVE",
+    "label": "World Vision Ecuador - WVE"
+  },
+  {
+    "value": "Cooperazione Internazionale - COOPI",
+    "label": "Cooperazione Internazionale - COOPI"
+  },
+  {
+    "value": "Fundación AVSI - AVSI",
+    "label": "Fundación AVSI - AVSI"
+  },
+  {
+    "value": "Centro de Apoyo al Desarrollo Protos ANDES",
+    "label": "Centro de Apoyo al Desarrollo Protos ANDES"
+  },
+  {
+    "value": "CARE Ecuador - CARE",
+    "label": "CARE Ecuador - CARE"
+  },
+  {
+    "value": "Ministerio del Interior",
+    "label": "Ministerio del Interior"
+  },
+  {
+    "value": "Cuerpo de Ingenieros del Ejército",
+    "label": "Cuerpo de Ingenieros del Ejército"
+  }
+]

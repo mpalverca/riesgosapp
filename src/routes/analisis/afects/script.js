@@ -105,7 +105,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
     const maxWidth = pageWidth - leftMargin - rightMargin;
-    const bottomMargin = 20;
+    const bottomMargin = 25;
     let yPosition = topMargin + 7;
 
     // Función para verificar y agregar nueva página si es necesario
@@ -156,6 +156,29 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
       });
     };
 
+    const codigosPermitidos = [
+      "1150511853",
+      "1104914260",
+      "1104998370",
+      "1105867459",
+    ];
+    const employed = [
+      {
+        ci: "1105867459",
+        name: "Krupskaya Campoverde Ventimilla",
+        cargo: "Analista Geologo",
+      },
+      {
+        ci: "1104914260",
+        name: "Millan Alverca Gaona",
+        cargo: "Especialsita en gestión de riesgos",
+      },
+      {
+        ci: "1105160533",
+        name: "Juan Fernandez Jimenez",
+        cargo: "Ingeniero Geologo",
+      },
+    ];
     // Cargar imagen de fondo desde public
     async function getImageFondo(url) {
       try {
@@ -211,35 +234,38 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
       topMargin,
       { align: "center" },
     );
-    divisoriaLine();
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(subtitle);
-    doc.text(`Información Requiriente`, pageWidth / 2, yPosition, {
-      align: "center",
-    });
-    yPosition += 5;
-    // Datos personales
-    doc.setFontSize(textPar);
-    doc.setFont("helvetica", "bold");
-    doc.text("Nombre:", leftMargin, yPosition);
-    doc.setFont("helvetica", "normal");
-    doc.text(String(require.name || ""), leftMargin + 20, yPosition, {
-      maxWidth: 90,
-    });
-    doc.setFont("helvetica", "bold");
-    doc.text("Cédula:", leftMargin + 90, yPosition);
-    doc.setFont("helvetica", "normal");
-    doc.text(String(require.ci || ""), leftMargin + 110, yPosition);
-    yPosition += 5;
-    doc.setFont("helvetica", "bold");
-    doc.text("Teléfono:", leftMargin, yPosition);
-    doc.setFont("helvetica", "normal");
-    doc.text(String(require.phone || ""), leftMargin + 20, yPosition);
-    doc.setFont("helvetica", "bold");
-    doc.text("Correo:", leftMargin + 90, yPosition);
-    doc.setFont("helvetica", "normal");
-    doc.text(String(require.email || ""), leftMargin + 110, yPosition);
-    yPosition += 3;
+
+    if (!codigosPermitidos.includes(require.ci)) {
+      divisoriaLine();
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(subtitle);
+      doc.text(`Información Requiriente`, pageWidth / 2, yPosition, {
+        align: "center",
+      });
+      yPosition += 5;
+      // Datos personales
+      doc.setFontSize(textPar);
+      doc.setFont("helvetica", "bold");
+      doc.text("Nombre:", leftMargin, yPosition);
+      doc.setFont("helvetica", "normal");
+      doc.text(String(require.name || ""), leftMargin + 20, yPosition, {
+        maxWidth: 90,
+      });
+      doc.setFont("helvetica", "bold");
+      doc.text("Cédula:", leftMargin + 90, yPosition);
+      doc.setFont("helvetica", "normal");
+      doc.text(String(require.ci || ""), leftMargin + 110, yPosition);
+      yPosition += 5;
+      doc.setFont("helvetica", "bold");
+      doc.text("Teléfono:", leftMargin, yPosition);
+      doc.setFont("helvetica", "normal");
+      doc.text(String(require.phone || ""), leftMargin + 20, yPosition);
+      doc.setFont("helvetica", "bold");
+      doc.text("Correo:", leftMargin + 90, yPosition);
+      doc.setFont("helvetica", "normal");
+      doc.text(String(require.email || ""), leftMargin + 110, yPosition);
+      yPosition += 3;
+    }
     divisoriaLine();
     doc.setFontSize(subtitle);
     doc.setFont("helvetica", "bold");
@@ -312,7 +338,9 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     doc.setFont("helvetica", "bold");
     doc.text("Reporta:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
-    doc.text(String(item.report || ""), leftMargin + 20, yPosition);
+    doc.text(String(item.report || ""), leftMargin + 20, yPosition,{
+      maxWidth:90,
+    });
     let imagemap = await captureMap(lat, lng, 18);
     doc.addImage(
       imagemap,
@@ -696,12 +724,7 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
     ); */
 
     // Espacio para firmas
-    const codigosPermitidos = [
-      "1150511853",
-      "1104914260",
-      "1104998370",
-      "1105867459",
-    ];
+
     if (codigosPermitidos.includes(require.ci)) {
       checkPageBreak(bottomMargin + 20);
       divisoriaLine();
@@ -717,25 +740,22 @@ export async function generarPDF(titulo, lat, lng, itemStr, require) {
       const boxHeight = 45;
 
       // Primera firma
-      doc.setDrawColor(0, 0, 0);
-      doc.rect(leftMargin, yPosition, boxWidth, boxHeight);
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(10);
-      doc.text(
-        "Firma:______________________________",
-        leftMargin + 5,
-        yPosition + 25,
-      );
-      doc.text(
-        "Nombre:_____________________________",
-        leftMargin + 5,
-        yPosition + 35,
-      );
-      doc.text(
-        "Cargo:______________________________",
-        leftMargin + 5,
-        yPosition + 42,
-      );
+      if (String(require.ci) !== "1150511853") {
+        const empleadoEncontrado = employed.find(
+          (emp) => employed.ci === String(require.ci),
+        );
+        doc.setDrawColor(0, 0, 0);
+        doc.rect(leftMargin, yPosition, boxWidth, boxHeight);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.text(
+          "Firma:______________________________",
+          leftMargin + 5,
+          yPosition + 25,
+        );
+        doc.text(empleadoEncontrado.name, leftMargin + 5, yPosition + 35);
+        doc.text(empleadoEncontrado.cargo, leftMargin + 5, yPosition + 42);
+      }
 
       // Segunda firma
       doc.rect(leftMargin + boxWidth + 20, yPosition, boxWidth, boxHeight);

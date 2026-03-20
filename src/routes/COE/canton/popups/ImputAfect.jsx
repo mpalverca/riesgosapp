@@ -18,6 +18,8 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { useEffect, useState } from "react";
 import MTT4Afect from "./afectMMT/mtt4";
 import { useGetInfo } from "../../Crud";
+import MTT1Afect from "./afectMMT/mtt1";
+import MTT2Afect from "./afectMMT/mtt2";
 
 export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
   const getUbiString = () => {
@@ -34,6 +36,7 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
   const handleClose = () => {
     onClose();
   };
+
   const { post, dataGet } = useGetInfo();
   //const {createIAF } = useAfectaciones();
   const [fixData, setFixData] = useState({
@@ -69,6 +72,126 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
     per_emerg: null,
     fami_emerg: null,
   });
+  const [formDataMTT1, setFormDataMTT1] = useState({
+    porc_app: null,
+    porc_alc: null,
+    ton_res: null,
+    n_final: null,
+    inc_for: null,
+    vol_esc: null,
+    ha_cont: null,
+    n_planta: null,
+    n_cap: null,
+    n_tanq: null,
+  });
+
+  // MTT2 - Salud y Atención Prehospitalaria
+  const [formDataMTT2, setFormDataMTT2] = useState({
+    vic_he: null,
+    eva_sds: null,
+    user_afec: null,
+    atent: null,
+    death: null,
+    salud_afect: null,
+    salud_dest: null,
+    salud_suspend: null,
+    rec_afect: null,
+    rec_destr: null,
+    rec_hum: null,
+  });
+
+  // MTT3 - Servicios básicos esenciales
+  const [formDataMTT3, setFormDataMTT3] = useState({
+    nac_afec: null,
+    via_afec: null,
+    puent_afec: null,
+    puent_dest: null,
+    cort_afect: null,
+    porc_elect: null,
+    refin: null,
+    rad_afect: null,
+    fibr_afect: null,
+    rad_cort: null,
+    porc_tele: null,
+    porc_hidro: null,
+  });
+
+  // MTT4 - Alojamientos Temporales y Asistencia Humanitaria
+  const [formDataMTT4, setFormDataMTT4] = useState({
+    perm_dam: null,
+    fam_damn: null,
+    perf_afect: null,
+    fam_afect: null,
+    per_ind: null,
+    fam_ind: null,
+    perd_desp: null,
+    fam_despl: null,
+    alb_afect: null,
+    camp_afect: null,
+    per_fam: null,
+    fam_fam: null,
+    per_cam: null,
+    fam_camp: null,
+    per_ref: null,
+    fam_ref: null,
+    per_emerg: null,
+    fami_emerg: null,
+  });
+
+  // MTT5 - Educación en emergencia
+  const [formDataMTT5, setFormDataMTT5] = useState({
+    isti_afec_parc: null,
+    isti_afec_total: null,
+    distri_afect_parc: null,
+    distri_afect_total: null,
+    zonal_afect_parc: null,
+    zonal_afect_total: null,
+    est_afect: null,
+    est_death: null,
+    doc_afec: null,
+    doc_death: null,
+    adm_afect: null,
+    adm_death: null,
+  });
+
+  // MTT6 - Medios de vida y productividad
+  const [formDataMTT6, setFormDataMTT6] = useState({
+    cult_afec: null,
+    cult_destr: null,
+    anim_afect: null,
+    anim_death: null,
+    infr_afect: null,
+    infra_destr: null,
+    prod_afect_parc: null,
+    prod_afect_total: null,
+    infr_hotel_afect: null,
+    turs_death: null,
+    tur_afect: null,
+    aloj_afect: null,
+    emple_afect: null,
+  });
+
+  // MTT7 - Infraestructura esencial y Vivienda
+  const [formDataMTT7, setFormDataMTT7] = useState({
+    viv_afect: null,
+    viv_dest: null,
+    bien_afect: null,
+    bien_destrido: null,
+    bien_priv_afect: null,
+    bien_priv_destr: null,
+    bienes_afect: null,
+    bienes_destr: null,
+    arq_afect: null,
+    porc_afect: null,
+  });
+
+  // GT3 - Búsqueda, salvamento y rescate
+  const [formDataGT3, setFormDataGT3] = useState({
+    n_vida: null,
+    n_sin_vida: null,
+    n_evc: null,
+    n_trans: null,
+  });
 
   useEffect(() => {
     setFixData((prev) => ({
@@ -78,16 +201,21 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
   }, [coordinates?.lat, coordinates?.lng]); // Dependencias específicas
 
   // Verificar coordenadas antes de usarlas
-
+  let currentData = null;
   const getMMData = (mttValue) => {
     switch (mttValue) {
       case "MTT1":
-        return <MTT1Afect />;
+        currentData = formDataMTT1;
+        return (
+          <MTT1Afect setFormData={setFormDataMTT1} formData={formDataMTT1} />
+        );
       case "MTT2":
-        return "blue";
+        currentData = formDataMTT2;
+        return <MTT2Afect setFormData={setFormDataMTT2} formData={formDataMTT2} />
       case "MTT3":
         return "green";
       case "MTT4":
+        currentData = formData4;
         return <MTT4Afect setFormData={setFormData4} formData={formData4} />;
       case "MTT5":
         return "purple";
@@ -155,7 +283,7 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
     // Agregamos la opción por defecto al inicio
     return [{ value: "", label: "Seleccione" }, ...options];
   };
-  
+
   return (
     <>
       <Dialog onClose={handleClose} open={open}>
@@ -213,7 +341,6 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
                       }}
                     />
                   </Grid>
-
                   {/*  <Grid item size={{ xs: 12, sm: 6 }}>
                     {renderField("parroq", "Parroquia", "select", [
                       { value: "carigan", label: "Carigan" },
@@ -284,13 +411,15 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
             onClick={() => {
               // createIAF(mtt, "Afectaciones",{ ...formData4, ...fixData });
 
-              post(mtt, "Afectaciones", { ...formData4, ...fixData });
+              post(mtt, "Afectaciones", { ...currentData, ...fixData });
               handleClose();
               if (dataGet?.success == true) {
                 alert(
                   "Se ha agregado la información correctamente, recargue las afectaciones",
                 );
                 setFixData({});
+                setFormDataMTT1({});
+                setFormDataMTT2();
               }
             }}
           >
@@ -301,14 +430,6 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
           </Button>
         </DialogActions>
       </Dialog>
-    </>
-  );
-};
-
-const MTT1Afect = () => {
-  return (
-    <>
-      <TextField></TextField>
     </>
   );
 };

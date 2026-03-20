@@ -27,6 +27,9 @@ export async function generarPDFEvent(
 ) {
   try {
     const doc = new jsPDF();
+    const title = 11;
+    const subtitle = 10;
+    const textPar = 9;
     // Configuración de márgenes
     const leftMargin = 10;
     const rightMargin = 15;
@@ -35,11 +38,11 @@ export async function generarPDFEvent(
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
     const maxWidth = pageWidth - leftMargin - rightMargin;
-    const marginBottom = 20;
+    const bottomMargin = 20;
     let yPosition = topMargin + 7;
     // Función para verificar y agregar nueva página si es necesario
     const checkPageBreak = (requiredSpace) => {
-      if (yPosition + requiredSpace > pageHeight - marginBottom) {
+      if (yPosition + requiredSpace > pageHeight - bottomMargin) {
         addNewPage();
         return true;
       }
@@ -63,6 +66,30 @@ export async function generarPDFEvent(
       yPosition += 5;
     };
 
+     const someText = (text, max, maxOne, left) => {
+      doc.setFontSize(textPar);
+      doc.setFont("helvetica", "normal");
+      const linesaccion = doc.splitTextToSize(
+        String(text || "No existe personas afectadas, heridas o fallecidas"),
+        maxWidth - max,
+      );
+      // Verificar si necesitamos nueva página para la descripción
+      // checkPageBreak(lines.length * 7);
+      linesaccion.forEach((line) => {
+        if (yPosition + 5 > pageHeight - bottomMargin) {
+          addNewPage();
+          yPosition = topMargin;
+        }
+        doc.text(line, leftMargin + left, yPosition, {
+          align: "justify",
+          maxWidth: maxWidth - maxOne,
+        });
+        //yPosition += Math.max(10, lines.length * 5);
+        yPosition += 5;
+      });
+    };
+
+
     // Cargar imagen de fondo desde public
     async function getImageFondo(url) {
       try {
@@ -80,6 +107,10 @@ export async function generarPDFEvent(
         return null;
       }
     }
+
+
+    
+
 
     // Función para formatear texto con guiones como lista
     /* const formatListText = (text) => {
