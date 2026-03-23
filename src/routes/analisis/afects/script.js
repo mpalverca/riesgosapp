@@ -98,7 +98,7 @@ export async function generarPDF(
 ) {
   try {
     const item = itemStr;
-    const imgData = await printToPDF();
+    //const imgData = await printToPDF();
     //console.log(item);
     //console.log("Generando PDF para el ítem:", item)
     const doc = new jsPDF();
@@ -349,7 +349,7 @@ export async function generarPDF(
     doc.text(String(item.report || ""), leftMargin + 20, yPosition, {
       maxWidth: 90,
     });
-    /* let imagemap = await captureMap(lat, lng, 18);
+    let imagemap = await captureMap(lat, lng, 18);
      doc.addImage(
       imagemap,
       "PNG",
@@ -358,8 +358,8 @@ export async function generarPDF(
       // maxWidth / 2,
       (pageWidth - leftMargin) / 2,
       70,
-    ); */
-    doc.addImage(
+    );
+    /* doc.addImage(
       imgData,
       "PNG",
       leftMargin + 75,
@@ -367,7 +367,7 @@ export async function generarPDF(
       // maxWidth / 2,
       (pageWidth - leftMargin) / 2,
       70,
-    );
+    ); */
     yPosition += 15;
     divisoriaLine();
     doc.setFontSize(textPar);

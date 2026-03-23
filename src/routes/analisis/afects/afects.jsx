@@ -536,14 +536,14 @@ const MapAfects = ({
                     {user && (
                       <Button
                         onClick={() => {
-                          hidePopup();
+                          //hidePopup();
                           generarPDF(
                             selectedItem.event,
                             coords.lat,
                             coords.lng,
                             selectedItem,
                             user,
-                            printToPDF,
+                           // printToPDF,
                           );
                         }}
                         fullWidth
