@@ -354,7 +354,7 @@ export async function generarPDF(
       imagemap,
       "PNG",
       leftMargin + 80,
-      topMargin + 35,
+      codigosPermitidos.includes(require.ci)?topMargin+35:topMargin+17,
       // maxWidth / 2,
       (pageWidth - leftMargin) / 2,
       70,
