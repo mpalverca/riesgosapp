@@ -350,11 +350,11 @@ export async function generarPDF(
       maxWidth: 90,
     });
     let imagemap = await captureMap(lat, lng, 18);
-     doc.addImage(
+    doc.addImage(
       imagemap,
       "PNG",
       leftMargin + 80,
-      codigosPermitidos.includes(require.ci)?topMargin+35:topMargin+17,
+      codigosPermitidos.includes(require.ci) ? topMargin + 35 : topMargin + 17,
       // maxWidth / 2,
       (pageWidth - leftMargin) / 2,
       70,
@@ -402,7 +402,12 @@ export async function generarPDF(
     });
     yPosition += 5;
     doc.setFont("helvetica", "normal");
-    someText(item.info_afec, 20, 15, 20);
+    someText(
+      item.info_afec || "No existe personas afectadas, heridas o fallecidas",
+      20,
+      15,
+      20,
+    );
     /*   const linesDetail = doc.splitTextToSize(
       String(
         item.info_afec || "No existe personas afectadas, heridas o fallecidas",
@@ -429,7 +434,9 @@ export async function generarPDF(
     doc.setFont("helvetica", "bold");
     doc.text("Atiende:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
-    doc.text(String(item.depen || ""), leftMargin + 20, yPosition);
+    someText(item.depen || "", 20, 15, 20);
+    //doc.text(String(item.depen || ""), leftMargin + 20, yPosition);
+    divisoriaLine();
     yPosition += 7;
     // Acciones a desarrollar con manejo de texto largo
     /* if (item.accions) {
