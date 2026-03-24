@@ -174,17 +174,17 @@ export async function generarPDF(
       {
         ci: "1105867459",
         name: "Krupskaya Campoverde Ventimilla",
-        cargo: "Analista Geologo",
+        cargo: "Analista Geólogo",
       },
       {
         ci: "1104914260",
         name: "Millan Alverca Gaona",
-        cargo: "Especialsita en gestión de riesgos",
+        cargo: "Especialista en Gestión de Riesgos",
       },
       {
         ci: "1105160533",
         name: "Juan Fernandez Jimenez",
-        cargo: "Ingeniero Geologo",
+        cargo: "Ingeniero Geólogo",
       },
     ];
     // Cargar imagen de fondo desde public
