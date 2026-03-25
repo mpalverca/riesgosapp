@@ -237,7 +237,7 @@ export async function generarPDF(
     doc.setFont("helvetica", "bold");
     doc.setFontSize(title);
     doc.text(
-      `FICHA REGISTRO DE AFECTACIÓN Nro. CGR-${item.id}`,
+      `FICHA DE REGISTRO DE AFECTACIÓN Nro. CGR-${item.id}`,
       pageWidth / 2,
       topMargin,
       { align: "center" },
@@ -347,7 +347,7 @@ export async function generarPDF(
     doc.text("Reporta:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(String(item.report || ""), leftMargin + 20, yPosition, {
-      maxWidth: 90,
+      maxWidth: 70,
     });
     let imagemap = await captureMap(lat, lng, 18);
     doc.addImage(
