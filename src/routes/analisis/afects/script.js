@@ -437,7 +437,6 @@ export async function generarPDF(
     someText(item.depen || "", 20, 15, 20);
     //doc.text(String(item.depen || ""), leftMargin + 20, yPosition);
     divisoriaLine();
-    yPosition += 7;
     // Acciones a desarrollar con manejo de texto largo
     /* if (item.accions) {
       doc.setFontSize(subtitle);
