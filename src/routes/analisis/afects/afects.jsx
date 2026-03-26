@@ -20,9 +20,6 @@ import {
   Alert,
 } from "@mui/material";
 import {
-  FaWater,
-  FaMountain,
-  FaBuilding,
   FaExclamationTriangle,
 } from "react-icons/fa";
 import WhatshotIcon from "@mui/icons-material/Whatshot";
@@ -226,7 +223,7 @@ const MapAfects = ({
     }
   };
   // Función para cerrar todos los popups
-  const printToPDF = () => {
+  /* const printToPDF = () => {
     return new Promise((resolve, reject) => {
       if (!mapRef.current || !mapContainerRef.current) {
         reject("El mapa no está listo");
@@ -271,7 +268,92 @@ const MapAfects = ({
           });
       }, 1000);
     });
-  };
+  }; */
+const printToPDF = () => {
+  return new Promise(async (resolve, reject) => {
+    if (!mapRef.current || !mapContainerRef.current) {
+      reject("El mapa no está listo");
+      return;
+    }
+
+    try {
+      const mapElement = mapContainerRef.current;
+      
+      // Obtener todas las capas importantes del mapa
+      const leafletContainer = mapElement.querySelector('.leaflet-container');
+      if (!leafletContainer) {
+        reject("No se encontró el contenedor de Leaflet");
+        return;
+      }
+      
+      // Forzar que todas las capas sean visibles para la captura
+      const originalStyles = [];
+      const panes = leafletContainer.querySelectorAll('.leaflet-pane');
+      panes.forEach(pane => {
+        originalStyles.push({
+          element: pane,
+          visibility: pane.style.visibility,
+          opacity: pane.style.opacity
+        });
+        pane.style.visibility = 'visible';
+        pane.style.opacity = '1';
+      });
+      
+      // Esperar a que se renderice
+      await new Promise(r => setTimeout(r, 500));
+      
+      const canvas = await html2canvas(leafletContainer, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        allowTaint: false,
+        foreignObjectRendering: true,
+        logging: true,
+        
+        // Configuración crítica para capturar mapas
+        windowWidth: leafletContainer.scrollWidth,
+        windowHeight: leafletContainer.scrollHeight,
+        
+        onclone: (clonedDoc) => {
+          // Asegurar que los estilos se mantienen en el clon
+          const clonedContainer = clonedDoc.querySelector('.leaflet-container');
+          if (clonedContainer) {
+            // Eliminar transformaciones problemáticas
+            clonedContainer.style.transform = 'none';
+            
+            // Forzar que todas las capas sean visibles
+            const clonedPanes = clonedContainer.querySelectorAll('.leaflet-pane');
+            clonedPanes.forEach(pane => {
+              pane.style.visibility = 'visible';
+              pane.style.opacity = '1';
+              pane.style.transform = 'none';
+            });
+            
+            // Asegurar que los tiles se vean
+            const tiles = clonedContainer.querySelectorAll('.leaflet-tile');
+            tiles.forEach(tile => {
+              tile.style.opacity = '1';
+              tile.style.visibility = 'visible';
+            });
+          }
+        }
+      });
+      
+      // Restaurar estilos originales
+      originalStyles.forEach(style => {
+        style.element.style.visibility = style.visibility;
+        style.element.style.opacity = style.opacity;
+      });
+      
+      const imgData = canvas.toDataURL("image/png");
+      resolve(imgData);
+      
+    } catch (error) {
+      console.error("Error en captura:", error);
+      reject(error);
+    }
+  });
+};
 
   // Cargar usuario desde localStorage
   useEffect(() => {

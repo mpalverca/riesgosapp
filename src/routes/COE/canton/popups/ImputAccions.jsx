@@ -19,6 +19,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { useEffect, useState } from "react";
 import { useGetInfo } from "../../Crud";
 import inst_info from "../../../../components/utils/inst_info.json";
+import coe_info from "../../../../components/utils/coe_info.json";
 export const DialogAccions = ({
   open,
   onClose,
@@ -26,7 +27,7 @@ export const DialogAccions = ({
   coordinates,
   ...props
 }) => {
-  const length=props.length
+  const length = props.length;
   const getUbiString = () => {
     if (
       !coordinates ||
@@ -79,7 +80,7 @@ export const DialogAccions = ({
     need: "",
     state_req: "",
   });
- 
+
   const mesas = [
     {
       value: "MTT1",
@@ -127,7 +128,7 @@ export const DialogAccions = ({
     setFixData((prev) => ({
       ...prev,
       ubi: getUbiString(),
-      code: `Loja - Loja_ - ${mtt} - ${length + 1} - `
+      code: `Loja - Loja_ - ${mtt} - ${length + 1} - `,
     }));
   }, [coordinates?.lat, coordinates?.lng]); // Dependencias específicas
 
@@ -201,7 +202,6 @@ export const DialogAccions = ({
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
             Latitud: {coordinates?.lat}, Longitud: {coordinates?.lng}
-    
           </DialogContentText>
           <Paper elevation={3} sx={{ p: 1, mt: 1 }}>
             <Typography
@@ -240,7 +240,7 @@ export const DialogAccions = ({
                     {renderField(
                       "inst_atent",
                       "Institución que atiende_AR",
-                      "select",                      
+                      "select",
                       inst_info,
                     )}
                   </Grid>
@@ -391,7 +391,21 @@ export const DialogAccions = ({
                       )}
                     </Grid>
                     <Grid item size={{ xs: 12, md: 12 }}>
-                      {renderField("need", "Necesidad", "textarea")}
+                      {renderField(
+                        "mtt_sol",
+                        "Responsabilidad",
+                        "select",
+                        coe_info
+                          .filter((info) => info.codigo === fixData.to_mtt_gt)
+                          .flatMap((info) => info.responsabilidades || [])
+                          .map((responsabilidad) => ({
+                            value: responsabilidad,
+                            label: responsabilidad,
+                          })),
+                      )}
+                    </Grid>
+                    <Grid item size={{ xs: 12, md: 12 }}>
+                      {renderField("pre_need", "Necesidad", "textarea")}
                     </Grid>
                   </Grid>
                 </Grid>
@@ -406,14 +420,14 @@ export const DialogAccions = ({
               !props.dataPol ||
               !fixData.date_act ||
               !fixData.row_event ||
-             length == 0 
-             
+              length == 0
                 ? true
                 : false
             }
             onClick={() => {
               post(mtt, "Acciones", {
                 code_req: fixData.code + fixData.to_mtt_gt,
+                need: fixData.mtt_sol + fixData.pre_need,
                 ...fixData,
               });
               handleClose();
