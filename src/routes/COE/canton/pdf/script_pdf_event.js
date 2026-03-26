@@ -55,7 +55,7 @@ export async function generarPDFEvent(
       yPosition = topMargin;
       // Agregar fondo en la nueva página
       if (fondoBase64) {
-        doc.addImage(fondoBase64, "PNG", 0, 0, pageWidth, pageHeight);
+        doc.addImage(fondoBase64, "PNG", 5, 0, pageWidth, pageHeight);
       }
     };
     // Función para línea divisoria
@@ -64,15 +64,23 @@ export async function generarPDFEvent(
       doc.line(leftMargin, yPosition, pageWidth - rightMargin, yPosition);
       yPosition += 5;
     };
+    const SubdivisoriaLine = () => {
+      doc.setDrawColor(51, 38, 97);
+      doc.line(leftMargin, yPosition, pageWidth - rightMargin - 20, yPosition);
+      yPosition += 5;
+    };
     const someText = (text, max, maxOne, left) => {
       doc.setFontSize(textPar);
       doc.setFont("helvetica", "normal");
+
+      // El ancho máximo para split debería ser el mismo que para dibujar
+      const maxTextWidth = maxWidth - maxOne; // Usa maxOne para ambos
+
       const linesaccion = doc.splitTextToSize(
         String(text || "No existe personas afectadas, heridas o fallecidas"),
-        maxWidth - max,
+        maxTextWidth, // Usar el mismo ancho máximo
       );
-      // Verificar si necesitamos nueva página para la descripción
-      // checkPageBreak(lines.length * 7);
+
       linesaccion.forEach((line) => {
         if (yPosition + 5 > pageHeight - bottomMargin) {
           addNewPage();
@@ -80,11 +88,25 @@ export async function generarPDFEvent(
         }
         doc.text(line, leftMargin + left, yPosition, {
           align: "justify",
-          maxWidth: maxWidth - maxOne,
+          maxWidth: maxTextWidth, // Usar el mismo ancho máximo
         });
-        //yPosition += Math.max(10, lines.length * 5);
         yPosition += 5;
       });
+    };
+
+    const formatDate = (dateString) => {
+      if (!dateString) return "No disponible";
+      try {
+        const [datePart] = dateString.split(" ");
+        const [d, m, y] = datePart.split("/");
+        return new Date(y, m - 1, d).toLocaleDateString("es-ES", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        });
+      } catch {
+        return dateString;
+      }
     };
 
     // Cargar imagen de fondo desde public
@@ -118,7 +140,7 @@ export async function generarPDFEvent(
     // Agrega fondo antes de todo el contenido
     const fondoBase64 = await getImageFondo(Fondo1);
     if (fondoBase64) {
-      doc.addImage(fondoBase64, "PNG", 0, 0, pageWidth, pageHeight);
+      doc.addImage(fondoBase64, "PNG", 5, 0, pageWidth, pageHeight);
     }
 
     // Fecha actual de descarga
@@ -208,15 +230,10 @@ export async function generarPDFEvent(
     doc.text("Fecha", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(
-      String(polAF.date_event + " " + polAF.time || ""),
+      String(formatDate(polAF.date_event) + " - " + polAF.time || ""),
       leftMargin + 25,
       yPosition,
     );
-    yPosition += 5;
-    doc.setFont("helvetica", "bold");
-    doc.text("Fecha", leftMargin, yPosition);
-    doc.setFont("helvetica", "normal");
-    doc.text(String(polAF.date_act || ""), leftMargin + 25, yPosition);
     yPosition += 5;
     doc.setFont("helvetica", "bold");
     doc.text("Alerta", leftMargin, yPosition);
@@ -242,14 +259,14 @@ export async function generarPDFEvent(
       yPosition,
     );
     yPosition += 20;
-    let imagemap = await captureMap(marker[0], marker[1], 18, polygon);
+    let imagemap = await captureMap(marker[0], marker[1], 18 /*  polygon */);
     doc.addImage(
       imagemap,
       "PNG",
       leftMargin + 90,
-      topMargin + 17,
+      topMargin + 10,
       maxWidth / 2,
-      80,
+      70,
     );
     yPosition += 5;
     divisoriaLine();
@@ -258,7 +275,7 @@ export async function generarPDFEvent(
     doc.setFont("helvetica", "bold");
     doc.text("Descripción:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
-    someText(polAF.desc_plan, 17, 17, 20);
+    someText(polAF.desc_plan, 15, 15, 20);
     // Línea divisoria
     divisoriaLine();
     // SITUACIÓN ACTUAL
@@ -267,29 +284,41 @@ export async function generarPDFEvent(
     doc.text("2. Situación Actual del evento:", leftMargin, yPosition);
     yPosition += 5;
     doc.setFontSize(textPar);
-    console.log(afect);
     afect.map(async (afect, index) => {
       //afectDoc(afect, index, leftMargin, yPosition, maxWidth);
       checkPageBreak(bottomMargin + 20);
+      SubdivisoriaLine();
       const byData = parseByField(afect.data.by);
       const coord = coordForm(afect.data.ubi);
       doc.setFont("helvetica", "normal");
       doc.text(
-        `- Afectación ${index + 1} (${coord?.[0] || "0"}, ${coord?.[1] || "0"}) - ${byData?.date_act || "Fecha no registrada"}`,
+        `- Afectación: ${index + 1} (${coord?.[0] || "0"}, ${coord?.[1] || "0"})`,
         leftMargin,
         yPosition,
         //{ maxWidth: maxWidth / 2 },
       );
       yPosition += 5;
       doc.text(
-        `  Reportado por: -${byData?.name || "Sin nombre"} - ${byData?.cargo || "Sin cargo"}`,
+        `- Fecha de Actualización: ${formatDate(afect.data?.date_act) || "Fecha no registrada"}`,
         leftMargin,
         yPosition,
         //{ maxWidth: maxWidth / 2 },
       );
       yPosition += 5;
-      someText(` Descripción de la afectación: ${afect?.data.desc}`, 20, 20, 0);
+      doc.text(
+        `- Reportado por: ${byData?.name || "Sin nombre"} - ${byData?.cargo || "Sin cargo"}`,
+        leftMargin,
+        yPosition,
+        //{ maxWidth: maxWidth / 2 },
+      );
       yPosition += 5;
+      someText(
+        `- Descripción de la afectación: ${afect?.data.desc}`,
+        0,
+        0,
+        0,
+      );
+      
     });
     // Línea divisoria final
     divisoriaLine();
@@ -298,6 +327,7 @@ export async function generarPDFEvent(
     checkPageBreak(100);
     // Campos principales
     doc.setFont("helvetica", "bold");
+    doc.setFontSize(subtitle)
     doc.text("3. AFECTACIONES - RESUMEN", leftMargin, yPosition);
     yPosition += 8;
     let currentField;
@@ -329,7 +359,7 @@ export async function generarPDFEvent(
 
     // Mostrar campos y acumular suma de valores específicos si es necesario
     let sumaTotalGeneral = 0;
-
+    doc.setFontSize(textPar)
     currentField.forEach((item) => {
       doc.setFont("helvetica", "bold");
       doc.setTextColor(41, 98, 255);
@@ -346,7 +376,7 @@ export async function generarPDFEvent(
         // Verificar si existe el key en el data del afectItem
         if (afectItem.data && afectItem.data[item.key] !== undefined) {
           const valor = afectItem.data[item.key];
-          console.log(item.label, item.key, "=", valor);
+          //console.log(item.label, item.key, "=", valor);
 
           // Acumular para este campo específico
           const valorNumerico = Number(valor);
@@ -372,7 +402,7 @@ export async function generarPDFEvent(
       yPosition += 8;
     });
 
-    console.log("Suma total de todos los campos:", sumaTotalGeneral);
+    //console.log("Suma total de todos los campos:", sumaTotalGeneral);
 
     checkPageBreak(100);
     doc.setFont("helvetica", "bold");

@@ -41,10 +41,10 @@ import { cargarDatosPol } from "../../../components/maps/script/script.js";
 import "leaflet/dist/leaflet.css";
 //cecium
 import * as Cesium from "cesium";
-import { Cartesian3, Math as CesiumMath, Cesium3DTileset } from "cesium";
-import { Viewer, Entity, CzmlDataSource, GeoJsonDataSource } from "resium";
+import { Cartesian3, Cesium3DTileset } from "cesium";
+import { Viewer, Entity,  GeoJsonDataSource } from "resium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
-import leafletImage from "leaflet-image";
+
 import html2canvas from "html2canvas";
 
 // Configuración de iconos para Leaflet
@@ -222,70 +222,21 @@ const MapAfects = ({
       //  console.log("Popup cerrado desde useMap")// ← Método de Leaflet para cerrar el popup activo
     }
   };
-  // Función para cerrar todos los popups
-  /* const printToPDF = () => {
-    return new Promise((resolve, reject) => {
-      if (!mapRef.current || !mapContainerRef.current) {
-        reject("El mapa no está listo");
-        return;
-      }
-
-      // Obtener el elemento correcto del mapa
-      const mapElement = mapRef.current.getContainer(); // ← Elemento DOM del mapa
-
-      if (!mapElement) {
-        reject("No se encontró el elemento del mapa");
-        return;
-      }
-
-     // console.log("Capturando elemento:", mapElement);
-    //  console.log("Elemento tiene hijos:", mapElement.children.length);
-
-      setTimeout(() => {
-        html2canvas(mapElement, {
-          scale: 2,
-          useCORS: true,
-          logging: true,
-          backgroundColor: "#ffffff",
-          allowTaint: false,
-          foreignObjectRendering: false,
-          onclone: (clonedDoc, element) => {
-            // console.log("Clonado completado");
-            // Verificar si los polígonos están en el clon
-            const polygons = clonedDoc.querySelectorAll(
-              ".leaflet-overlay-pane svg",
-            );
-           // console.log("Polígonos en clon:", polygons.length);
-          },
-        })
-          .then((canvas) => {
-            const imgData = canvas.toDataURL("image/png");
-            resolve(imgData);
-          })
-          .catch((error) => {
-            console.error("Error en html2canvas:", error);
-            reject(error);
-          });
-      }, 1000);
-    });
-  }; */
+  
 const printToPDF = () => {
   return new Promise(async (resolve, reject) => {
     if (!mapRef.current || !mapContainerRef.current) {
       reject("El mapa no está listo");
       return;
     }
-
     try {
       const mapElement = mapContainerRef.current;
-      
-      // Obtener todas las capas importantes del mapa
+          // Obtener todas las capas importantes del mapa
       const leafletContainer = mapElement.querySelector('.leaflet-container');
       if (!leafletContainer) {
         reject("No se encontró el contenedor de Leaflet");
         return;
-      }
-      
+      }      
       // Forzar que todas las capas sean visibles para la captura
       const originalStyles = [];
       const panes = leafletContainer.querySelectorAll('.leaflet-pane');
@@ -297,24 +248,20 @@ const printToPDF = () => {
         });
         pane.style.visibility = 'visible';
         pane.style.opacity = '1';
-      });
-      
+      });      
       // Esperar a que se renderice
       await new Promise(r => setTimeout(r, 500));
-      
-      const canvas = await html2canvas(leafletContainer, {
+            const canvas = await html2canvas(leafletContainer, {
         scale: 2,
         useCORS: true,
         backgroundColor: '#ffffff',
         allowTaint: false,
         foreignObjectRendering: true,
         logging: true,
-        
-        // Configuración crítica para capturar mapas
+                // Configuración crítica para capturar mapas
         windowWidth: leafletContainer.scrollWidth,
         windowHeight: leafletContainer.scrollHeight,
-        
-        onclone: (clonedDoc) => {
+                onclone: (clonedDoc) => {
           // Asegurar que los estilos se mantienen en el clon
           const clonedContainer = clonedDoc.querySelector('.leaflet-container');
           if (clonedContainer) {
@@ -366,7 +313,6 @@ const printToPDF = () => {
       console.error("Error al cargar usuario:", error);
     }
   }, []);
-
   // Cargar datos de polígonos cuando se activa la capa
   useEffect(() => {
     const loadPoligonos = async () => {
@@ -618,14 +564,14 @@ const printToPDF = () => {
                     {user && (
                       <Button
                         onClick={() => {
-                          //hidePopup();
+                          hidePopup();
                           generarPDF(
                             selectedItem.event,
                             coords.lat,
                             coords.lng,
                             selectedItem,
                             user,
-                           // printToPDF,
+                            printToPDF,
                           );
                         }}
                         fullWidth

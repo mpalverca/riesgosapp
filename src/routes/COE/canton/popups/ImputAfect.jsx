@@ -13,14 +13,12 @@ import {
   MenuItem,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { useEffect, useState } from "react";
-import MTT4Afect from "./afectMMT/mtt4";
 import { useGetInfo } from "../../Crud";
-import MTT1Afect from "./afectMMT/mtt1";
-import MTT2Afect from "./afectMMT/mtt2";
-import MTT5Afect from "./afectMMT/mtt5";
 import MTTAfect from "./afectMMT/mtt_general";
 import {
   fieldsGT3,
@@ -260,7 +258,7 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
             fieldData={fieldsMTT5}
           />
         );
-        case "MTT6":
+      case "MTT6":
         return (
           <MTTAfect
             setFormData={setFormDataMTT6}
@@ -268,7 +266,7 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
             fieldData={fieldsMTT6}
           />
         );
-        case "MTT7":
+      case "MTT7":
         return (
           <MTTAfect
             setFormData={setFormDataMTT7}
@@ -276,7 +274,7 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
             fieldData={fieldsMTT7}
           />
         );
-        case "GT3":
+      case "GT3":
         return (
           <MTTAfect
             setFormData={setFormDataGT3}
@@ -295,6 +293,7 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
     const { name, value } = e.target;
     setFixData((prev) => ({ ...prev, [name]: value }));
   };
+  console.log(fixData.date_act);
 
   const renderField = (
     name,
@@ -397,60 +396,30 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
                     <DatePicker
                       label="Fecha de Actuación"
                       format="dd/MM/yyyy"
-                      value={fixData.date_act}
-                      onChange={(value) =>
-                        setFixData((prev) => ({ ...prev, date_act: value }))
+                      value={
+                        fixData.date_act
+                          ? new Date(
+                              fixData.date_act.split("/").reverse().join("-"),
+                            )
+                          : null
                       }
+                      onChange={(value) => {
+                        if (value) {
+                          // Convertir el objeto Date a string en formato dd/MM/yyyy
+                          const formattedDate = format(value, "dd/MM/yyyy");
+                          setFixData((prev) => ({
+                            ...prev,
+                            date_act: formattedDate,
+                          }));
+                        } else {
+                          setFixData((prev) => ({ ...prev, date_act: null }));
+                        }
+                      }}
                       slotProps={{
                         textField: { fullWidth: true, required: true },
                       }}
                     />
                   </Grid>
-                  {/*  <Grid item size={{ xs: 12, sm: 6 }}>
-                    {renderField("parroq", "Parroquia", "select", [
-                      { value: "carigan", label: "Carigan" },
-                      { value: "el_sagrario", label: "El Sagrario" },
-                      { value: "el_valle", label: "El Valle" },
-                      { value: "punzara", label: "Punzara" },
-                      { value: "san_sebastian", label: "San Sebastián" },
-                      { value: "sucre", label: "Sucre" },
-                      { value: "chantaco", label: "Chantaco" },
-                      { value: " chuquiribamba,", label: " Chuquiribamba" },
-                      { value: "el_cisne", label: "El Cisne" },
-                      { value: "gualel", label: "Gualel" },
-                      { value: "jimbilla", label: "Jimbilla" },
-                      { value: "malacatos", label: "Malacatos" },
-                      { value: "quinara", label: "Quinara" },
-                      { value: "san_lucas", label: "San Lucas" },
-                      {
-                        value: "san_pedro_de_vilcabamba",
-                        label: "San Pedro de Vilcabamba",
-                      },
-                      { value: "santiago", label: "Santiago" },
-                      { value: "taquil", label: "Taquil" },
-                      { value: "vilcabamba", label: "Vilcabamba" },
-                      { value: "yangana", label: "Yangana" },
-                    ])}
-                  </Grid> */}
-
-                  {/* <Grid item size={{ xs: 12, sm: 6 }}>
-                    {renderField("sector", "Sector")}
-                  </Grid>
-                  <Grid item size={{ xs: 12, sm: 6 }}>
-                    {renderField("event", "Tipo de Evento", "select", [
-                      { value: "", label: "Seleccione" },
-                      { value: "deslizamiento", label: "Movimiento en masa" },
-                      { value: "colapso", label: "Colapso Estructural" },
-                      { value: "granizada", label: "Granizada" },
-                      { value: "helada", label: "Helada" },
-                      { value: "hundimiento", label: "Hundimiento" },
-                      { value: "inundacion", label: "Inundación" },
-                      { value: "socavamiento", label: "Socavamiento" },
-                      { value: "subsidencia", label: "Subsidencia" },
-                      { value: "tormenta", label: "Tormenta Eléctrica" },
-                      { value: "vendaval,", label: "Vendaval" },
-                    ])}
-                  </Grid> */}
                   <Grid item size={{ xs: 12, sm: 6 }}>
                     {renderField("radio", "Radio (m)", "number")}
                   </Grid>
@@ -468,6 +437,7 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
             disabled={
               props.dataPol?.length === 0 ||
               !props.dataPol ||
+              !fixData.desc ||
               !fixData.date_act ||
               !fixData.row_event
                 ? true
@@ -484,7 +454,13 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
                 );
                 setFixData({});
                 setFormDataMTT1({});
-                setFormDataMTT2();
+                setFormDataMTT2({});
+                setFormDataMTT3({});
+                setFormDataMTT4({});
+                setFormDataMTT5({});
+                setFormDataMTT6({});
+                setFormDataMTT7({});
+                setFormDataGT3({});
               }
             }}
           >

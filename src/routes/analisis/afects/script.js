@@ -131,7 +131,7 @@ export async function generarPDF(
       yPosition = topMargin;
       // Agregar fondo en la nueva página
       if (fondoBase64) {
-        doc.addImage(fondoBase64, "PNG", 0, 0, pageWidth, pageHeight);
+        doc.addImage(fondoBase64, "PNG", 5, 0, pageWidth, pageHeight);
       }
     };
     // Función para línea divisoria
@@ -145,7 +145,7 @@ export async function generarPDF(
       doc.setFontSize(textPar);
       doc.setFont("helvetica", "normal");
       const linesaccion = doc.splitTextToSize(
-        String(text || "No existe personas afectadas, heridas o fallecidas"),
+        String(text),
         maxWidth - max,
       );
       // Verificar si necesitamos nueva página para la descripción
@@ -205,7 +205,7 @@ export async function generarPDF(
       }
     }
     // Función para formatear texto con guiones como lista
-    const formatListText = (text) => {
+   /*  const formatListText = (text) => {
       if (!text) return [];
       // Dividir por guiones y limpiar cada elemento
       return text
@@ -213,11 +213,11 @@ export async function generarPDF(
         .map((item) => item.trim())
         .filter((item) => item.length > 0)
         .map((item) => `• ${item}`);
-    };
+    } */;
     // Agrega fondo antes de todo el contenido
     const fondoBase64 = await getImageFondo(Fondo1);
     if (fondoBase64) {
-      doc.addImage(fondoBase64, "PNG", 0, 0, pageWidth, pageHeight);
+      doc.addImage(fondoBase64, "PNG", 5, 0, pageWidth, pageHeight);
     }
     // Fecha actual de descarga
     const fechaDescarga = new Date().toLocaleDateString("es-ES", {
@@ -374,7 +374,7 @@ export async function generarPDF(
     doc.setFont("helvetica", "bold");
     doc.text("Descripción:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
-    someText(item.descripcio, 20, 15, 20);
+    someText(item.descripcio, 15, 15, 20);
 
     /* const linesDesp = doc.splitTextToSize(
       String(item.descripcio || "No existe Descripción"),
@@ -404,7 +404,7 @@ export async function generarPDF(
     doc.setFont("helvetica", "normal");
     someText(
       item.info_afec || "No existe personas afectadas, heridas o fallecidas",
-      20,
+      15,
       15,
       20,
     );
@@ -434,7 +434,7 @@ export async function generarPDF(
     doc.setFont("helvetica", "bold");
     doc.text("Atiende:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
-    someText(item.depen || "", 20, 15, 20);
+    someText(item.depen || "", 15, 15, 20);
     //doc.text(String(item.depen || ""), leftMargin + 20, yPosition);
     divisoriaLine();
     // Acciones a desarrollar con manejo de texto largo
@@ -469,7 +469,7 @@ export async function generarPDF(
     yPosition += 5;
     doc.setFontSize(textPar);
     doc.setFont("helvetica", "normal");
-    someText(item.accions, 20, 15, 20);
+    someText(item.accions, 15, 15, 20);
     /*  const linesaccion = doc.splitTextToSize(
       String(
         item.accions || "No existe personas afectadas, heridas o fallecidas",
@@ -623,9 +623,9 @@ export async function generarPDF(
           // Actualizar posición Y para la siguiente página
           if (countInRow > 0) {
             // Calcular la última posición Y después de todas las imágenes de esta página
-            const rowsInThisPage = Math.ceil(
+            /* const rowsInThisPage = Math.ceil(
               imagesProcessedInThisPage / imagesPerRow,
-            );
+            ); */
             yPosition = y + imgHeight + spacing;
 
             // Si todavía quedan imágenes por procesar, preparar para siguiente página
