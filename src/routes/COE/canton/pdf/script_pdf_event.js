@@ -58,15 +58,13 @@ export async function generarPDFEvent(
         doc.addImage(fondoBase64, "PNG", 0, 0, pageWidth, pageHeight);
       }
     };
-
     // Función para línea divisoria
     const divisoriaLine = () => {
       doc.setDrawColor(200, 200, 200);
       doc.line(leftMargin, yPosition, pageWidth - rightMargin, yPosition);
       yPosition += 5;
     };
-
-     const someText = (text, max, maxOne, left) => {
+    const someText = (text, max, maxOne, left) => {
       doc.setFontSize(textPar);
       doc.setFont("helvetica", "normal");
       const linesaccion = doc.splitTextToSize(
@@ -89,7 +87,6 @@ export async function generarPDFEvent(
       });
     };
 
-
     // Cargar imagen de fondo desde public
     async function getImageFondo(url) {
       try {
@@ -107,11 +104,6 @@ export async function generarPDFEvent(
         return null;
       }
     }
-
-
-    
-
-
     // Función para formatear texto con guiones como lista
     /* const formatListText = (text) => {
       if (!text) return [];
@@ -151,7 +143,7 @@ export async function generarPDFEvent(
       doc.addImage(logo, "PNG", 0, 0, pageWidth / 2, topMargin);
     } */
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
+    doc.setFontSize(title);
     doc.text(
       `Comite de Operaciones Emergentes - ${mtt}`,
       pageWidth / 2,
@@ -159,9 +151,9 @@ export async function generarPDFEvent(
       { align: "center" },
     );
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
+
     doc.text(
-      `Detalle de Información de afectación ${polAF?.provincia}-${polAF.canton}${polAF.parroq}-${polAF.sector}-${polAF.row_event}-${polAF.row} `,
+      `Detalle de Información de afectación ${polAF?.provincia}-${polAF.canton}${polAF.parroq}-${polAF.sector}-${polAF.row} `,
       pageWidth / 2,
       topMargin + 5,
       { align: "center" },
@@ -169,13 +161,14 @@ export async function generarPDFEvent(
     yPosition += 2;
     divisoriaLine();
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
+    doc.setFontSize(subtitle);
     doc.text(`1. Identificación del avento adverso`, leftMargin, yPosition, {
       align: "left",
     });
-    yPosition += 8;
+    yPosition += 5;
     // Datos del evento adverso
     doc.setFont("helvetica", "bold");
+    doc.setFontSize(textPar);
     doc.text("Provincia", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(
@@ -183,7 +176,7 @@ export async function generarPDFEvent(
       leftMargin + 25,
       yPosition,
     );
-    yPosition += 8;
+    yPosition += 5;
     doc.setFont("helvetica", "bold");
     doc.text("Cantón", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
@@ -192,7 +185,7 @@ export async function generarPDFEvent(
       leftMargin + 25,
       yPosition,
     );
-    yPosition += 8;
+    yPosition += 5;
     doc.setFont("helvetica", "bold");
     doc.text("Parroquia", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
@@ -201,7 +194,7 @@ export async function generarPDFEvent(
       leftMargin + 25,
       yPosition,
     );
-    yPosition += 8;
+    yPosition += 5;
     doc.setFont("helvetica", "bold");
     doc.text("Sector ", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
@@ -210,7 +203,7 @@ export async function generarPDFEvent(
       leftMargin + 25,
       yPosition,
     );
-    yPosition += 8;
+    yPosition += 5;
     doc.setFont("helvetica", "bold");
     doc.text("Fecha", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
@@ -219,27 +212,27 @@ export async function generarPDFEvent(
       leftMargin + 25,
       yPosition,
     );
-    yPosition += 8;
+    yPosition += 5;
     doc.setFont("helvetica", "bold");
     doc.text("Fecha", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(String(polAF.date_act || ""), leftMargin + 25, yPosition);
-    yPosition += 8;
+    yPosition += 5;
     doc.setFont("helvetica", "bold");
     doc.text("Alerta", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(String(polAF.alerta || ""), leftMargin + 25, yPosition);
-    yPosition += 8;
+    yPosition += 5;
     doc.setFont("helvetica", "bold");
     doc.text("Latitud ", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(String(marker?.[0] || ""), leftMargin + 25, yPosition);
-    yPosition += 8;
+    yPosition += 5;
     doc.setFont("helvetica", "bold");
     doc.text("Longitud", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
     doc.text(String(marker?.[1] || ""), leftMargin + 25, yPosition);
-    yPosition += 8;
+    yPosition += 5;
     doc.setFont("helvetica", "bold");
     doc.text("Evento", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
@@ -248,6 +241,7 @@ export async function generarPDFEvent(
       leftMargin + 25,
       yPosition,
     );
+    yPosition += 20;
     let imagemap = await captureMap(marker[0], marker[1], 18, polygon);
     doc.addImage(
       imagemap,
@@ -264,83 +258,39 @@ export async function generarPDFEvent(
     doc.setFont("helvetica", "bold");
     doc.text("Descripción:", leftMargin, yPosition);
     doc.setFont("helvetica", "normal");
-    const lines_desc_pol = doc.splitTextToSize(
-      String(polAF.desc_plan || "No existe Descripción"),
-      maxWidth - 40,
-    );
-    // Verificar espacio necesario
-    const descHeight = lines_desc_pol.length * 4; // 5px por línea
-    checkPageBreak(descHeight + 40);
-    // Mostrar descripción con sangría
-    doc.text(lines_desc_pol, leftMargin + 30, yPosition, {
-      align: "justify",
-      maxWidth: maxWidth - 30,
-    });
-    // Actualizar yPosition después de la descripción
-    yPosition += descHeight;
+    someText(polAF.desc_plan, 17, 17, 20);
     // Línea divisoria
-    checkPageBreak(yPosition + 40);
     divisoriaLine();
     // SITUACIÓN ACTUAL
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
+    doc.setFontSize(subtitle);
     doc.text("2. Situación Actual del evento:", leftMargin, yPosition);
-    yPosition += 10;
+    yPosition += 5;
+    doc.setFontSize(textPar);
+    console.log(afect);
     afect.map(async (afect, index) => {
       //afectDoc(afect, index, leftMargin, yPosition, maxWidth);
+      checkPageBreak(bottomMargin + 20);
       const byData = parseByField(afect.data.by);
       const coord = coordForm(afect.data.ubi);
       doc.setFont("helvetica", "normal");
       doc.text(
-        `- Afectación ${index + 1} (${coord?.[0] || "0"}, ${coord?.[1] || "0"}) - ${byData?.name || "Sin nombre"} - ${byData?.cargo || "Sin cargo"}`,
+        `- Afectación ${index + 1} (${coord?.[0] || "0"}, ${coord?.[1] || "0"}) - ${byData?.date_act || "Fecha no registrada"}`,
         leftMargin,
         yPosition,
         //{ maxWidth: maxWidth / 2 },
       );
       yPosition += 5;
-      const lines_situacion = doc.splitTextToSize(
-        String(afect?.data.desc || "No existe descripción de situación actual"),
-        maxWidth - 20,
+      doc.text(
+        `  Reportado por: -${byData?.name || "Sin nombre"} - ${byData?.cargo || "Sin cargo"}`,
+        leftMargin,
+        yPosition,
+        //{ maxWidth: maxWidth / 2 },
       );
       yPosition += 5;
-      // Calcular altura necesaria
-      const situacionHeight = lines_situacion.length * 4;
-      checkPageBreak(situacionHeight + 30);
-
-      // Mostrar situación actual
-      doc.text(lines_situacion, leftMargin + 5, yPosition, {
-        align: "justify",
-        maxWidth: maxWidth - 15,
-      });
-     /*  let imageAfec = await captureMap(coord?.[0], coord?.[1], 18);
-      doc.addImage(
-        imageAfec,
-        "PNG",
-        leftMargin + 90,
-        yPosition,
-        maxWidth / 2,
-        80,
-      ); */
-      // ACTUALIZAR yPosition DESPUÉS DEL TEXTO (¡esto es lo importante!)
-      yPosition += situacionHeight + 5;
+      someText(` Descripción de la afectación: ${afect?.data.desc}`, 20, 20, 0);
+      yPosition += 5;
     });
-
-    doc.setFont("helvetica", "normal");
-    const lines_situacion = doc.splitTextToSize(
-      String(polAF.desc || "No existe descripción de situación actual"),
-      maxWidth - 20,
-    );
-    // Calcular altura necesaria
-    const situacionHeight = lines_situacion.length * 4;
-    checkPageBreak(situacionHeight + 30);
-
-    // Mostrar situación actual
-    doc.text(lines_situacion, leftMargin + 5, yPosition, {
-      align: "justify",
-      maxWidth: maxWidth - 10,
-    });
-    // ACTUALIZAR yPosition DESPUÉS DEL TEXTO (¡esto es lo importante!)
-    yPosition += situacionHeight + 5;
     // Línea divisoria final
     divisoriaLine();
     // Campos principales
@@ -350,34 +300,80 @@ export async function generarPDFEvent(
     doc.setFont("helvetica", "bold");
     doc.text("3. AFECTACIONES - RESUMEN", leftMargin, yPosition);
     yPosition += 8;
-    const currentField =
-      mtt === "MTT1"
-        ? fieldsMTT1
-        : mtt === "MTT2"
-          ? fieldsMTT2
-          : mtt === "MTT3"
-            ? fieldsMTT3
-            : mtt === "MTT4"
-              ? fieldsMTT4
-              : mtt === "MTT5"
-                ? fieldsMTT5
-                : mtt === "MTT6"
-                  ? fieldsMTT6
-                  : mtt === "MTT7"
-                    ? fieldsMTT7
-                    : fieldsGT3;
+    let currentField;
+    switch (mtt) {
+      case "MTT1":
+        currentField = fieldsMTT1;
+        break;
+      case "MTT2":
+        currentField = fieldsMTT2;
+        break;
+      case "MTT3":
+        currentField = fieldsMTT3;
+        break;
+      case "MTT4":
+        currentField = fieldsMTT4;
+        break;
+      case "MTT5":
+        currentField = fieldsMTT5;
+        break;
+      case "MTT6":
+        currentField = fieldsMTT6;
+        break;
+      case "MTT7":
+        currentField = fieldsMTT7;
+        break;
+      default:
+        currentField = fieldsGT3;
+    }
 
-    currentField.forEach(({ key, label }) => {
-      if (polAF[key]) {
-        doc.setFont("helvetica", "bold");
-        doc.setTextColor(41, 98, 255);
-        doc.text(label, leftMargin, yPosition);
-        doc.setFont("helvetica", "normal");
-        doc.setTextColor(255, 140, 0);
-        doc.text(String(polAF[key] || ""), leftMargin + 100, yPosition);
-        yPosition += 8;
-      }
+    // Mostrar campos y acumular suma de valores específicos si es necesario
+    let sumaTotalGeneral = 0;
+
+    currentField.forEach((item) => {
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(41, 98, 255);
+      doc.text(item.label, leftMargin, yPosition);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(255, 140, 0);
+
+      // Sumar todos los valores para este campo específico
+      let sumaCampoActual = 0;
+      let valoresEncontrados = [];
+
+      // Recorrer todos los elementos de afect para sumar
+      afect.forEach((afectItem) => {
+        // Verificar si existe el key en el data del afectItem
+        if (afectItem.data && afectItem.data[item.key] !== undefined) {
+          const valor = afectItem.data[item.key];
+          console.log(item.label, item.key, "=", valor);
+
+          // Acumular para este campo específico
+          const valorNumerico = Number(valor);
+          if (!isNaN(valorNumerico)) {
+            sumaCampoActual += valorNumerico;
+            valoresEncontrados.push(valor);
+          }
+        }
+      });
+
+      // Mostrar el valor (puede ser la suma o los valores individuales)
+      // Opción 1: Mostrar la suma
+      const textoAMostrar = sumaCampoActual > 0 ? sumaCampoActual : "";
+
+      // Opción 2: Mostrar los valores individuales (descomenta si prefieres esto)
+      // const textoAMostrar = valoresEncontrados.join(", ");
+
+      doc.text(String(textoAMostrar), leftMargin + 100, yPosition);
+
+      // Acumular para el total general si es necesario
+      sumaTotalGeneral += sumaCampoActual;
+
+      yPosition += 8;
     });
+
+    console.log("Suma total de todos los campos:", sumaTotalGeneral);
+
     checkPageBreak(100);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);

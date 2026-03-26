@@ -20,6 +20,18 @@ import MTT4Afect from "./afectMMT/mtt4";
 import { useGetInfo } from "../../Crud";
 import MTT1Afect from "./afectMMT/mtt1";
 import MTT2Afect from "./afectMMT/mtt2";
+import MTT5Afect from "./afectMMT/mtt5";
+import MTTAfect from "./afectMMT/mtt_general";
+import {
+  fieldsGT3,
+  fieldsMTT1,
+  fieldsMTT2,
+  fieldsMTT3,
+  fieldsMTT4,
+  fieldsMTT5,
+  fieldsMTT6,
+  fieldsMTT7,
+} from "./afectMMT/Fields_afect/fiels_mtt";
 
 export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
   const getUbiString = () => {
@@ -207,18 +219,71 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
       case "MTT1":
         currentData = formDataMTT1;
         return (
-          <MTT1Afect setFormData={setFormDataMTT1} formData={formDataMTT1} />
+          <MTTAfect
+            setFormData={setFormDataMTT1}
+            formData={formDataMTT1}
+            fieldData={fieldsMTT1}
+          />
         );
       case "MTT2":
         currentData = formDataMTT2;
-        return <MTT2Afect setFormData={setFormDataMTT2} formData={formDataMTT2} />
+        return (
+          <MTTAfect
+            setFormData={setFormDataMTT2}
+            formData={formDataMTT2}
+            fieldData={fieldsMTT2}
+          />
+        );
       case "MTT3":
-        return "green";
+        currentData = formDataMTT3;
+        return (
+          <MTTAfect
+            setFormData={setFormDataMTT3}
+            formData={formDataMTT3}
+            fieldData={fieldsMTT3}
+          />
+        );
       case "MTT4":
         currentData = formData4;
-        return <MTT4Afect setFormData={setFormData4} formData={formData4} />;
+        return (
+          <MTTAfect
+            setFormData={setFormData4}
+            formData={formData4}
+            fieldData={fieldsMTT4}
+          />
+        );
       case "MTT5":
-        return "purple";
+        return (
+          <MTTAfect
+            setFormData={setFormDataMTT5}
+            formData={formDataMTT5}
+            fieldData={fieldsMTT5}
+          />
+        );
+        case "MTT6":
+        return (
+          <MTTAfect
+            setFormData={setFormDataMTT6}
+            formData={formDataMTT6}
+            fieldData={fieldsMTT6}
+          />
+        );
+        case "MTT7":
+        return (
+          <MTTAfect
+            setFormData={setFormDataMTT7}
+            formData={formDataMTT7}
+            fieldData={fieldsMTT7}
+          />
+        );
+        case "GT3":
+        return (
+          <MTTAfect
+            setFormData={setFormDataGT3}
+            formData={formDataGT3}
+            fieldData={fieldsGT3}
+          />
+        );
       default:
         return "cargndo información";
     }
