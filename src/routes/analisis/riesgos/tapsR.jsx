@@ -32,13 +32,17 @@ function a11yProps(index) {
     "aria-controls": `simple-tabpanel-${index}`,
   };
 }
-
-export default function BasicTabs({ tabsOne, tabsTwo }) {
+export default function BasicTabs({ tabsOne, tabsTwo, tabsThree }) {
   const [value, setValue] = React.useState(0);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
+
+  // Verificar si las props existen
+  if (!tabsOne || !tabsTwo || !tabsThree) {
+    return <div>Error: Faltan datos para mostrar las pestañas</div>;
+  }
 
   return (
     <Box sx={{ width: "100%" }}>
@@ -48,8 +52,9 @@ export default function BasicTabs({ tabsOne, tabsTwo }) {
           onChange={handleChange}
           aria-label="basic tabs example"
         >
-          <Tab label={`${tabsOne.title}`} {...a11yProps(0)} />
-          <Tab label={`${tabsTwo.title}`}{...a11yProps(1)} />
+          <Tab label={tabsOne.title} {...a11yProps(0)} />
+          <Tab label={tabsTwo.title} {...a11yProps(1)} />
+          <Tab label={tabsThree.title} {...a11yProps(2)} />
         </Tabs>
       </Box>
       <CustomTabPanel value={value} index={0}>
@@ -57,6 +62,9 @@ export default function BasicTabs({ tabsOne, tabsTwo }) {
       </CustomTabPanel>
       <CustomTabPanel value={value} index={1}>
         {tabsTwo.body}
+      </CustomTabPanel>
+      <CustomTabPanel value={value} index={2}>
+        {tabsThree.body}
       </CustomTabPanel>
     </Box>
   );
