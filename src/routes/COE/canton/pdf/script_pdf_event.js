@@ -281,7 +281,9 @@ export async function generarPDFEvent(
     // SITUACIÓN ACTUAL
     doc.setFont("helvetica", "bold");
     doc.setFontSize(subtitle);
-    doc.text("2. Situación Actual del evento:", leftMargin, yPosition);
+    doc.text("2. Situación Actual del evento", leftMargin, yPosition);
+    yPosition += 5;
+    doc.text("2.1 Afectaciones Registradas", leftMargin, yPosition);
     yPosition += 5;
     doc.setFontSize(textPar);
     afect.map(async (afect, index) => {
@@ -312,23 +314,16 @@ export async function generarPDFEvent(
         //{ maxWidth: maxWidth / 2 },
       );
       yPosition += 5;
-      someText(
-        `- Descripción de la afectación: ${afect?.data.desc}`,
-        0,
-        0,
-        0,
-      );
-      
+      someText(`- Descripción de la afectación: ${afect?.data.desc}`, 0, 0, 0);
     });
     // Línea divisoria final
-    divisoriaLine();
     // Campos principales
     // Verificar si necesitamos nueva página para el contenido siguiente
-    checkPageBreak(100);
+    checkPageBreak(bottomMargin + 20);
     // Campos principales
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(subtitle)
-    doc.text("3. AFECTACIONES - RESUMEN", leftMargin, yPosition);
+    doc.setFontSize(subtitle);
+    doc.text("2.2. AFECTACIONES - RESUMEN", leftMargin, yPosition);
     yPosition += 8;
     let currentField;
     switch (mtt) {
@@ -356,28 +351,24 @@ export async function generarPDFEvent(
       default:
         currentField = fieldsGT3;
     }
-
     // Mostrar campos y acumular suma de valores específicos si es necesario
     let sumaTotalGeneral = 0;
-    doc.setFontSize(textPar)
+    doc.setFontSize(textPar);
     currentField.forEach((item) => {
       doc.setFont("helvetica", "bold");
       doc.setTextColor(41, 98, 255);
       doc.text(item.label, leftMargin, yPosition);
       doc.setFont("helvetica", "normal");
       doc.setTextColor(255, 140, 0);
-
       // Sumar todos los valores para este campo específico
       let sumaCampoActual = 0;
       let valoresEncontrados = [];
-
       // Recorrer todos los elementos de afect para sumar
       afect.forEach((afectItem) => {
         // Verificar si existe el key en el data del afectItem
         if (afectItem.data && afectItem.data[item.key] !== undefined) {
           const valor = afectItem.data[item.key];
           //console.log(item.label, item.key, "=", valor);
-
           // Acumular para este campo específico
           const valorNumerico = Number(valor);
           if (!isNaN(valorNumerico)) {
@@ -386,25 +377,57 @@ export async function generarPDFEvent(
           }
         }
       });
-
       // Mostrar el valor (puede ser la suma o los valores individuales)
       // Opción 1: Mostrar la suma
       const textoAMostrar = sumaCampoActual > 0 ? sumaCampoActual : "";
-
       // Opción 2: Mostrar los valores individuales (descomenta si prefieres esto)
       // const textoAMostrar = valoresEncontrados.join(", ");
-
       doc.text(String(textoAMostrar), leftMargin + 100, yPosition);
-
       // Acumular para el total general si es necesario
       sumaTotalGeneral += sumaCampoActual;
-
       yPosition += 8;
     });
-
     //console.log("Suma total de todos los campos:", sumaTotalGeneral);
-
-    checkPageBreak(100);
+    divisoriaLine();
+     checkPageBreak(bottomMargin + 20);
+    doc.setTextColor(0, 0, 0);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(subtitle);
+    yPosition += 5;
+    doc.text("3. Acciones Realizadas", leftMargin, yPosition);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(subtitle);
+    yPosition += 5;
+    doc.text("3.1 Acciones Realizadas", leftMargin, yPosition);
+    console.log("Acciones a mostrar en PDF:", accions)
+    accions.map((accion, index) => {
+      checkPageBreak(bottomMargin + 20);
+      SubdivisoriaLine();
+      const byData = parseByField(accion.data.by);
+      const coord = coordForm(accion.data.ubi);
+      doc.setFont("helvetica", "normal");
+      doc.text(
+        `- Acción: ${index + 1} (${coord?.[0] || "0"}, ${coord?.[1] || "0"}) - ${accion.data.estado || "pendiente"}`,
+        leftMargin,
+        yPosition,
+      );
+      yPosition += 5;
+      doc.text(
+        `- Fecha de Actualización: ${formatDate(accion.data?.date_act) || "Fecha no registrada"}`,
+        leftMargin,
+        yPosition,
+      );
+      yPosition += 5;
+      doc.text(
+        `- Reportado por: ${byData?.name || "Sin nombre"} - ${byData?.cargo || "Sin cargo"}`,
+        leftMargin,
+        yPosition,
+      );
+      yPosition += 5;
+      someText(`- Descripción de la acción: ${accion?.data.acc_resp|| "Sin descripción"}`, 0, 0, 20);
+    });
+    divisoriaLine();
+    checkPageBreak(bottomMargin + 20);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
     doc.setTextColor(0, 0, 0);

@@ -89,6 +89,7 @@ function MapMark({
       return imgData
     });
   };
+  
   // Memorizar marcadores para evitar cálculos innecesarios
   const afectaciones = useMemo(() => processMarkers(dataAF), [dataAF]);
   const acciones = useMemo(() => processMarkers(dataAC), [dataAC]);

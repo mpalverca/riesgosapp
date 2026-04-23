@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { GeoJSON, Popup } from "react-leaflet";
 import { Box, Button, Divider, Typography } from "@mui/material";
 import { generarPDFEvent } from "../../pdf/script_pdf_event";
@@ -24,19 +24,43 @@ export const PolEventView = ({ polygon, formatDate, mtt, files, ...props }) => {
     };
   };
 
+  const getFilteredData = useMemo(() => {
+    if (!polygon || !Array.isArray(polygon))
+      return {
+        afectMap: new Map(),
+        accMap: new Map(),
+      };
+    const afectMap = new Map();
+    const accMap = new Map();
+
+    polygon.forEach((item) => {
+      const rowID = item.row;
+      const afectFiltered = props.afect?.filter(
+        (afect) => Number(afect?.data.row_event) === rowID,
+      ) || [];
+      
+
+      const accFiltered = props.acciones?.filter(
+        (accion) => Number(accion?.data.row_event) === rowID,
+      ) || [];
+      afectMap.set(rowID, afectFiltered);
+      accMap.set(rowID, accFiltered);
+    });
+
+    return { afectMap, accMap };
+  }, [polygon, props.afect, props.acciones]);
+
   return (
     <>
       {polygon &&
         Array.isArray(polygon) &&
         polygon.map((item, index) => {
           let geoJsonData = null;
-          const afectFilter = props.afect?.filter(
-            (afect) => Number(afect?.data.row_event) === item.row,
-          );
-          const accFilter = props.acciones?.filter(
-            (afect) => Number(afect?.data.event_row) === item.row,
-          );
-          let coords = coordForm(item.ubi); //convierte a coordenadas 
+           // Usar los datos memoizados
+          const afectFilter = getFilteredData.afectMap.get(item.row) || [];
+          const accFilter = getFilteredData.accMap.get(item.row) || [];
+
+          let coords = coordForm(item.ubi); //convierte a coordenadas
           try {
             if (typeof item.Poligono === "string") {
               // El parseo maneja automáticamente los \r\n
@@ -123,7 +147,7 @@ export const PolEventView = ({ polygon, formatDate, mtt, files, ...props }) => {
                         afectFilter,
                         accFilter,
                         geoJsonData.features[0].geometry.coordinates[0],
-                        coords,                      
+                        coords,
                         item,
                         mtt,
                         files,
