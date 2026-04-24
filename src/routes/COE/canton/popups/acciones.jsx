@@ -7,7 +7,7 @@ import { divIcon } from "leaflet";
 import { useCallback, useState } from "react";
 import { renderToString } from "react-dom/server";
 import { Marker, Popup } from "react-leaflet";
-//import { generarPDFAccions } from "../pdf/script_pdf_accions";
+import { generarPDFAccions } from "../pdf/script_pdf_accions";
 
 export const AccionesView = ({
   acciones,
@@ -57,8 +57,8 @@ export const AccionesView = ({
     <>
       {acciones.map((marker) => {
         const byData = parseByField(marker.data.by);
-      //  const event_index = Number(marker.data.event_row); // ej: 5
-        //const pol_row = polAfect?.find((item) => item.row === event_index);
+        const event_index = Number(marker.data.event_row); // ej: 5
+        const pol_row = polAfect?.find((item) => item.row === event_index);
         return (
           <Marker
             key={marker.id}
@@ -169,6 +169,7 @@ export const AccionesView = ({
                 </Button> */}
                 <Button
                   fullWidth
+                  disabled
                   variant="outlined"
                   onClick={() => setOpenEdit(!openEdit)}
                 >

@@ -120,11 +120,9 @@ export const useGetInfo = () => {
     setData(null);
     try {
       const response = await fetch(
-        `${url_GetAll}?mtt=${mtt}&sheet=${tipe}&tipo=edit&row=${row}`,
+        `${url_GetAll}?mtt=${mtt}&sheet=${tipe}&tipo=delete&row=${row}`,
       );
-      //const data = await response.json();
-      //setData(data);
-      //console.log("Datos MTT:", dataMtt);
+      
     } catch (err) {
       setError(err.message || "Error de conexión");
     } finally {

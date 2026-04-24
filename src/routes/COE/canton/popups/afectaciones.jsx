@@ -16,6 +16,7 @@ import {
   fieldsMTT7,
 } from "./afectMMT/Fields_afect/fiels_mtt";
 import { parseByField } from "../../../utils/utils";
+import { useGetInfo } from "../../Crud";
 
 export const AfectacionesView = ({
   afect,
@@ -27,6 +28,8 @@ export const AfectacionesView = ({
   ...props
 }) => {
   const [openEdit, setOpenEdit] = useState(false);
+
+  const { deleteRow, dataGet } = useGetInfo();
 
   const getEventIcon = useCallback(() => {
     const circleStyle = {
@@ -121,11 +124,11 @@ export const AfectacionesView = ({
                   </>
                 ) : (
                   <>
-                  <p>
+                    <p>
                       <strong>Última actualización:</strong>{" "}
                       {formatDate(marker.data.date_act)}
                     </p>
-                    <Divider/>
+                    <Divider />
                     {byData && !byData.error && (
                       <>
                         <Divider />
@@ -149,7 +152,8 @@ export const AfectacionesView = ({
                           )}
                         </ul>
                       </>
-                    )} <Divider />
+                    )}{" "}
+                    <Divider />
                     {marker.data.desc && (
                       <p sx={{ fontSize: "0.9em", align: "justify" }}>
                         <strong>Descripción de la afectación:</strong>
@@ -158,7 +162,6 @@ export const AfectacionesView = ({
                       </p>
                     )}
                     <Divider />
-
                     {/* Mostrar datos de afectación si existen */}
                     <div style={{ fontSize: "0.9em" }}>
                       <p>
@@ -300,6 +303,7 @@ export const AfectacionesView = ({
                 </Button> */}
                 <Button
                   fullWidth
+                  disabled
                   variant="outlined"
                   onClick={() => setOpenEdit(!openEdit)}
                 >
@@ -310,7 +314,17 @@ export const AfectacionesView = ({
                   variant="outlined"
                   color="error"
                   sx={{ color: "#e21111" }}
-                  onClick={() => console.log("eliminar archivo")}
+                  onClick={() => {
+                    console.log("se elimino");
+                    console.log(marker.data.row, mtt);
+                    props.setOpenDialog(false);
+                    if (dataGet?.success == true) {
+                      alert(
+                        "Se ha eliminado correctamente, recargue las afectaciones",
+                      );
+                    }
+                    deleteRow(mtt, "Afectaciones", marker.data.row);
+                  }}
                 >
                   Eliminar
                 </Button>
