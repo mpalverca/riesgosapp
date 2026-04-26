@@ -84,32 +84,16 @@ export const AfectacionesView = ({
                   <strong>Fecha del evento:</strong>{" "}
                   {formatDate(marker.data.date_event || pol_row?.date_event)}
                 </p>
-                <Divider />
-
-                <ul style={{ paddingLeft: "20px" }}>
-                  <li>
-                    <strong>Provincia:</strong> {marker.data.provincia}
-                  </li>
-                  <li>
-                    <strong>Cantón:</strong> {marker.data.canton}
-                  </li>
-                  <li>
-                    <strong>Parroquia:</strong> {marker.data.parroq}
-                  </li>
-                  <li>
-                    <strong>Sector:</strong>{" "}
-                    {marker.data.sector || pol_row?.sector}
-                  </li>
-                  <li>
-                    <strong>Ubicación:</strong>
+                <p>
+                  <strong>Ubicación:</strong>
                     {marker.position[0].toFixed(6)},{" "}
                     {marker.position[1].toFixed(6)}
-                  </li>
-                  <li>
-                    <strong>Radio:</strong> {marker.data.radio}
-                  </li>
-                </ul>
-                <Divider />
+                </p>
+                <p>
+                      <strong>Última actualización:</strong>{" "}
+                      {formatDate(marker.data.date_act)}
+                    </p>
+          <Divider />
                 {openEdit ? (
                   <>
                     <EditAfect />
@@ -124,11 +108,8 @@ export const AfectacionesView = ({
                   </>
                 ) : (
                   <>
-                    <p>
-                      <strong>Última actualización:</strong>{" "}
-                      {formatDate(marker.data.date_act)}
-                    </p>
-                    <Divider />
+                    
+                
                     {byData && !byData.error && (
                       <>
                         <Divider />
@@ -137,7 +118,7 @@ export const AfectacionesView = ({
                         </p>
                         <ul style={{ paddingLeft: "20px" }}>
                           <li>
-                            <strong>Nombre:</strong> {byData.name}
+                            <strong>Nombre:</strong> {byData.miembro}
                           </li>
                           <li>
                             <strong>Cargo:</strong> {byData.cargo}
@@ -145,9 +126,9 @@ export const AfectacionesView = ({
                           <li>
                             <strong>CI:</strong> {byData.ci}
                           </li>
-                          {byData.contact && (
+                          {byData.telf && (
                             <li>
-                              <strong>Contacto:</strong> {byData.contact}
+                              <strong>Contacto:</strong> {byData.telf}
                             </li>
                           )}
                         </ul>
@@ -155,11 +136,16 @@ export const AfectacionesView = ({
                     )}{" "}
                     <Divider />
                     {marker.data.desc && (
+                      <>
                       <p sx={{ fontSize: "0.9em", align: "justify" }}>
                         <strong>Descripción de la afectación:</strong>
-                        <br />
+                      </p>
+                       <p sx={{ fontSize: "0.9em", align: "justify" }}>
+                       
                         {marker.data.desc}
                       </p>
+                      </>
+                      
                     )}
                     <Divider />
                     {/* Mostrar datos de afectación si existen */}

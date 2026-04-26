@@ -8,10 +8,11 @@ import { useCallback, useState } from "react";
 import { renderToString } from "react-dom/server";
 import { Marker, Popup } from "react-leaflet";
 import { generarPDFAccions } from "../pdf/script_pdf_accions";
+import { parseByField } from "../../../utils/utils";
 
 export const AccionesView = ({
   acciones,
-  parseByField,
+
   formatDate,
   mtt,
   polAfect,
@@ -83,6 +84,10 @@ export const AccionesView = ({
                   <strong>Última actualización:</strong>{" "}
                   {formatDate(marker.data.date_act)}
                 </p>
+      <p>
+        <strong>Ubicación:</strong> Lat: {marker.position[0].toFixed(6)}, Lng:{" "}
+        {marker.position[1].toFixed(6)}
+      </p>
 
                 <TabContext value={value}>
                   <Box
@@ -177,6 +182,7 @@ export const AccionesView = ({
                 </Button>
                 <Button
                   fullWidth
+                  disabled
                   variant="outlined"
                   color="error"
                   sx={{ color: "#e21111" }}
@@ -203,7 +209,7 @@ const AccionAF = ({ item, byData, mark }) => {
           </p>
           <ul style={{ paddingLeft: "20px" }}>
             <li>
-              <strong>Nombre:</strong> {byData.name}
+              <strong>Nombre:</strong> {byData.miembro}
             </li>
             <li>
               <strong>Cargo:</strong> {byData.cargo}
@@ -211,33 +217,14 @@ const AccionAF = ({ item, byData, mark }) => {
             <li>
               <strong>CI:</strong> {byData.ci}
             </li>
-            {byData.contact && (
+            {byData.telf && (
               <li>
-                <strong>Contacto:</strong> {byData.contact}
+                <strong>Contacto:</strong> {byData.telf}
               </li>
             )}
           </ul>
         </>
       )}
-      <Divider />
-      <p>
-        <strong>Ubicación:</strong> Lat: {mark[0].toFixed(6)}, Lng:{" "}
-        {mark[1].toFixed(6)}
-      </p>
-      <ul style={{ paddingLeft: "20px" }}>
-        <li>
-          <strong>Provincia:</strong> {item.prov_atent}
-        </li>
-        <li>
-          <strong>Cantón:</strong> {item.canton_aten}
-        </li>
-        <li>
-          <strong>Parroquia:</strong> {item.parroq_aten}
-        </li>
-        <li>
-          <strong>Sector:</strong> {item.sector}
-        </li>
-      </ul>
       <Divider />
       <p>
         <strong>Institución que atiende:</strong>
@@ -310,7 +297,7 @@ const RecuMovil = ({ item }) => {
 const Needs = ({ item }) => {
   return (
     <>
-      <Typography>Necesidades Identificadas - {item.to_mtt_gt} </Typography>
+      <Typography>Necesidades Identificadas - {item.to_mtt_gt} - {item.state_req} </Typography>
       <p>
         <strong>Codigo Requerimiento:</strong> {item.code_req}
       </p>
@@ -320,9 +307,7 @@ const Needs = ({ item }) => {
       <p>
         <strong>Codigo Requerimiento:</strong> {item.need}
       </p>
-      <p>
-        <strong>Estado nececidad:</strong> {item.state_req}
-      </p>
+     
       <Divider />
       <Typography>Acciones de Respuesta - {item.state_requ}</Typography>
       <p>
