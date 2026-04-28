@@ -293,7 +293,7 @@ export const DialogAfect = ({ open, onClose, mtt, coordinates, ...props }) => {
     const { name, value } = e.target;
     setFixData((prev) => ({ ...prev, [name]: value }));
   };
-  console.log(fixData.date_act);
+
 
   const renderField = (
     name,

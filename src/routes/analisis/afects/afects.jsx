@@ -1,3 +1,4 @@
+// src/components/maps/MapAfects.jsx
 import React, {
   useEffect,
   useState,
@@ -5,31 +6,15 @@ import React, {
   useMemo,
   useRef,
 } from "react";
-import { MapContainer, TileLayer, Marker, Popup, Polygon } from "react-leaflet";
-
-//import "leaflet-simple-map-screenshoter";
+import { MapContainer, TileLayer } from "react-leaflet";
 import L from "leaflet";
 import {
   Slider,
   Typography,
-  Button,
   Box,
-  Checkbox,
-  FormControlLabel,
-  Paper,
   Alert,
 } from "@mui/material";
-import {
-  FaExclamationTriangle,
-} from "react-icons/fa";
-import WhatshotIcon from "@mui/icons-material/Whatshot";
-import DomainDisabledIcon from "@mui/icons-material/DomainDisabled";
-import LandscapeIcon from "@mui/icons-material/Landscape";
-import WaterDropIcon from "@mui/icons-material/WaterDrop";
-import WaterIcon from "@mui/icons-material/Water";
-import FloodIcon from "@mui/icons-material/Flood";
 import { renderToString } from "react-dom/server";
-import { divIcon } from "leaflet";
 import PropTypes from "prop-types";
 
 // Importaciones locales
@@ -37,15 +22,14 @@ import imageLoad from "../../../assets/loading_map_3.gif";
 import { cargardatoformId, generarPDF } from "./script.js";
 import { cargarDatosPol } from "../../../components/maps/script/script.js";
 
+// Componentes extraídos
+import AfectMarkers from "./afect_view/AfectMarkers.jsx";
+import SucepLayer from "./afect_view/PoligonosLayer.jsx";
+import ParroquiaLayer from "./afect_view/ParroquiaLayer.jsx";
+import { useMapIcons } from "./afect_view/useMapIcons.js";
+
 // Estilos CSS de Leaflet
 import "leaflet/dist/leaflet.css";
-//cecium
-import * as Cesium from "cesium";
-import { Cartesian3, Cesium3DTileset } from "cesium";
-import { Viewer, Entity,  GeoJsonDataSource } from "resium";
-import "cesium/Build/Cesium/Widgets/widgets.css";
-
-import html2canvas from "html2canvas";
 
 // Configuración de iconos para Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -55,139 +39,34 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require("leaflet/dist/images/marker-shadow.png").default,
 });
 
-// Constantes y configuraciones
+// Constantes
 const DEFAULT_POSITION = [-3.9939, -79.2042];
-const COLOR_PRIORIDAD = {
-  Alta: "#dc3545",
-  Media: "#ffc107",
-  Baja: "#28a745",
-  DEFAULT: "#007bff",
-};
-// Configura tu token de Cesium ion
-Cesium.Ion.defaultAccessToken =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI0ODVlMmU4MC0xZmFhLTQxMmMtYTgwZS0yNGZkYzQyOWE5NDgiLCJpZCI6Mzk4MzE5LCJpYXQiOjE3NzI2NzgxNDh9.CJ5ChMExu_ggxR0ExpjZatG9mF8MbohlarQDyQsMrmE";
-
-const POLYGON_COLORS = {
-  tipo1: { color: "#ffff00", fillColor: "#ffff00", fillOpacity: 0.2 },
-  tipo2: { color: "#0000ff", fillColor: "#0000ff", fillOpacity: 0.2 },
-  parroquia: { color: "#050505", fillColor: "#b6b1b1", fillOpacity: 0.2 },
-};
-
-const EVENT_ICONS = {
-  "Movimiento en Masa": { icon: LandscapeIcon, color: "#FF5733" },
-  Inundación: { icon: FloodIcon, color: "#0205a7" },
-  "Colapso estructural": { icon: DomainDisabledIcon, color: "Blue" },
-  "Incenido estructural": { icon: WhatshotIcon, color: "red" },
-  "Erosión Hídrica": { icon: WaterIcon, color: "red" },
-  "Epoca Lluviosa": { icon: WaterDropIcon, color: "Blue" },
-  default: { icon: FaExclamationTriangle, color: "#080808" },
-};
-
-// Componente para imagen expandida
-const ExpandedImageModal = ({ src, onClose }) => (
-  <div
-    style={{
-      position: "fixed",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: "rgba(0,0,0,0.8)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      zIndex: 9999,
-      padding: "20px",
-    }}
-    onClick={onClose}
-    role="dialog"
-    aria-label="Imagen expandida"
-  >
-    <div
-      style={{
-        maxWidth: "90%",
-        maxHeight: "90%",
-        position: "relative",
-      }}
-      onClick={(e) => e.stopPropagation()}
-    >
-      <img
-        src={src}
-        alt="Imagen expandida"
-        style={{
-          maxWidth: "100%",
-          maxHeight: "90vh",
-          borderRadius: "8px",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.25)",
-        }}
-      />
-      <button
-        onClick={onClose}
-        style={{
-          position: "absolute",
-          top: "-15px",
-          right: "-15px",
-          background: "#dc3545",
-          color: "white",
-          border: "none",
-          borderRadius: "50%",
-          width: "30px",
-          height: "30px",
-          fontSize: "16px",
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-        aria-label="Cerrar imagen"
-      >
-        ×
-      </button>
-    </div>
-  </div>
-);
-
-ExpandedImageModal.propTypes = {
-  src: PropTypes.string.isRequired,
-  onClose: PropTypes.func.isRequired,
-};
 
 // Componente de capa de control
 const LayerControl = ({ showLayer, onToggle }) => (
-  <Paper
+  <Box
     sx={{
       position: "absolute",
       top: 10,
       right: 10,
       zIndex: 1000,
-      // padding: 2,
       backgroundColor: "rgba(255, 255, 255, 0.95)",
       borderRadius: 2,
       boxShadow: 3,
-      minWidth: 100,
+      p: 1,
     }}
   >
-    <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-      Capas
+    <Typography variant="subtitle2" fontWeight="bold">
+      Mostrar polígonos de influencia
     </Typography>
-    <FormControlLabel
-      control={
-        <Checkbox
-          checked={showLayer}
-          onChange={onToggle}
-          color="primary"
-          aria-label="Mostrar capa de polígonos"
-        />
-      }
-      label="influencia"
+    <input
+      type="checkbox"
+      checked={showLayer}
+      onChange={onToggle}
+      style={{ marginLeft: 8 }}
     />
-  </Paper>
+  </Box>
 );
-
-LayerControl.propTypes = {
-  showLayer: PropTypes.bool.isRequired,
-  onToggle: PropTypes.func.isRequired,
-};
 
 // Componente principal
 const MapAfects = ({
@@ -196,111 +75,86 @@ const MapAfects = ({
   loading = false,
   error = null,
   coords = [],
-  extractCoordinates,
+  
   selectedDate,
   setSelectedDate,
   minFecha,
   maxFecha,
   radioAfect,
 }) => {
-  const [expandedImage, setExpandedImage] = useState(null);
   const [user, setUser] = useState(null);
   const [showLayer, setShowLayer] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [poligonosData, setPoligonosData] = useState([]);
   const [loadingPoligonos, setLoadingPoligonos] = useState(false);
 
-  // const mapRef = useRef(null); // da valor l mapa para print
-  const mapContainerRef = useRef(null); // Contenedor para html2canvas
-  const mapRef = useRef(null); // Referencia para Leaflet
-
-  // Referencia para guardar el estado de los popups abiertos
+  const mapContainerRef = useRef(null);
+  const mapRef = useRef(null);
   const popupElRef = useRef(null);
+
+  // Hook para iconos
+  const { getEventIcon, getEventIconPulso, COLOR_PRIORIDAD } = useMapIcons();
+
+  // Función para cerrar popup
   const hidePopup = () => {
-    if (mapRef) {
+    if (mapRef.current) {
       mapRef.current.closePopup();
-      //  console.log("Popup cerrado desde useMap")// ← Método de Leaflet para cerrar el popup activo
     }
   };
-  
-const printToPDF = () => {
-  return new Promise(async (resolve, reject) => {
-    if (!mapRef.current || !mapContainerRef.current) {
-      reject("El mapa no está listo");
-      return;
-    }
-    try {
-      const mapElement = mapContainerRef.current;
-          // Obtener todas las capas importantes del mapa
-      const leafletContainer = mapElement.querySelector('.leaflet-container');
-      if (!leafletContainer) {
-        reject("No se encontró el contenedor de Leaflet");
+
+  // Función para capturar el mapa
+  const printToPDF = () => {
+    return new Promise(async (resolve, reject) => {
+      if (!mapRef.current || !mapContainerRef.current) {
+        reject("El mapa no está listo");
         return;
-      }      
-      // Forzar que todas las capas sean visibles para la captura
-      const originalStyles = [];
-      const panes = leafletContainer.querySelectorAll('.leaflet-pane');
-      panes.forEach(pane => {
-        originalStyles.push({
-          element: pane,
-          visibility: pane.style.visibility,
-          opacity: pane.style.opacity
-        });
-        pane.style.visibility = 'visible';
-        pane.style.opacity = '1';
-      });      
-      // Esperar a que se renderice
-      await new Promise(r => setTimeout(r, 500));
-            const canvas = await html2canvas(leafletContainer, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#ffffff',
-        allowTaint: false,
-        foreignObjectRendering: true,
-        logging: true,
-                // Configuración crítica para capturar mapas
-        windowWidth: leafletContainer.scrollWidth,
-        windowHeight: leafletContainer.scrollHeight,
-                onclone: (clonedDoc) => {
-          // Asegurar que los estilos se mantienen en el clon
-          const clonedContainer = clonedDoc.querySelector('.leaflet-container');
-          if (clonedContainer) {
-            // Eliminar transformaciones problemáticas
-            clonedContainer.style.transform = 'none';
-            
-            // Forzar que todas las capas sean visibles
-            const clonedPanes = clonedContainer.querySelectorAll('.leaflet-pane');
-            clonedPanes.forEach(pane => {
-              pane.style.visibility = 'visible';
-              pane.style.opacity = '1';
-              pane.style.transform = 'none';
-            });
-            
-            // Asegurar que los tiles se vean
-            const tiles = clonedContainer.querySelectorAll('.leaflet-tile');
-            tiles.forEach(tile => {
-              tile.style.opacity = '1';
-              tile.style.visibility = 'visible';
-            });
-          }
+      }
+      try {
+        const mapElement = mapContainerRef.current;
+        const leafletContainer = mapElement.querySelector(".leaflet-container");
+        if (!leafletContainer) {
+          reject("No se encontró el contenedor de Leaflet");
+          return;
         }
-      });
-      
-      // Restaurar estilos originales
-      originalStyles.forEach(style => {
-        style.element.style.visibility = style.visibility;
-        style.element.style.opacity = style.opacity;
-      });
-      
-      const imgData = canvas.toDataURL("image/png");
-      resolve(imgData);
-      
-    } catch (error) {
-      console.error("Error en captura:", error);
-      reject(error);
-    }
-  });
-};
+
+        // Forzar visibilidad de capas
+        const originalStyles = [];
+        const panes = leafletContainer.querySelectorAll(".leaflet-pane");
+        panes.forEach((pane) => {
+          originalStyles.push({
+            element: pane,
+            visibility: pane.style.visibility,
+            opacity: pane.style.opacity,
+          });
+          pane.style.visibility = "visible";
+          pane.style.opacity = "1";
+        });
+
+        await new Promise((r) => setTimeout(r, 500));
+
+        const html2canvas = (await import("html2canvas")).default;
+        const canvas = await html2canvas(leafletContainer, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: "#ffffff",
+          allowTaint: false,
+          foreignObjectRendering: true,
+        });
+
+        // Restaurar estilos
+        originalStyles.forEach((style) => {
+          style.element.style.visibility = style.visibility;
+          style.element.style.opacity = style.opacity;
+        });
+
+        const imgData = canvas.toDataURL("image/png");
+        resolve(imgData);
+      } catch (error) {
+        console.error("Error en captura:", error);
+        reject(error);
+      }
+    });
+  };
 
   // Cargar usuario desde localStorage
   useEffect(() => {
@@ -309,10 +163,12 @@ const printToPDF = () => {
       if (userData) {
         setUser(JSON.parse(userData));
       }
+      console.log("Usuario cargado:", userData)
     } catch (error) {
       console.error("Error al cargar usuario:", error);
     }
   }, []);
+
   // Cargar datos de polígonos cuando se activa la capa
   useEffect(() => {
     const loadPoligonos = async () => {
@@ -332,7 +188,7 @@ const printToPDF = () => {
     loadPoligonos();
   }, [showLayer, poligonosData.length]);
 
-  const handleIconClick = useCallback(async (itemId) => {
+  const handleItemClick = useCallback(async (itemId) => {
     try {
       const itemData = await cargardatoformId(itemId);
       if (itemData) {
@@ -343,344 +199,14 @@ const printToPDF = () => {
     }
   }, []);
 
-  const formatCoords = useCallback((coord) => {
-    return typeof coord === "number" ? coord.toFixed(6) : "0.000000";
-  }, []);
+  const handleGeneratePDF = useCallback(
+    (event, lat, lng, selectedItem, user, printToPDF) => {
+      generarPDF(event, lat, lng, selectedItem, user, printToPDF);
+    },
+    []
+  );
 
-  const getEventIcon = useCallback((eventType, priority) => {
-    const color = COLOR_PRIORIDAD[priority] || COLOR_PRIORIDAD.DEFAULT;
-    const eventConfig = EVENT_ICONS[eventType] || EVENT_ICONS.default;
-    const IconComponent = eventConfig.icon;
-
-    const circleStyle = {
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      background: color,
-      borderRadius: "50%",
-      width: "24px",
-      height: "24px",
-      boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-    };
-
-    const html = renderToString(
-      <div style={circleStyle}>
-        <IconComponent color={eventConfig.color} size={14} />
-      </div>,
-    );
-
-    return divIcon({
-      html,
-      className: "custom-leaflet-icon",
-      iconSize: [30, 30],
-      iconAnchor: [15, 30],
-    });
-  }, []);
-
-  const getEventIconPulso = useCallback((eventType, priority, radio) => {
-    const color = COLOR_PRIORIDAD[priority] || COLOR_PRIORIDAD.DEFAULT;
-    const eventConfig = EVENT_ICONS[eventType] || EVENT_ICONS.default;
-    const IconComponent = eventConfig.icon;
-
-    // Calcular tamaño basado en el radio
-    const baseSize = 40; // Tamaño base en píxeles
-    const radioFactor = radio / 25; //Math.min(Math.max(radio / 100, 1), 5); // Factor entre 1 y 5
-    const calculatedSize = baseSize * radioFactor;
-
-    // Tamaños proporcionales
-    const outerCircleSize = calculatedSize;
-    const middleCircleSize = calculatedSize * 0.75;
-    // const innerCircleSize = calculatedSize * 0.6;
-
-    const html = renderToString(
-      <div
-        style={{
-          position: "relative",
-          width: `${outerCircleSize}px`,
-          height: `${outerCircleSize}px`,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        {/* Círculos concéntricos animados - tamaño basado en radio */}
-        <div
-          style={{
-            position: "absolute",
-            width: `${outerCircleSize}px`,
-            height: `${outerCircleSize}px`,
-            borderRadius: "50%",
-            backgroundColor: color,
-            opacity: 0.3,
-            animation: "pulse 2s infinite",
-          }}
-        />
-
-        <div
-          style={{
-            position: "absolute",
-            width: `${middleCircleSize}px`,
-            height: `${middleCircleSize}px`,
-            borderRadius: "50%",
-            backgroundColor: color,
-            opacity: 0.5,
-            animation: "pulse 2s infinite",
-            animationDelay: "0.5s",
-          }}
-        />
-
-        {/* Círculo central con icono */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            background: color,
-            borderRadius: "50%",
-            width: `24px`,
-            height: `24px`,
-            boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-            zIndex: 10,
-            position: "relative",
-          }}
-        >
-          <IconComponent color="white" size={12} />
-        </div>
-      </div>,
-    );
-
-    return divIcon({
-      html,
-      className: `custom-leaflet-icon emergency-alert radio-${Math.round(radio)}`,
-      iconSize: [outerCircleSize, outerCircleSize],
-      iconAnchor: [outerCircleSize / 2, outerCircleSize],
-    });
-  }, []);
-
-  const renderAfectMarkers = useMemo(() => {
-    return afectData
-      .map((item, index) => {
-        try {
-          if (!item?.geom) {
-            console.warn("Item sin geometría:", item);
-            return null;
-          }
-
-          const coords = extractCoordinates?.(item.geom);
-          if (
-            !coords ||
-            typeof coords.lat !== "number" ||
-            typeof coords.lng !== "number"
-          ) {
-            console.warn("Coordenadas inválidas para el item:", item);
-            return null;
-          }
-
-          const eventType = item.event || "default";
-          const priority = item.prioridad || "DEFAULT";
-
-          return (
-            <Marker
-              key={`marker-${item.id || `index-${index}`}`}
-              position={[coords.lat, coords.lng]}
-              icon={
-                item.radio > 0 &&
-                priority === "Alta" &&
-                item.estado === "Pendiente"
-                  ? getEventIconPulso(eventType, priority, item.radio)
-                  : getEventIcon(eventType, priority)
-              }
-              eventHandlers={{
-                click: () => handleIconClick(item.id),
-              }}
-            >
-              {selectedItem?.id === item.id && (
-                <Popup ref={popupElRef}>
-                  <Box
-                    sx={{
-                      height: "60vh",
-                      overflowY: "auto",
-                      maxWidth: "450px",
-                    }}
-                  >
-                    <Typography align="justify" variant="subtitle1" sx={{}}>
-                      {`${item.id} - ${eventType}-       ${selectedItem.date || "Fecha no disponible"}`}
-                    </Typography>
-
-                    {selectedItem.anex_foto && (
-                      <div style={{ marginTop: "10px" }}>
-                        <img
-                          src={selectedItem.anex_foto}
-                          alt={`Imagen de ${selectedItem.nombre || "afectación"}`}
-                          style={{
-                            width: "100%",
-                            height: "auto",
-                            maxHeight: "200px",
-                            objectFit: "contain",
-                            borderRadius: "4px",
-                            border: "1px solid #ddd",
-                            cursor: "pointer",
-                          }}
-                          onClick={() =>
-                            setExpandedImage(selectedItem.anex_foto)
-                          }
-                        />
-                        <p
-                          style={{
-                            fontSize: "0.8em",
-                            color: "#666",
-                            textAlign: "center",
-                          }}
-                        >
-                          Haz clic para ampliar
-                        </p>
-                      </div>
-                    )}
-
-                    <Typography align="justify" variant="body2">
-                      <strong>Sector:</strong>{" "}
-                      {selectedItem.sector || "No disponible"} - (
-                      {formatCoords(coords.lat)}, {formatCoords(coords.lng)})
-                    </Typography>
-                    <Typography align="justify" variant="body2">
-                      <strong>Prioridad:</strong>
-                      <span
-                        style={{
-                          color:
-                            COLOR_PRIORIDAD[priority] ||
-                            COLOR_PRIORIDAD.DEFAULT,
-                        }}
-                      >
-                        {" "}
-                        {priority}
-                      </span>
-                    </Typography>
-                    {selectedItem.descripcio && (
-                      <Typography align="justify" variant="body2">
-                        <strong>Descripción:</strong>{" "}
-                        {selectedItem.descripcio.substring(0, 150) + "..."}
-                      </Typography>
-                    )}
-                    {user && (
-                      <Button
-                        onClick={() => {
-                          hidePopup();
-                          generarPDF(
-                            selectedItem.event,
-                            coords.lat,
-                            coords.lng,
-                            selectedItem,
-                            user,
-                            printToPDF,
-                          );
-                        }}
-                        fullWidth
-                        sx={{
-                          background:
-                            "linear-gradient(45deg, #FF5733 20%, #FFD700 90%)",
-                          marginTop: "16px",
-                          fontWeight: "bold",
-                        }}
-                        variant="contained"
-                      >
-                        Generar Reporte PDF
-                      </Button>
-                    )}
-                  </Box>
-                </Popup>
-              )}
-            </Marker>
-          );
-        } catch (error) {
-          console.error("Error al renderizar marcador:", item, error);
-          return null;
-        }
-      })
-      .filter(Boolean);
-  }, [
-    afectData,
-    selectedItem,
-    user,
-    formatCoords,
-    getEventIcon,
-    handleIconClick,
-    extractCoordinates,
-    getEventIconPulso,
-  ]);
-
-  const renderPoligonos = useMemo(() => {
-    if (!showLayer || loadingPoligonos) return null;
-
-    return poligonosData
-      .flatMap((item, index) => {
-        try {
-          if (!item?.geom?.coordinates) return null;
-
-          return item.geom.coordinates.map((polygon, polyIndex) => {
-            const polyCoords = polygon[0].map((coord) => [coord[1], coord[0]]);
-            const colors =
-              item.tipo === 1 ? POLYGON_COLORS.tipo1 : POLYGON_COLORS.tipo2;
-
-            return (
-              <Polygon
-                key={`poligono-${item.id}-${index}-${polyIndex}`}
-                positions={polyCoords}
-                pathOptions={{
-                  color: colors.color,
-                  fillColor: colors.fillColor,
-                  fillOpacity: colors.fillOpacity,
-                  weight: 2,
-                }}
-                interactive={true}
-              >
-                <Popup>
-                  <div>
-                    <h4>Polígono {item.id}</h4>
-                    <p>
-                      <strong>Descripción:</strong>{" "}
-                      {item.Descripcio || "Sin descripción"}
-                    </p>
-                  </div>
-                </Popup>
-              </Polygon>
-            );
-          });
-        } catch (error) {
-          console.error("Error al renderizar polígono:", item, error);
-          return null;
-        }
-      })
-      .filter(Boolean);
-  }, [poligonosData, showLayer, loadingPoligonos]);
-
-  const renderParroquiaPolygons = useMemo(() => {
-    return parroquia
-      .flatMap((item, index) => {
-        if (!item?.geom || item.geom.type !== "MultiPolygon") return null;
-
-        return item.geom.coordinates.map((poly, polyIdx) => {
-          const polyCoords = poly[0].map((coord) => [coord[1], coord[0]]);
-
-          return (
-            <Polygon
-              key={`parroquia-${item.id || index}-${polyIdx}`}
-              positions={polyCoords}
-              pathOptions={{
-                color: POLYGON_COLORS.parroquia.color,
-                fillColor: POLYGON_COLORS.parroquia.fillColor,
-                fillOpacity: POLYGON_COLORS.parroquia.fillOpacity,
-                weight: 2,
-              }}
-            >
-              <Popup>
-                <strong>Parroquia:</strong> {item.DPA_DESPAR || "Sin nombre"}
-              </Popup>
-            </Polygon>
-          );
-        });
-      })
-      .filter(Boolean);
-  }, [parroquia]);
+  
 
   // Calcular posición del mapa
   const mapCenter = useMemo(() => {
@@ -707,11 +233,7 @@ const printToPDF = () => {
         <Typography variant="body1" sx={{ mt: 2 }}>
           Cargando datos del mapa
         </Typography>
-        <img
-          src={imageLoad}
-          alt="Cargando mapa..."
-          //style={{ maxWidth: "200px" }}
-        />
+        <img src={imageLoad} alt="Cargando mapa..." />
       </Box>
     );
   }
@@ -724,59 +246,32 @@ const printToPDF = () => {
     );
   }
 
-  /*   if (!afectData.length) {
-    return (
-      <Box
-        display="flex"
-        flexDirection="column"
-        justifyContent="center"
-        alignItems="center"
-        minHeight="60vh"
-        textAlign="center"
-        p={3}
-      >
-        <Typography variant="h5" gutterBottom>
-          Afectaciones
-        </Typography>
-        <Typography variant="body1" align="justify">
-          Es una situación, suceso o hecho que produce alteración en la Vida de
-          las personas, de la economía, los sistemas sociales y el ambiente,
-          causado por fenómenos de origen natural o provocado por los seres
-          humanos (Lit. 8, art. 5 de la LOGIRD)
-        </Typography>
-        <Typography variant="body1" align="justify" color="textSecondary">
-          La búsqueda realizada no ha encontrado datos de afectaciones. Por
-          favor, intente con otra fecha, prioridad o criterios de búsqueda.
-        </Typography>
-      </Box>
-    );
-  } */
-
   const handleDateChange = (name, date) => {
     setSelectedDate((prev) => ({
       ...prev,
       [name]: date,
     }));
   };
+
   return (
     <Box sx={{ position: "relative" }} ref={mapContainerRef}>
       <LayerControl
         showLayer={showLayer}
         onToggle={(e) => setShowLayer(e.target.checked)}
       />
-      {!afectData.length ? (
+
+      {!afectData.length && (
         <Alert variant="filled" severity="error">
           No se ha encontrado datos de afectaciones. Por favor, intente con otra
           fecha, prioridad o criterios de búsqueda.
         </Alert>
-      ) : null}
+      )}
+
       <MapContainer
         center={mapCenter}
         ref={mapRef}
         whenCreated={(map) => {
           mapRef.current = map;
-
-          // Esperar a que los tiles estén cargados
           map.on("load", () => {
             console.log("Mapa completamente cargado");
           });
@@ -789,9 +284,27 @@ const printToPDF = () => {
           url="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
           attribution="&copy; Google Maps"
         />
-        {afectData && renderAfectMarkers}
-        {renderPoligonos}
-        {renderParroquiaPolygons}
+
+        {/* Componentes extraídos */}
+        <AfectMarkers
+          afectData={afectData}
+          selectedItem={selectedItem}
+          onItemClick={handleItemClick}
+          onGeneratePDF={handleGeneratePDF}
+          getEventIcon={getEventIcon}
+          getEventIconPulso={getEventIconPulso}
+          COLOR_PRIORIDAD={COLOR_PRIORIDAD}
+          user={user}
+          printToPDF={printToPDF}
+        />
+
+        <SucepLayer
+          poligonosData={poligonosData}
+          showLayer={showLayer}
+          loading={loadingPoligonos}
+        />
+
+        <ParroquiaLayer parroquia={parroquia} />
 
         {loadingPoligonos && (
           <div
@@ -810,13 +323,6 @@ const printToPDF = () => {
           </div>
         )}
       </MapContainer>
-
-      {expandedImage && (
-        <ExpandedImageModal
-          src={expandedImage}
-          onClose={() => setExpandedImage(null)}
-        />
-      )}
 
       {minFecha && maxFecha && (
         <Box sx={{ width: "100%", margin: "20px auto 0 auto" }}>
@@ -881,30 +387,12 @@ const printToPDF = () => {
 
 // PropTypes para validación de props
 MapAfects.propTypes = {
-  afectData: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-      geom: PropTypes.string,
-      event: PropTypes.string,
-      prioridad: PropTypes.string,
-    }),
-  ),
-  parroquia: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-      geom: PropTypes.shape({
-        type: PropTypes.string,
-        coordinates: PropTypes.array,
-      }),
-      DPA_DESPAR: PropTypes.string,
-    }),
-  ),
+  afectData: PropTypes.array,
+  parroquia: PropTypes.array,
   loading: PropTypes.bool,
   error: PropTypes.string,
-  coords: PropTypes.arrayOf(
-    PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  ),
-  extractCoordinates: PropTypes.func.isRequired,
+  coords: PropTypes.array,
+
   selectedDate: PropTypes.number,
   setSelectedDate: PropTypes.func,
   minFecha: PropTypes.number,
@@ -912,7 +400,6 @@ MapAfects.propTypes = {
   radioAfect: PropTypes.number,
 };
 
-// Valores por defecto
 MapAfects.defaultProps = {
   afectData: [],
   parroquia: [],
@@ -923,69 +410,6 @@ MapAfects.defaultProps = {
   minFecha: null,
   maxFecha: null,
   radioAfect: 1000,
-};
-
-const MapaCesium = ({ puntos, poligonos, parroquias }) => {
-  // Función para cargar datos GeoJSON (tus polígonos)
-  const handleDataSource = (dataSource) => {
-    // Aquí puedes acceder y personalizar los datos cargados
-    console.log("Datos cargados:", dataSource.entities.values);
-  };
-
-  return (
-    <Viewer
-      style={{ height: "75vh", width: "100%" }}
-      timeline={false}
-      animation={false}
-      baseLayer={false} // Desactivamos la capa base por defecto
-      full
-    >
-      {/* Cargar Photorealistic 3D Tiles de Google */}
-      <Cesium3DTileset
-        url={Cesium.IonResource.fromAssetId(Cesium.Ion.defaultAccessToken)}
-        // El asset ID de Photorealistic 3D Tiles lo obtienes de Cesium ion
-        onReady={(tileset) => {
-          console.log("Tileset de Google 3D listo");
-        }}
-      />
-
-      {/* Si tus datos vienen como GeoJSON (polígonos) */}
-      <GeoJsonDataSource
-        data={poligonos}
-        onLoad={handleDataSource}
-        clampToGround={true}
-      >
-        {(dataSource) => (
-          // Personalizar estilo de los polígonos
-          <Entity
-            polygon={{
-              material: Cesium.Color.fromCssColorString("rgba(255,0,0,0.5)"),
-              outline: true,
-              outlineColor: Cesium.Color.RED,
-            }}
-          />
-        )}
-      </GeoJsonDataSource>
-
-      {/* Si tienes puntos (marcadores) */}
-      {puntos.map((punto, idx) => {
-        console.log(punto);
-
-        return (
-          <Entity
-            key={idx}
-            position={Cartesian3.fromDegrees(punto.lng, punto.lat)}
-            point={{
-              pixelSize: 10,
-              color: Cesium.Color.YELLOW,
-              outlineColor: Cesium.Color.BLACK,
-              outlineWidth: 2,
-            }}
-          />
-        );
-      })}
-    </Viewer>
-  );
 };
 
 export default React.memo(MapAfects);
