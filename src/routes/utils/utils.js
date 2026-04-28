@@ -77,8 +77,9 @@ export const extractCoordinates = (geom) => {
     }
   };
 
-  export const formatCoords = (coord) => {
-  const format = useCallback((coord) => {
-    return typeof coord === "number" ? coord.toFixed(6) : "0.000000";
+ const useFormatCoords = () => {
+  const format = useCallback((coords) => {
+    // ... lógica
   }, []);
-  }
+  return format;
+};
