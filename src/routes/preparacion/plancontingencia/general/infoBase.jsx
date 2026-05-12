@@ -45,50 +45,11 @@ export default function InfoBase({ formData, handleInputChange }) {
           <TextField
             fullWidth
             required
-            name="organizador"
-            label="Identifiación del organizador"
-            value={formData.organizador}
+            name="IDorganizador"
+            label="Identificación del organizador"
+            value={formData.IDorganizador}
             onChange={handleInputChange}
-            placeholder="Ingrese nombre del organizador"
-          />
-        </Grid>
-      </Grid>
-      <AlertText
-        text={
-          <Box>
-            ⚠️ <strong>Advertencia:</strong> Recuerda que aforo se indica la necesidad de contar con seguridad,durante el evento
-          </Box>
-        }
-      />
-      <Grid container spacing={3}>
-        <Grid item size={{ xs: 12, md: 5 }}>
-          <TextField
-            fullWidth
-            name="empresaSeguridad"
-            label="Empresa de Seguridad"
-            value={formData.empresaSeguridad}
-            onChange={handleInputChange}
-            placeholder="Ingrese empresa de seguridad"
-          />
-        </Grid>
-        <Grid item size={{ xs: 12, md: 4 }}>
-          <TextField
-            fullWidth
-            name="representanteLegal"
-            label="Representante Legal de la empresa de seguridad"
-            value={formData.representanteLegal}
-            onChange={handleInputChange}
-            placeholder="Ingrese nombre del representante legal"
-          />
-        </Grid>
-        <Grid item size={{ xs: 12, md: 3 }}>
-          <TextField
-            fullWidth
-            name="representanteLegal"
-            label="Identificación  del representante Legal de la empresa de seguridad"
-            value={formData.representanteLegal}
-            onChange={handleInputChange}
-            placeholder="Ingrese nombre del representante legal"
+            placeholder="Ingrese identificación del organizador"
           />
         </Grid>
       </Grid>

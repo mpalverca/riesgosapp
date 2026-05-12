@@ -1,10 +1,10 @@
 
 import { TextField, Grid, Box, Paper } from "@mui/material";
 
-export default function Descripcion({ formData, handleChange }) {
+export default function Descripcion({ formData, handleChange,handleInputChange }) {
   return (
      <Box sx={{ p: 2,  }}>
-     <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
+     <Paper elevation={3} sx={{ p: 2, mb: 2 }}>
      <TextField
                 required
                 name="descripcionEvento"
@@ -64,6 +64,38 @@ export default function Descripcion({ formData, handleChange }) {
               />
             </Grid>
           </Grid>
+          <Grid container spacing={3} sx={{my:2}}>
+                  <Grid item size={{ xs: 12, md: 5 }}>
+                    <TextField
+                      fullWidth
+                      name="empresaSeguridad"
+                      label="Empresa de Seguridad"
+                      value={formData.empresaSeguridad}
+                      onChange={handleInputChange}
+                      placeholder="Ingrese empresa de seguridad"
+                    />
+                  </Grid>
+                  <Grid item size={{ xs: 12, md: 4 }}>
+                    <TextField
+                      fullWidth
+                      name="representanteLegal"
+                      label="Representante Legal de la empresa de seguridad"
+                      value={formData.representanteLegal}
+                      onChange={handleInputChange}
+                      placeholder="Ingrese nombre del representante legal"
+                    />
+                  </Grid>
+                  <Grid item size={{ xs: 12, md: 3 }}>
+                    <TextField
+                      fullWidth
+                      name="representanteLegal"
+                      label="Identificación  del representante Legal de la empresa de seguridad"
+                      value={formData.representanteLegal}
+                      onChange={handleInputChange}
+                      placeholder="Ingrese nombre del representante legal"
+                    />
+                  </Grid>
+                </Grid>
    </Paper></Box>
   );
 }

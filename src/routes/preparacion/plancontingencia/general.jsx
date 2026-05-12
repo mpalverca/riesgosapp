@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Box,
   Paper,
@@ -19,6 +19,12 @@ import L from "leaflet";
 import MapViewer from "./maps/ubiMap";
 import ShapeTable from "./maps/shapeTable";
 import InfoBase, { SpaceData } from "./general/infoBase";
+import { MapContainer, TileLayer, FeatureGroup, useMap } from 'react-leaflet';
+import { EditControl } from 'react-leaflet-draw';
+import 'leaflet/dist/leaflet.css';
+import 'leaflet-draw/dist/leaflet.draw.css';
+
+import 'leaflet-easyprint';
 
 const InformacionGeneral = () => {
   const [formData, setFormData] = useState({
@@ -177,7 +183,7 @@ const InformacionGeneral = () => {
             </Button>
           </Box>
 
-          <Box
+          {/* <Box
             sx={{
               height: 400,
               borderRadius: 1,
@@ -187,9 +193,9 @@ const InformacionGeneral = () => {
             }}
           >
             <div>
-              {/*   <IconButton onClick={() => setDrawingMode("point")}>
+                 <IconButton onClick={() => setDrawingMode("point")}>
                 Punto
-              </IconButton> */}
+              </IconButton> 
               <IconButton onClick={() => setDrawingMode("polygon")}>
                 Polígono
               </IconButton>
@@ -200,7 +206,7 @@ const InformacionGeneral = () => {
                 Cancelar
               </IconButton>
             </div>
-            <MapViewer
+             <MapViewer
               center={[-3.996568, -79.201696]}
               zoom={10}
               drawingMode={drawingMode}
@@ -208,7 +214,8 @@ const InformacionGeneral = () => {
               onDrawComplete={handleDrawComplete}
               drawingColor="#ff0000"
               height="800px"
-            />
+            /> 
+           
           </Box>
 
           <Typography
@@ -217,9 +224,11 @@ const InformacionGeneral = () => {
             sx={{ mt: 1, display: "block" }}
           >
             Haz clic en el mapa para establecer la ubicación exacta del evento
-          </Typography>
+          </Typography> */}
         </Box>
-        <ShapeTable shape={drawings} />
+        {/* <ShapeTable shape={drawings} /> */}
+
+         <MapEditor />
       </Paper>
     </Box>
   );
@@ -236,4 +245,140 @@ L.Icon.Default.mergeOptions({
 });
 
 
+// Componente que agrega el screenshoter al mapa
+const MapScreenshoter = ({ onScreenshotReady }) => {
+  const map = useMap();
+  
+  useEffect(() => {
+    // Inicializar el plugin de screenshot
+    const screenshoter = L.simpleMapScreenshoter({
+      // Opcional: ocultar ciertos elementos antes de capturar
+      hiddenCSS: { display: 'none' }
+    }).addTo(map);
+    
+    // Guardar referencia para usarla desde fuera
+    if (onScreenshotReady) {
+      onScreenshotReady(screenshoter);
+    }
+    
+    return () => {
+      map.removeControl(screenshoter);
+    };
+  }, [map, onScreenshotReady]);
+  
+  return null;
+};
 
+
+const EasyPrintControl = ({ position = 'topleft', sizeModes, exportOnly = true, title = 'Exportar como PNG' }) => {
+  const map = useMap();
+  
+  useEffect(() => {
+    const control = L.easyPrint({
+      position,
+      sizeModes,
+      exportOnly,
+      title
+    }).addTo(map);
+    
+    return () => {
+      map.removeControl(control);
+    };
+  }, [map, position, sizeModes, exportOnly, title]);
+  
+  return null;
+};
+
+
+const MapEditor = () => {
+  const [polygonPoints, setPolygonPoints] = useState([]);
+
+  const _onCreate = (e) => {
+    const { layerType, layer } = e;
+    if (layerType === 'polygon') {
+      // Extraer las coordenadas del polígono dibujado
+      const latlngs = layer.getLatLngs()[0];
+      console.log("Coordenadas del polígono:", latlngs);
+      setPolygonPoints(latlngs);
+    }
+    // Si necesitas capturar una línea (polyline)
+    if (layerType === 'polyline') {
+      const latlngs = layer.getLatLngs();
+      console.log("Coordenadas de la línea:", latlngs);
+    }
+  };
+
+  const _onEdited = (e) => {
+    // Lógica para cuando se edita una figura
+    const layers = e.layers;
+    layers.eachLayer(layer => {
+      if (layer.editing) {
+        const updatedPoints = layer.editing.latlngs[0];
+        setPolygonPoints(updatedPoints);
+      }
+    });
+  };
+
+  const _onDeleted = () => {
+    setPolygonPoints([]);
+  };
+
+  const screenshoterRef = useRef(null);
+  
+  // Función para exportar la imagen
+  const handleExportImage = async () => {
+    console.log("Exportando imagen del mapa...")
+    if (screenshoterRef.current) {
+      try {
+        // Captura la pantalla del mapa
+        const imageData = await screenshoterRef.current.takeScreen('image/png');
+        
+        // Crear enlace para descargar
+        const link = document.createElement('a');
+        link.download = 'mi-mapa.png';
+        link.href = imageData;
+        link.click();
+      } catch (error) {
+        console.error('Error al capturar el mapa:', error);
+      }
+    }
+  };
+  //easy print
+   const printControlRef = useRef(null);
+  
+  const handleExportWithRef = () => {
+    // Si necesitas acceso programático al control
+    if (printControlRef.current) {
+      // printControlRef.current.printMap('A4Landscape', 'mi-mapa');
+    }
+  };
+  return (
+    
+    <MapContainer center={[-3.9939, -79.2042]} zoom={13} style={{ height: '500px', width: '100%' }}>
+      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+      
+      <FeatureGroup>
+        <EditControl
+          position="topright"
+          onCreated={_onCreate}
+          onEdited={_onEdited}
+          onDeleted={_onDeleted}
+          draw={{
+            rectangle: true,
+            polygon: true,
+            polyline: true,
+            circle: false,
+            marker: false,
+          }}
+        />
+      </FeatureGroup>
+      <EasyPrintControl 
+          position="topright"
+          sizeModes={['Current', 'A4Portrait', 'A4Landscape']}
+          exportOnly={true}
+          title="Exportar como PNG"
+        />
+    </MapContainer>
+   
+  );
+};
