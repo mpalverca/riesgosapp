@@ -29,6 +29,7 @@ import EvinCode from "./respuesta/Evin";
 import ComiteComunitario from "./preparacion/ComiteComu";
 import Brigadas from "./respuesta/Brigadas";
 import UserEspecial from "./user/UserEspecial";
+import Panel from "./pages/panel";
 
 // CAMBIO: El componente debe empezar con mayúscula
 export default function AppRouter() {
@@ -78,6 +79,11 @@ export default function AppRouter() {
           <Route path="brigada" element={<Brigadas />} />
         </Route>
         {/*//auth*/}
+         <Route path="/panel/*" element={<Panel />}>
+          <Route path="plancontingencia" element={<PlanContingencia />} />
+          <Route path="comite_comunitario" element={<ComiteComunitario />} />
+        </Route>
+
         <Route path="/info" element={<InfoPage />} />
         <Route path="/riesgosapp/userauth" element={<Login />} />
         <Route path="/riesgosapp/userSettings" element={<Auth />} />
