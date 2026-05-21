@@ -196,3 +196,5 @@ export const TableRH = ({ resourceCodes, dataRE, resourceNames,...props }) => {
     </TableContainer>
   );
 };
+
+

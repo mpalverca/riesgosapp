@@ -4,12 +4,13 @@ const url_GetAll =
   "https://script.google.com/macros/s/AKfycbwsamRvF6jmepai_hZgTG4EKCiYKRSM1-8CShXwNdkV1A34fROSHQsthDoYadD0duo/exec"
 
 export const useGetEvent = () => {
-  const [loadingGet, setLoading] = useState(false);
-  const [errorGet, setError] = useState(null);
-  const [dataGet, setData] = useState(null);  
+  const [loadingEv, setLoading] = useState(false);
+  const [errorEv, setError] = useState(null);
+  const [dataEv, setData] = useState(null);  
   const [message, setMessage] = useState(null);
+  const [success, setSuccess] = useState(null);
 
-  const search = useCallback(async (sheet,status) => {
+  const read = useCallback(async (sheet,status) => {
     // Validaciones
     if (!sheet) {
       setError("Ingrese un mesa o grupo de trabajo");
@@ -24,7 +25,10 @@ export const useGetEvent = () => {
         `${url_GetAll}?tipo=read&sheet=${sheet}`,
       );
       const data = await response.json();
-      setData(data);
+      console.log(data)
+      setData(data.data);
+      setMessage(data.message);
+      setSuccess(data.success);
       //console.log("Datos MTT:", dataMtt);
     } catch (err) {
       setError(err.message || "Error de conexión");
@@ -135,10 +139,12 @@ export const useGetEvent = () => {
   }, []);
 
   return {
-    loadingGet,
-    errorGet,
-    dataGet,
-    searchGet: search,
+     loadingEv,
+    errorEv,
+    dataEv,
+    message,
+    success,
+    read,
     clearGet,
     post,
     edit,

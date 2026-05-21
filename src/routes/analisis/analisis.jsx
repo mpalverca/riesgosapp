@@ -106,14 +106,13 @@ export default function Analisis() {
   }
 
   return (
-    <Box sx={{ p: 1, minHeight: "100vh", bgcolor: "background.default" }}>
+    <Box sx={{ pt: 3, mb:10, minHeight: "100vh", bgcolor: "background.default"}}>
       {/* Header */}
       <Box sx={{ textAlign: "center", mb: 6 }}>
         <Typography
           variant="h3"
           sx={{
-            fontWeight: "bold",
-            color: "primary.main",
+            fontWeight: "bold",            
             mb: 1,
           }}
         >

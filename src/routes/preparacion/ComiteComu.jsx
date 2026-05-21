@@ -1,19 +1,25 @@
-import { Box, Typography, Grid } from "@mui/material";
+import { Box, Typography, Grid, Tab, Paper } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import Panel from "./comiteC/panel";
 import MapBase from "./comiteC/mapBase";
 import imageLoad from "../../assets/loading_map_3.gif";
+import TabContext from "@mui/lab/TabContext";
+import TabPanel from "@mui/lab/TabPanel";
+import TabList from "@mui/lab/TabList";
+import ComiteInfo from "./comiteC/comiteInfo";
 //const SCRIPT_URL="https://script.google.com/macros/s/AKfycbyxm-B9P0mM_KSGboPz6E4hAVGd3xEt-PNpaW5UmsGA84hstMrlMX2ELh-lFQxg_Mg/exec"
 const SCRIPT_URL =
   "https://script.google.com/macros/s/AKfycbzj8eXN23mkkdZypf8yBayEMBA7Bt-MM0D_6Jp-34JxQCsg-8UkjZqM9nBoI6dw8nrK/exec";
 export default function ComiteComunitario() {
+  const [value, setValue] = React.useState("1");
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedvalue, setSelectedValue] = useState(null);
   const [barData, setBarData] = useState(null);
   const [loadingParroq, setLoadingParroq] = useState(false);
-  const [eventInfo, setDataEvent] = useState();
+  const [eventInfo, setDataEvent] = useState([]);
+
   // Cargar datos iniciales
   useEffect(() => {
     const fetchData = async () => {
@@ -24,14 +30,16 @@ export default function ComiteComunitario() {
         const dataP = await dataSector();
         // 2. Guardar datos completos
         setData(dataP);
+        console.log(dataP);
         // 3. Extraer barrios
         if (dataP) {
           const barrios = dataP
-            .map((feature) => {
+            .map((sector) => {
               // Acceder a las propiedades de CADA feature
-              if (feature?.properties) {
+              if (sector?.properties) {
+                console.log("aqui si lee propiedades");
                 // Buscar barrio en diferentes posibles nombres de campo
-                return feature.properties.barrio;
+                return sector.properties.BARRIO;
               }
               return null;
             })
@@ -39,6 +47,7 @@ export default function ComiteComunitario() {
             .map((barrio) => barrio.trim())
             .filter((barrio, index, array) => array.indexOf(barrio) === index) // Únicos
             .sort();
+
           setBarData(barrios);
         } else {
           console.warn("⚠️ No hay features en los datos:", dataP);
@@ -72,6 +81,9 @@ export default function ComiteComunitario() {
     }
   };
 
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
   if (loading) {
     return (
       <>
@@ -125,25 +137,48 @@ export default function ComiteComunitario() {
             selectedValue={selectedvalue}
             setSelectedValue={setSelectedValue}
             loading={loadingParroq}
-            fireData={eventInfo}
+            //fireData={eventInfo}
           />
         </Grid>
         <Grid item size={{ xs: 12, md: 9 }}>
-          <MapBase
-            data={data}
-            loading={loading}
-            error={error}
-            // onSelectParroq={setSelectedValue}
-            onGetParroqData={getParroqData}
-            selectedParroq={selectedvalue}
-            setEvent={setDataEvent}
-            dataEvent={eventInfo}
-            mapConfig={{
-              center: [-79.2, -3.99], // Coordenadas de Loja, Ecuador
-              zoom: 10,
-            }}
-          />
-          <div>Here date from firemaps events</div>
+          <TabContext value={value}>
+            <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+              <TabList onChange={handleChange} aria-label="COE tabs">
+                <Tab label="Mapa Informativo" value="1" />
+                <Tab label="Información del comité" value="2" />
+              </TabList>
+            </Box>
+
+            <TabPanel value="1">
+              <MapBase
+                data={data}
+                loading={loading}
+                error={error}
+                // onSelectParroq={setSelectedValue}
+                onGetParroqData={getParroqData}
+                selectedParroq={selectedvalue}
+                setEvent={setDataEvent}
+                dataEvent={eventInfo}
+                mapConfig={{
+                  center: [-79.2, -3.99], // Coordenadas de Loja, Ecuador
+                  zoom: 10,
+                }}
+              />
+            </TabPanel>
+            <TabPanel value="2">
+              <Paper elevation={3} sx={{ p: 1, mb: 1, borderRadius: 1 }}>
+               <ComiteInfo/>
+              </Paper>
+            </TabPanel>
+            <TabPanel value="3">
+              <Paper elevation={3} sx={{ p: 1, mb: 1, borderRadius: 1 }}>
+                <Typography>En desarrollo...</Typography>
+              </Paper>
+            </TabPanel>
+            <TabPanel value="4">
+              <Typography>En desarrollo...</Typography>
+            </TabPanel>
+          </TabContext>
         </Grid>
       </Grid>
     </div>
@@ -158,7 +193,7 @@ export const dataSector = async () => {
     const result = await response.json();
     if (result.status === "success") {
     } else {
-      console.error("Error al obtener datos:", result.features);
+      console.error("Error al obtener datos");
     }
     return result.features;
   } catch (error) {

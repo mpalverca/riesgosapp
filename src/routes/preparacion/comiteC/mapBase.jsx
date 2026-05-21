@@ -1,101 +1,85 @@
-import React from "react";
-import { MapContainer, TileLayer, Marker, Popup, Polygon } from "react-leaflet";
+import React, { useState } from "react";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  Polygon,
+  LayersControl,
+  LayerGroup,
+  useMapEvents,
+} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-//import { fetchData } from "../fire/FireSearch";
-import { Box } from "@mui/material";
+import {
+  Box,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  TextField,
+} from "@mui/material";
+import L from "leaflet";
+
+// Solucionar problema de iconos de Leaflet en React
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
+  iconUrl: require("leaflet/dist/images/marker-icon.png"),
+  shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+});
 
 const n_color = {
-  ALTA:"#3538dcff",
-  //ALTA: "#dc3545",
+  ALTA: "#3538dcff",
   MEDIA: "#ffc107",
   BAJA: "#28a745",
   DEFAULT: "#a9a9aaff",
+  SELECTED: "#ff0000",
 };
-const MapBase = (props) => {
-  console.log(props.selectedParroq)
-  let position = [-3.9939, -79.2042];
-  // console.log(props);
-  const renderPolygons = () => {
-    return props.data.map((item) => {
-      try {
-        const coordinates = item.geometry.coordinates;
-        //let leafletCoords = [];
-        const sect = item.properties;
-        // Convertir coordenadas GeoJSON (MultiPolygon) a formato Leaflet
-        return coordinates.map((polygon, index) => {
-          const polyCoords = polygon[0].map((coord) => [coord[1], coord[0]]);
-          return (
-            <Polygon
-              eventHandlers={{
-                click: () => {
-                  console.log("Polígono clickeado:", props);
-                 // setSelectedBarrio(props.selectedParroq);
-                },
-              }}
-             
-              key={`N° ${item.id}-${index}`}
-              positions={polyCoords}
-              pathOptions={{
-                color:
-                  sect.BARRIO === props.selectedParroq
-                    ? n_color.ALTA
-                    : n_color.DEFAULT,
-                fillColor:
-                  sect.BARRIO === props.selectedParroq
-                    ? n_color.ALTA
-                    : n_color.DEFAULT,
-                fillOpacity: sect.BARRIO === props.selectedParroq ? 0.4 : 0.2,
-                weight: sect.BARRIO === props.selectedParroq ? 3 : 2,
-                // Opcional: agregar sombra o efectos
-                shadow: sect.BARRIO === props.selectedParroq,
-                shadowColor:
-                  sect.BARRIO === props.selectedParroq
-                    ? n_color.ALTA
-                    : "transparent",
-                shadowOpacity: 0.5,
-                shadowRadius: 10,
-              }}
-            >
-              <Popup>
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "15px",
-                    alignItems: "flex-start",
-                  }}
-                >
-                  <div>
-                    <h4 style={{ marginTop: 0 }}>
-                      {sect.ID} - {sect.SECTOR}
-                    </h4>
-                    <p>
-                      <strong>Parroquia:</strong> {sect.PARROQUIA}
-                    </p>
-                    <p>
-                      <strong>Barrio:</strong> {sect.BARRIO}
-                    </p>                    
-                  </div>
-                </div>
-              </Popup>
-            </Polygon>
-          );
-        });
-      } catch (error) {
-        console.error("Error al procesar polígono:", item, error);
-        return null;
-      }
-    });
-  };
-  const renderMarker = () => {
-    // Verificar que props.dataEvent existe y es un array
-    if (!props.dataEvent || !Array.isArray(props.dataEvent)) {
-      console.warn("dataEvent no es un array válido:", props.dataEvent);
-      return null;
-    }
-    const formatDate = (dateString) => {
-      if (!dateString) return "Fecha no disponible";
 
+const MapBase = (props) => {
+  const centerPosition = [-3.9939, -79.2042];
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogCoords, setDialogCoords] = useState(null);
+  const [dialogType, setDialogType] = useState("");
+  const [dialogDescription, setDialogDescription] = useState("");
+  const [userLocation, setUserLocation] = useState(null);
+
+  const handleOpenDialog = (latlng) => {
+    console.log("handleOpenDialog llamada:", latlng);
+    if (!latlng) return;
+    setDialogCoords({
+      lat: latlng.lat?.toFixed(6),
+      lng: latlng.lng?.toFixed(6),
+    });
+    setDialogType("");
+    setDialogDescription("");
+    setDialogOpen(true);
+  };
+
+  const handleTypeChange = (event) => {
+    setDialogType(event.target.value);
+  };
+
+  const handleDescriptionChange = (event) => {
+    setDialogDescription(event.target.value);
+  };
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+    setDialogCoords(null);
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "Fecha no disponible";
+    try {
       const date = new Date(dateString);
+      if (isNaN(date.getTime())) return "Fecha inválida";
+
       const day = date.getDate().toString().padStart(2, "0");
       const month = (date.getMonth() + 1).toString().padStart(2, "0");
       const year = date.getFullYear();
@@ -103,51 +87,240 @@ const MapBase = (props) => {
       const minutes = date.getMinutes().toString().padStart(2, "0");
 
       return `${day}/${month}/${year} ${hours}:${minutes}`;
+    } catch (error) {
+      return "Fecha no disponible";
+    }
+  };
+
+  // Componente para manejar eventos del mapa
+  const MapEventHandlers = () => {
+    useMapEvents({
+      // Doble click
+      dblclick: (e) => {
+        console.log("Doble click detectado:", e.latlng);
+        handleOpenDialog(e.latlng);
+      },
+      // Clic derecho
+      contextmenu: (e) => {
+        console.log("Clic derecho detectado:", e.latlng);
+        e.originalEvent?.preventDefault();
+        handleOpenDialog(e.latlng);
+      },
+      // Click simple (opcional)
+      click: (e) => {
+        console.log("Click en mapa:", e.latlng);
+        // Puedes agregar acciones adicionales aquí si lo deseas
+      },
+    });
+    return null;
+  };
+
+  // Componente para localización del usuario
+  const LocationMarker = () => {
+    const map = useMapEvents({
+      locationfound: (e) => {
+        console.log("Ubicación encontrada:", e.latlng);
+        setUserLocation(e.latlng);
+        map.flyTo(e.latlng, 13);
+        // Opcional: abrir diálogo con la ubicación
+        // handleOpenDialog(e.latlng);
+      },
+      locationerror: (e) => {
+        console.error("Error al obtener ubicación:", e.message);
+      },
+    });
+
+    const handleLocate = () => {
+      map.locate({ setView: true, maxZoom: 15 });
     };
 
-    return props.dataEvent
-      .map((item) => {
+    return (
+      <>
+        <Button
+          onClick={handleLocate}
+          variant="contained"
+          size="small"
+          sx={{
+            position: "absolute",
+            bottom: 20,
+            right: 10,
+            zIndex: 1000,
+            backgroundColor: "white",
+            color: "#1976d2",
+            "&:hover": {
+              backgroundColor: "#f5f5f5",
+            },
+          }}
+        >
+          Mi Ubicación
+        </Button>
+        {userLocation && (
+          <Marker position={userLocation}>
+            <Popup>Tu ubicación actual</Popup>
+          </Marker>
+        )}
+      </>
+    );
+  };
+
+  const renderPolygons = () => {
+    if (!props.data || !Array.isArray(props.data)) {
+      console.warn("No hay datos de polígonos");
+      return null;
+    }
+
+    return props.data
+      .flatMap((item, itemIndex) => {
         try {
-          // Verificar que item existe y tiene las propiedades necesarias
-          if (!item || item.lat == null || item.lng == null) {
-            console.warn("Item inválido o sin coordenadas:", item);
+          if (!item?.geometry?.coordinates) {
+            console.warn(`Item ${itemIndex} sin geometría`);
             return null;
           }
 
-          // Convertir a números por si acaso vienen como strings
-          const lat = parseFloat(item.lat);
-          const lng = parseFloat(item.lng);
+          const sect = item.properties || {};
+          const isSelected = sect.BARRIO === props.selectedParroq;
 
-          // Verificar que las coordenadas son números válidos
+          const coordinates = item.geometry.coordinates;
+          let polygons = [];
+
+          if (item.geometry.type === "MultiPolygon") {
+            polygons = coordinates;
+          } else if (item.geometry.type === "Polygon") {
+            polygons = [coordinates];
+          } else if (Array.isArray(coordinates[0][0][0])) {
+            polygons = coordinates;
+          } else {
+            polygons = [coordinates];
+          }
+
+          return polygons
+            .map((polygon, polyIndex) => {
+              const ring = polygon[0] || polygon;
+
+              if (!ring || !Array.isArray(ring)) {
+                console.warn(`Polígono sin anillo válido en item ${itemIndex}`);
+                return null;
+              }
+
+              const leafletCoords = ring.map((coord) => [coord[1], coord[0]]);
+
+              return (
+                <Polygon
+                  key={`${item.id || itemIndex}-${polyIndex}`}
+                  positions={leafletCoords}
+                  pathOptions={{
+                    color: isSelected ? n_color.SELECTED : n_color.DEFAULT,
+                    fillColor: isSelected ? n_color.SELECTED : n_color.DEFAULT,
+                    fillOpacity: isSelected ? 0.5 : 0.2,
+                    weight: isSelected ? 3 : 1.5,
+                    opacity: 0.8,
+                  }}
+                  eventHandlers={{
+                    click: () => {
+                      console.log("Polígono clickeado:", sect.BARRIO);
+                      if (props.onGetParroqData && sect.BARRIO) {
+                        props.onGetParroqData(sect.BARRIO);
+                      }
+                    },
+                    mouseover: (e) => {
+                      e.target.setStyle({
+                        fillOpacity: 0.6,
+                        weight: 2.5,
+                      });
+                    },
+                    mouseout: (e) => {
+                      e.target.setStyle({
+                        fillOpacity: isSelected ? 0.5 : 0.2,
+                        weight: isSelected ? 3 : 1.5,
+                      });
+                    },
+                  }}
+                >
+                  <Popup>
+                    <div style={{ minWidth: 200 }}>
+                      <h4 style={{ margin: "0 0 10px 0", color: "#1976d2" }}>
+                        {sect.Id && `${sect.Id} - `}
+                        {sect.SECTOR || "Sector sin nombre"}
+                      </h4>
+                      <div style={{ fontSize: 14 }}>
+                        <p style={{ margin: "5px 0" }}>
+                          <strong>Parroquia:</strong> {sect.PARROQUIA || "N/A"}
+                        </p>
+                        <p style={{ margin: "5px 0" }}>
+                          <strong>Barrio:</strong> {sect.BARRIO || "N/A"}
+                        </p>
+                        <p style={{ margin: "5px 0" }}>
+                          <strong>Comité:</strong>{" "}
+                          {sect.comite || "No registrado"}
+                        </p>
+                        {sect.prioridad && (
+                          <p style={{ margin: "5px 0" }}>
+                            <strong>Prioridad:</strong> {sect.prioridad}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </Popup>
+                </Polygon>
+              );
+            })
+            .filter(Boolean);
+        } catch (error) {
+          console.error("Error al procesar polígono:", item, error);
+          return null;
+        }
+      })
+      .filter(Boolean);
+  };
+
+  const renderMarker = () => {
+    if (
+      !props.dataEvent ||
+      !Array.isArray(props.dataEvent) ||
+      props.dataEvent.length === 0
+    ) {
+      return null;
+    }
+
+    return props.dataEvent
+      .map((item, index) => {
+        try {
+          const lat = item.lat != null ? parseFloat(item.lat) : NaN;
+          const lng = item.lng != null ? parseFloat(item.lng) : NaN;
+
           if (isNaN(lat) || isNaN(lng)) {
-            console.warn("Coordenadas inválidas:", item);
+            console.warn(`Coordenadas inválidas en evento ${index}:`, item);
             return null;
           }
-
-          const leafletCoords = [lat, lng]; // CORREGIDO: [lat, lng]
 
           return (
             <Marker
-              key={item.id || `marker-${Math.random()}`}
-              position={leafletCoords}
-
-              // pathOptions={{ color:'#ff0000'     }}
+              key={item.id || `marker-${index}`}
+              position={[lat, lng]}
+              eventHandlers={{
+                click: () => {
+                  console.log("Marcador clickeado:", item.sector);
+                },
+              }}
             >
               <Popup>
-                <div>
-                  <h3>
-                    {formatDate(item.fecha)} - {item.sector}
+                <div style={{ minWidth: 200 }}>
+                  <h3 style={{ margin: "0 0 10px 0", color: "#d32f2f" }}>
+                    {formatDate(item.fecha)}
                   </h3>
-                  <p>
+                  <p style={{ margin: "5px 0" }}>
+                    <strong>Sector:</strong> {item.sector || "N/A"}
+                  </p>
+                  <p style={{ margin: "5px 0" }}>
                     <strong>Descripción:</strong>{" "}
                     {item.detail || "No disponible"}
                   </p>
-                  <p>
+                  <p style={{ margin: "5px 0" }}>
+                    <strong>Afectación:</strong> {item.afect || "No disponible"}
+                  </p>
+                  <p style={{ margin: "5px 0" }}>
                     <strong>Observaciones:</strong>{" "}
                     {item.obs || "No disponible"}
-                  </p>
-                  <p>
-                    <strong>Afectacion:</strong> {item.afect || "No disponible"}
                   </p>
                 </div>
               </Popup>
@@ -158,31 +331,101 @@ const MapBase = (props) => {
           return null;
         }
       })
-      .filter(Boolean); // Filtrar elementos null/undefined
+      .filter(Boolean);
   };
-  if (props.loading)
+
+  if (props.loading) {
     return (
       <Box
         display="flex"
         justifyContent="center"
         alignItems="center"
-        minHeight="60vh" // Ajusta según tu diseño
-      ></Box>
+        minHeight="60vh"
+      >
+        Cargando mapa...
+      </Box>
     );
-  if (props.error) return <div>{props.error}</div>;
+  }
+
+  if (props.error) {
+    return <div>Error: {props.error}</div>;
+  }
+
   return (
-    <MapContainer
-      center={position}
-      zoom={10}
-      style={{ height: "80vh", width: "100%" }}
-    >
-      <TileLayer
-        url="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
-        attribution="&copy; OpenStreetMap contributors"
-      />
-      {renderPolygons()}
-      {props.dataEvent && renderMarker()}
-    </MapContainer>
+    <>
+      <MapContainer
+        center={centerPosition}
+        zoom={10}
+        style={{ height: "80vh", width: "100%" }}
+        doubleClickZoom={false}
+      >
+        {/* Manejador de eventos del mapa */}
+        <MapEventHandlers />
+        
+        {/* Componente de localización */}
+        <LocationMarker />
+        
+        <TileLayer
+          url="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
+          attribution='&copy; <a href="https://maps.google.com">Google Maps</a>'
+        />
+
+        <LayersControl position="topright">
+          <LayersControl.Overlay name="Polígonos" checked>
+            <LayerGroup>{renderPolygons()}</LayerGroup>
+          </LayersControl.Overlay>
+
+          <LayersControl.Overlay name="Marcadores" checked>
+            <LayerGroup>
+              {props.dataEvent && props.dataEvent.length > 0 && renderMarker()}
+            </LayerGroup>
+          </LayersControl.Overlay>
+        </LayersControl>
+      </MapContainer>
+
+      <Dialog open={dialogOpen} onClose={handleCloseDialog}>
+        <DialogTitle>Agregar Marcador</DialogTitle>
+        <DialogContent>
+          <Box sx={{ minWidth: 300, pt: 1 }}>
+            <p>
+              <strong>Coordenadas:</strong> {dialogCoords?.lat},{" "}
+              {dialogCoords?.lng}
+            </p>
+            <FormControl fullWidth sx={{ mt: 2 }}>
+              <InputLabel id="dialog-type-label">Tipo</InputLabel>
+              <Select
+                labelId="dialog-type-label"
+                id="dialog-type"
+                value={dialogType}
+                label="Tipo"
+                onChange={handleTypeChange}
+              >
+                <MenuItem value="necesidad">Necesidad</MenuItem>
+                <MenuItem value="atención">Atención</MenuItem>
+                <MenuItem value="vulnerabilidad">Vulnerabilidad</MenuItem>
+                <MenuItem value="amenaza">Amenaza</MenuItem>
+                <MenuItem value="equipamento">Equipamento</MenuItem>
+                <MenuItem value="capacidad">Capacidad</MenuItem>
+              </Select>
+            </FormControl>
+            <TextField
+              fullWidth
+              label="Descripción"
+              multiline
+              minRows={3}
+              value={dialogDescription}
+              onChange={handleDescriptionChange}
+              sx={{ mt: 2 }}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog} variant="contained">
+            Cerrar
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 };
 

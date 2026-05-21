@@ -41,14 +41,15 @@ export default function ResponsiveNavBar() {
   const [user, setUser] = useState(null);
   const navegate = useNavigate();
   // Verificar localStorage al cargar el componente
+
   useEffect(() => {
     const userData = localStorage.getItem("user");
 
     if (userData) {
       setUser(JSON.parse(userData));
-  //    console.log(JSON.parse(userData));
+      //    console.log(JSON.parse(userData));
     }
-//    console.log(JSON.parse(userData));
+    //    console.log(JSON.parse(userData));
   }, []);
 
   const handleOpenNavMenu = (event) => {
@@ -92,7 +93,10 @@ export default function ResponsiveNavBar() {
   return (
     <AppBar
       position="static"
-      style={{ background: "linear-gradient(45deg, #FF5733 20%, #FFD700 90%)" }}
+      style={{
+       // position: "fixed",
+        background: "linear-gradient(45deg, #FF5733 20%, #FFD700 90%)",
+      }}
     >
       <Container maxWidth="xl">
         <Toolbar disableGutters>
@@ -153,14 +157,14 @@ export default function ResponsiveNavBar() {
               {pages.map((page) => {
                 // Lógica específica para COE
                 if (page.name === "COE") {
-              //      console.log(page.name)
-                  // Si el usuario no existe o no es lider_mtt, no mostrar COE
-                  if (!user || user.role !== "lider_mtt") {
-               //     console.log(user)
-                    return null;
+                  // ✅ CORREGIDO: Mostrar COE solo si el usuario existe Y tiene rol lider_mtt O user-member
+                  const allowedRoles = ["lider_mtt", "user-member"];
+                  const hasAccess = user && allowedRoles.includes(user.rol);
+
+                  if (!hasAccess) {
+                    return null; // No mostrar COE
                   }
                 }
-
                 // Mostrar todas las demás páginas normalmente
                 return (
                   <MenuItem key={page.name} onClick={handleCloseNavMenu}>
@@ -218,24 +222,36 @@ export default function ResponsiveNavBar() {
               justifyContent: "center",
             }}
           >
-            {pages.map((page) => (
-              <Button
-                key={page.name}
-                component={NavLink}
-                to={page.path}
-                sx={{
-                  my: 0.5,
-                  color: "white",
-                  display: "block",
-                  mx: 1,
-                  "&.active": {
-                    borderBottom: "2px solid white",
-                  },
-                }}
-              >
-                {page.name}
-              </Button>
-            ))}
+            {pages.map((page) => {
+              // Lógica específica para COE
+              if (page.name === "COE") {
+                // ✅ CORREGIDO: Mostrar COE solo si el usuario existe Y tiene rol lider_mtt O user-member
+                const allowedRoles = ["lider_mtt", "user-member"];
+                const hasAccess = user && allowedRoles.includes(user.rol);
+
+                if (!hasAccess) {
+                  return null; // No mostrar COE
+                }
+              }
+              return (
+                <Button
+                  key={page.name}
+                  component={NavLink}
+                  to={page.path}
+                  sx={{
+                    my: 0.5,
+                    color: "white",
+                    display: "block",
+                    mx: 1,
+                    "&.active": {
+                      borderBottom: "2px solid white",
+                    },
+                  }}
+                >
+                  {page.name}
+                </Button>
+              );
+            })}
           </Box>
 
           {/* Menú de usuario */}
@@ -276,9 +292,38 @@ export default function ResponsiveNavBar() {
                 >
                   <MenuItem>
                     <Typography textAlign="center" sx={{ fontWeight: "bold" }}>
-                      {user.name}
+                      {user.name} 
                     </Typography>
                   </MenuItem>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mb: 1,  mx:1 }}
+                  >
+                     {user.rol}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mb: 1,  mx:1 }}
+                  >
+                    {user.email}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mb: 1,  mx:1 }}
+                  >
+                    {user.ci}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mb: 1,  mx:1 }}
+                  >
+                    {user.phone}
+                  </Typography>
+
                   {userSettings.map((setting) => (
                     <MenuItem
                       key={setting.name}

@@ -30,6 +30,9 @@ import ComiteComunitario from "./preparacion/ComiteComu";
 import Brigadas from "./respuesta/Brigadas";
 import UserEspecial from "./user/UserEspecial";
 import Panel from "./pages/panel";
+import { GestionPlan } from "./panel/GestiónPlan";
+import PlanRevisar from "./panel/planRevisar";
+import { Box } from "@mui/material";
 
 // CAMBIO: El componente debe empezar con mayúscula
 export default function AppRouter() {
@@ -45,6 +48,7 @@ export default function AppRouter() {
   return (
     <Router>
       <NavBar />
+      {/* <Box sx={{ mt: 5 }}></Box> */}
       <Routes>
         <Route
           path=""
@@ -54,6 +58,7 @@ export default function AppRouter() {
             </ProtectedRoute>
           }
         />
+      
         <Route path="/inicio" element={<Home />} />
 
         <Route path="/analisis/*" element={<Analisis />}>
@@ -79,18 +84,19 @@ export default function AppRouter() {
           <Route path="brigada" element={<Brigadas />} />
         </Route>
         {/*//auth*/}
-         <Route path="/panel/*" element={<Panel />}>
-          <Route path="plancontingencia" element={<PlanContingencia />} />
-          <Route path="comite_comunitario" element={<ComiteComunitario />} />
+        <Route path="/panel/*" element={<Panel />}>
+          <Route path="ges_plan_c" element={<GestionPlan />} />
+          <Route path="ges_plan_c/:tramite/" element={<PlanRevisar />} />
         </Route>
-
         <Route path="/info" element={<InfoPage />} />
         <Route path="/riesgosapp/userauth" element={<Login />} />
         <Route path="/riesgosapp/userSettings" element={<Auth />} />
         <Route path="/riesgosapp/auth" element={<Coe />} />
         <Route path="/riesgosapp/usersignin" element={<SingIn />} />
         <Route path="/riesgosapp/auth" element={<Coe />} />
+       
       </Routes>
+    
     </Router>
   );
 }

@@ -10,6 +10,7 @@ import {
   AccordionSummary,
   AccordionDetails,
   Divider,
+  Alert,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
@@ -86,9 +87,18 @@ const Home = () => {
         {/* Hero Section */}
         <Box
           sx={{
-            py: 4,
+            py: 2,
           }}
         >
+          <Alert severity="warning" sx={{ mb: 2, fontSize:20, fontWeight:600, textAlign:"justify" }}>
+            El sitio web de Gestión de Riesgos del GAD Loja se presenta como un
+            prototipo operativo, gestionado por la Coordinación de Gestión de
+            Riesgos, cuyo funcionamiento está sujeto a la priorización
+            presupuestaria institucional y a la validación previa a su
+            aprobación para uso oficial. Cuenta con un modelo conceptual y
+            lineamientos preliminares para su implementación en entornos web y
+            móvil.
+          </Alert>
           <Carousel
             slides={carouselSlides}
             autoPlay={true}
@@ -163,7 +173,7 @@ const Home = () => {
         </Card>
 
         {/* Sección de FAQ con Acordeones */}
-        <Card  elevation={3}  sx={{ my: 6 }}>
+        <Card elevation={3} sx={{ my: 2 }}>
           <Typography
             variant="h1"
             component="h1"
@@ -174,100 +184,101 @@ const Home = () => {
             Preguntas Frecuentes
           </Typography>
 
-          <Box sx={{mx:2, mb:2}}>
+          <Box sx={{ mx: 2, mb: 2 }}>
             <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography variant="h2">
-                ¿Qué es la Agenda de Reducción de Riesgos de Desastres?
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Typography>
-                Es el conjunto de normas, estrategias, mapas y actividades que
-                realiza una comunidad para evitar ser afectada y prevenir
-                cualquier afectación a nivel de desastre. Incluye planes de
-                contingencia, sistemas de alerta temprana y programas de
-                capacitación.
-              </Typography>
-            </AccordionDetails>
-          </Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="h2">
+                  ¿Qué es la Agenda de Reducción de Riesgos de Desastres?
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Typography>
+                  Es el conjunto de normas, estrategias, mapas y actividades que
+                  realiza una comunidad para evitar ser afectada y prevenir
+                  cualquier afectación a nivel de desastre. Incluye planes de
+                  contingencia, sistemas de alerta temprana y programas de
+                  capacitación.
+                </Typography>
+              </AccordionDetails>
+            </Accordion>
 
-          <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography variant="h2">
-                ¿Quién es el responsable de la gestión de riesgos?
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Typography>
-                Dentro de la Ley Orgánica de Gestión Integral de Riesgos de
-                Desastres (LOGIRD), cada persona dentro del territorio nacional
-                es corresponsable de la gestión de riesgos. Esto incluye:
-              </Typography>
-              <ul>
-                <li>
-                  <Typography>Ciudadanos individuales</Typography>
-                </li>
-                <li>
-                  <Typography>Comunidades organizadas</Typography>
-                </li>
-                <li>
-                  <Typography>Instituciones públicas y privadas</Typography>
-                </li>
-                <li>
-                  <Typography>Gobiernos locales y nacionales</Typography>
-                </li>
-              </ul>
-            </AccordionDetails>
-          </Accordion>
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="h2">
+                  ¿Quién es el responsable de la gestión de riesgos?
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Typography>
+                  Dentro de la Ley Orgánica de Gestión Integral de Riesgos de
+                  Desastres (LOGIRD), cada persona dentro del territorio
+                  nacional es corresponsable de la gestión de riesgos. Esto
+                  incluye:
+                </Typography>
+                <ul>
+                  <li>
+                    <Typography>Ciudadanos individuales</Typography>
+                  </li>
+                  <li>
+                    <Typography>Comunidades organizadas</Typography>
+                  </li>
+                  <li>
+                    <Typography>Instituciones públicas y privadas</Typography>
+                  </li>
+                  <li>
+                    <Typography>Gobiernos locales y nacionales</Typography>
+                  </li>
+                </ul>
+              </AccordionDetails>
+            </Accordion>
 
-          <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography variant="h2">
-                ¿Cuáles son los componentes clave de la LOGIRD?
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Typography>
-                La LOGIRD establece cuatro componentes fundamentales:
-              </Typography>
-              <ol>
-                <li>
-                  <Typography>
-                    Prevención: Medidas para evitar la generación de nuevos
-                    riesgos
-                  </Typography>
-                </li>
-                <li>
-                  <Typography>
-                    Mitigación: Acciones para reducir riesgos existentes
-                  </Typography>
-                </li>
-                <li>
-                  <Typography>
-                    Preparación: Planificación y capacitación para respuesta a
-                    emergencias
-                  </Typography>
-                </li>
-                <li>
-                  <Typography>
-                    Recuperación: Rehabilitación y reconstrucción post-desastre
-                  </Typography>
-                </li>
-              </ol>
-            </AccordionDetails>
-          </Accordion>
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="h2">
+                  ¿Cuáles son los componentes clave de la LOGIRD?
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Typography>
+                  La LOGIRD establece cuatro componentes fundamentales:
+                </Typography>
+                <ol>
+                  <li>
+                    <Typography>
+                      Prevención: Medidas para evitar la generación de nuevos
+                      riesgos
+                    </Typography>
+                  </li>
+                  <li>
+                    <Typography>
+                      Mitigación: Acciones para reducir riesgos existentes
+                    </Typography>
+                  </li>
+                  <li>
+                    <Typography>
+                      Preparación: Planificación y capacitación para respuesta a
+                      emergencias
+                    </Typography>
+                  </li>
+                  <li>
+                    <Typography>
+                      Recuperación: Rehabilitación y reconstrucción
+                      post-desastre
+                    </Typography>
+                  </li>
+                </ol>
+              </AccordionDetails>
+            </Accordion>
           </Box>
-
         </Card>
 
         {/* Sección de Responsabilidades */}
         <Box
           sx={{
             bgcolor: "action.hover",
-            p: 4,
+            p: 2,
             borderRadius: 2,
-            mb: 6,
+            mb: 2,
           }}
         >
           <Typography
@@ -345,7 +356,7 @@ const Home = () => {
             py: 2,
             borderRadius: 2,
             textAlign: "center",
-            mb:8
+            mb: 8,
           }}
         >
           <Typography

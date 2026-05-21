@@ -101,6 +101,7 @@ export default function Panel({ selectedValue, setSelectedValue, ...props }) {
 
   // Obtener los barrios de props.data (asegúrate que sea un array de strings)
   const barriosOptions = Array.isArray(props.data) ? props.barData : [];
+
   const sectorview = props.data
     .map((feature) => {
       if (feature?.properties) {
@@ -119,8 +120,6 @@ export default function Panel({ selectedValue, setSelectedValue, ...props }) {
     .map((sector) => sector.trim())
     .filter((sector, index, array) => array.indexOf(sector) === index) // Únicos
     .sort();
-
-  console.log("Sectores del barrio seleccionado:", sectorview);
   // Manejar la búsqueda
   const handleSearch = async () => {
     if (!selectedValue) {
@@ -149,10 +148,9 @@ export default function Panel({ selectedValue, setSelectedValue, ...props }) {
   return (
     <Box sx={{ p: 2 }}>
       {/* Título */}
-      <Typography variant="h4" align="center" gutterBottom>
+      <Typography variant="h5" align="center" gutterBottom>
         <strong>{props.title || "Panel de Consulta"}</strong>
       </Typography>
-
       {/* Advertencia importante */}
       <Alert
         severity="warning"
@@ -166,31 +164,17 @@ export default function Panel({ selectedValue, setSelectedValue, ...props }) {
           sanciones contempladas en la LOGIRD.
         </Typography>
       </Alert>
-      <Typography align="center" variant="h6">
-        <strong>
-          <p>Ley organica de Gestión integral de riesgos de desastres</p>
-          Art. 39.-Comités comunitarios de gestión de riesgos y participación
-          ciudadana
-        </strong>
-      </Typography>
-      <Typography align="justify" variant="body2">
-        Se promoverá la participación ciudadana en gestión de riesgos a través
-        de comités comunitarios de gestión de riesgos. Estos comités son
-        instancias creadas para la gestión integral de riesgos de desastres de
-        conformidad con los lineamientos para su reconocimiento, conformación y
-        funcionamiento expedidos por el ente rector de la gestión integral del
-        riesgo de desastres. Los procesos de reconocimiento legal, conformación,
-        capacitación y fortalecimiento de los comités locales de gestión de
-        riesgos son responsabilidad de los gobiernos autónomos descentralizados
-        municipales en el ámbito urbano y de los gobiernos autónomos
-        descentralizados provinciales en el ámbito rural, los que informarán, de
-        manera anual sobre el avance de este proceso al ente rector, de
-        conformidad con el instructivo que se expida para el efecto.
-      </Typography>
-      <Divider sx={{ mb: 3 }} />
-
+      <Divider sx={{ mb: 1 }} />
       {/* Barra de búsqueda */}
       <Paper elevation={1} sx={{ p: 2, mb: 3, borderRadius: 2 }}>
+        {/* Mensaje si no hay selección */}
+        {!selectedValue && !sectorLoading && !sectorError && !sectorData && (
+          
+            <Typography variant="body1" color="text.secondary" sx={{ textAlign:"justify"}}>
+              Selecciona un barrio y haz clic en "Consultar" para ver la
+              información
+            </Typography>
+        )}
         <Typography
           variant="h6"
           gutterBottom
@@ -199,7 +183,6 @@ export default function Panel({ selectedValue, setSelectedValue, ...props }) {
           <SearchIcon sx={{ mr: 1 }} />
           Buscar Información de Barrio
         </Typography>
-
         <Autocomplete
           options={barriosOptions}
           value={selectedValue}
@@ -228,7 +211,6 @@ export default function Panel({ selectedValue, setSelectedValue, ...props }) {
             ))
           }
         />
-
         <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
           <Button
             fullWidth
@@ -293,19 +275,6 @@ export default function Panel({ selectedValue, setSelectedValue, ...props }) {
             </Alert>
           )}
         </Box>
-      )}
-
-      {/* Mensaje si no hay selección */}
-      {!selectedValue && !sectorLoading && !sectorError && !sectorData && (
-        <Paper
-          elevation={0}
-          sx={{ p: 4, textAlign: "center", bgcolor: "grey.50" }}
-        >
-          <Typography variant="body1" color="text.secondary">
-            Selecciona un barrio y haz clic en "Consultar" para ver la
-            información
-          </Typography>
-        </Paper>
       )}
     </Box>
   );
