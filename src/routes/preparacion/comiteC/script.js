@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 
-export const useDetailSector = () => {
+/* export const useDetailSector = () => {
   const [sectorData, setSectorData] = useState(null);
   const [sectorLoading, setLoading] = useState(false);
   const [sectorError, setError] = useState(null);
@@ -67,9 +67,9 @@ export const useDetailSector = () => {
     detailSector,   // Función para buscar
     clearSectorData // Función para limpiar
   };
-};
+}; */
 
-export const comit_data=()=>{
+/* export const useComitData=()=>{
    const [comiteData, setComData] = useState(null);
   const [comLoading, setComLoading] = useState(false);
   const [comError, setComError] = useState(null);
@@ -136,4 +136,65 @@ export const comit_data=()=>{
     detailSector,   // Función para buscar
     clearSectorData // Función para limpiar
   };
-}
+} */
+
+
+export const useDetailSector = () => {
+  const [sectorD, setSectorData] = useState(null);
+  const [sLoading, setLoading] = useState(false);
+  const [sError, setError] = useState(null);
+  const sector_info =
+    "https://script.google.com/macros/s/AKfycbw7vtu_OvQBjpIkqpBqm-X4cG2PMfkkRCQRHQPyIENrn3za_BAdBwoWqLBZSAJWuFo7/exec";
+
+  const detailSector = async (barrio) => {
+    if (!barrio || barrio.trim() === "") {
+      setError("El barrio no puede estar vacío");
+      return null;
+    }
+
+    setLoading(true);
+    setError(null);
+    setSectorData(null);
+
+    try {
+      const url = `${sector_info}?barrio=${encodeURIComponent(barrio)}`;
+      //console.log("🔍 Buscando datos para barrio:", barrio);
+
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error(`Error HTTP: ${response.status}`);
+      }
+
+      const result = await response.json();
+     // console.log("📦 Datos recibidos:", result);
+
+      if (result.error) {
+        throw new Error(result.error);
+      }
+
+      setSectorData(result);
+      return result;
+    } catch (err) {
+      // console.error("❌ Error en detailSector:", err);
+      setError(err.message);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const clearSectorData = () => {
+    setSectorData(null);
+    setError(null);
+    setLoading(false);
+  };
+
+  return {
+    sectorD,
+    sLoading,
+     sError,
+    detailSector,
+    clearSectorData,
+  };
+};

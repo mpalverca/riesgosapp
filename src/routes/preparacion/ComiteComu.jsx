@@ -88,10 +88,10 @@ export default function ComiteComunitario() {
     return (
       <>
         <Typography
-          variant="h3"
+          variant="h2"
           display="flex"
           align="center"
-          alignContent="center"
+          sx={{alignContent:"center", pt:2}}
         >
           Cargando Mapa de Sectores de Loja
         </Typography>

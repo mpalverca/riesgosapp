@@ -28,73 +28,16 @@ import EngineeringIcon from "@mui/icons-material/Engineering";
 import CalculateIcon from "@mui/icons-material/Calculate";
 import InfoIcon from "@mui/icons-material/Info";
 import SearchIcon from "@mui/icons-material/Search";
+import { useDetailSector } from "./script";
 
 // Hook personalizado (crea este archivo en ./hooks/useDetailSector.js)
-const useDetailSector = () => {
-  const [sectorData, setSectorData] = useState(null);
-  const [sectorLoading, setLoading] = useState(false);
-  const [sectorError, setError] = useState(null);
-  const sector_info =
-    "https://script.google.com/macros/s/AKfycbw7vtu_OvQBjpIkqpBqm-X4cG2PMfkkRCQRHQPyIENrn3za_BAdBwoWqLBZSAJWuFo7/exec";
 
-  const detailSector = async (barrio) => {
-    if (!barrio || barrio.trim() === "") {
-      setError("El barrio no puede estar vacío");
-      return null;
-    }
-
-    setLoading(true);
-    setError(null);
-    setSectorData(null);
-
-    try {
-      const url = `${sector_info}?barrio=${encodeURIComponent(barrio)}`;
-      console.log("🔍 Buscando datos para barrio:", barrio);
-
-      const response = await fetch(url);
-
-      if (!response.ok) {
-        throw new Error(`Error HTTP: ${response.status}`);
-      }
-
-      const result = await response.json();
-      console.log("📦 Datos recibidos:", result);
-
-      if (result.error) {
-        throw new Error(result.error);
-      }
-
-      setSectorData(result);
-      return result;
-    } catch (err) {
-      console.error("❌ Error en detailSector:", err);
-      setError(err.message);
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const clearSectorData = () => {
-    setSectorData(null);
-    setError(null);
-    setLoading(false);
-  };
-
-  return {
-    sectorData,
-    sectorLoading,
-    sectorError,
-    detailSector,
-    clearSectorData,
-  };
-};
 
 export default function Panel({ selectedValue, setSelectedValue, ...props }) {
   const {
-    sectorData,
-    sectorLoading,
-    sectorError,
+    sectorD,
+  sLoading,
+   sError,
     detailSector,
     clearSectorData,
   } = useDetailSector();
@@ -168,7 +111,7 @@ export default function Panel({ selectedValue, setSelectedValue, ...props }) {
       {/* Barra de búsqueda */}
       <Paper elevation={1} sx={{ p: 2, mb: 3, borderRadius: 2 }}>
         {/* Mensaje si no hay selección */}
-        {!selectedValue && !sectorLoading && !sectorError && !sectorData && (
+        {!selectedValue && !sLoading && !sError && !sectorD && (
           
             <Typography variant="body1" color="text.secondary" sx={{ textAlign:"justify"}}>
               Selecciona un barrio y haz clic en "Consultar" para ver la
@@ -188,7 +131,7 @@ export default function Panel({ selectedValue, setSelectedValue, ...props }) {
           value={selectedValue}
           onChange={(event, newValue) => {
             setSelectedValue(newValue);
-            if (sectorData) clearSectorData();
+            if (sectorD) clearSectorData();
           }}
           renderInput={(params) => (
             <TextField
@@ -216,19 +159,19 @@ export default function Panel({ selectedValue, setSelectedValue, ...props }) {
             fullWidth
             variant="contained"
             onClick={handleSearch}
-            disabled={!selectedValue || sectorLoading}
+            disabled={!selectedValue || sLoading}
             startIcon={
-              sectorLoading ? <CircularProgress size={20} /> : <SearchIcon />
+              sLoading ? <CircularProgress size={20} /> : <SearchIcon />
             }
           >
-            {sectorLoading ? "Consultando..." : "Consultar"}
+            {sLoading ? "Consultando..." : "Consultar"}
           </Button>
 
           <Button
             fullWidth
             variant="outlined"
             onClick={handleClear}
-            disabled={!sectorData && !selectedValue}
+            disabled={!sectorD && !selectedValue}
           >
             Limpiar
           </Button>
@@ -236,7 +179,7 @@ export default function Panel({ selectedValue, setSelectedValue, ...props }) {
       </Paper>
 
       {/* Estado de carga */}
-      {sectorLoading && (
+      {sLoading && (
         <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
           <CircularProgress />
           <Typography sx={{ ml: 2 }}>
@@ -246,27 +189,27 @@ export default function Panel({ selectedValue, setSelectedValue, ...props }) {
       )}
 
       {/* Mensaje de error */}
-      {sectorError && (
+      {sError && (
         <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
-          Error: {sectorError}
+          Error: {sError}
         </Alert>
       )}
 
       {/* Resultados */}
-      {sectorData && !sectorLoading && (
+      {sectorD && !sLoading && (
         <Box>
           <Button
             sx={{ mb: 2 }}
             fullWidth
             variant="outlined"
             onClick={handleClear}
-            disabled={!sectorData && !selectedValue}
+            disabled={!sectorD && !selectedValue}
           >
             ver Comite
           </Button>
           {/* Verificar estructura de datos */}
-          {sectorData.resultados && Array.isArray(sectorData.resultados) ? (
-            sectorData.resultados.map((item, index) => (
+          {sectorD.resultados && Array.isArray(sectorD.resultados) ? (
+            sectorD.resultados.map((item, index) => (
               <BarrioResultItem key={index} item={item} index={index} />
             ))
           ) : (

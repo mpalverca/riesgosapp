@@ -24,6 +24,7 @@ import {
   TextField,
 } from "@mui/material";
 import L from "leaflet";
+import { DialogAdd } from "./DialogAdd";
 
 // Solucionar problema de iconos de Leaflet en React
 delete L.Icon.Default.prototype._getIconUrl;
@@ -45,8 +46,7 @@ const MapBase = (props) => {
   const centerPosition = [-3.9939, -79.2042];
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogCoords, setDialogCoords] = useState(null);
-  const [dialogType, setDialogType] = useState("");
-  const [dialogDescription, setDialogDescription] = useState("");
+  
   const [userLocation, setUserLocation] = useState(null);
 
   const handleOpenDialog = (latlng) => {
@@ -56,18 +56,14 @@ const MapBase = (props) => {
       lat: latlng.lat?.toFixed(6),
       lng: latlng.lng?.toFixed(6),
     });
-    setDialogType("");
-    setDialogDescription("");
+    
+    
     setDialogOpen(true);
   };
 
-  const handleTypeChange = (event) => {
-    setDialogType(event.target.value);
-  };
+  
 
-  const handleDescriptionChange = (event) => {
-    setDialogDescription(event.target.value);
-  };
+  
 
   const handleCloseDialog = () => {
     setDialogOpen(false);
@@ -361,15 +357,21 @@ const MapBase = (props) => {
       >
         {/* Manejador de eventos del mapa */}
         <MapEventHandlers />
-        
+
         {/* Componente de localización */}
         <LocationMarker />
-        
+
         <TileLayer
           url="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
           attribution='&copy; <a href="https://maps.google.com">Google Maps</a>'
         />
-
+        <DialogAdd
+          dialogOpen={dialogOpen}
+          handleCloseDialog={handleCloseDialog}
+          dialogCoords={dialogCoords}
+         
+          
+        />
         <LayersControl position="topright">
           <LayersControl.Overlay name="Polígonos" checked>
             <LayerGroup>{renderPolygons()}</LayerGroup>
@@ -382,49 +384,6 @@ const MapBase = (props) => {
           </LayersControl.Overlay>
         </LayersControl>
       </MapContainer>
-
-      <Dialog open={dialogOpen} onClose={handleCloseDialog}>
-        <DialogTitle>Agregar Marcador</DialogTitle>
-        <DialogContent>
-          <Box sx={{ minWidth: 300, pt: 1 }}>
-            <p>
-              <strong>Coordenadas:</strong> {dialogCoords?.lat},{" "}
-              {dialogCoords?.lng}
-            </p>
-            <FormControl fullWidth sx={{ mt: 2 }}>
-              <InputLabel id="dialog-type-label">Tipo</InputLabel>
-              <Select
-                labelId="dialog-type-label"
-                id="dialog-type"
-                value={dialogType}
-                label="Tipo"
-                onChange={handleTypeChange}
-              >
-                <MenuItem value="necesidad">Necesidad</MenuItem>
-                <MenuItem value="atención">Atención</MenuItem>
-                <MenuItem value="vulnerabilidad">Vulnerabilidad</MenuItem>
-                <MenuItem value="amenaza">Amenaza</MenuItem>
-                <MenuItem value="equipamento">Equipamento</MenuItem>
-                <MenuItem value="capacidad">Capacidad</MenuItem>
-              </Select>
-            </FormControl>
-            <TextField
-              fullWidth
-              label="Descripción"
-              multiline
-              minRows={3}
-              value={dialogDescription}
-              onChange={handleDescriptionChange}
-              sx={{ mt: 2 }}
-            />
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog} variant="contained">
-            Cerrar
-          </Button>
-        </DialogActions>
-      </Dialog>
     </>
   );
 };
