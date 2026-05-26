@@ -8,7 +8,7 @@ export const useInforComite = () => {
   const [errorGet, setError] = useState(null);
   const [dataC, setData] = useState(null);
 
-  const read = useCallback(async (tipo, sheet, comite) => {
+  const read = useCallback(async (tipo, sheet, atrib) => {
     // Validaciones
     if (!tipo) {
       setError("Ingrese el tipo de busqueda");
@@ -25,13 +25,16 @@ export const useInforComite = () => {
       let response = null;
       console.log(sheet)
       if (sheet === "comite") {
-        console.log(sheet)
-        console.log("is print");
+        console.log(sheet)       
         response = await fetch(
-          `${url_GetAll}?tipo=${tipo}&sheet=${sheet}&comite=${comite}`,
+          `${url_GetAll}?tipo=${tipo}&sheet=${sheet}&comite=${atrib}`,
+        );
+      } else if (sheet === "brigada") {
+        console.log(sheet)       
+        response = await fetch(
+          `${url_GetAll}?tipo=${tipo}&sheet=${sheet}&brigada=${atrib}`,
         );
       }
-
       const data = await response.json();
       console.log("Datos MTT:", data);
       setData(data);

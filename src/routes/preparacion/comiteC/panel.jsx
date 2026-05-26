@@ -375,24 +375,7 @@ const BarrioResultItem = ({ item, index }) => {
             }}
           />
         )}
-        <Box sx={{ gap: 1, alignItems: "center" }}>
-          <Chip
-            label={`Estado: ${item.estado || "No especificado"}`}
-            size="small"
-            sx={{
-              mt: 1,
-              bgcolor: "white",
-              fontWeight: 600,
-              fontSize: "1rem",
-              color: (() => {
-                if (item.estado?.toLowerCase() === "activo") return "#2e7d32";
-                if (item.estado?.toLowerCase() === "pendiente")
-                  return "#ed6c02";
-                return "#666";
-              })(),
-            }}
-          />
-        </Box>
+        
       </Box>
 
       {/* Contenido principal */}

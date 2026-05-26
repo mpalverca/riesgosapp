@@ -26,6 +26,8 @@ export default function ComiteComunitario() {
   // data to pcomite to send
 
   const { errorGet, loadingGet, dataC, read } = useInforComite();
+  const getBrigada = useInforComite();
+
   console.log("dataC", dataC);
   console.log("errorGet", errorGet);
 
@@ -148,6 +150,7 @@ export default function ComiteComunitario() {
             selectComite={selectComite}
             setComite={setComite}
             getComite={read}
+            getBrigada={getBrigada}
             loading={loadingParroq}
             //fireData={eventInfo}
           />
@@ -181,7 +184,11 @@ export default function ComiteComunitario() {
             </TabPanel>
             <TabPanel value="2">
               <Paper elevation={3} sx={{ p: 1, mb: 1, borderRadius: 1 }}>
-                <ComiteInfo seletedInfo={selectInfo} comiteInfo={dataC} />
+                <ComiteInfo
+                  seletedInfo={selectInfo}
+                  comiteInfo={dataC}
+                  getBrigada={getBrigada}
+                />
               </Paper>
             </TabPanel>
           </TabContext>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -23,10 +23,10 @@ import {
   MenuItem,
   TextField,
   Alert,
+  Snackbar,
 } from "@mui/material";
 import L from "leaflet";
 import { DialogAdd } from "./DialogAdd";
-
 // Solucionar problema de iconos de Leaflet en React
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -34,7 +34,6 @@ L.Icon.Default.mergeOptions({
   iconUrl: require("leaflet/dist/images/marker-icon.png"),
   shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
 });
-
 const n_color = {
   SELECTED: "#3538dcff",
   MEDIA: "#ffc107",
@@ -42,14 +41,21 @@ const n_color = {
   DEFAULT: "#a9a9aaff",
   ALTA: "#ff0000",
 };
-
 const MapBase = (props) => {
   const centerPosition = [-3.9939, -79.2042];
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogCoords, setDialogCoords] = useState(null);
-
+  const [user, setUser] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
 
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      setUser(JSON.parse(userData));
+      //    console.log(JSON.parse(userData));
+    }
+    //    console.log(JSON.parse(userData));
+  }, []);
   const handleOpenDialog = (latlng) => {
     console.log("handleOpenDialog llamada:", latlng);
     if (!latlng) return;
@@ -57,15 +63,12 @@ const MapBase = (props) => {
       lat: latlng.lat?.toFixed(6),
       lng: latlng.lng?.toFixed(6),
     });
-
     setDialogOpen(true);
   };
-
   const handleCloseDialog = () => {
     setDialogOpen(false);
     setDialogCoords(null);
   };
-
   const formatDate = (dateString) => {
     if (!dateString) return "Fecha no disponible";
     try {
@@ -83,7 +86,6 @@ const MapBase = (props) => {
       return "Fecha no disponible";
     }
   };
-
   // Componente para manejar eventos del mapa
   const MapEventHandlers = () => {
     const userData = localStorage.getItem("user");
@@ -111,7 +113,6 @@ const MapBase = (props) => {
     });
     return null;
   };
-
   // Componente para localización del usuario
   const LocationMarker = () => {
     const map = useMapEvents({
@@ -159,7 +160,6 @@ const MapBase = (props) => {
       </>
     );
   };
-  console.log(props.seletedInfo);
 
   /* const renderPolygons = () => {
     if (!props.data || !Array.isArray(props.data)) {
@@ -533,115 +533,126 @@ const MapBase = (props) => {
       .filter(Boolean);
   };
 
-
   // Función auxiliar para convertir el string del polígono a coordenadas de Leaflet
-const convertPolygonStringToLeaflet = (polygonString) => {
-  if (!polygonString) return null;
-  
-  try {
-    // Parsear el string JSON
-    const parsed = JSON.parse(polygonString);
-    
-    // La estructura es un array de anillos, tomar el primer anillo
-    const ring = parsed[0];
-    
-    if (!ring || !Array.isArray(ring)) return null;
-    
-    // Convertir de [lng, lat] a [lat, lng] para Leaflet
-    const leafletCoords = ring.map(coord => [coord[1], coord[0]]);
-    
-    return leafletCoords;
-  } catch (error) {
-    console.error("Error al convertir polígono:", error);
-    return null;
-  }
-};
+  const convertPolygonStringToLeaflet = (polygonString) => {
+    if (!polygonString) return null;
 
-// Componente simplificado para renderizar el polígono
-const renderComite = () => {
-  // Verificar si existe la información del comité
-  if (!props.comiteInfo || !props.comiteInfo.data || props.comiteInfo.data.length === 0) {
-    console.warn("No hay información del comité");
-    return null;
-  }
+    try {
+      // Parsear el string JSON
+      const parsed = JSON.parse(polygonString);
 
-  console.log("Información del comité recibida:", props.comiteInfo.data);
+      // La estructura es un array de anillos, tomar el primer anillo
+      const ring = parsed[0];
 
-  // Obtener el primer comité (o el que corresponda)
-  const comiteData = props.comiteInfo.data[0];
-  const { poligono, comite, Estado, Fase, responsable, secretario, lider_brigada } = comiteData;
-  
-  // Convertir el polígono
-  const polygonCoords = convertPolygonStringToLeaflet(poligono);
-  console.log("Coordenadas del polígono convertido:", polygonCoords)
-  if (!polygonCoords) {
-    console.warn("No se pudo convertir el polígono");
-    return null;
-  }
+      if (!ring || !Array.isArray(ring)) return null;
 
-  // Estilo del polígono
-  const polygonStyle = {
-    color: "#1976d2",
-    fillColor: "#1976d2",
-    fillOpacity: 0.4,
-    weight: 2.5,
-    opacity: 0.8,
+      // Convertir de [lng, lat] a [lat, lng] para Leaflet
+      const leafletCoords = ring.map((coord) => [coord[1], coord[0]]);
+
+      return leafletCoords;
+    } catch (error) {
+      console.error("Error al convertir polígono:", error);
+      return null;
+    }
   };
 
-  return (
-    <Polygon
-      positions={polygonCoords}
-      pathOptions={polygonStyle}
-      eventHandlers={{
-        click: () => {
-          console.log("Polígono del comité clickeado:", comite);
-          if (props.onPolygonClick) {
-            props.onPolygonClick(comiteData);
-          }
-        },
-        mouseover: (e) => {
-          e.target.setStyle({
-            fillOpacity: 0.7,
-            weight: 3.5,
-          });
-        },
-        mouseout: (e) => {
-          e.target.setStyle(polygonStyle);
-        },
-      }}
-    >
-      <Popup>
-        <div style={{ minWidth: 250, maxWidth: 300 }}>
-          <h3 style={{ margin: "0 0 10px 0", color: "#1976d2", borderBottom: "2px solid #1976d2", paddingBottom: "5px" }}>
-            {comite || "Comité Comunitario"}
-          </h3>
-          
-          <div style={{ fontSize: 13 }}>
-            <p style={{ margin: "8px 0" }}>
-              <strong>Estado:</strong> {Estado || "N/A"}
-            </p>
-            <p style={{ margin: "8px 0" }}>
-              <strong>Fase:</strong> {Fase || "N/A"}
-            </p>
-            <p style={{ margin: "8px 0" }}>
-              <strong>Responsable:</strong> {responsable || "N/A"}
-            </p>
-            <p style={{ margin: "8px 0" }}>
-              <strong>Secretario/a:</strong> {secretario || "N/A"}
-            </p>
-            <p style={{ margin: "8px 0" }}>
-              <strong>Líder de Brigada:</strong> {lider_brigada || "N/A"}
-            </p>
+  // Componente simplificado para renderizar el polígono
+  const renderComite = () => {
+    // Verificar si existe la información del comité
+    if (
+      !props.comiteInfo ||
+      !props.comiteInfo.data ||
+      props.comiteInfo.data.length === 0
+    ) {
+      console.warn("No hay información del comité");
+      return null;
+    }
+
+    // Obtener el primer comité (o el que corresponda)
+    const comiteData = props.comiteInfo.data[0];
+    const {
+      poligono,
+      comite,
+      Estado,
+      Fase,
+      responsable,
+      secretario,
+      lider_brigada,
+    } = comiteData;
+
+    // Convertir el polígono
+    const polygonCoords = convertPolygonStringToLeaflet(poligono);
+    if (!polygonCoords) {
+      console.warn("No se pudo convertir el polígono");
+      return null;
+    }
+
+    // Estilo del polígono
+    const polygonStyle = {
+      color: "#1976d2",
+      fillColor: "#1976d2",
+      fillOpacity: 0.4,
+      weight: 2.5,
+      opacity: 0.8,
+    };
+
+    return (
+      <Polygon
+        positions={polygonCoords}
+        pathOptions={polygonStyle}
+        eventHandlers={{
+          click: () => {
+            console.log("Polígono del comité clickeado:", comite);
+            if (props.onPolygonClick) {
+              props.onPolygonClick(comiteData);
+            }
+          },
+          mouseover: (e) => {
+            e.target.setStyle({
+              fillOpacity: 0.7,
+              weight: 3.5,
+            });
+          },
+          mouseout: (e) => {
+            e.target.setStyle(polygonStyle);
+          },
+        }}
+      >
+        <Popup>
+          <div style={{ minWidth: 250, maxWidth: 300 }}>
+            <h3
+              style={{
+                margin: "0 0 10px 0",
+                color: "#1976d2",
+                borderBottom: "2px solid #1976d2",
+                paddingBottom: "5px",
+              }}
+            >
+              {comite || "Comité Comunitario"}
+            </h3>
+
+            <div style={{ fontSize: 13 }}>
+              <p style={{ margin: "8px 0" }}>
+                <strong>Estado:</strong> {Estado || "N/A"}
+              </p>
+              <p style={{ margin: "8px 0" }}>
+                <strong>Fase:</strong> {Fase || "N/A"}
+              </p>
+              <p style={{ margin: "8px 0" }}>
+                <strong>Responsable:</strong> {responsable || "N/A"}
+              </p>
+              <p style={{ margin: "8px 0" }}>
+                <strong>Secretario/a:</strong> {secretario || "N/A"}
+              </p>
+              <p style={{ margin: "8px 0" }}>
+                <strong>Líder de Brigada:</strong> {lider_brigada || "N/A"}
+              </p>
+            </div>
           </div>
-        </div>
-      </Popup>
-    </Polygon>
-  );
-};
-
-
-   
-  
+        </Popup>
+      </Polygon>
+    );
+  };
 
   const renderMarker = () => {
     if (
@@ -730,7 +741,13 @@ const renderComite = () => {
         doubleClickZoom={false}
       >
         {/* Manejador de eventos del mapa */}
-        <MapEventHandlers />
+        {user ? (
+          <MapEventHandlers />
+        ) : (
+          <Snackbar open={true} autoHideDuration={5000}>
+            <Alert>crea un usuario Primero</Alert>
+          </Snackbar>
+        )}
 
         {/* Componente de localización */}
         <LocationMarker />
@@ -755,9 +772,7 @@ const renderComite = () => {
             </LayerGroup>
           </LayersControl.Overlay>
           <LayersControl.Overlay name="Comité" checked>
-            <LayerGroup>
-              {props.comiteInfo  && renderComite()}
-            </LayerGroup>
+            <LayerGroup>{props.comiteInfo && renderComite()}</LayerGroup>
           </LayersControl.Overlay>
         </LayersControl>
       </MapContainer>

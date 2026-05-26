@@ -8,6 +8,12 @@ import {
   ListItem,
   ListItemText,
   Divider,
+  Table,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
 } from "@mui/material";
 
 const ComiteInfo = ({ comite, ...props }) => {
@@ -18,7 +24,7 @@ const ComiteInfo = ({ comite, ...props }) => {
       insumos: ["Botiquín", "Extintor"],
       rango: "Miembro",
       ci: 1234567890,
-          },
+    },
     {
       nombre: "Ana López",
       brigada: "Primeros Auxilios",
@@ -35,27 +41,35 @@ const ComiteInfo = ({ comite, ...props }) => {
     },
   ];
 
-  const puntos=[
-      {
-        punto: "Puerta principal",
-        coords: [-3.4543,-79.3432],
-        id: "P001",
-        tipo: "Evacuación",
-        estado: { by: "Juan", state: "Activo" },
-        foto_anex: "foto1.jpg",
-        descp: "Revisión de ingreso de personal",
-      },
-      {
-        punto: "Almacén",
-        coords: [-3.4543,-79.3432],
-        id: "P002",
-        tipo: "control",
-        estado: { by: "Ana", state: "Pendiente" },
-        foto_anex: "foto2.jpg",
-        descp: "Verificar insumos y cámaras",
-      },
-    ]
+  const puntos = [
+    {
+      punto: "Puerta principal",
+      coords: [-3.4543, -79.3432],
+      id: "P001",
+      tipo: "Evacuación",
+      estado: { by: "Juan", state: "Activo" },
+      foto_anex: "foto1.jpg",
+      descp: "Revisión de ingreso de personal",
+    },
+    {
+      punto: "Almacén",
+      coords: [-3.4543, -79.3432],
+      id: "P002",
+      tipo: "control",
+      estado: { by: "Ana", state: "Pendiente" },
+      foto_anex: "foto2.jpg",
+      descp: "Verificar insumos y cámaras",
+    },
+  ];
 
+  if (
+    !props.comiteInfo.data[0] ||
+    !props.comiteInfo.data ||
+    props.comiteInfo.data.length === 0
+  ) {
+    return null; // o muestra un mensaje de carga
+  }
+  const comiteData = props.comiteInfo.data[0];
   return (
     <Box sx={{ p: 2 }}>
       <Typography align="center" variant="h6">
@@ -84,12 +98,54 @@ const ComiteInfo = ({ comite, ...props }) => {
         conformidad con el instructivo que se expida para el efecto.
       </Typography>
       <Typography variant="h5" gutterBottom>
-        Información del comité
+        Información del comité - {comiteData.comite}
       </Typography>
+      <Typography variant="h5" gutterBottom>
+        Miembros del comité
+      </Typography>
+      <Typography variant="h5" gutterBottom>
+       Estado: {comiteData.Estado } - Fase {comiteData.Fase}
+      </Typography>
+     <SimpleComiteTable comiteData={comiteData} /> 
       <Paper sx={{ p: 2, mb: 2 }}>
         <Typography variant="subtitle1" gutterBottom>
           Datos de brigada
         </Typography>
+        {Array.isArray(props.getBrigada.data) &&
+        props.getBrigada.data.length > 0 ? (
+          props.getBrigada.data.map((brigadaItem) => (
+            <Box key={brigadaItem.ci} sx={{ mb: 2 }}>
+              <Typography variant="body1" fontWeight="bold">
+                {brigadaItem.nombre || "Nombre no disponible"}
+              </Typography>
+              <List dense>
+                <ListItem>
+                  <ListItemText
+                    primary="CI"
+                    secondary={brigadaItem.ci || "N/A"}
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemText
+                    primary="Brigada"
+                    secondary={brigadaItem.brigada || "N/A"}
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemText
+                    primary="Rango"
+                    secondary={brigadaItem.rango || "N/A"}
+                  />
+                </ListItem>
+              </List>
+              <Divider />
+            </Box>
+          ))
+        ) : (
+          <Typography variant="body2">
+            No hay datos de brigada disponibles.
+          </Typography>
+        )}
       </Paper>
       <Paper sx={{ p: 2 }}>
         <Typography variant="subtitle1" gutterBottom>
@@ -159,3 +215,54 @@ ComiteInfo.defaultProps = {
 };
 
 export default ComiteInfo;
+
+const SimpleComiteTable = ({ comiteData }) => {
+  if (!comiteData) return null;
+console.log(comiteData)
+  const parseData = (str) => {
+    if (!str) return { nombre: "N/A", ci: "N/A", telefono: "N/A" };
+    const nombre = str.match(/responsable=([^,]+)/i)?.[1]?.trim() || "N/A";
+    const ci = str.match(/ci=\s*([^,]+)/i)?.[1]?.trim() || "N/A";
+    const telefono = str.match(/telf=\s*([^,]+)/i)?.[1]?.trim() || "N/A";
+    return { nombre, ci, telefono };
+  };
+
+  const rows = [
+    { rol: "Responsable", ...parseData(comiteData.responsable) },
+    { rol: "Secretario/a", ...parseData(comiteData.secretario) },
+    { rol: "Líder de Brigada", ...parseData(comiteData.lider_brigada) },
+  ];
+
+  return (
+    <TableContainer component={Paper} sx={{ m: 2 }}>
+      <Table >
+        <TableHead>
+          <TableRow>
+            <TableCell>
+              <strong>Rol</strong>
+            </TableCell>
+            <TableCell>
+              <strong>Nombre</strong>
+            </TableCell>
+           {/*  <TableCell>
+              <strong>CI</strong>
+            </TableCell> */}
+            <TableCell>
+              <strong>Teléfono</strong>
+            </TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {rows.map((row, idx) => (
+            <TableRow key={idx}>
+              <TableCell>{row.rol}</TableCell>
+              <TableCell>{row.nombre}</TableCell>
+              {/* <TableCell>{row.ci}</TableCell> */}
+              <TableCell>{row.telefono}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+};
