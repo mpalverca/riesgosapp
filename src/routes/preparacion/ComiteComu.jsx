@@ -7,6 +7,7 @@ import TabContext from "@mui/lab/TabContext";
 import TabPanel from "@mui/lab/TabPanel";
 import TabList from "@mui/lab/TabList";
 import ComiteInfo from "./comiteC/comiteInfo";
+import { useInforComite } from "./comiteC/crud";
 //const SCRIPT_URL="https://script.google.com/macros/s/AKfycbyxm-B9P0mM_KSGboPz6E4hAVGd3xEt-PNpaW5UmsGA84hstMrlMX2ELh-lFQxg_Mg/exec"
 const SCRIPT_URL =
   "https://script.google.com/macros/s/AKfycbzj8eXN23mkkdZypf8yBayEMBA7Bt-MM0D_6Jp-34JxQCsg-8UkjZqM9nBoI6dw8nrK/exec";
@@ -19,6 +20,14 @@ export default function ComiteComunitario() {
   const [barData, setBarData] = useState(null);
   const [loadingParroq, setLoadingParroq] = useState(false);
   const [eventInfo, setDataEvent] = useState([]);
+  const [selectInfo, setSelectInfo] = useState(null);
+  const [selectComite, setComite] = useState(null);
+
+  // data to pcomite to send
+
+  const { errorGet, loadingGet, dataC, read } = useInforComite();
+  console.log("dataC", dataC);
+  console.log("errorGet", errorGet);
 
   // Cargar datos iniciales
   useEffect(() => {
@@ -37,7 +46,6 @@ export default function ComiteComunitario() {
             .map((sector) => {
               // Acceder a las propiedades de CADA feature
               if (sector?.properties) {
-                console.log("aqui si lee propiedades");
                 // Buscar barrio en diferentes posibles nombres de campo
                 return sector.properties.BARRIO;
               }
@@ -91,7 +99,7 @@ export default function ComiteComunitario() {
           variant="h2"
           display="flex"
           align="center"
-          sx={{alignContent:"center", pt:2}}
+          sx={{ alignContent: "center", pt: 2 }}
         >
           Cargando Mapa de Sectores de Loja
         </Typography>
@@ -127,20 +135,24 @@ export default function ComiteComunitario() {
       <Grid container spacing={2}>
         <Grid
           item
-          size={{ xs: 12, md: 3 }}
-          style={{ height: "80vh", overflowY: "auto" }}
+          size={{ xs: 12, md: 12 }}
+          style={{ maxheight: "80vh", overflowY: "auto" }}
         >
           <Panel
-            title="Comites Comunitarios"
+            title="Comites Comunitarios de parroquias Urbanas del cantón Loja"
             barData={barData}
             data={data}
             selectedValue={selectedvalue}
             setSelectedValue={setSelectedValue}
+            setSelectSect={setSelectInfo}
+            selectComite={selectComite}
+            setComite={setComite}
+            getComite={read}
             loading={loadingParroq}
             //fireData={eventInfo}
           />
         </Grid>
-        <Grid item size={{ xs: 12, md: 9 }}>
+        <Grid item size={{ xs: 12, md: 12 }}>
           <TabContext value={value}>
             <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
               <TabList onChange={handleChange} aria-label="COE tabs">
@@ -155,9 +167,11 @@ export default function ComiteComunitario() {
                 loading={loading}
                 error={error}
                 // onSelectParroq={setSelectedValue}
+                seletedInfo={selectInfo}
                 onGetParroqData={getParroqData}
                 selectedParroq={selectedvalue}
                 setEvent={setDataEvent}
+                comiteInfo={dataC}
                 dataEvent={eventInfo}
                 mapConfig={{
                   center: [-79.2, -3.99], // Coordenadas de Loja, Ecuador
@@ -167,16 +181,8 @@ export default function ComiteComunitario() {
             </TabPanel>
             <TabPanel value="2">
               <Paper elevation={3} sx={{ p: 1, mb: 1, borderRadius: 1 }}>
-               <ComiteInfo/>
+                <ComiteInfo seletedInfo={selectInfo} comiteInfo={dataC} />
               </Paper>
-            </TabPanel>
-            <TabPanel value="3">
-              <Paper elevation={3} sx={{ p: 1, mb: 1, borderRadius: 1 }}>
-                <Typography>En desarrollo...</Typography>
-              </Paper>
-            </TabPanel>
-            <TabPanel value="4">
-              <Typography>En desarrollo...</Typography>
             </TabPanel>
           </TabContext>
         </Grid>

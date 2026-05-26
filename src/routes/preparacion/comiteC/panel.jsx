@@ -14,8 +14,11 @@ import {
   LinearProgress,
   Alert,
   CircularProgress,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
-//import { styled } from "@mui/material/styles";
 
 // Iconos
 import LocationOnIcon from "@mui/icons-material/LocationOn";
@@ -29,55 +32,49 @@ import CalculateIcon from "@mui/icons-material/Calculate";
 import InfoIcon from "@mui/icons-material/Info";
 import SearchIcon from "@mui/icons-material/Search";
 import { useDetailSector } from "./script";
-
-// Hook personalizado (crea este archivo en ./hooks/useDetailSector.js)
-
+import { dataSector } from "../ComiteComu";
 
 export default function Panel({ selectedValue, setSelectedValue, ...props }) {
-  const {
-    sectorD,
-  sLoading,
-   sError,
-    detailSector,
-    clearSectorData,
-  } = useDetailSector();
+  const { sectorD, sLoading, sError, detailSector, clearSectorData } =
+    useDetailSector();
 
-  // Obtener los barrios de props.data (asegúrate que sea un array de strings)
   const barriosOptions = Array.isArray(props.data) ? props.barData : [];
 
   const sectorview = props.data
     .map((feature) => {
       if (feature?.properties) {
-        // Verificar si este feature tiene el barrio que estamos buscando
         const barrio = feature.properties.barrio;
-        const sector = feature.properties.sector; // Asumiendo que el sector está en SECTOR
-
-        // Solo devolver sector si el barrio coincide con el selectValue
+        const sector = feature.properties.sector;
         if (barrio && barrio.trim() === selectedValue?.trim()) {
-          return sector; // Devuelve el sector en lugar del barrio
+          return sector;
         }
       }
       return null;
     })
-    .filter((sector) => sector && typeof sector === "string") // Filtrar nulos y no strings
+    .filter((sector) => sector && typeof sector === "string")
     .map((sector) => sector.trim())
-    .filter((sector, index, array) => array.indexOf(sector) === index) // Únicos
+    .filter((sector, index, array) => array.indexOf(sector) === index)
     .sort();
-  // Manejar la búsqueda
+
   const handleSearch = async () => {
-    if (!selectedValue) {
-      return;
-    }
+    if (!selectedValue) return;
     await detailSector(selectedValue);
+    props.setSelectSect(sectorD);
   };
 
-  // Limpiar búsqueda
+  const handleComiteSearch = (event) => {
+props.getComite("read", "comite", props.selectComite)
+  }
+  const handleComiteChange = (event) => {
+    const comiteValue = event.target.value;
+    props.setComite(comiteValue);
+  };
   const handleClear = () => {
     clearSectorData();
     setSelectedValue(null);
+    props.setSelectSect(null);
   };
 
-  // Si no hay barrios disponibles, mostrar mensaje
   if (barriosOptions.length === 0) {
     return (
       <Box sx={{ p: 3, textAlign: "center" }}>
@@ -89,98 +86,132 @@ export default function Panel({ selectedValue, setSelectedValue, ...props }) {
   }
 
   return (
-    <Box sx={{ p: 2 }}>
+    <Box sx={{ p: { xs: 1, sm: 2, md: 1 }, mx: "auto" }}>
       {/* Título */}
-      <Typography variant="h5" align="center" gutterBottom>
-        <strong>{props.title || "Panel de Consulta"}</strong>
+      <Typography
+        variant="h3"
+        align="center"
+        gutterBottom
+        sx={{
+          fontWeight: 700,
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          backgroundClip: "text",
+          WebkitBackgroundClip: "text",
+          color: "transparent",
+          mb: 1,
+        }}
+      >
+        {props.title || "Panel de Consulta"}
       </Typography>
-      {/* Advertencia importante */}
+
+      {/* Advertencia */}
       <Alert
         severity="warning"
-        // sx={{ mb: 3, borderRadius: 2 }}
-        //icon={<WarningIcon />}
+        icon={<WarningIcon />}
+        sx={{
+          mb: 3,
+          borderRadius: 2,
+          "& .MuiAlert-message": { width: "100%" },
+        }}
       >
         <Typography variant="body2">
-          <strong> Importante:</strong> La información presentada es de manera
+          <strong>Importante:</strong> La información presentada es de manera
           referencial y deberá asumirse con el mayor cuidado y responsabilidad
           ya que la divulgación inadecuada de la misma está sujeta a acciones y
           sanciones contempladas en la LOGIRD.
         </Typography>
       </Alert>
-      <Divider sx={{ mb: 1 }} />
-      {/* Barra de búsqueda */}
-      <Paper elevation={1} sx={{ p: 2, mb: 3, borderRadius: 2 }}>
-        {/* Mensaje si no hay selección */}
-        {!selectedValue && !sLoading && !sError && !sectorD && (
-          
-            <Typography variant="body1" color="text.secondary" sx={{ textAlign:"justify"}}>
-              Selecciona un barrio y haz clic en "Consultar" para ver la
-              información
-            </Typography>
-        )}
-        <Typography
-          variant="h6"
-          gutterBottom
-          sx={{ display: "flex", alignItems: "center" }}
-        >
-          <SearchIcon sx={{ mr: 1 }} />
-          Buscar Información de Barrio
-        </Typography>
-        <Autocomplete
-          options={barriosOptions}
-          value={selectedValue}
-          onChange={(event, newValue) => {
-            setSelectedValue(newValue);
-            if (sectorD) clearSectorData();
-          }}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Selecciona un barrio"
-              variant="outlined"
-              fullWidth
-              helperText="Selecciona un barrio de la lista"
-            />
-          )}
-          renderTags={(value, getTagProps) =>
-            value.map((option, index) => (
-              <Chip
-                label={option}
-                {...getTagProps({ index })}
-                key={index}
-                color="primary"
-                variant="outlined"
-              />
-            ))
-          }
-        />
-        <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
-          <Button
-            fullWidth
-            variant="contained"
-            onClick={handleSearch}
-            disabled={!selectedValue || sLoading}
-            startIcon={
-              sLoading ? <CircularProgress size={20} /> : <SearchIcon />
-            }
-          >
-            {sLoading ? "Consultando..." : "Consultar"}
-          </Button>
 
-          <Button
-            fullWidth
-            variant="outlined"
-            onClick={handleClear}
-            disabled={!sectorD && !selectedValue}
+      <Divider sx={{ mb: 3 }} />
+
+      {/* Barra de búsqueda */}
+      <Paper
+        elevation={0}
+        sx={{
+          p: 2,
+          mb: 2,
+          borderRadius: 3,
+          border: "1px solid #e0e0e0",
+          bgcolor: "#fafafa",
+        }}
+      >
+        {!selectedValue && !sLoading && !sError && !sectorD && (
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ textAlign: "center", mb: 2 }}
           >
-            Limpiar
-          </Button>
+            Selecciona un barrio y haz clic en "Consultar" para ver la
+            información
+          </Typography>
+        )}
+
+        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+          <SearchIcon sx={{ mr: 1, color: "primary.main" }} />
+          <Typography variant="h6" fontWeight={600}>
+            Buscar Información de Barrio
+          </Typography>
         </Box>
+        <Grid container spacing={2}>
+          <Grid item size={{ xs: 12, md: 6 }}>
+            <Autocomplete
+              options={barriosOptions}
+              value={selectedValue}
+              onChange={(event, newValue) => {
+                setSelectedValue(newValue);
+
+                if (sectorD) clearSectorData();
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Selecciona un barrio"
+                  variant="outlined"
+                  fullWidth
+                  helperText="Selecciona un barrio de la lista"
+                />
+              )}
+            />
+          </Grid>
+          <Grid
+            item
+            size={{ xs: 12, md: 6 }}
+            sx={{ gap: 2, alignContent: "space-between" }}
+          >
+            <Button
+              fullWidth
+              variant="contained"
+              onClick={handleSearch}
+              disabled={!selectedValue || sLoading}
+              startIcon={
+                sLoading ? <CircularProgress size={20} /> : <SearchIcon />
+              }
+              sx={{
+                borderRadius: 2,
+                textTransform: "none",
+                fontWeight: 600,
+                mb: { xs: 0, md: 1 },
+              }}
+            >
+              {sLoading ? "Consultando..." : "Consultar"}
+            </Button>
+
+            <Button
+              fullWidth
+              variant="outlined"
+              onClick={handleClear}
+              disabled={!sectorD && !selectedValue}
+              sx={{ borderRadius: 2, textTransform: "none", fontWeight: 600 }}
+            >
+              Limpiar
+            </Button>
+          </Grid>
+        </Grid>
       </Paper>
 
-      {/* Estado de carga */}
+      {/* Estados de carga y error */}
       {sLoading && (
-        <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
           <CircularProgress />
           <Typography sx={{ ml: 2 }}>
             Cargando información del barrio...
@@ -188,9 +219,8 @@ export default function Panel({ selectedValue, setSelectedValue, ...props }) {
         </Box>
       )}
 
-      {/* Mensaje de error */}
       {sError && (
-        <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
+        <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
           Error: {sError}
         </Alert>
       )}
@@ -198,20 +228,96 @@ export default function Panel({ selectedValue, setSelectedValue, ...props }) {
       {/* Resultados */}
       {sectorD && !sLoading && (
         <Box>
-          <Button
-            sx={{ mb: 2 }}
-            fullWidth
-            variant="outlined"
-            onClick={handleClear}
-            disabled={!sectorD && !selectedValue}
-          >
-            ver Comite
-          </Button>
-          {/* Verificar estructura de datos */}
           {sectorD.resultados && Array.isArray(sectorD.resultados) ? (
-            sectorD.resultados.map((item, index) => (
-              <BarrioResultItem key={index} item={item} index={index} />
-            ))
+            <>
+              {sectorD.resultados.map((item, index) => (
+                <BarrioResultItem key={index} item={item} index={index} />
+              ))}
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 2,
+                  mb: 2,
+                  borderRadius: 3,
+                  border: "1px solid #e0e0e0",
+                  bgcolor: "#fafafa",
+                }}
+              >
+                {" "}
+                <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 600 }}>
+                  Seleccionar Comité Comunitario
+                </Typography>
+                <Grid container spacing={2}>
+                  <Grid item size={{ xs: 12, md: 6 }}>
+                    <FormControl fullWidth size="medium">
+                      <InputLabel id="comite-select-label">
+                        Comité Comunitario
+                      </InputLabel>
+                      <Select
+                        labelId="comite-select-label"
+                        id="comite-select"
+                        value={props.selectComite}
+                        label="Comité Comunitario"
+                        onChange={handleComiteChange}
+                        sx={{ borderRadius: 2 }}
+                      >
+                        <MenuItem value="">
+                          <em>Ninguno</em>
+                        </MenuItem>
+                        {sectorD.resultados.map((item, idx) => (
+                          <MenuItem
+                            key={idx}
+                            value={item.comite || item.sector}
+                          >
+                            <Box
+                              sx={{ display: "flex", flexDirection: "column" }}
+                            >
+                              <Typography variant="body1" fontWeight={500}>
+                                {item.comite || "Comité no especificado"}
+                              </Typography>
+                              <Typography
+                                variant="caption"
+                                color="text.secondary"
+                              >
+                                Sector: {item.sector || "N/A"} | Total:{" "}
+                                {item.total || 0}
+                              </Typography>
+                            </Box>
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  <Grid item size={{ xs: 12, md: 6 }}>
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      onClick={handleComiteSearch }
+                      disabled={!selectedValue || sLoading}
+                      sx={{
+                        borderRadius: 2,
+                        textTransform: "none",
+                        fontWeight: 600,
+                        mb: { xs: 0, md: 1 },
+                      }}
+                    >
+                      {sLoading ? "Consultando..." : "Consultar"}
+                    </Button>
+                  </Grid>
+                </Grid>
+                {props.selectComite && (
+                  <Alert
+                    severity="info"
+                    sx={{ borderRadius: 2, my: 2 }}
+                    icon={<InfoIcon />}
+                  >
+                    <Typography variant="body2">
+                      <strong>Comité seleccionado:</strong> {props.selectComite}
+                    </Typography>
+                  </Alert>
+                )}
+              </Paper>{" "}
+            </>
           ) : (
             <Alert severity="info" sx={{ borderRadius: 2 }}>
               No se encontraron resultados para este barrio.
@@ -223,225 +329,146 @@ export default function Panel({ selectedValue, setSelectedValue, ...props }) {
   );
 }
 
-// Componente separado para cada resultado de barrio
+// Componente de resultado mejorado
 const BarrioResultItem = ({ item, index }) => {
   return (
     <Paper
-      elevation={1}
+      elevation={0}
       sx={{
-        mb: 3,
+        mb: 1,
         borderRadius: 3,
         overflow: "hidden",
         border: "1px solid #e0e0e0",
-        transition: "all 0.3s ease",
+        transition: "all 0.2s ease",
         "&:hover": {
-          boxShadow: 6,
-          transform: "translateY(-4px)",
+          boxShadow: 2,
         },
       }}
     >
-      {/* Encabezado del sector */}
+      {/* Encabezado minimalista */}
       <Box
         sx={{
-          p: 3,
-          bgcolor: "primary.main",
-          color: "white",
+          p: 2.5,
+          // bgcolor: "primary.main",
+          //color: "white",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          flexWrap: "wrap",
+          gap: 1,
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <LocationOnIcon sx={{ mr: 1.5 }} />
-          <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+          <Typography variant="h4" sx={{ fontWeight: 600 }}>
             {item.sector || "Sin nombre"}
           </Typography>
         </Box>
-
-        <Chip
-          label={item.estado || "No especificado"}
-          color={
-            item.estado?.toLowerCase() === "activo"
-              ? "success"
-              : item.estado?.toLowerCase() === "pendiente"
-                ? "warning"
-                : "default"
-          }
-          sx={{
-            bgcolor: "white",
-            fontWeight: "bold",
-            fontSize: "0.875rem",
-          }}
-        />
+        {item.comite && (
+          <Chip
+            label={`Comité: ${item.comite || "No especificado"}`}
+            size="small"
+            sx={{
+              bgcolor: "rgba(255,255,255,0.2)",
+              //color: "white",
+              fontSize: "1.5rem",
+            }}
+          />
+        )}
+        <Box sx={{ gap: 1, alignItems: "center" }}>
+          <Chip
+            label={`Estado: ${item.estado || "No especificado"}`}
+            size="small"
+            sx={{
+              mt: 1,
+              bgcolor: "white",
+              fontWeight: 600,
+              fontSize: "1rem",
+              color: (() => {
+                if (item.estado?.toLowerCase() === "activo") return "#2e7d32";
+                if (item.estado?.toLowerCase() === "pendiente")
+                  return "#ed6c02";
+                return "#666";
+              })(),
+            }}
+          />
+        </Box>
       </Box>
 
-      {/* Contenido */}
+      {/* Contenido principal */}
       <Box sx={{ p: 1 }}>
-        {/* Sección de Criterios de Priorización */}
-        <Box sx={{ mb: 2 }}>
-          <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
-            <ChecklistIcon color="secondary" sx={{ mr: 1.5, fontSize: 28 }} />
-            <Typography
-              variant="h5"
-              color="secondary"
-              sx={{ fontWeight: "bold" }}
-            >
-              Criterios de Priorización
-            </Typography>
-          </Box>
-
-          {/* Grid para los criterios */}
-          <Grid container spacing={3}>
-            {[
-              {
-                title: "Exposición a eventos",
-                value: item.exp_evnt,
-                color: "error",
-                icon: <WarningIcon />,
-                description: "Sismo, inundaciones, deslizamientos, etc.",
-                formula:
-                  "1 evento = 0.5 • 2 eventos = 1 • 3 eventos = 1.5 • 4+ eventos = 2",
-              },
-              {
-                title: "Recurrencia de eventos",
-                value: item.rq_evnt,
-                color: "warning",
-                icon: <UpdateIcon />,
-                description: "Frecuencia de ocurrencia",
-                formula:
-                  "Cada año = 2 • 5 años = 1.5 • 10 años = 1 • >10 años = 0.5",
-              },
-              {
-                title: "Vulnerabilidad socio-organizativa",
-                value: item.vuln_evnt,
-                color: "info",
-                icon: <GroupIcon />,
-                description: "Organización de base y participación en RRD",
-                formula: "Muy Alta = 2 • Alta = 1.5 • Media = 1 • Baja = 0.5",
-              },
-              {
-                title: "Acceso a recursos",
-                value: item.a_r_emerg,
-                color: "success",
-                icon: <LocalHospitalIcon />,
-                description: "Centros de Salud, Educativos, Policías, Bomberos",
-                formula: "Ninguna = 2 • Uno = 1.5 • 2-3 = 1 • Más de 3 = 0.5",
-              },
-              {
-                title: "Proyectos de RRD",
-                value: item.pry_rrd,
-                color: "primary",
-                icon: <EngineeringIcon />,
-                description:
-                  "Sistema de Alerta Temprana (SAT), reubicación, obras de mitigación",
-                formula: "Existe = 2 • No existe = 0.5",
-              },
-            ].map((criterio, idx) => (
-              <Grid item xs={12} md={6} key={idx}>
-                <CriterioCard {...criterio} />
-              </Grid>
-            ))}
-
-            {/* Total - Destacado */}
-            <Grid item xs={12} md={6}>
-              <Card
-                sx={{
-                  height: "100%",
-                  background:
-                    "linear-gradient(135deg, #fa6d0f 0%, #ecc30b 60%)",
-                  color: "white",
-                  borderRadius: 3,
-                }}
-              >
-                <CardContent sx={{ p: 3 }}>
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
-                    <CalculateIcon
-                      sx={{ mr: 2, fontSize: 30, color: "white" }}
-                    />
-                    <Typography
-                      variant="h5"
-                      sx={{ fontWeight: "bold", color: "white" }}
-                    >
-                      PUNTAJE TOTAL
-                    </Typography>
-                  </Box>
-
-                  <Box
-                    sx={{
-                      textAlign: "center",
-                      my: 3,
-                    }}
-                  >
-                    <Typography
-                      variant="h1"
-                      sx={{
-                        fontWeight: "bold",
-                        color: "white",
-                        textShadow: "3px 3px 6px rgba(0,0,0,0.3)",
-                        fontSize: { xs: "3rem", md: "4rem" },
-                      }}
-                    >
-                      {item.total || "0"}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{ color: "rgba(255,255,255,0.9)", mt: 1 }}
-                    >
-                      Puntaje de priorización
-                    </Typography>
-                  </Box>
-
-                  {/* Indicador de nivel de prioridad */}
-                  <Box sx={{ mt: 3 }}>
-                    <LinearProgress
-                      variant="determinate"
-                      value={Math.min(((item.total || 0) / 10) * 100, 100)}
-                      sx={{
-                        height: 10,
-                        borderRadius: 5,
-                        backgroundColor: "rgba(255,255,255,0.2)",
-                        "& .MuiLinearProgress-bar": {
-                          backgroundColor: "#ffd700",
-                          borderRadius: 5,
-                        },
-                      }}
-                    />
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-
-                        mt: 1,
-                      }}
-                    >
-                      {["Baja", "Media", "Alta"].map((nivel) => (
-                        <Typography
-                          key={nivel}
-                          variant="caption"
-                          sx={{
-                            color: "rgba(255,255,255,0.8)",
-                            fontSize: "0.75rem",
-                          }}
-                        >
-                          {nivel}
-                        </Typography>
-                      ))}
-                    </Box>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
+        {/* Título de criterios */}
+        <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
+          <ChecklistIcon sx={{ mr: 1.5, color: "secondary.main" }} />
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            Criterios de Priorización
+          </Typography>
         </Box>
+
+        {/* Grid de criterios - 2 columnas en desktop, 1 en móvil */}
+        <Grid container spacing={3}>
+          {[
+            {
+              title: "Exposición a eventos",
+              value: item.exp_evnt,
+              color: "#ef5350",
+              icon: <WarningIcon />,
+              description: "Sismo, inundaciones, deslizamientos, etc.",
+              formula:
+                "1 Evento = 0.5 | 2 Eventos = 1 | 3 Eventos = 1.5 | 4 + Evento = 2",
+            },
+            {
+              title: "Recurrencia de eventos",
+              value: item.rq_evnt,
+              color: "#ff9800",
+              icon: <UpdateIcon />,
+              description: "Frecuencia de ocurrencia de eventos",
+              formula: "1 año = 2 | 5 años = 1.5 | 10 años = 1 | >10 Años =0.5",
+            },
+            {
+              title: "Vulnerabilidad socio-organizativa",
+              value: item.vuln_evnt,
+              color: "#26c6da",
+              icon: <GroupIcon />,
+              description: "Organización de base y participación",
+              formula: "Muy Alta=0.5 | Alta=1 | Media=1.5 | Baja=2",
+            },
+            {
+              title: "Acceso a recursos",
+              value: item.a_r_emerg,
+              color: "#66bb6a",
+              icon: <LocalHospitalIcon />,
+              description: "Centros de Salud, Educativos, Policía",
+              formula: "Ninguna=2 | Una=1.5 | 2-3=1 | >3=0.5",
+            },
+            {
+              title: "Proyectos de RRD",
+              value: item.pry_rrd,
+              color: "#42a5f5",
+              icon: <EngineeringIcon />,
+              description: "SAT, reubicación, obras de mitigación",
+              formula: "Existe=0.5| No existe=2",
+            },
+          ].map((criterio, idx) => (
+            <Grid item size={{ xs: 12, md: 2 }} key={idx}>
+              <CriterioCard {...criterio} />
+            </Grid>
+          ))}
+
+          {/* Tarjeta de total - ocupa todo el ancho */}
+          <Grid item size={{ xs: 12, md: 2 }}>
+            <TotalCard total={item.total} />
+          </Grid>
+        </Grid>
 
         {/* Observaciones */}
         {item.observaciones && (
           <Alert
             severity="info"
             icon={<InfoIcon />}
-            sx={{ borderRadius: 2, mt: 2 }}
+            sx={{ borderRadius: 2, mt: 3 }}
           >
-            <Typography variant="body1">
+            <Typography variant="body2">
               <strong>Observaciones:</strong> {item.observaciones}
             </Typography>
           </Alert>
@@ -451,81 +478,163 @@ const BarrioResultItem = ({ item, index }) => {
   );
 };
 
-// Componente para cada criterio
+// Componente de criterio minimalista
 const CriterioCard = ({ title, value, color, icon, description, formula }) => {
-  const colorMap = {
-    error: "#dc3545",
-    warning: "#ffc107",
-    info: "#17a2b8",
-    success: "#28a745",
-    primary: "#007bff",
-  };
-
   return (
     <Card
+      elevation={0}
       sx={{
         height: "100%",
-        width: "100%",
-        borderRadius: 3,
-        border: `2px solid ${colorMap[color] || colorMap.primary}20`,
-        transition: "all 0.3s ease",
+        borderRadius: 2,
+        border: "1px solid #f0f0f0",
+        transition: "all 0.2s ease",
         "&:hover": {
-          transform: "translateY(-4px)",
-          boxShadow: `0 8px 25px ${colorMap[color] || colorMap.primary}40`,
+          borderColor: color,
+          boxShadow: `0 2px 8px ${color}20`,
         },
       }}
     >
-      <CardContent sx={{ p: 2.5 }}>
-        <Box sx={{ display: "flex", alignItems: "center", mb: 1.5 }}>
-          <Box
-            sx={{
-              color: colorMap[color] || colorMap.primary,
-              mr: 1.5,
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            {icon}
-          </Box>
-          <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+      <CardContent sx={{ p: 1 }}>
+        <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+          <Box sx={{ color: color, mr: 1, display: "flex", mb: 5 }}>{icon}</Box>
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
             {title}
           </Typography>
         </Box>
 
         <Typography
-          variant="body2"
+          variant="h3"
+          sx={{
+            fontWeight: 700,
+            textAlign: "center",
+            my: 5,
+            color: color,
+          }}
+        >
+          {value || "N/A"}
+        </Typography>
+
+        <Typography
+          variant="body1"
           color="text.secondary"
-          sx={{ mb: 2, minHeight: 40 }}
+          sx={{
+            display: "block",
+            textAlign: "center",
+            mb: 1,
+          }}
         >
           {description}
         </Typography>
+
+        <Divider sx={{ my: 2 }} />
+
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{
+            display: "block",
+            textAlign: "center",
+            fontStyle: "italic",
+          }}
+        >
+          {formula}
+        </Typography>
+      </CardContent>
+    </Card>
+  );
+};
+
+// Componente de total mejorado
+const TotalCard = ({ total }) => {
+  const getColor = () => {
+    const value = total || 0;
+    if (value <= 3.9) return { main: "#4caf50", light: "#4caf5020" };
+    if (value <= 6.9) return { main: "#ffc107", light: "#ffc10720" };
+    return { main: "#dc3545", light: "#dc354520" };
+  };
+
+  const color = getColor();
+
+  return (
+    <Card
+      elevation={0}
+      sx={{
+        borderRadius: 3,
+        border: `2px solid ${color.light}`,
+        background: `linear-gradient(135deg, ${color.light} 0%, transparent 100%)`,
+      }}
+    >
+      <CardContent sx={{ p: 3 }}>
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <CalculateIcon sx={{ mr: 1.5, color: color.main }} />
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>
+            PUNTAJE TOTAL DE PRIORIZACIÓN
+          </Typography>
+        </Box>
+
+        <Typography
+          variant="h3"
+          sx={{
+            fontWeight: 800,
+            textAlign: "center",
+            //my: 2,
+            color: color.main,
+            fontSize: { xs: "3.5rem", sm: "5rem", md: "6rem" },
+          }}
+        >
+          {total || "0"}
+        </Typography>
+
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ textAlign: "center", mb: 3 }}
+        >
+          Puntaje de priorización (Escala 0-10)
+        </Typography>
+
+        <LinearProgress
+          variant="determinate"
+          value={Math.min(((total || 0) / 10) * 100, 100)}
+          sx={{
+            height: 8,
+            borderRadius: 4,
+            backgroundColor: "#e0e0e0",
+            "& .MuiLinearProgress-bar": {
+              backgroundColor: color.main,
+              borderRadius: 4,
+            },
+          }}
+        />
 
         <Box
           sx={{
             display: "flex",
             justifyContent: "space-between",
-            alignItems: "flex-end",
-            mt: "auto",
+            mt: 1.5,
           }}
         >
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            sx={{ fontStyle: "italic" }}
-          >
-            {formula}
-          </Typography>
-
-          <Chip
-            label={value || "N/A"}
-            sx={{
-              backgroundColor: colorMap[color] || colorMap.primary,
-              color: "white",
-              fontWeight: "bold",
-              fontSize: "0.9rem",
-              minWidth: 60,
-            }}
-          />
+          {[
+            { label: "Baja", range: "0-3", color: "#4caf50" },
+            { label: "Media", range: "4-6", color: "#ffc107" },
+            { label: "Alta", range: "7-10", color: "#dc3545" },
+          ].map((level) => (
+            <Box key={level.label} sx={{ textAlign: "center" }}>
+              <Typography
+                variant="caption"
+                sx={{ color: level.color, fontWeight: 600 }}
+              >
+                {level.label}
+              </Typography>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ display: "block" }}
+              >
+                {level.range}
+              </Typography>
+            </Box>
+          ))}
         </Box>
       </CardContent>
     </Card>

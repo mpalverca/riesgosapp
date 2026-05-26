@@ -10,7 +10,7 @@ import {
   Divider,
 } from "@mui/material";
 
-const ComiteInfo = ({ comite }) => {
+const ComiteInfo = ({ comite, ...props }) => {
   const brigada = [
     {
       nombre: "Juan Pérez",

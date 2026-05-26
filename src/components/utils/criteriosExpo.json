@@ -1,0 +1,47 @@
+[
+  {
+    "id": "exp_evnt",
+    "title": "Exposición a eventos",
+
+    "color": "error",
+
+    "description": "Sismo, inundaciones, deslizamientos, etc.",
+    "formula": "1 evento = 0.5 • 2 eventos = 1 • 3 eventos = 1.5 • 4+ eventos = 2"
+  },
+  {
+    "id": "rec_evnt",
+    "title": "Recurrencia de eventos",
+
+    "color": "warning",
+
+    "description": "Frecuencia de ocurrencia",
+    "formula": "Cada año = 2 • 5 años = 1.5 • 10 años = 1 • >10 años = 0.5"
+  },
+  {
+    "id": "vuln_evnt",
+    "title": "Vulnerabilidad socio-organizativa",
+
+    "color": "info",
+
+    "description": "Organización de base y participación en RRD",
+    "formula": "Muy Alta = 2 • Alta = 1.5 • Media = 1 • Baja = 0.5"
+  },
+  {
+    "id": "ar_emerg",
+    "title": "Acceso a recursos",
+
+    "color": "success",
+
+    "description": "Centros de Salud, Educativos, Policías, Bomberos",
+    "formula": "Ninguna = 2 • Uno = 1.5 • 2-3 = 1 • Más de 3 = 0.5"
+  },
+  {
+    "id": "pry_rrd",
+    "title": "Proyectos de RRD",
+
+    "color": "primary",
+
+    "description": "Sistema de Alerta Temprana (SAT), reubicación, obras de mitigación",
+    "formula": "Existe = 2 • No existe = 0.5"
+  }
+]

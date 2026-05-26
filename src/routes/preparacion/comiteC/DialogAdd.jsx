@@ -134,17 +134,17 @@ export const DialogAdd = ({ dialogOpen, handleCloseDialog, dialogCoords }) => {
                 {
                   value: "1",
                   label:
-                    "Baja - Evento que se presenta más de una vez en el año  o por lo menos una vez en un periodo de uno a  tres años ",
+                    "Baja - Evento que se presenta al menos una vez en un período de tiempo entre 5 a 20 años",
                 },
                 {
                   value: "2",
                   label:
-                    "Media - vento que se presenta por lo menos una vez en un período de tiempo entre 3 y 5 años.",
+                    "Media - Evento que se presenta por lo menos una vez en un período de tiempo entre 3 y 5 años.",
                 },
                 {
                   value: "3",
                   label:
-                    "Alta - Evento que se presenta al menos una vez en un período de tiempo entre 5 a 20 años",
+                    "Alta - Evento que se presenta más de una vez en el año  o por lo menos una vez en un periodo de uno a  tres años ",
                 },
               ])}
               {renderField("intensity", "Magnitud", "select", [
