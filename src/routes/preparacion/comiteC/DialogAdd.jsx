@@ -365,17 +365,53 @@ export const DialogAdd = ({
           Cerrar
         </Button>
         <Button
-          onClick={() => {
-            post("post", "plan", {
-              ...dialogData,
-              lat: dialogCoords.lat,
-              lng: dialogCoords.lng,
-            });
-            handleCloseDialog();
-            props.setMarkData(() => [
-              ...props.markData,
-              { ...dialogData, lat: dialogCoords.lat, lng: dialogCoords.lng },
-            ]);
+          onClick={async () => {
+            try {
+              // Preparar los datos
+              const newMarker = {
+                ...dialogData,
+                lat: dialogCoords.lat,
+                lng: dialogCoords.lng,
+                comité: props.comite,
+                by: localStorage.getItem("user"),
+                created_at: new Date().toISOString(),
+              };
+
+              // Enviar al servidor
+              const response = await post("post", "plan", newMarker);
+
+              // Actualizar el estado local SOLO si la petición fue exitosa
+              if (response) {
+                props.setMarkData((prev) => {
+                  // Asegurar que prev sea un array
+                  const currentData = Array.isArray(prev) ? prev : [];
+                  return [...currentData, newMarker];
+                });
+
+                handleCloseDialog();
+
+                // Limpiar el formulario
+                setDialogData({
+                  type: "",
+                  subtype: "",
+                  comité: props.comite,
+                  by: localStorage.getItem("user"),
+                  specific_type: "",
+                  freq: 0,
+                  intensity: 0,
+                  surface: 0,
+                  specific_resource: "",
+                  desc: "",
+                  img: "",
+                });
+              }
+            } catch (error) {
+              console.error("Error al añadir marcador:", error);
+              // Aquí puedes mostrar un mensaje de error al usuario
+              alert(
+                "Error al guardar el marcador. Por favor, intenta de nuevo.",
+              );
+            }
           }}
         >
           Añadir
