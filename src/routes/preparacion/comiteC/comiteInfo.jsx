@@ -14,6 +14,7 @@ import {
   TableRow,
   TableCell,
   TableBody,
+  Chip,
 } from "@mui/material";
 
 const ComiteInfo = ({ comite, ...props }) => {
@@ -65,11 +66,15 @@ const ComiteInfo = ({ comite, ...props }) => {
   if (
     !props.comiteInfo.data[0] ||
     !props.comiteInfo.data ||
-    props.comiteInfo.data.length === 0
+    props.comiteInfo.data.length === 0 ||
+    !props.getBrigada.dataC.data ||
+    props.getBrigada.dataC.data.length === 0
   ) {
     return null; // o muestra un mensaje de carga
   }
   const comiteData = props.comiteInfo.data[0];
+  console.log("comiteData", comiteData)
+  console.log("brigada", props.getBrigada.dataC.data)
   return (
     <Box sx={{ p: 2 }}>
       <Typography align="center" variant="h6">
@@ -111,42 +116,18 @@ const ComiteInfo = ({ comite, ...props }) => {
         <Typography variant="subtitle1" gutterBottom>
           Datos de brigada
         </Typography>
-        {Array.isArray(props.getBrigada.data) &&
-        props.getBrigada.data.length > 0 ? (
-          props.getBrigada.data.map((brigadaItem) => (
-            <Box key={brigadaItem.ci} sx={{ mb: 2 }}>
-              <Typography variant="body1" fontWeight="bold">
-                {brigadaItem.nombre || "Nombre no disponible"}
-              </Typography>
-              <List dense>
-                <ListItem>
-                  <ListItemText
-                    primary="CI"
-                    secondary={brigadaItem.ci || "N/A"}
-                  />
-                </ListItem>
-                <ListItem>
-                  <ListItemText
-                    primary="Brigada"
-                    secondary={brigadaItem.brigada || "N/A"}
-                  />
-                </ListItem>
-                <ListItem>
-                  <ListItemText
-                    primary="Rango"
-                    secondary={brigadaItem.rango || "N/A"}
-                  />
-                </ListItem>
-              </List>
-              <Divider />
-            </Box>
-          ))
-        ) : (
+        {props.getBrigada.dataC.data &&
+        props.getBrigada.dataC.data.length > 0 ?  <CompactBrigadaTable
+        data={props.getBrigada.dataC.data}
+        title="Información detallada de brigada"
+        />
+         : 
           <Typography variant="body2">
             No hay datos de brigada disponibles.
           </Typography>
-        )}
+        }
       </Paper>
+      
       <Paper sx={{ p: 2 }}>
         <Typography variant="subtitle1" gutterBottom>
           Puntos de control / atención
@@ -218,7 +199,7 @@ export default ComiteInfo;
 
 const SimpleComiteTable = ({ comiteData }) => {
   if (!comiteData) return null;
-console.log(comiteData)
+
   const parseData = (str) => {
     if (!str) return { nombre: "N/A", ci: "N/A", telefono: "N/A" };
     const nombre = str.match(/responsable=([^,]+)/i)?.[1]?.trim() || "N/A";
@@ -266,3 +247,104 @@ console.log(comiteData)
     </TableContainer>
   );
 };
+
+
+export const CustomizableBrigadaTable = ({ data, columns, title }) => {
+  if (!data || data.length === 0) {
+    return (
+      <Box sx={{ p: 2, textAlign: "center" }}>
+        <Typography variant="body1" color="textSecondary">
+          No hay datos disponibles
+        </Typography>
+      </Box>
+    );
+  }
+
+  // Columnas por defecto
+  const defaultColumns = [
+    { field: "nombre", label: "Nombre", align: "left" },
+    { field: "ci", label: "CI", align: "left" },
+    { field: "brigada", label: "Brigada", align: "left" },
+    { field: "comite", label: "Comité", align: "left" },
+    { field: "rango", label: "Rango", align: "left" },
+    { field: "estado", label: "Estado", align: "left" },
+    { field: "equipo", label: "Equipamiento", align: "left" },
+    { field: "row", label: "Fila", align: "center" },
+  ];
+
+  const usedColumns = columns || defaultColumns;
+
+  return (
+    <TableContainer component={Paper} sx={{ mt: 2, mb: 2 }}>
+      {title && (
+        <Typography variant="h6" sx={{ p: 2, pb: 0 }}>
+          {title}
+        </Typography>
+      )}
+      <Table sx={{ minWidth: 650 }} aria-label="customized table">
+        <TableHead>
+          <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
+            {usedColumns.map((col) => (
+              <TableCell 
+                key={col.field} 
+                align={col.align || "left"}
+                sx={{ fontWeight: "bold" }}
+              >
+                {col.label}
+              </TableCell>
+            ))}
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {data.map((item, index) => (
+            <TableRow key={item.ci || index}>
+              {usedColumns.map((col) => (
+                <TableCell key={col.field} align={col.align || "left"}>
+                  {col.render ? col.render(item[col.field], item) : item[col.field] || "N/A"}
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+};
+
+// Componente compacto para espacios reducidos
+export const CompactBrigadaTable = ({ data }) => {
+  if (!data || data.length === 0) return null;
+
+  return (
+    <TableContainer component={Paper} variant="outlined">
+      <Table size="small" aria-label="compact table">
+        <TableHead>
+          <TableRow>
+            <TableCell><strong>Nombre</strong></TableCell>
+            <TableCell><strong>Brigada</strong></TableCell>
+            <TableCell><strong>Rango</strong></TableCell>            
+            <TableCell><strong>Equipo</strong></TableCell>
+            <TableCell><strong>Estado</strong></TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {data.map((item, index) => (
+            <TableRow key={item.ci || index}>
+              <TableCell>{item.nombre || "N/A"}</TableCell>
+              <TableCell>{item.brigada || "N/A"}</TableCell>
+              <TableCell>{item.rango || "N/A"}</TableCell>
+              <TableCell>{item.equipo || "N/A"}</TableCell>
+              <TableCell>
+                <Chip
+                  label={item.estado || "N/A"} 
+                  size="small"
+                  color={item.estado === "activo" ? "success" : "default"}
+                />
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+}

@@ -13,11 +13,19 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
+import { useInforComite } from "./crud";
 
-export const DialogAdd = ({ dialogOpen, handleCloseDialog, dialogCoords }) => {
+export const DialogAdd = ({
+  dialogOpen,
+  handleCloseDialog,
+  dialogCoords,
+  ...props
+}) => {
   const [dialogData, setDialogData] = useState({
     type: "",
     subtype: "",
+    comité: props.comite,
+    by: localStorage.getItem("user"),
     specific_type: "",
     freq: 0,
     intensity: 0,
@@ -26,6 +34,9 @@ export const DialogAdd = ({ dialogOpen, handleCloseDialog, dialogCoords }) => {
     desc: "",
     img: "",
   });
+
+  const { post } = useInforComite();
+
   const handleData = (e) => {
     const { name, value } = e.target;
     setDialogData((prev) => ({ ...prev, [name]: value }));
@@ -352,6 +363,22 @@ export const DialogAdd = ({ dialogOpen, handleCloseDialog, dialogCoords }) => {
       <DialogActions>
         <Button onClick={handleCloseDialog} variant="contained">
           Cerrar
+        </Button>
+        <Button
+          onClick={() => {
+            post("post", "plan", {
+              ...dialogData,
+              lat: dialogCoords.lat,
+              lng: dialogCoords.lng,
+            });
+            handleCloseDialog();
+            props.setMarkData(() => [
+              ...props.markData,
+              { ...dialogData, lat: dialogCoords.lat, lng: dialogCoords.lng },
+            ]);
+          }}
+        >
+          Añadir
         </Button>
       </DialogActions>
     </Dialog>

@@ -23,13 +23,13 @@ export default function ComiteComunitario() {
   const [selectInfo, setSelectInfo] = useState(null);
   const [selectComite, setComite] = useState(null);
 
+  
+
   // data to pcomite to send
 
   const { errorGet, loadingGet, dataC, read } = useInforComite();
   const getBrigada = useInforComite();
-
-  console.log("dataC", dataC);
-  console.log("errorGet", errorGet);
+  const getPlan = useInforComite();
 
   // Cargar datos iniciales
   useEffect(() => {
@@ -41,7 +41,7 @@ export default function ComiteComunitario() {
         const dataP = await dataSector();
         // 2. Guardar datos completos
         setData(dataP);
-        console.log(dataP);
+    
         // 3. Extraer barrios
         if (dataP) {
           const barrios = dataP
@@ -152,6 +152,8 @@ export default function ComiteComunitario() {
             getComite={read}
             getBrigada={getBrigada}
             loading={loadingParroq}
+           
+
             //fireData={eventInfo}
           />
         </Grid>
@@ -176,6 +178,7 @@ export default function ComiteComunitario() {
                 setEvent={setDataEvent}
                 comiteInfo={dataC}
                 dataEvent={eventInfo}
+                getPlan={getPlan}
                 mapConfig={{
                   center: [-79.2, -3.99], // Coordenadas de Loja, Ecuador
                   zoom: 10,
@@ -188,6 +191,7 @@ export default function ComiteComunitario() {
                   seletedInfo={selectInfo}
                   comiteInfo={dataC}
                   getBrigada={getBrigada}
+                  getPlan={getPlan}
                 />
               </Paper>
             </TabPanel>

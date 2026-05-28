@@ -64,6 +64,7 @@ export default function Panel({ selectedValue, setSelectedValue, ...props }) {
 
   const handleComiteSearch = (event) => {
 props.getComite("read", "comite", props.selectComite)
+props.getBrigada.read("read", "brigada", props.selectComite)
   }
   const handleComiteChange = (event) => {
     const comiteValue = event.target.value;
@@ -396,7 +397,7 @@ const BarrioResultItem = ({ item, index }) => {
               value: item.exp_evnt,
               color: "#ef5350",
               icon: <WarningIcon />,
-              description: "Sismo, inundaciones, deslizamientos, etc.",
+              description: "(Sismo, inundaciones, deslizamientos, erupciones volcánicas, incendios forestales, aguajes, tsunamis, etc.)",
               formula:
                 "1 Evento = 0.5 | 2 Eventos = 1 | 3 Eventos = 1.5 | 4 + Evento = 2",
             },
@@ -406,30 +407,30 @@ const BarrioResultItem = ({ item, index }) => {
               color: "#ff9800",
               icon: <UpdateIcon />,
               description: "Frecuencia de ocurrencia de eventos",
-              formula: "1 año = 2 | 5 años = 1.5 | 10 años = 1 | >10 Años =0.5",
+              formula: "Cada 1 año = 2 | Cada 5 años = 1.5 | Cada 10 años = 1 | Mayor a 10 Años =0.5",
             },
             {
               title: "Vulnerabilidad socio-organizativa",
               value: item.vuln_evnt,
               color: "#26c6da",
               icon: <GroupIcon />,
-              description: "Organización de base y participación",
-              formula: "Muy Alta=0.5 | Alta=1 | Media=1.5 | Baja=2",
+              description: "(Sin organización de base, sin participación en acciones de rrd, sin planes de gestión de riesgos, sin sistemas de alerta)",
+              formula: "Muy Alta=2 | Alta=1.5 | Media=1 | Baja=1",
             },
             {
               title: "Acceso a recursos",
               value: item.a_r_emerg,
               color: "#66bb6a",
               icon: <LocalHospitalIcon />,
-              description: "Centros de Salud, Educativos, Policía",
-              formula: "Ninguna=2 | Una=1.5 | 2-3=1 | >3=0.5",
+              description: "Centros de Salud, Centros Educativos, Policía, Bomberos.",
+              formula: "Ninguna=2 | Uno=1.5 | Dos a tres =1 |  Mas de tres=0.5",
             },
             {
               title: "Proyectos de RRD",
               value: item.pry_rrd,
               color: "#42a5f5",
               icon: <EngineeringIcon />,
-              description: "SAT, reubicación, obras de mitigación",
+              description: "SAT, Reubicación, Obras de mitigación",
               formula: "Existe=0.5| No existe=2",
             },
           ].map((criterio, idx) => (
@@ -567,7 +568,6 @@ const TotalCard = ({ total }) => {
         >
           {total || "0"}
         </Typography>
-
         <Typography
           variant="body2"
           color="text.secondary"
@@ -575,7 +575,6 @@ const TotalCard = ({ total }) => {
         >
           Puntaje de priorización (Escala 0-10)
         </Typography>
-
         <LinearProgress
           variant="determinate"
           value={Math.min(((total || 0) / 10) * 100, 100)}

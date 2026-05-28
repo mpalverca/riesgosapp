@@ -27,6 +27,7 @@ import {
 } from "@mui/material";
 import L from "leaflet";
 import { DialogAdd } from "./DialogAdd";
+import { useInforComite } from "./crud";
 // Solucionar problema de iconos de Leaflet en React
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -47,6 +48,8 @@ const MapBase = (props) => {
   const [dialogCoords, setDialogCoords] = useState(null);
   const [user, setUser] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
+  const [markData, setMarkData] = useState([]);
+  const { read, dataC } = useInforComite();
 
   useEffect(() => {
     const userData = localStorage.getItem("user");
@@ -55,6 +58,8 @@ const MapBase = (props) => {
       //    console.log(JSON.parse(userData));
     }
     //    console.log(JSON.parse(userData));
+    read("read", "plan", props.selectComite);
+    setMarkData(dataC);
   }, []);
   const handleOpenDialog = (latlng) => {
     console.log("handleOpenDialog llamada:", latlng);
@@ -638,15 +643,6 @@ const MapBase = (props) => {
               <p style={{ margin: "8px 0" }}>
                 <strong>Fase:</strong> {Fase || "N/A"}
               </p>
-              <p style={{ margin: "8px 0" }}>
-                <strong>Responsable:</strong> {responsable || "N/A"}
-              </p>
-              <p style={{ margin: "8px 0" }}>
-                <strong>Secretario/a:</strong> {secretario || "N/A"}
-              </p>
-              <p style={{ margin: "8px 0" }}>
-                <strong>Líder de Brigada:</strong> {lider_brigada || "N/A"}
-              </p>
             </div>
           </div>
         </Popup>
@@ -663,7 +659,7 @@ const MapBase = (props) => {
       return null;
     }
 
-    return props.dataEvent
+    return markData
       .map((item, index) => {
         try {
           const lat = item.lat != null ? parseFloat(item.lat) : NaN;
@@ -760,6 +756,9 @@ const MapBase = (props) => {
           dialogOpen={dialogOpen}
           handleCloseDialog={handleCloseDialog}
           dialogCoords={dialogCoords}
+          markData={markData}
+          setMarkData={setMarkData}
+          comite={comite}
         />
         <LayersControl position="topright">
           <LayersControl.Overlay name="Polígonos" checked>

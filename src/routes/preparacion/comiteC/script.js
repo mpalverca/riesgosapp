@@ -167,8 +167,7 @@ export const useDetailSector = () => {
       }
 
       const result = await response.json();
-      console.log("📦 Datos recibidos:", result);
-
+     
       if (result.error) {
         throw new Error(result.error);
       }
