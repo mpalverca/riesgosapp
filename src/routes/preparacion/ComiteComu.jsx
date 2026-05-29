@@ -24,7 +24,7 @@ export default function ComiteComunitario() {
   const [selectComite, setComite] = useState(null);
 
   
-
+console.log(selectInfo)
   // data to pcomite to send
 
   const { errorGet, loadingGet, dataC, read } = useInforComite();

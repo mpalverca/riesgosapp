@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Typography,
   Divider,
@@ -56,16 +56,32 @@ export default function Panel({ selectedValue, setSelectedValue, ...props }) {
     .filter((sector, index, array) => array.indexOf(sector) === index)
     .sort();
 
+  // Efecto para actualizar props cuando sectorD cambie
+  useEffect(() => {
+    if (sectorD !== null && sectorD !== undefined) {
+      props.setSelectSect(sectorD);
+      console.log("Sector actualizado:", sectorD);
+    }
+  }, [sectorD, props.setSelectSect]);
+
   const handleSearch = async () => {
-    if (!selectedValue) return;
-    await detailSector(selectedValue);
-    props.setSelectSect(sectorD);
+    if (!selectedValue) {
+      console.warn("No hay valor seleccionado");
+      return;
+    }
+
+    try {
+      await detailSector(selectedValue);
+      // No necesitas llamar a props.setSelectSect aquí porque el useEffect lo hará
+    } catch (error) {
+      console.error("Error al buscar sector:", error);
+    }
   };
 
   const handleComiteSearch = (event) => {
-props.getComite("read", "comite", props.selectComite)
-props.getBrigada.read("read", "brigada", props.selectComite)
-  }
+    props.getComite("read", "comite", props.selectComite);
+    props.getBrigada.read("read", "brigada", props.selectComite);
+  };
   const handleComiteChange = (event) => {
     const comiteValue = event.target.value;
     props.setComite(comiteValue);
@@ -110,7 +126,7 @@ props.getBrigada.read("read", "brigada", props.selectComite)
         severity="warning"
         icon={<WarningIcon />}
         sx={{
-          mb: 3,
+          mb: 1,
           borderRadius: 2,
           "& .MuiAlert-message": { width: "100%" },
         }}
@@ -119,11 +135,11 @@ props.getBrigada.read("read", "brigada", props.selectComite)
           <strong>Importante:</strong> La información presentada es de manera
           referencial y deberá asumirse con el mayor cuidado y responsabilidad
           ya que la divulgación inadecuada de la misma está sujeta a acciones y
-          sanciones contempladas en la LOGIRD.
+          sanciones contempladas en la Ley Organica de Gestión Integral de Riesgos de Desastres (LOGIRD).
         </Typography>
       </Alert>
 
-      <Divider sx={{ mb: 3 }} />
+      <Divider sx={{ mb: 2 }} />
 
       {/* Barra de búsqueda */}
       <Paper
@@ -293,7 +309,7 @@ props.getBrigada.read("read", "brigada", props.selectComite)
                     <Button
                       fullWidth
                       variant="contained"
-                      onClick={handleComiteSearch }
+                      onClick={handleComiteSearch}
                       disabled={!selectedValue || props.loadingComite}
                       sx={{
                         borderRadius: 2,
@@ -376,7 +392,6 @@ const BarrioResultItem = ({ item, index }) => {
             }}
           />
         )}
-        
       </Box>
 
       {/* Contenido principal */}
@@ -397,7 +412,8 @@ const BarrioResultItem = ({ item, index }) => {
               value: item.exp_evnt,
               color: "#ef5350",
               icon: <WarningIcon />,
-              description: "(Sismo, inundaciones, deslizamientos, erupciones volcánicas, incendios forestales, aguajes, tsunamis, etc.)",
+              description:
+                "(Sismo, inundaciones, deslizamientos, erupciones volcánicas, incendios forestales, aguajes, tsunamis, etc.)",
               formula:
                 "1 Evento = 0.5 | 2 Eventos = 1 | 3 Eventos = 1.5 | 4 + Evento = 2",
             },
@@ -407,14 +423,16 @@ const BarrioResultItem = ({ item, index }) => {
               color: "#ff9800",
               icon: <UpdateIcon />,
               description: "Frecuencia de ocurrencia de eventos",
-              formula: "Cada 1 año = 2 | Cada 5 años = 1.5 | Cada 10 años = 1 | Mayor a 10 Años =0.5",
+              formula:
+                "Cada 1 año = 2 | Cada 5 años = 1.5 | Cada 10 años = 1 | Mayor a 10 Años =0.5",
             },
             {
               title: "Vulnerabilidad socio-organizativa",
               value: item.vuln_evnt,
               color: "#26c6da",
               icon: <GroupIcon />,
-              description: "(Sin organización de base, sin participación en acciones de rrd, sin planes de gestión de riesgos, sin sistemas de alerta)",
+              description:
+                "(Sin organización de base, sin participación en acciones de rrd, sin planes de gestión de riesgos, sin sistemas de alerta)",
               formula: "Muy Alta=2 | Alta=1.5 | Media=1 | Baja=1",
             },
             {
@@ -422,7 +440,8 @@ const BarrioResultItem = ({ item, index }) => {
               value: item.a_r_emerg,
               color: "#66bb6a",
               icon: <LocalHospitalIcon />,
-              description: "Centros de Salud, Centros Educativos, Policía, Bomberos.",
+              description:
+                "Centros de Salud, Centros Educativos, Policía, Bomberos.",
               formula: "Ninguna=2 | Uno=1.5 | Dos a tres =1 |  Mas de tres=0.5",
             },
             {

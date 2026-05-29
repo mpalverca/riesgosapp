@@ -183,6 +183,8 @@ const MapBase = (props) => {
   const user = useUser();
   const { read, dataC } = useInforComite();
 
+console.log(props)
+
   // Cargar datos iniciales
   useEffect(() => {
     const comiteName = props.comiteInfo?.data?.[0]?.comite;
@@ -195,7 +197,7 @@ const MapBase = (props) => {
   useEffect(() => {
     if (dataC?.data && Array.isArray(dataC.data)) {
       setMarkData(dataC.data);
-      console.log("Datos actualizados:", dataC);
+      //console.log("Datos actualizados:", dataC);
     }
   }, [dataC]);
   // Handlers
@@ -258,11 +260,17 @@ const MapBase = (props) => {
 
   // Renderizar polígonos
   const renderPolygons = useMemo(() => {
-    if (!props.data?.length) return null;
+  if (!props.data?.length) {
+    console.log("No hay datos de polígonos");
+    return null;
+  }
 
-    // Mapa de sectores con puntajes
-    const sectoresMap = new Map();
-    props.seletedInfo?.resultados?.forEach((resultado) => {
+  // Mapa de sectores con puntajes
+  const sectoresMap = new Map();
+  
+  // Verificar si hay información de selección
+  if (props.seletedInfo?.resultados && Array.isArray(props.seletedInfo.resultados)) {
+    props.seletedInfo.resultados.forEach((resultado) => {
       if (resultado.sector) {
         const sectorKey = normalizeText(resultado.sector);
         sectoresMap.set(sectorKey, {
@@ -273,124 +281,176 @@ const MapBase = (props) => {
         });
       }
     });
+  }
 
-    return props.data
-      .flatMap((item, idx) => {
-        try {
-          if (!item?.geometry?.coordinates) return null;
+  
+  console.log("Cantidad de polígonos a procesar:", props.data.length);
 
-          const sect = item.properties || {};
-          const sectorName = sect.SECTOR || sect.sector || "";
-          const sectorKey = normalizeText(sectorName);
-          const matchedSector = sectoresMap.get(sectorKey);
-          const isSelected = sect.BARRIO === props.selectedParroq;
+  return props.data
+    .flatMap((item, idx) => {
+      try {
+        if (!item?.geometry?.coordinates) return null;
 
-          // Determinar color del polígono
-          let color, fillOpacity, weight;
-          if (matchedSector) {
-            color = getColorByTotal(matchedSector.total);
-            fillOpacity = 0.5;
-            weight = 2;
-          } else if (isSelected) {
-            color = COLORS.SELECTED;
-            fillOpacity = 0.5;
-            weight = 3;
-          } else {
-            color = COLORS.DEFAULT;
-            fillOpacity = 0.2;
-            weight = 1.5;
-          }
+        const sect = item.properties || {};
+        const sectorName = (sect.SECTOR || sect.sector || "").trim();
+        const sectorKey = normalizeText(sectorName);
+        const matchedSector = sectoresMap.get(sectorKey);
+        const isSelected = sect.BARRIO === props.selectedParroq;
 
-          const polygonStyle = {
-            color,
-            fillColor: color,
-            fillOpacity,
-            weight,
-            opacity: 0.8,
-          };
-
-          // Procesar coordenadas
-          const coordinates = item.geometry.coordinates;
-          let polygons = [];
-
-          if (item.geometry.type === "MultiPolygon") polygons = coordinates;
-          else if (item.geometry.type === "Polygon") polygons = [coordinates];
-          else if (Array.isArray(coordinates[0]?.[0]?.[0]))
-            polygons = coordinates;
-          else polygons = [coordinates];
-
-          return polygons.map((polygon, polyIdx) => {
-            const ring = polygon[0] || polygon;
-            if (!ring?.length) return null;
-
-            const leafletCoords = ring.map((coord) => [coord[1], coord[0]]);
-
-            return (
-              <Polygon
-                key={`${item.id || idx}-${polyIdx}`}
-                positions={leafletCoords}
-                pathOptions={polygonStyle}
-                eventHandlers={{
-                  click: () => props.onGetParroqData?.(sect.BARRIO),
-                  mouseover: (e) =>
-                    e.target.setStyle({ fillOpacity: 0.7, weight: 3 }),
-                  mouseout: (e) => e.target.setStyle(polygonStyle),
-                }}
-              >
-                <Popup>
-                  <div style={{ minWidth: 200 }}>
-                    <h4 style={{ margin: "0 0 10px 0", color: "#1976d2" }}>
-                      {sect.SECTOR || sect.sector || "Sector sin nombre"}
-                    </h4>
-                    <div style={{ fontSize: 14 }}>
-                      <p>
-                        <strong>Parroquia:</strong> {sect.PARROQUIA || "N/A"}
-                      </p>
-                      <p>
-                        <strong>Barrio:</strong> {sect.BARRIO || "N/A"}
-                      </p>
-                      {matchedSector && (
-                        <>
-                          <p
-                            style={{
-                              borderTop: "1px solid #eee",
-                              paddingTop: "5px",
-                            }}
-                          >
-                            <strong>Priorización:</strong>
-                          </p>
-                          <p>
-                            <strong>Puntaje:</strong>{" "}
-                            <span style={{ fontWeight: "bold", color }}>
-                              {matchedSector.total}
-                            </span>
-                          </p>
-                          <p>
-                            <strong>Estado:</strong>{" "}
-                            {matchedSector.estado || "N/A"}
-                          </p>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </Popup>
-              </Polygon>
-            );
-          });
-        } catch (error) {
-          console.error("Error en polígono:", error);
-          return null;
+        // Determinar color del polígono con más opciones
+        let color, fillOpacity, weight, borderColor;
+        console.log (matchedSector)
+        if (matchedSector) {
+          // Prioridad alta - usar color según puntaje
+          color = getColorByTotal(matchedSector.total);
+          fillOpacity = 0.6;
+          weight = 3;
+          borderColor = color;
+          console.log(`Sector ${sectorName} - Priorizado: Total ${matchedSector.total} - Color: ${color}`);
+        } else if (isSelected) {
+          // Seleccionado pero sin priorización
+          color = COLORS.SELECTED;
+          fillOpacity = 0.5;
+          weight = 3;
+          borderColor = COLORS.SELECTED;
+          console.log(`Sector ${sectorName} - Seleccionado`);
+        } else {
+          // Default
+          color = COLORS.DEFAULT;
+          fillOpacity = 0.2;
+          weight = 1.5;
+          borderColor = COLORS.DEFAULT;
+          //console.log(`Sector ${sectorName} - Default`);
         }
-      })
-      .filter(Boolean);
-  }, [
-    props.data,
-    props.seletedInfo,
-    props.selectedParroq,
-    props.onGetParroqData,
-    getColorByTotal,
-    normalizeText,
-  ]);
+
+        const polygonStyle = {
+          color: borderColor,
+          fillColor: color,
+          fillOpacity: fillOpacity,
+          weight: weight,
+          opacity: 0.9,
+          dashArray: matchedSector ? null : "3", // Borde punteado para no priorizados
+        };
+
+        // Procesar coordenadas
+        const coordinates = item.geometry.coordinates;
+        let polygons = [];
+
+        if (item.geometry.type === "MultiPolygon") {
+          polygons = coordinates;
+        } else if (item.geometry.type === "Polygon") {
+          polygons = [coordinates];
+        } else if (Array.isArray(coordinates[0]?.[0]?.[0])) {
+          polygons = coordinates;
+        } else {
+          polygons = [coordinates];
+        }
+
+        return polygons.map((polygon, polyIdx) => {
+          const ring = polygon[0] || polygon;
+          if (!ring?.length) return null;
+
+          const leafletCoords = ring.map((coord) => [coord[1], coord[0]]);
+
+          return (
+            <Polygon
+              key={`${item.id || idx}-${polyIdx}`}
+              positions={leafletCoords}
+              pathOptions={polygonStyle}
+              eventHandlers={{
+                click: () => {
+                  console.log("Polígono clickeado:", sectorName);
+                  props.onGetParroqData?.(sect.BARRIO);
+                },
+                mouseover: (e) => {
+                  const target = e.target;
+                  target.setStyle({
+                    fillOpacity: 0.8,
+                    weight: matchedSector ? 4 : 3,
+                  });
+                  target.bringToFront();
+                },
+                mouseout: (e) => {
+                  const target = e.target;
+                  target.setStyle(polygonStyle);
+                },
+              }}
+            >
+              <Popup>
+                <div style={{ minWidth: 250, maxWidth: 300 }}>
+                  <h4 style={{ margin: "0 0 10px 0", color: "#1976d2" }}>
+                    {sectorName || "Sector sin nombre"}
+                  </h4>
+                  <div style={{ fontSize: 13 }}>
+                    <p><strong>Parroquia:</strong> {sect.PARROQUIA || "N/A"}</p>
+                    <p><strong>Barrio:</strong> {sect.BARRIO || "N/A"}</p>
+                    
+                    {matchedSector && (
+                      <>
+                        <div style={{ 
+                          borderTop: "2px solid #1976d2", 
+                          marginTop: "8px", 
+                          paddingTop: "8px" 
+                        }}>
+                          <strong style={{ color: "#1976d2" }}>📊 Priorización:</strong>
+                        </div>
+                        <p>
+                          <strong>Puntaje Total:</strong>{" "}
+                          <span style={{ 
+                            fontWeight: "bold", 
+                            color: color,
+                            fontSize: "16px" 
+                          }}>
+                            {matchedSector.total}
+                          </span>
+                        </p>
+                        <p>
+                          <strong>Nivel:</strong>{" "}
+                          <span style={{ 
+                            fontWeight: "bold", 
+                            color: color 
+                          }}>
+                            {matchedSector.total <= 3.9 ? "🟢 BAJA" : 
+                             matchedSector.total <= 6.9 ? "🟡 MEDIA" : 
+                             "🔴 ALTA"}
+                          </span>
+                        </p>
+                        <p><strong>Estado:</strong> {matchedSector.estado || "N/A"}</p>
+                        {matchedSector.comite && (
+                          <p><strong>Comité:</strong> {matchedSector.comite}</p>
+                        )}
+                      </>
+                    )}
+                    
+                    {!matchedSector && isSelected && (
+                      <div style={{ 
+                        borderTop: "2px solid #ff9800", 
+                        marginTop: "8px", 
+                        paddingTop: "8px" 
+                      }}>
+                        <strong style={{ color: "#ff9800" }}>⚠️ Sin datos de priorización</strong>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </Popup>
+            </Polygon>
+          );
+        });
+      } catch (error) {
+        console.error("Error en polígono:", error);
+        return null;
+      }
+    })
+    .filter(Boolean);
+}, [
+  props.data,
+  props.seletedInfo,
+  props.selectedParroq,
+  props.onGetParroqData,
+  getColorByTotal,
+  normalizeText,
+]);
 
   // Convertir string de polígono a coordenadas
   const convertPolygonStringToLeaflet = useCallback((polygonString) => {
@@ -480,33 +540,32 @@ const MapBase = (props) => {
                   <strong>Fecha:</strong> {formatDate(item.created_at)}
                 </p>
                 {item.img && (
-                                      <div style={{ marginTop: "10px" }}>
-                                        <img
-                                          src={item.img}
-                                          alt={`Imagen de ${item.type || "afectación"}`}
-                                          style={{
-                                            width: "100%",
-                                            height: "auto",
-                                            maxHeight: "200px",
-                                            objectFit: "contain",
-                                            borderRadius: "4px",
-                                            border: "1px solid #ddd",
-                                            cursor: "pointer",
-                                          }}
-                                          
-                                        />
-                                        <Typography
-                                          variant="caption"
-                                          sx={{
-                                            display: "block",
-                                            textAlign: "center",
-                                            color: "#666",
-                                          }}
-                                        >
-                                          Haz clic para ampliar
-                                        </Typography>
-                                      </div>
-                                    )}
+                  <div style={{ marginTop: "10px" }}>
+                    <img
+                      src={item.img}
+                      alt={`Imagen de ${item.type || "afectación"}`}
+                      style={{
+                        width: "100%",
+                        height: "auto",
+                        maxHeight: "200px",
+                        objectFit: "contain",
+                        borderRadius: "4px",
+                        border: "1px solid #ddd",
+                        cursor: "pointer",
+                      }}
+                    />
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        display: "block",
+                        textAlign: "center",
+                        color: "#666",
+                      }}
+                    >
+                      Haz clic para ampliar
+                    </Typography>
+                  </div>
+                )}
                 <p>
                   <strong>Subtipo:</strong> {item.subtype || "No disponible"}
                 </p>
@@ -542,7 +601,6 @@ const MapBase = (props) => {
                         <strong>🗺️ Superficie Afectada:</strong>{" "}
                         {getLabelByValue(SURFACE_OPTIONS, item.surface)}
                       </p>
-
                     </div>
                   </div>
                 )}
@@ -589,7 +647,7 @@ const MapBase = (props) => {
         />
 
         <LayersControl position="topright">
-          <LayersControl.Overlay name="Polígonos" checked>
+          <LayersControl.Overlay name="Sectores" checked>
             <LayerGroup>{renderPolygons}</LayerGroup>
           </LayersControl.Overlay>
           <LayersControl.Overlay name="Marcadores" checked>

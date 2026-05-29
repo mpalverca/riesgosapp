@@ -75,7 +75,7 @@ const SUBTYPE_OPTIONS = {
   ],
   social_natural: [
     { value: "Inundación", label: "🌊 Inundación" },
-    { value: "Movimiento_masa", label: "⛰️ Movimiento en masa" },
+    { value: "Movimiento en masa", label: "⛰️ Movimiento en masa" },
     { value: "incendios", label: "🔥 Incendios Forestales" },
   ],
   antropica: [
