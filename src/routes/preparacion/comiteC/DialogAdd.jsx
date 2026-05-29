@@ -169,9 +169,9 @@ const AmenazaParams = ({ data, onChange }) => (
       label="Frecuencia"
       type="select"
       options={[
-        { value: "1", label: "🟢 Baja - Evento cada 5-20 años" },
-        { value: "2", label: "🟡 Media - Evento cada 3-5 años" },
-        { value: "3", label: "🔴 Alta - Evento más de una vez al año" },
+        { value: "1", label: "🟢 Baja - Evento que se presenta al menos una vez en un período de tiempo entre 5 a 20 años." },
+        { value: "2", label: "🟡 Media - Evento que se presenta por lo menos una vez en un período de tiempo entre 3 y 5 años." },
+        { value: "3", label: "🔴 Alta - Evento que se presenta más de una vez en el año  o por lo menos una vez en un periodo de 1 a  3 años." },
       ]}
       value={data.freq}
       onChange={onChange}
@@ -181,9 +181,9 @@ const AmenazaParams = ({ data, onChange }) => (
       label="Magnitud/Intensidad"
       type="select"
       options={[
-        { value: "1", label: "🟢 Baja - Sin fallecidos, mínima afectación" },
-        { value: "2", label: "🟡 Media - Pocos fallecidos, afectación temporal" },
-        { value: "3", label: "🔴 Alta - Numerosos fallecidos, afectación masiva" },
+        { value: "1", label: "🟢 Baja - Sin personas  fallecidas,mínima afectación en el territorio, sin afectación en las redes de servicios públicos, no hay interrupción en las actividades económicas." },
+        { value: "2", label: "🟡 Media - Pocas personas fallecidas,  afectaciones en las redes de servicios públicos, suspensión temporal de actividades económicas,pocas viviendas destruidas y varias viviendas averiadas." },
+        { value: "3", label: "🔴 Alta - Numerosas personas fallecidas, , suspensión de servicios públicos básicos y de actividades económicas durante varios meses y un gran número de viviendas destruidas." },
       ]}
       value={data.intensity}
       onChange={onChange}
@@ -193,9 +193,9 @@ const AmenazaParams = ({ data, onChange }) => (
       label="Territorio Afectado"
       type="select"
       options={[
-        { value: "1", label: "🟢 Baja - Menos del 50% del territorio" },
-        { value: "2", label: "🟡 Media - Entre 50% y 80% del territorio" },
-        { value: "3", label: "🔴 Alta - Más del 80% del territorio" },
+        { value: "1", label: "🟢 Baja - Menos del 50% del territorio presenta algún tipo de afectación" },
+        { value: "2", label: "🟡 Media - Entre el 50% y 80% del territorio presenta afectación" },
+        { value: "3", label: "🔴 Alta - Más del 80% de su territorio se encuentra afectado" },
       ]}
       value={data.surface}
       onChange={onChange}

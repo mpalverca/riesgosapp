@@ -345,11 +345,19 @@ useEffect(() => {
           <Popup>
             <div style={{ minWidth: 200 }}>
               <h3 style={{ margin: "0 0 10px 0", color: "#d32f2f" }}>
-                {formatDate(item.fecha)}
+              Creado: {formatDate(item.created_at)}
               </h3>
-              <p><strong>Sector:</strong> {item.sector || "N/A"}</p>
-              <p><strong>Descripción:</strong> {item.detail || "No disponible"}</p>
-              <p><strong>Afectación:</strong> {item.afect || "No disponible"}</p>
+              <p><strong>Tipo:</strong> {item.type || "N/A"}</p>
+              <p><strong>Subtipo:</strong> {item.subtype || "No disponible"}</p>
+              <p><strong>Especifico:</strong> {item.specific_type || "No disponible"}</p>
+              <p><strong>Descripción:</strong> {item.desc || "No disponible"}</p>
+              {item.type=="amenaza" && (
+                <div>
+                  <p><strong>Frecuencia:</strong> {item.freq || "No disponible"}</p>
+                  <p><strong>Intensidad:</strong> {item.intensity || "No disponible"}</p>
+                  <p><strong>Superficie Afectada:</strong> {item.surface || "No disponible"}</p>
+                </div>
+              )}
             </div>
           </Popup>
         </Marker>
