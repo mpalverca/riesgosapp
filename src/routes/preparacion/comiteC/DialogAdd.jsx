@@ -65,12 +65,12 @@ const CONFIG = {
 const SUBTYPE_OPTIONS = {
   natural: [
     { value: "Inundación", label: "🌊 Inundación" },
-    { value: "Movimiento_masa", label: "⛰️ Movimiento en masa" },
+    { value: "Movimiento en masa", label: "⛰️ Movimiento en masa" },
     { value: "Sismo", label: "🌋 Sismo" },
     { value: "Sequía", label: "☀️ Sequía" },
     { value: "Helada", label: "❄️ Helada" },
-    { value: "Avenidas_torrenciales", label: "💧 Avenidas torrenciales" },
-    { value: "Erosión_Litoral", label: "🌊 Erosión Litoral" },
+    { value: "Avenidas torrenciales", label: "💧 Avenidas torrenciales" },
+    { value: "Erosión Litoral", label: "🌊 Erosión Litoral" },
     { value: "Granizada", label: "🧊 Granizada" },
   ],
   social_natural: [

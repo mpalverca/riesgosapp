@@ -10,10 +10,14 @@ import {
   useMapEvents,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { Box, Button } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import L from "leaflet";
 import { DialogAdd } from "./DialogAdd";
 import { useInforComite } from "./crud";
+
+import warningIcon from "leaflet/dist/images/marker-icon.png";
+import shieldIcon from "leaflet/dist/images/marker-icon.png";
+import wrenchIcon from "leaflet/dist/images/marker-icon.png";
 
 // Configuración de iconos de Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -22,6 +26,28 @@ L.Icon.Default.mergeOptions({
   iconUrl: require("leaflet/dist/images/marker-icon.png"),
   shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
 });
+
+// Función para crear iconos con emojis
+const createEmojiMarker = (emoji, color, bgColor = "white") => {
+  return L.divIcon({
+    html: `<div style="
+      background-color: ${bgColor};
+      border-radius: 50%;
+      border: 3px solid ${color};
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    ">${emoji}</div>`,
+    iconSize: [30, 30],
+    iconAnchor: [15, 30],
+    popupAnchor: [0, -30],
+    className: "custom-emoji-marker",
+  });
+};
 
 // Constantes
 const CENTER_POSITION = [-3.9939, -79.2042];
@@ -32,16 +58,70 @@ const COLORS = {
   SELECTED: "#3538dcff",
   DEFAULT: "#a9a9aaff",
 };
+const FREQ_OPTIONS = [
+  {
+    value: 1,
+    label:
+      "🟢 Baja - Evento que se presenta al menos una vez en un período de tiempo entre 5 a 20 años.",
+  },
+  {
+    value: 2,
+    label:
+      "🟡 Media - Evento que se presenta por lo menos una vez en un período de tiempo entre 3 y 5 años.",
+  },
+  {
+    value: 3,
+    label:
+      "🔴 Alta - Evento que se presenta más de una vez en el año  o por lo menos una vez en un periodo de 1 a  3 años.",
+  },
+];
+const INTENSITY_OPTIONS = [
+  {
+    value: 1,
+    label:
+      "🟢 Baja - Sin personas  fallecidas,mínima afectación en el territorio, sin afectación en las redes de servicios públicos, no hay interrupción en las actividades económicas.",
+  },
+  {
+    value: 2,
+    label:
+      "🟡 Media - Pocas personas fallecidas,  afectaciones en las redes de servicios públicos, suspensión temporal de actividades económicas,pocas viviendas destruidas y varias viviendas averiadas.",
+  },
+  {
+    value: 3,
+    label:
+      "🔴 Alta - Numerosas personas fallecidas, , suspensión de servicios públicos básicos y de actividades económicas durante varios meses y un gran número de viviendas destruidas.",
+  },
+];
+const SURFACE_OPTIONS = [
+  {
+    value: 1,
+    label:
+      "🟢 Baja - Menos del 50% del territorio presenta algún tipo de afectación",
+  },
+  {
+    value: 2,
+    label: "🟡 Media - Entre el 50% y 80% del territorio presenta afectación",
+  },
+  {
+    value: 3,
+    label: "🔴 Alta - Más del 80% de su territorio se encuentra afectado",
+  },
+];
 
+// Funciones helper usando los arrays
+const getLabelByValue = (options, value) => {
+  const option = options.find((opt) => opt.value === value);
+  return option ? option.label : "No disponible";
+};
 // Hook personalizado para obtener usuario
 const useUser = () => {
   const [user, setUser] = useState(null);
-  
+
   useEffect(() => {
     const userData = localStorage.getItem("user");
     if (userData) setUser(JSON.parse(userData));
   }, []);
-  
+
   return user;
 };
 
@@ -105,19 +185,19 @@ const MapBase = (props) => {
 
   // Cargar datos iniciales
   useEffect(() => {
-  const comiteName = props.comiteInfo?.data?.[0]?.comite;
-  if (comiteName) {
-    read("read", "plan", comiteName);
-  }
-}, [props.comiteInfo?.data?.[0]?.comite]);
+    const comiteName = props.comiteInfo?.data?.[0]?.comite;
+    if (comiteName) {
+      read("read", "plan", comiteName);
+    }
+  }, [props.comiteInfo?.data?.[0]?.comite]);
 
-// Actualizar markData cuando dataC cambie
-useEffect(() => {
-  if (dataC?.data && Array.isArray(dataC.data)) {
-    setMarkData(dataC.data);
-    console.log("Datos actualizados:", dataC);
-  }
-}, [dataC]);
+  // Actualizar markData cuando dataC cambie
+  useEffect(() => {
+    if (dataC?.data && Array.isArray(dataC.data)) {
+      setMarkData(dataC.data);
+      console.log("Datos actualizados:", dataC);
+    }
+  }, [dataC]);
   // Handlers
   const handleOpenDialog = useCallback((latlng) => {
     if (!latlng) return;
@@ -137,7 +217,7 @@ useEffect(() => {
     if (!dateString) return "Fecha no disponible";
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return "Fecha inválida";
-    
+
     return date.toLocaleString("es-ES", {
       day: "2-digit",
       month: "2-digit",
@@ -158,16 +238,23 @@ useEffect(() => {
   // Función para normalizar texto
   const normalizeText = useCallback((text) => {
     if (!text) return "";
-    return text.trim().toLowerCase().replace(/[^\w\s]/g, "").replace(/\s+/g, " ");
+    return text
+      .trim()
+      .toLowerCase()
+      .replace(/[^\w\s]/g, "")
+      .replace(/\s+/g, " ");
   }, []);
 
   // Verificar coincidencia de sectores
-  const isSectorMatch = useCallback((sector1, sector2) => {
-    if (!sector1 || !sector2) return false;
-    const norm1 = normalizeText(sector1);
-    const norm2 = normalizeText(sector2);
-    return norm1 === norm2 || norm1.includes(norm2) || norm2.includes(norm1);
-  }, [normalizeText]);
+  const isSectorMatch = useCallback(
+    (sector1, sector2) => {
+      if (!sector1 || !sector2) return false;
+      const norm1 = normalizeText(sector1);
+      const norm2 = normalizeText(sector2);
+      return norm1 === norm2 || norm1.includes(norm2) || norm2.includes(norm1);
+    },
+    [normalizeText],
+  );
 
   // Renderizar polígonos
   const renderPolygons = useMemo(() => {
@@ -187,95 +274,123 @@ useEffect(() => {
       }
     });
 
-    return props.data.flatMap((item, idx) => {
-      try {
-        if (!item?.geometry?.coordinates) return null;
-        
-        const sect = item.properties || {};
-        const sectorName = sect.SECTOR || sect.sector || "";
-        const sectorKey = normalizeText(sectorName);
-        const matchedSector = sectoresMap.get(sectorKey);
-        const isSelected = sect.BARRIO === props.selectedParroq;
-        
-        // Determinar color del polígono
-        let color, fillOpacity, weight;
-        if (matchedSector) {
-          color = getColorByTotal(matchedSector.total);
-          fillOpacity = 0.5;
-          weight = 2;
-        } else if (isSelected) {
-          color = COLORS.SELECTED;
-          fillOpacity = 0.5;
-          weight = 3;
-        } else {
-          color = COLORS.DEFAULT;
-          fillOpacity = 0.2;
-          weight = 1.5;
-        }
+    return props.data
+      .flatMap((item, idx) => {
+        try {
+          if (!item?.geometry?.coordinates) return null;
 
-        const polygonStyle = {
-          color,
-          fillColor: color,
-          fillOpacity,
-          weight,
-          opacity: 0.8,
-        };
+          const sect = item.properties || {};
+          const sectorName = sect.SECTOR || sect.sector || "";
+          const sectorKey = normalizeText(sectorName);
+          const matchedSector = sectoresMap.get(sectorKey);
+          const isSelected = sect.BARRIO === props.selectedParroq;
 
-        // Procesar coordenadas
-        const coordinates = item.geometry.coordinates;
-        let polygons = [];
-        
-        if (item.geometry.type === "MultiPolygon") polygons = coordinates;
-        else if (item.geometry.type === "Polygon") polygons = [coordinates];
-        else if (Array.isArray(coordinates[0]?.[0]?.[0])) polygons = coordinates;
-        else polygons = [coordinates];
+          // Determinar color del polígono
+          let color, fillOpacity, weight;
+          if (matchedSector) {
+            color = getColorByTotal(matchedSector.total);
+            fillOpacity = 0.5;
+            weight = 2;
+          } else if (isSelected) {
+            color = COLORS.SELECTED;
+            fillOpacity = 0.5;
+            weight = 3;
+          } else {
+            color = COLORS.DEFAULT;
+            fillOpacity = 0.2;
+            weight = 1.5;
+          }
 
-        return polygons.map((polygon, polyIdx) => {
-          const ring = polygon[0] || polygon;
-          if (!ring?.length) return null;
-          
-          const leafletCoords = ring.map(coord => [coord[1], coord[0]]);
-          
-          return (
-            <Polygon
-              key={`${item.id || idx}-${polyIdx}`}
-              positions={leafletCoords}
-              pathOptions={polygonStyle}
-              eventHandlers={{
-                click: () => props.onGetParroqData?.(sect.BARRIO),
-                mouseover: (e) => e.target.setStyle({ fillOpacity: 0.7, weight: 3 }),
-                mouseout: (e) => e.target.setStyle(polygonStyle),
-              }}
-            >
-              <Popup>
-                <div style={{ minWidth: 200 }}>
-                  <h4 style={{ margin: "0 0 10px 0", color: "#1976d2" }}>
-                    {sect.SECTOR || sect.sector || "Sector sin nombre"}
-                  </h4>
-                  <div style={{ fontSize: 14 }}>
-                    <p><strong>Parroquia:</strong> {sect.PARROQUIA || "N/A"}</p>
-                    <p><strong>Barrio:</strong> {sect.BARRIO || "N/A"}</p>
-                    {matchedSector && (
-                      <>
-                        <p style={{ borderTop: "1px solid #eee", paddingTop: "5px" }}>
-                          <strong>Priorización:</strong>
-                        </p>
-                        <p><strong>Puntaje:</strong> <span style={{ fontWeight: "bold", color }}>{matchedSector.total}</span></p>
-                        <p><strong>Estado:</strong> {matchedSector.estado || "N/A"}</p>
-                      </>
-                    )}
+          const polygonStyle = {
+            color,
+            fillColor: color,
+            fillOpacity,
+            weight,
+            opacity: 0.8,
+          };
+
+          // Procesar coordenadas
+          const coordinates = item.geometry.coordinates;
+          let polygons = [];
+
+          if (item.geometry.type === "MultiPolygon") polygons = coordinates;
+          else if (item.geometry.type === "Polygon") polygons = [coordinates];
+          else if (Array.isArray(coordinates[0]?.[0]?.[0]))
+            polygons = coordinates;
+          else polygons = [coordinates];
+
+          return polygons.map((polygon, polyIdx) => {
+            const ring = polygon[0] || polygon;
+            if (!ring?.length) return null;
+
+            const leafletCoords = ring.map((coord) => [coord[1], coord[0]]);
+
+            return (
+              <Polygon
+                key={`${item.id || idx}-${polyIdx}`}
+                positions={leafletCoords}
+                pathOptions={polygonStyle}
+                eventHandlers={{
+                  click: () => props.onGetParroqData?.(sect.BARRIO),
+                  mouseover: (e) =>
+                    e.target.setStyle({ fillOpacity: 0.7, weight: 3 }),
+                  mouseout: (e) => e.target.setStyle(polygonStyle),
+                }}
+              >
+                <Popup>
+                  <div style={{ minWidth: 200 }}>
+                    <h4 style={{ margin: "0 0 10px 0", color: "#1976d2" }}>
+                      {sect.SECTOR || sect.sector || "Sector sin nombre"}
+                    </h4>
+                    <div style={{ fontSize: 14 }}>
+                      <p>
+                        <strong>Parroquia:</strong> {sect.PARROQUIA || "N/A"}
+                      </p>
+                      <p>
+                        <strong>Barrio:</strong> {sect.BARRIO || "N/A"}
+                      </p>
+                      {matchedSector && (
+                        <>
+                          <p
+                            style={{
+                              borderTop: "1px solid #eee",
+                              paddingTop: "5px",
+                            }}
+                          >
+                            <strong>Priorización:</strong>
+                          </p>
+                          <p>
+                            <strong>Puntaje:</strong>{" "}
+                            <span style={{ fontWeight: "bold", color }}>
+                              {matchedSector.total}
+                            </span>
+                          </p>
+                          <p>
+                            <strong>Estado:</strong>{" "}
+                            {matchedSector.estado || "N/A"}
+                          </p>
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </Popup>
-            </Polygon>
-          );
-        });
-      } catch (error) {
-        console.error("Error en polígono:", error);
-        return null;
-      }
-    }).filter(Boolean);
-  }, [props.data, props.seletedInfo, props.selectedParroq, props.onGetParroqData, getColorByTotal, normalizeText]);
+                </Popup>
+              </Polygon>
+            );
+          });
+        } catch (error) {
+          console.error("Error en polígono:", error);
+          return null;
+        }
+      })
+      .filter(Boolean);
+  }, [
+    props.data,
+    props.seletedInfo,
+    props.selectedParroq,
+    props.onGetParroqData,
+    getColorByTotal,
+    normalizeText,
+  ]);
 
   // Convertir string de polígono a coordenadas
   const convertPolygonStringToLeaflet = useCallback((polygonString) => {
@@ -284,7 +399,7 @@ useEffect(() => {
       const parsed = JSON.parse(polygonString);
       const ring = parsed[0];
       if (!ring?.length) return null;
-      return ring.map(coord => [coord[1], coord[0]]);
+      return ring.map((coord) => [coord[1], coord[0]]);
     } catch (error) {
       console.error("Error al convertir polígono:", error);
       return null;
@@ -294,25 +409,26 @@ useEffect(() => {
   // Renderizar polígono del comité
   const renderComite = useMemo(() => {
     if (!props.comiteInfo?.data?.[0]) return null;
-    
+
     const comiteData = props.comiteInfo.data[0];
     const polygonCoords = convertPolygonStringToLeaflet(comiteData.poligono);
     if (!polygonCoords) return null;
-    
+
     const polygonStyle = {
       color: "#1976d2",
       fillColor: "#1976d2",
       fillOpacity: 0.4,
       weight: 2.5,
     };
-    
+
     return (
       <Polygon
         positions={polygonCoords}
         pathOptions={polygonStyle}
         eventHandlers={{
           click: () => props.onPolygonClick?.(comiteData),
-          mouseover: (e) => e.target.setStyle({ fillOpacity: 0.7, weight: 3.5 }),
+          mouseover: (e) =>
+            e.target.setStyle({ fillOpacity: 0.7, weight: 3.5 }),
           mouseout: (e) => e.target.setStyle(polygonStyle),
         }}
       >
@@ -322,8 +438,12 @@ useEffect(() => {
               {comiteData.comite || "Comité Comunitario"}
             </h3>
             <div style={{ fontSize: 13 }}>
-              <p><strong>Estado:</strong> {comiteData.Estado || "N/A"}</p>
-              <p><strong>Fase:</strong> {comiteData.Fase || "N/A"}</p>
+              <p>
+                <strong>Estado:</strong> {comiteData.Estado || "N/A"}
+              </p>
+              <p>
+                <strong>Fase:</strong> {comiteData.Fase || "N/A"}
+              </p>
             </div>
           </div>
         </Popup>
@@ -334,39 +454,117 @@ useEffect(() => {
   // Renderizar marcadores
   const renderMarker = useMemo(() => {
     if (!markData?.length) return null;
-    
-    return markData.map((item, idx) => {
-      const lat = parseFloat(item.lat);
-      const lng = parseFloat(item.lng);
-      if (isNaN(lat) || isNaN(lng)) return null;
-      console.log("Marcador:", { lat, lng, item });
-      return (
-        <Marker key={item.id || idx} position={[lat, lng]}>
-          <Popup>
-            <div style={{ minWidth: 200 }}>
-              <h3 style={{ margin: "0 0 10px 0", color: "#d32f2f" }}>
-              Creado: {formatDate(item.created_at)}
-              </h3>
-              <p><strong>Tipo:</strong> {item.type || "N/A"}</p>
-              <p><strong>Subtipo:</strong> {item.subtype || "No disponible"}</p>
-              <p><strong>Especifico:</strong> {item.specific_type || "No disponible"}</p>
-              <p><strong>Descripción:</strong> {item.desc || "No disponible"}</p>
-              {item.type=="amenaza" && (
-                <div>
-                  <p><strong>Frecuencia:</strong> {item.freq || "No disponible"}</p>
-                  <p><strong>Intensidad:</strong> {item.intensity || "No disponible"}</p>
-                  <p><strong>Superficie Afectada:</strong> {item.surface || "No disponible"}</p>
-                </div>
-              )}
-            </div>
-          </Popup>
-        </Marker>
-      );
-    }).filter(Boolean);
+    const markerIcons = {
+      Amenaza: createEmojiMarker("⚠️", "#d32f2f", "#ffebee"),
+      Vulnerabilidad: createEmojiMarker("🛡️", "#ff9800", "#fff3e0"),
+      Recurso: createEmojiMarker("🔧", "#4caf50", "#e8f5e8"),
+    };
+    return markData
+      .map((item, idx) => {
+        const lat = parseFloat(item.lat);
+        const lng = parseFloat(item.lng);
+        if (isNaN(lat) || isNaN(lng)) return null;
+        console.log("Marcador:", { lat, lng, item });
+        return (
+          <Marker
+            key={item.id || idx}
+            position={[lat, lng]}
+            icon={markerIcons[item.type] || markerIcons.default}
+          >
+            <Popup>
+              <div style={{ minWidth: 200 }}>
+                <h3 style={{ margin: "0 0 10px 0", color: "#d32f2f" }}>
+                  {item.row} - {item.type || "N/A"}
+                </h3>
+                <p>
+                  <strong>Fecha:</strong> {formatDate(item.created_at)}
+                </p>
+                {item.img && (
+                                      <div style={{ marginTop: "10px" }}>
+                                        <img
+                                          src={item.img}
+                                          alt={`Imagen de ${item.type || "afectación"}`}
+                                          style={{
+                                            width: "100%",
+                                            height: "auto",
+                                            maxHeight: "200px",
+                                            objectFit: "contain",
+                                            borderRadius: "4px",
+                                            border: "1px solid #ddd",
+                                            cursor: "pointer",
+                                          }}
+                                          
+                                        />
+                                        <Typography
+                                          variant="caption"
+                                          sx={{
+                                            display: "block",
+                                            textAlign: "center",
+                                            color: "#666",
+                                          }}
+                                        >
+                                          Haz clic para ampliar
+                                        </Typography>
+                                      </div>
+                                    )}
+                <p>
+                  <strong>Subtipo:</strong> {item.subtype || "No disponible"}
+                </p>
+                <p>
+                  <strong>Amenaza:</strong>{" "}
+                  {item.specific_type || "No disponible"}
+                </p>
+                <p>
+                  <strong>Descripción:</strong> {item.desc || "No disponible"}
+                </p>
+                {item.type === "Amenaza" && (
+                  <div
+                    style={{
+                      marginTop: "10px",
+                      padding: "10px",
+                      backgroundColor: "#f5f5f5",
+                      borderRadius: "4px",
+                    }}
+                  >
+                    <Typography variant="subtitle2" gutterBottom>
+                      <strong>📊 Parámetros de la Amenaza:</strong>
+                    </Typography>
+                    <div style={{ marginLeft: "10px" }}>
+                      <p style={{ margin: "5px 0" }}>
+                        <strong>🔄 Frecuencia:</strong>{" "}
+                        {getLabelByValue(FREQ_OPTIONS, item.freq)}
+                      </p>
+                      <p style={{ margin: "5px 0" }}>
+                        <strong>💥 Intensidad:</strong>{" "}
+                        {getLabelByValue(INTENSITY_OPTIONS, item.intensity)}
+                      </p>
+                      <p style={{ margin: "5px 0" }}>
+                        <strong>🗺️ Superficie Afectada:</strong>{" "}
+                        {getLabelByValue(SURFACE_OPTIONS, item.surface)}
+                      </p>
+
+                    </div>
+                  </div>
+                )}
+              </div>
+            </Popup>
+          </Marker>
+        );
+      })
+      .filter(Boolean);
   }, [markData, formatDate]);
 
   if (props.loading) {
-    return <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">Cargando mapa...</Box>;
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="60vh"
+      >
+        Cargando mapa...
+      </Box>
+    );
   }
 
   return (
@@ -380,7 +578,7 @@ useEffect(() => {
         {user && <MapEventHandlers onMapClick={handleOpenDialog} />}
         <LocationMarker />
         <TileLayer url="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}" />
-        
+
         <DialogAdd
           dialogOpen={dialogOpen}
           handleCloseDialog={handleCloseDialog}
@@ -389,7 +587,7 @@ useEffect(() => {
           setMarkData={setMarkData}
           comite={props.comiteInfo?.data?.[0]?.comite}
         />
-        
+
         <LayersControl position="topright">
           <LayersControl.Overlay name="Polígonos" checked>
             <LayerGroup>{renderPolygons}</LayerGroup>
