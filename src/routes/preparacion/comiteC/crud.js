@@ -9,6 +9,7 @@ export const useInforComite = () => {
   const [dataC, setData] = useState(null);
 
   const read = useCallback(async (tipo, sheet, atrib) => {
+  
     // Validaciones
     if (!tipo) {
       setError("Ingrese el tipo de busqueda");
@@ -23,20 +24,23 @@ export const useInforComite = () => {
     setData(null);
     try {
       let response = null;
-   
+
       if (sheet === "comite") {
-      
         response = await fetch(
           `${url_GetAll}?tipo=${tipo}&sheet=${sheet}&comite=${atrib}`,
         );
       } else if (sheet === "brigada") {
-  
+        response = await fetch(
+          `${url_GetAll}?tipo=${tipo}&sheet=${sheet}&comite=${atrib}`,
+        );
+      }else if (sheet === "plan") {
         response = await fetch(
           `${url_GetAll}?tipo=${tipo}&sheet=${sheet}&comite=${atrib}`,
         );
       }
       const data = await response.json();
-    //  console.log("Datos MTT:", data);
+     
+      //  console.log("Datos MTT:", data);
       setData(data);
       //console.log("Datos MTT:", dataMtt);
     } catch (err) {
@@ -49,6 +53,7 @@ export const useInforComite = () => {
 
   const post = useCallback(async (tipo, sheet, dPost) => {
     // Validaciones
+
     if (!tipo) {
       setError("Ingrese un mesa o grupo de trabajo");
       return;
@@ -62,19 +67,19 @@ export const useInforComite = () => {
       return;
     }
     //  console.log(dPost)
-    console.log("is print");
+
     setLoading(true);
     setError(null);
     setData(null);
     try {
       let response = null;
-      console.log(sheet);
-      if (sheet === "plan") {
-        response = await fetch(
-          `${url_GetAll}?tipo=${tipo}&sheet=${sheet}&data=${dPost}`,
-        );
-      } 
 
+      if (sheet === "plan") {
+        const dataString = encodeURIComponent(JSON.stringify(dPost));
+        response = await fetch(
+          `${url_GetAll}?tipo=${tipo}&sheet=${sheet}&data=${dataString}`,
+        );
+      }
       const data = await response.json();
       setData(data);
 

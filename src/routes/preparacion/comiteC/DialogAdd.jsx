@@ -11,410 +11,515 @@ import {
   Select,
   TextField,
   Typography,
+  Alert,
+  CircularProgress,
+  Stepper,
+  Step,
+  StepLabel,
+  Paper,
+  IconButton,
+  InputAdornment,
 } from "@mui/material";
-import { useState } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import CloseIcon from "@mui/icons-material/Close";
+import SaveIcon from "@mui/icons-material/Save";
+import WarningIcon from "@mui/icons-material/Warning";
+import VulnerabilityIcon from "@mui/icons-material/Shield";
+import ResourceIcon from "@mui/icons-material/Construction";
 import { useInforComite } from "./crud";
+
+// Configuraciones separadas para mejor mantenimiento
+const CONFIG = {
+  amenaza: {
+    title: "Registrar Amenaza",
+    icon: <WarningIcon color="error" />,
+    subtypes: [
+      { value: "natural", label: "Natural" },
+      { value: "social_natural", label: "Socio Naturales" },
+      { value: "antropica", label: "Antrópica" },
+      { value: "tecnologica", label: "Tecnológica" },
+    ],
+  },
+  vulnerabilidad: {
+    title: "Registrar Vulnerabilidad",
+    icon: <VulnerabilityIcon color="warning" />,
+    subtypes: [
+      { value: "Fisica", label: "Física" },
+      { value: "Economica", label: "Económica" },
+      { value: "Social", label: "Social" },
+      { value: "Ambiental", label: "Ambiental" },
+    ],
+  },
+  recurso: {
+    title: "Registrar Recurso",
+    icon: <ResourceIcon color="primary" />,
+    subtypes: [
+      { value: "Equipamientos", label: "Equipamientos" },
+      { value: "Social", label: "Social" },
+      { value: "Recursos", label: "Recursos Materiales" },
+    ],
+  },
+};
+
+// Data mappings
+const SUBTYPE_OPTIONS = {
+  natural: [
+    { value: "Inundación", label: "🌊 Inundación" },
+    { value: "Movimiento_masa", label: "⛰️ Movimiento en masa" },
+    { value: "Sismo", label: "🌋 Sismo" },
+    { value: "Sequía", label: "☀️ Sequía" },
+    { value: "Helada", label: "❄️ Helada" },
+    { value: "Avenidas_torrenciales", label: "💧 Avenidas torrenciales" },
+    { value: "Erosión_Litoral", label: "🌊 Erosión Litoral" },
+    { value: "Granizada", label: "🧊 Granizada" },
+  ],
+  social_natural: [
+    { value: "Inundación", label: "🌊 Inundación" },
+    { value: "Movimiento_masa", label: "⛰️ Movimiento en masa" },
+    { value: "incendios", label: "🔥 Incendios Forestales" },
+  ],
+  antropica: [
+    { value: "Aglomeración", label: "👥 Aglomeración" },
+    { value: "Contaminación", label: "🏭 Contaminación" },
+  ],
+  tecnologica: [
+    { value: "Derrames", label: "🛢️ Derrames" },
+    { value: "Fugas", label: "💨 Fugas" },
+    { value: "Explosiones", label: "💥 Explosiones" },
+    { value: "incendios", label: "🔥 Incendios (Estructurales y forestales)" },
+  ],
+  recursos_equipamientos: [
+    { value: "a_comunal", label: "🏢 Área Comunal" },
+    { value: "a_deportiva", label: "⚽ Área Deportiva" },
+    { value: "Bomberos", label: "🚒 Bomberos" },
+    { value: "UPC", label: "👮 UPC" },
+    { value: "Centro de salud", label: "🏥 Centro de salud" },
+    { value: "Albergue", label: "🏠 Albergue" },
+    { value: "iglesia", label: "⛪ Iglesia" },
+    { value: "otro", label: "📝 Otro (especificar)" },
+  ],
+  recursos_materiales: [
+    { value: "Plan_comu", label: "📋 Plan comunitario" },
+    { value: "Sis_alerta", label: "🔔 Sistemas de alerta" },
+    { value: "sings", label: "⚠️ Señalética" },
+    { value: "chalecos", label: "🦺 Chalecos" },
+    { value: "picos", label: "⛏️ Picos" },
+    { value: "extintores", label: "🧯 Extintores" },
+    { value: "camas", label: "🛏️ Camas" },
+    { value: "botiquin", label: "💊 Botiquín" },
+    { value: "linternas", label: "🔦 Linternas" },
+    { value: "radios", label: "📻 Radios de comunicación" },
+    { value: "generador", label: "⚡ Generador eléctrico" },
+    { value: "carpa", label: "⛺ Carpa/tienda de campaña" },
+    { value: "otro", label: "📝 Otro (especificar)" },
+  ],
+};
+
+// Componente de texto de vulnerabilidad
+const VulnerabilityText = ({ type }) => {
+  const texts = {
+    Fisica: "La vulnerabilidad física se relaciona con la calidad de construcciones, infraestructura y ubicación geográfica. Incluye viviendas, establecimientos económicos, servicios públicos y la calidad del suelo donde se asientan los centros poblados.",
+    Economica: "La vulnerabilidad económica refleja la capacidad de la población para hacer frente a desastres. Está determinada por el nivel de ingresos, acceso a activos económicos y satisfacción de necesidades básicas.",
+    Social: "La vulnerabilidad social se analiza desde el nivel de organización y participación comunitaria. Las comunidades organizadas tienen mayor capacidad para prevenir y responder ante emergencias.",
+    Ambiental: "La vulnerabilidad ambiental es el grado de resistencia del medio natural ante la variabilidad climática, incluyendo deterioro ambiental, deforestación, contaminación y pérdida de biodiversidad.",
+  };
+  
+  return (
+    <Paper variant="outlined" sx={{ p: 2, mb: 2, bgcolor: "#f5f5f5" }}>
+      <Typography variant="body2" align="justify" color="textSecondary">
+        {texts[type] || "Seleccione un tipo de vulnerabilidad para ver más información"}
+      </Typography>
+    </Paper>
+  );
+};
+
+// Componente de campo reutilizable
+const FormField = ({ name, label, type = "text", options = [], value, onChange, required = false, ...props }) => (
+  <TextField
+    fullWidth
+    margin="normal"
+    size="small"
+    name={name}
+    label={label}
+    type={type}
+    value={value || ""}
+    onChange={onChange}
+    select={type === "select"}
+    multiline={type === "textarea"}
+    rows={type === "textarea" ? 3 : undefined}
+    required={required}
+    {...props}
+  >
+    {type === "select" && options.map((opt) => (
+      <MenuItem key={opt.value} value={opt.value}>
+        {opt.label}
+      </MenuItem>
+    ))}
+  </TextField>
+);
+
+// Componente de parámetros para amenazas
+const AmenazaParams = ({ data, onChange }) => (
+  <Box sx={{ mt: 2 }}>
+    <Typography variant="subtitle2" gutterBottom>
+      Parámetros de evaluación
+    </Typography>
+    <FormField
+      name="freq"
+      label="Frecuencia"
+      type="select"
+      options={[
+        { value: "1", label: "🟢 Baja - Evento cada 5-20 años" },
+        { value: "2", label: "🟡 Media - Evento cada 3-5 años" },
+        { value: "3", label: "🔴 Alta - Evento más de una vez al año" },
+      ]}
+      value={data.freq}
+      onChange={onChange}
+    />
+    <FormField
+      name="intensity"
+      label="Magnitud/Intensidad"
+      type="select"
+      options={[
+        { value: "1", label: "🟢 Baja - Sin fallecidos, mínima afectación" },
+        { value: "2", label: "🟡 Media - Pocos fallecidos, afectación temporal" },
+        { value: "3", label: "🔴 Alta - Numerosos fallecidos, afectación masiva" },
+      ]}
+      value={data.intensity}
+      onChange={onChange}
+    />
+    <FormField
+      name="surface"
+      label="Territorio Afectado"
+      type="select"
+      options={[
+        { value: "1", label: "🟢 Baja - Menos del 50% del territorio" },
+        { value: "2", label: "🟡 Media - Entre 50% y 80% del territorio" },
+        { value: "3", label: "🔴 Alta - Más del 80% del territorio" },
+      ]}
+      value={data.surface}
+      onChange={onChange}
+    />
+  </Box>
+);
 
 export const DialogAdd = ({
   dialogOpen,
   handleCloseDialog,
   dialogCoords,
-  ...props
+  comite,
+  setMarkData,
 }) => {
   const [dialogData, setDialogData] = useState({
     type: "",
     subtype: "",
-    comité: props.comite,
-    by: localStorage.getItem("user"),
     specific_type: "",
-    freq: 0,
-    intensity: 0,
-    surface: 0,
     specific_resource: "",
+    freq: "",
+    intensity: "",
+    surface: "",
     desc: "",
     img: "",
+    nombre: "",
   });
-
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [activeStep, setActiveStep] = useState(0);
   const { post } = useInforComite();
 
-  const handleData = (e) => {
+  const userName = JSON.parse(localStorage.getItem("user") || "Usuario");
+  
+
+  // Reset form when dialog closes
+  useEffect(() => {
+    if (!dialogOpen) {
+      setDialogData({
+        type: "", subtype: "", specific_type: "", specific_resource: "",
+        freq: "", intensity: "", surface: "", desc: "", img: "", nombre: "",
+      });
+      setActiveStep(0);
+      setError("");
+    }
+  }, [dialogOpen]);
+
+  const handleData = useCallback((e) => {
     const { name, value } = e.target;
-    setDialogData((prev) => ({ ...prev, [name]: value }));
+    setDialogData(prev => ({ ...prev, [name]: value }));
+    // Clear error when user makes changes
+    if (error) setError("");
+  }, [error]);
+
+  const getSpecificOptions = useMemo(() => {
+    if (dialogData.type === "Amenaza") {
+      return SUBTYPE_OPTIONS[dialogData.subtype] || [];
+    }
+    if (dialogData.type === "Recurso") {
+      if (dialogData.subtype === "Equipamientos") return SUBTYPE_OPTIONS.recursos_equipamientos;
+      if (dialogData.subtype === "Recursos") return SUBTYPE_OPTIONS.recursos_materiales;
+    }
+    return [];
+  }, [dialogData.type, dialogData.subtype]);
+
+  const validateForm = () => {
+    if (!dialogData.type) {
+      setError("Por favor seleccione un tipo");
+      return false;
+    }
+    if (!dialogData.subtype) {
+      setError("Por favor seleccione una subcategoría");
+      return false;
+    }
+    if (dialogData.type === "Amenaza" && !dialogData.specific_type && getSpecificOptions.length > 0) {
+      setError("Por favor seleccione el tipo específico");
+      return false;
+    }
+    if (!dialogData.desc?.trim()) {
+      setError("Por favor ingrese una descripción");
+      return false;
+    }
+    return true;
   };
-  const renderField = (
-    name,
-    label,
-    type = "text",
-    options = [],
-    props = {},
-  ) => (
-    <TextField
-      sx={{ py: 2 }}
-      name={name}
-      label={label}
-      type={type}
-      value={dialogData[name] || ""}
-      onChange={handleData}
-      select={type === "select"}
-      multiline={type === "textarea"}
-      rows={type === "textarea" ? 5 : undefined}
-      fullWidth
-      disabled={name === "by" || name === "ubi"}
-      {...props}
-    >
-      {type === "select" &&
-        options.map((opt) => (
-          <MenuItem key={opt.value} value={opt.value}>
-            {opt.label}
-          </MenuItem>
-        ))}
-    </TextField>
-  );
+const cleanCoordinate = (coord) => {
+  if (!coord) return null;
+  
+  // Convertir a string si es número
+  let coordStr = coord.toString();
+  
+  // Reemplazar coma por punto (si usa coma como decimal)
+  coordStr = coordStr.replace(',', '.');
+  
+  // Eliminar cualquier caracter que no sea número, punto o signo menos
+  coordStr = coordStr.replace(/[^0-9.-]/g, '');
+  
+  // Convertir a número
+  const num = parseFloat(coordStr);
+  
+  // Validar que sea un número válido
+  return isNaN(num) ? null : num;
+};
+
+  const handleSubmit = async () => {
+    if (!validateForm()) return;
+    if (!comite) {
+      setError("No hay un comité seleccionado");
+      return;
+    }
+const cleanLat = cleanCoordinate(dialogCoords?.lat);
+  const cleanLng = cleanCoordinate(dialogCoords?.lng);
+    setLoading(true);
+    try {
+      const newMarker = {
+        ...dialogData,
+        lat: cleanLat,
+        lng: cleanLng,
+        comite,
+        by: userName,
+        created_at: new Date().toISOString(),
+      };
+
+      const response = await post("post", "plan", newMarker);
+       handleCloseDialog();
+        setMarkData(prev => [...(Array.isArray(prev) ? prev : []), newMarker]);
+      if (response) {
+       
+       
+      }
+    } catch (err) {
+      setError("Error al guardar el marcador. Intente nuevamente.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const renderDynamicFields = () => {
+    switch (dialogData.type) {
+      case "Amenaza":
+        return (
+          <>
+            <FormField
+              name="subtype"
+              label="Clasificación de Amenaza"
+              type="select"
+              options={CONFIG.amenaza.subtypes}
+              value={dialogData.subtype}
+              onChange={handleData}
+              required
+            />
+            {dialogData.subtype && getSpecificOptions.length > 0 && (
+              <FormField
+                name="specific_type"
+                label="Tipo específico"
+                type="select"
+                options={getSpecificOptions}
+                value={dialogData.specific_type}
+                onChange={handleData}
+                required
+              />
+            )}
+            <AmenazaParams data={dialogData} onChange={handleData} />
+          </>
+        );
+
+      case "Vulnerabilidad":
+        return (
+          <>
+            <FormField
+              name="subtype"
+              label="Tipo de Vulnerabilidad"
+              type="select"
+              options={CONFIG.vulnerabilidad.subtypes}
+              value={dialogData.subtype}
+              onChange={handleData}
+              required
+            />
+            {dialogData.subtype && <VulnerabilityText type={dialogData.subtype} />}
+          </>
+        );
+
+      case "Recurso":
+        return (
+          <>
+            <FormField
+              name="subtype"
+              label="Tipo de Recurso"
+              type="select"
+              options={CONFIG.recurso.subtypes}
+              value={dialogData.subtype}
+              onChange={handleData}
+              required
+            />
+            {dialogData.subtype && getSpecificOptions.length > 0 && (
+              <>
+                <FormField
+                  name="specific_resource"
+                  label="Recurso específico"
+                  type="select"
+                  options={getSpecificOptions}
+                  value={dialogData.specific_resource}
+                  onChange={handleData}
+                  required
+                />
+                {dialogData.specific_resource === "otro" && (
+                  <FormField
+                    name="nombre"
+                    label="Especificar recurso"
+                    value={dialogData.nombre}
+                    onChange={handleData}
+                    required
+                  />
+                )}
+              </>
+            )}
+          </>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  const getDialogTitle = () => {
+    if (!dialogData.type) return "Agregar Marcador";
+    return CONFIG[dialogData.type.toLowerCase()]?.title || "Agregar Marcador";
+  };
+
+  const getDialogIcon = () => {
+    if (!dialogData.type) return null;
+    return CONFIG[dialogData.type.toLowerCase()]?.icon;
+  };
 
   return (
-    <Dialog open={dialogOpen} onClose={handleCloseDialog}>
-      <DialogTitle>Agregar Marcador</DialogTitle>
+    <Dialog 
+      open={dialogOpen} 
+      onClose={handleCloseDialog} 
+      maxWidth="md" 
+      fullWidth
+      PaperProps={{ sx: { borderRadius: 2 } }}
+    >
+      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          {getDialogIcon()}
+          <Typography variant="h6">{getDialogTitle()}</Typography>
+        </Box>
+        <IconButton edge="end" onClick={handleCloseDialog} size="small">
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+
       <DialogContent>
-        <Box sx={{ minWidth: 300, pt: 1 }}>
-          <p>
-            <strong>Coordenadas:</strong> {dialogCoords?.lat},{" "}
-            {dialogCoords?.lng}
-          </p>
+        <Box sx={{ pt: 2 }}>
+          {/* Información de ubicación */}
+          <Paper variant="outlined" sx={{ p: 2, mb: 3, bgcolor: '#f8f9fa' }}>
+            <Typography variant="body2" color="textSecondary">
+              📍 <strong>Ubicación:</strong> {dialogCoords?.lat}, {dialogCoords?.lng}
+            </Typography>
+            <Typography variant="body2" color="textSecondary">
+              🏢 <strong>Comité:</strong> {comite || "No seleccionado"}
+            </Typography>
+          </Paper>
 
-          {renderField("type", "tipo", "select", [
-            { value: "Amenaza", label: "Amenaza" },
-            { value: "Recurso", label: "Recurso" },
-            { value: "Vulnerabilidad", label: "Vulnerabilidad" },
-          ])}
-          {dialogData.type == "Amenaza" ? (
-            <>
-              {/* Nivel 2 - Clasificación de la amenaza */}
-              {renderField("subtype", "Clasificación de Amenaza", "select", [
-                { value: "natural", label: "Natural" },
-                { value: "social_natural", label: "Socio Naturales" },
-                { value: "antropica", label: "Antrópica" },
-                { value: "tecnologica", label: "Tecnológica" },
-              ])}
+          {/* Selector de tipo principal */}
+          <FormField
+            name="type"
+            label="Tipo de registro"
+            type="select"
+            options={[
+              { value: "Amenaza", label: "⚠️ Amenaza" },
+              { value: "Vulnerabilidad", label: "🛡️ Vulnerabilidad" },
+              { value: "Recurso", label: "🔧 Recurso" },
+            ]}
+            value={dialogData.type}
+            onChange={handleData}
+            required
+          />
 
-              {/* Nivel 3 - Subtipo específico según clasificación */}
-              {dialogData.subtype == "natural" &&
-                renderField("specific_type", "Natural", "select", [
-                  { value: "Inundación", label: "Inundación" },
-                  { value: "Movimiento_masa", label: "Movimiento en masa" },
-                  { value: "Sismo", label: "Sismo" },
-                  { value: "Sequía", label: "Sequía" },
-                  { value: "Helada", label: "Helada" },
-                  {
-                    value: "Avenidas_torrenciales",
-                    label: "Avenidas torrenciales",
-                  },
-                  { value: "Erosión_Litoral", label: "Erosión Litoral" },
-                  { value: "Granizada", label: "Granizada" },
-                ])}
+          {/* Campos dinámicos según el tipo */}
+          {dialogData.type && renderDynamicFields()}
 
-              {dialogData.subtype == "social" &&
-                renderField("specific_type", "Subtipo específico", "select", [
-                  { value: "Inundación", label: "Inundación" },
-                  { value: "Movimiento_masa", label: "Movimiento en masa" },
-                  { value: "incendios", label: "Incendios Forestales" },
-                ])}
+          {/* Campos comunes */}
+          <FormField
+            name="desc"
+            label="Descripción detallada"
+            type="textarea"
+            value={dialogData.desc}
+            onChange={handleData}
+            required
+          />
+          
+          <FormField
+            name="img"
+            label="URL de imagen (opcional)"
+            value={dialogData.img}
+            onChange={handleData}
+            placeholder="https://ejemplo.com/imagen.jpg"
+          />
 
-              {dialogData.subtype == "antropica" &&
-                renderField("specific_type", "Subtipo específico", "select", [
-                  { value: "Aglomeración", label: "Aglomeración" },
-                  { value: "Contaminación", label: "Contaminación" },
-                ])}
+          {/* Mensaje de error */}
+          {error && (
+            <Alert severity="error" sx={{ mt: 2 }} onClose={() => setError("")}>
+              {error}
+            </Alert>
+          )}
 
-              {dialogData.subtype == "tecnologica" &&
-                renderField("specific_type", "Subtipo específico", "select", [
-                  { value: "Derrames", label: "Derrames" },
-                  { value: "Fugas", label: "Fugas" },
-                  {
-                    value: "Explociones",
-                    label: "Explociones",
-                  },
-                  {
-                    value: "incendios",
-                    label: "Incendios (Estructurales y forestales)",
-                  },
-                ])}
-
-              {/* Nivel 4 - Parámetros de la amenaza */}
-
-              {renderField("freq", "Frecuencia", "select", [
-                {
-                  value: "1",
-                  label:
-                    "Baja - Evento que se presenta al menos una vez en un período de tiempo entre 5 a 20 años",
-                },
-                {
-                  value: "2",
-                  label:
-                    "Media - Evento que se presenta por lo menos una vez en un período de tiempo entre 3 y 5 años.",
-                },
-                {
-                  value: "3",
-                  label:
-                    "Alta - Evento que se presenta más de una vez en el año  o por lo menos una vez en un periodo de uno a  tres años ",
-                },
-              ])}
-              {renderField("intensity", "Magnitud", "select", [
-                {
-                  value: "1",
-                  label:
-                    "Baja - Sin personas  fallecidas,mínima afectación en el territorio, sin afectación en las redes de servicios públicos, no hay interrupción en las actividades económicas",
-                },
-                {
-                  value: "2",
-                  label:
-                    "Media - Pocas personas fallecidas,  afectaciones en las redes de servicios públicos, suspensión temporal de actividades económicas,pocas viviendas destruidas y varias viviendas averiadas.",
-                },
-                {
-                  value: "3",
-                  label:
-                    "Alta - Numerosas personas fallecidas, , suspensión de servicios públicos básicos y de actividades económicas durante varios meses y un gran número de viviendas destruidas. ",
-                },
-                ,
-              ])}
-              {renderField("Surface", "Territorio Afectado", "select", [
-                {
-                  value: "1",
-                  label:
-                    "Baja - Menos del 50% del territorio presenta algún tipo de afectación  ",
-                },
-                {
-                  value: "2",
-                  label:
-                    "Media - Entre el 50% y 80% del territorio presenta afectación",
-                },
-                {
-                  value: "3",
-                  label:
-                    "Alta- Más del  80% de su territorio se encuentra afectado ",
-                },
-                ,
-              ])}
-            </>
-          ) : dialogData.type == "Vulnerabilidad" ? (
-            <>
-              {/* Nivel 2 - Tipo de vulnerabilidad */}
-              {renderField("subtype", "Tipo de Vulnerabilidad", "select", [
-                { value: "Fisica", label: "Física" },
-                { value: "Economica", label: "Económica" },
-                { value: "Social", label: "Social" },
-                { value: "Ambiental", label: "Ambiental" },
-              ])}
-              {dialogData.subtype == "Fisica" ? (
-                <Typography align="justify">
-                  <strong>Vulneravilidad Física</strong> <br />
-                  Está relacionada con la calidad o tipo de material utilizado y
-                  el tipo de construcción de las viviendas, establecimientos
-                  económicos (comerciales e industriales) y de servicios (salud,
-                  educación, instituciones públicas), e infraestructura
-                  socioeconómica (centrales hidroeléctricas, vías, puentes y
-                  sistemas de riesgo), para asimilar los efectos de los
-                  fenómenos que constituyen una amenaza. <br /> Otro aspecto
-                  importante es la calidad del suelo y el lugar donde se
-                  encuentran los centros poblados, cerca de fallas geológicas,
-                  laderas de cerros, riberas de ríos, áreas costeras; situación
-                  que incrementa significativamente su nivel de vulnerabilidad.{" "}
-                  <br /> En el plan departamental de gestión del riesgo será de
-                  terminado el nivel de vulnerabilidad física únicamente para la
-                  infraestructura vital departamental (vías, puentes,
-                  hospitales, estaciones de bomberos, estaciones de policía,
-                  entre otros)
-                </Typography>
-              ) : dialogData.subtype == "Economica" ? (
-                <Typography align="justify">
-                  <strong>Vulneravilidad Económica</strong> <br />
-                  Constituye el acceso que tiene la población de un determinado
-                  conglomerado urbano a los activos económicos (tierra,
-                  infraestructura de servicios, empleo, medios de producción,
-                  entre otros), y se refleja en la capacidad de hacer frente a
-                  un desastre. Está determinada por el nivel de ingresos o la
-                  capacidad para satisfacer las necesidades básicas por parte de
-                  la po blación. Bajo este enfoque que mide la pobreza material,
-                  una persona presentará una alta vulnerabilidad económica
-                  cuando es pobre y cuando no satisface dos o más necesidades
-                  básicas. El índice de Necesidades Básicas Insatisfechas –NBI-
-                  examina la pobreza como carencia de un conjunto de bienes
-                  materiales, los cuales condensan cinco aspectos: i) Vivienda
-                  inadecuada, ii) Hacinamiento crítico, iii) Acceso inadecuado a
-                  servicios públicos, en especial acueducto y sanea miento
-                  básico, iv) dependencia económica y v) Insistencia escolar de
-                  los niños menores de 11 años
-                </Typography>
-              ) : dialogData.subtype == "Social" ? (
-                <Typography align="justify">
-                  <strong>Vulneravilidad Social</strong> <br />
-                  Es el grado de resistencia del medio natural y de los seres
-                  vivos que conforman un determinado ecosistema, ante la
-                  presencia de la variabilidad climática. Igualmente está
-                  relacionada con el deterioro del medio natural (calidad del
-                  aire, agua y suelo), la deforestación, la explotación
-                  irracional de los recursos naturales, exposición a
-                  contaminantes tóxicos, pérdida de la biodiversidad y la
-                  ruptura de la auto-recuperación del sistema ecológico.
-                </Typography>
-              ) : dialogData.subtype == "Ambiental" ? (
-                <Typography align="justify">
-                  <strong>Vulneravilidad Ambiental</strong> <br />
-                  Se analiza a partir del nivel de organización y participación
-                  que tiene una comunidad, para prevenir y responder ante
-                  situaciones de emergencia. La población organizada (formal e
-                  informalmente) puede superar más fácilmente las conse cuencias
-                  de un desastre, debido a que su capacidad para prevenir y dar
-                  respuesta ante una situación de emergencia es mucho más
-                  efectiva y rápida.
-                </Typography>
-              ) : null}
-            </>
-          ) : dialogData.type == "Recurso" ? (
-            <>
-              {/* Nivel 2 - Tipo de recurso */}
-              {renderField("subtype", "Tipo de Recurso", "select", [
-                { value: "Equipamientos", label: "Equipamientos" },
-                { value: "Social", label: "Social" },
-                { value: "Recursos", label: "Recursos" },
-              ])}
-
-              {/* Nivel 3 - Ejemplos específicos según tipo */}
-              {dialogData.subtype == "Equipamientos" &&
-                renderField(
-                  "specific_resource",
-                  "Recurso Equipamientos",
-                  "select",
-                  [
-                    { value: "a_comunal", label: "Área Comunal" },
-                    { value: "a_deportiva", label: "Área Deportiva" },
-                    { value: "Bomberos", label: "Bomberos" },
-                    { value: "UPC", label: "UPC" },
-                    { value: "Centro de salud", label: "Centro de salud" },
-                    { value: "Albergue", label: "Albergue" },
-                    { value: "iglesia", label: "Iglesia" },
-                    { value: "otro", label: "Otro (especificar)" },
-                  ],
-                )}
-              {dialogData.specific_resource == "otro" &&
-                renderField("nombre", "especificar recurso", "text")}
-
-              {dialogData.subtype == "Social" &&
-                renderField("specific_resource", "Recurso social", "select", [
-                  { value: "Red de vecinos", label: "Red de vecinos" },
-                  {
-                    value: "L_comunitarios",
-                    label: "Líderes comunitarios",
-                  },
-                  {
-                    value: "Organizaciones",
-                    label: "Organizaciones",
-                  },
-                  { value: "Voluntariado", label: "Voluntariado" },
-                ])}
-
-              {dialogData.subtype == "Económico" &&
-                renderField(
-                  "specific_resource",
-                  "Recurso económico",
-                  "select",
-                  [
-                    { value: "Presupuesto local", label: "Presupuesto local" },
-                    { value: "Seguros", label: "Seguros" },
-                    { value: "Créditos", label: "Créditos" },
-                  ],
-                )}
-
-              {dialogData.subtype == "Recursos" &&
-                renderField(
-                  "specific_resource",
-                  "Recurso institucional",
-                  "select",
-                  [
-                    {
-                      value: "Plan_comu",
-                      label: "Plan_comunitario",
-                    },
-                    {
-                      value: "Sis_alerta",
-                      label: "Sistemas de alerta",
-                    },
-                    { value: "sings", label: "Señalética" },
-                    { value: "chalecos", label: "Chalecos" },
-                    { value: "picos", label: "Picos" },
-                    { value: "extintores", label: "Extintores" },
-                    { value: "camas", label: "Camas" },
-                    { value: "botiquin", label: "Botiquín" },
-                    { value: "linternas", label: "Linternas" },
-                    { value: "radios", label: "Radios de comunicación" },
-                    { value: "generador", label: "Generador eléctrico" },
-                    { value: "carpa", label: "Carpa/tienda de campaña" },
-                    { value: "otro", label: "Otro (especificar)" },
-                  ],
-                )}
-              {dialogData.specific_resource == "otro" &&
-                renderField("nombre", "especificar recurso", "text")}
-            </>
-          ) : null}
-
-          {renderField("desc", "Descripción", "textarea")}
-          {renderField("img", "Imagen", "text")}
+          {/* Requisitos */}
+          <Typography variant="caption" color="textSecondary" sx={{ display: 'block', mt: 2 }}>
+            * Campos obligatorios
+          </Typography>
         </Box>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={handleCloseDialog} variant="contained">
-          Cerrar
+
+      <DialogActions sx={{ p: 2, pt: 0 }}>
+        <Button onClick={handleCloseDialog} variant="outlined">
+          Cancelar
         </Button>
         <Button
-          onClick={async () => {
-            try {
-              // Preparar los datos
-              const newMarker = {
-                ...dialogData,
-                lat: dialogCoords.lat,
-                lng: dialogCoords.lng,
-                comité: props.comite,
-                by: localStorage.getItem("user"),
-                created_at: new Date().toISOString(),
-              };
-
-              // Enviar al servidor
-              const response = await post("post", "plan", newMarker);
-
-              // Actualizar el estado local SOLO si la petición fue exitosa
-              if (response) {
-                props.setMarkData((prev) => {
-                  // Asegurar que prev sea un array
-                  const currentData = Array.isArray(prev) ? prev : [];
-                  return [...currentData, newMarker];
-                });
-
-                handleCloseDialog();
-
-                // Limpiar el formulario
-                setDialogData({
-                  type: "",
-                  subtype: "",
-                  comité: props.comite,
-                  by: localStorage.getItem("user"),
-                  specific_type: "",
-                  freq: 0,
-                  intensity: 0,
-                  surface: 0,
-                  specific_resource: "",
-                  desc: "",
-                  img: "",
-                });
-              }
-            } catch (error) {
-              console.error("Error al añadir marcador:", error);
-              // Aquí puedes mostrar un mensaje de error al usuario
-              alert(
-                "Error al guardar el marcador. Por favor, intenta de nuevo.",
-              );
-            }
-          }}
+          onClick={handleSubmit}
+          variant="contained"
+          disabled={loading || !comite || !dialogData.type}
+          startIcon={loading ? <CircularProgress size={20} /> : <SaveIcon />}
         >
-          Añadir
+          {loading ? "Guardando..." : "Guardar Marcador"}
         </Button>
       </DialogActions>
     </Dialog>

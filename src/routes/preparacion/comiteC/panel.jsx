@@ -294,7 +294,7 @@ props.getBrigada.read("read", "brigada", props.selectComite)
                       fullWidth
                       variant="contained"
                       onClick={handleComiteSearch }
-                      disabled={!selectedValue || sLoading}
+                      disabled={!selectedValue || props.loadingComite}
                       sx={{
                         borderRadius: 2,
                         textTransform: "none",
@@ -302,7 +302,7 @@ props.getBrigada.read("read", "brigada", props.selectComite)
                         mb: { xs: 0, md: 1 },
                       }}
                     >
-                      {sLoading ? "Consultando..." : "Consultar"}
+                      {props.loadingComite ? "Consultando..." : "Consultar"}
                     </Button>
                   </Grid>
                 </Grid>

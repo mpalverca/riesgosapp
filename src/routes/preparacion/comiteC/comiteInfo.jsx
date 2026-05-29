@@ -73,8 +73,7 @@ const ComiteInfo = ({ comite, ...props }) => {
     return null; // o muestra un mensaje de carga
   }
   const comiteData = props.comiteInfo.data[0];
-  console.log("comiteData", comiteData)
-  console.log("brigada", props.getBrigada.dataC.data)
+
   return (
     <Box sx={{ p: 2 }}>
       <Typography align="center" variant="h6">

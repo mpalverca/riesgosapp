@@ -148,6 +148,7 @@ export default function ComiteComunitario() {
             setSelectedValue={setSelectedValue}
             setSelectSect={setSelectInfo}
             selectComite={selectComite}
+            loadingComite={loadingGet}
             setComite={setComite}
             getComite={read}
             getBrigada={getBrigada}
