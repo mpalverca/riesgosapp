@@ -532,7 +532,13 @@ console.log(props)
             icon={markerIcons[item.type] || markerIcons.default}
           >
             <Popup>
-              <div style={{ minWidth: 200 }}>
+
+              < Box sx={{
+                      maxHeight: "60vh",
+                      overflowY: "auto",
+                      maxWidth: "450px",
+                    }}
+                  >
                 <h3 style={{ margin: "0 0 10px 0", color: "#d32f2f" }}>
                   {item.row} - {item.type || "N/A"}
                 </h3>
@@ -604,7 +610,7 @@ console.log(props)
                     </div>
                   </div>
                 )}
-              </div>
+              </Box>
             </Popup>
           </Marker>
         );
