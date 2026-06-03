@@ -515,7 +515,7 @@ export const DialogAdd = ({
     );
   }
 
-  if (!userBelongsToComite) {
+  if (!userBelongsToComite || !userName.ci) {
     return (
       <Snackbar
         open={true}
