@@ -19,6 +19,7 @@ import {
   Paper,
   IconButton,
   InputAdornment,
+  Snackbar,
 } from "@mui/material";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import CloseIcon from "@mui/icons-material/Close";
@@ -118,23 +119,37 @@ const SUBTYPE_OPTIONS = {
 // Componente de texto de vulnerabilidad
 const VulnerabilityText = ({ type }) => {
   const texts = {
-    Fisica: "La vulnerabilidad física se relaciona con la calidad de construcciones, infraestructura y ubicación geográfica. Incluye viviendas, establecimientos económicos, servicios públicos y la calidad del suelo donde se asientan los centros poblados.",
-    Economica: "La vulnerabilidad económica refleja la capacidad de la población para hacer frente a desastres. Está determinada por el nivel de ingresos, acceso a activos económicos y satisfacción de necesidades básicas.",
-    Social: "La vulnerabilidad social se analiza desde el nivel de organización y participación comunitaria. Las comunidades organizadas tienen mayor capacidad para prevenir y responder ante emergencias.",
-    Ambiental: "La vulnerabilidad ambiental es el grado de resistencia del medio natural ante la variabilidad climática, incluyendo deterioro ambiental, deforestación, contaminación y pérdida de biodiversidad.",
+    Fisica:
+      "La vulnerabilidad física se relaciona con la calidad de construcciones, infraestructura y ubicación geográfica. Incluye viviendas, establecimientos económicos, servicios públicos y la calidad del suelo donde se asientan los centros poblados.",
+    Economica:
+      "La vulnerabilidad económica refleja la capacidad de la población para hacer frente a desastres. Está determinada por el nivel de ingresos, acceso a activos económicos y satisfacción de necesidades básicas.",
+    Social:
+      "La vulnerabilidad social se analiza desde el nivel de organización y participación comunitaria. Las comunidades organizadas tienen mayor capacidad para prevenir y responder ante emergencias.",
+    Ambiental:
+      "La vulnerabilidad ambiental es el grado de resistencia del medio natural ante la variabilidad climática, incluyendo deterioro ambiental, deforestación, contaminación y pérdida de biodiversidad.",
   };
-  
+
   return (
     <Paper variant="outlined" sx={{ p: 2, mb: 2, bgcolor: "#f5f5f5" }}>
       <Typography variant="body2" align="justify" color="textSecondary">
-        {texts[type] || "Seleccione un tipo de vulnerabilidad para ver más información"}
+        {texts[type] ||
+          "Seleccione un tipo de vulnerabilidad para ver más información"}
       </Typography>
     </Paper>
   );
 };
 
 // Componente de campo reutilizable
-const FormField = ({ name, label, type = "text", options = [], value, onChange, required = false, ...props }) => (
+const FormField = ({
+  name,
+  label,
+  type = "text",
+  options = [],
+  value,
+  onChange,
+  required = false,
+  ...props
+}) => (
   <TextField
     fullWidth
     margin="normal"
@@ -150,11 +165,12 @@ const FormField = ({ name, label, type = "text", options = [], value, onChange, 
     required={required}
     {...props}
   >
-    {type === "select" && options.map((opt) => (
-      <MenuItem key={opt.value} value={opt.value}>
-        {opt.label}
-      </MenuItem>
-    ))}
+    {type === "select" &&
+      options.map((opt) => (
+        <MenuItem key={opt.value} value={opt.value}>
+          {opt.label}
+        </MenuItem>
+      ))}
   </TextField>
 );
 
@@ -169,9 +185,21 @@ const AmenazaParams = ({ data, onChange }) => (
       label="Frecuencia"
       type="select"
       options={[
-        { value: "1", label: "🟢 Baja - Evento que se presenta al menos una vez en un período de tiempo entre 5 a 20 años." },
-        { value: "2", label: "🟡 Media - Evento que se presenta por lo menos una vez en un período de tiempo entre 3 y 5 años." },
-        { value: "3", label: "🔴 Alta - Evento que se presenta más de una vez en el año  o por lo menos una vez en un periodo de 1 a  3 años." },
+        {
+          value: "1",
+          label:
+            "🟢 Baja - Evento que se presenta al menos una vez en un período de tiempo entre 5 a 20 años.",
+        },
+        {
+          value: "2",
+          label:
+            "🟡 Media - Evento que se presenta por lo menos una vez en un período de tiempo entre 3 y 5 años.",
+        },
+        {
+          value: "3",
+          label:
+            "🔴 Alta - Evento que se presenta más de una vez en el año  o por lo menos una vez en un periodo de 1 a  3 años.",
+        },
       ]}
       value={data.freq}
       onChange={onChange}
@@ -181,9 +209,21 @@ const AmenazaParams = ({ data, onChange }) => (
       label="Magnitud/Intensidad"
       type="select"
       options={[
-        { value: "1", label: "🟢 Baja - Sin personas  fallecidas,mínima afectación en el territorio, sin afectación en las redes de servicios públicos, no hay interrupción en las actividades económicas." },
-        { value: "2", label: "🟡 Media - Pocas personas fallecidas,  afectaciones en las redes de servicios públicos, suspensión temporal de actividades económicas,pocas viviendas destruidas y varias viviendas averiadas." },
-        { value: "3", label: "🔴 Alta - Numerosas personas fallecidas, , suspensión de servicios públicos básicos y de actividades económicas durante varios meses y un gran número de viviendas destruidas." },
+        {
+          value: "1",
+          label:
+            "🟢 Baja - Sin personas  fallecidas,mínima afectación en el territorio, sin afectación en las redes de servicios públicos, no hay interrupción en las actividades económicas.",
+        },
+        {
+          value: "2",
+          label:
+            "🟡 Media - Pocas personas fallecidas,  afectaciones en las redes de servicios públicos, suspensión temporal de actividades económicas,pocas viviendas destruidas y varias viviendas averiadas.",
+        },
+        {
+          value: "3",
+          label:
+            "🔴 Alta - Numerosas personas fallecidas, , suspensión de servicios públicos básicos y de actividades económicas durante varios meses y un gran número de viviendas destruidas.",
+        },
       ]}
       value={data.intensity}
       onChange={onChange}
@@ -193,9 +233,20 @@ const AmenazaParams = ({ data, onChange }) => (
       label="Territorio Afectado"
       type="select"
       options={[
-        { value: "1", label: "🟢 Baja - Menos del 50% del territorio presenta algún tipo de afectación" },
-        { value: "2", label: "🟡 Media - Entre el 50% y 80% del territorio presenta afectación" },
-        { value: "3", label: "🔴 Alta - Más del 80% de su territorio se encuentra afectado" },
+        {
+          value: "1",
+          label:
+            "🟢 Baja - Menos del 50% del territorio presenta algún tipo de afectación",
+        },
+        {
+          value: "2",
+          label:
+            "🟡 Media - Entre el 50% y 80% del territorio presenta afectación",
+        },
+        {
+          value: "3",
+          label: "🔴 Alta - Más del 80% de su territorio se encuentra afectado",
+        },
       ]}
       value={data.surface}
       onChange={onChange}
@@ -209,6 +260,7 @@ export const DialogAdd = ({
   dialogCoords,
   comite,
   setMarkData,
+  ...props
 }) => {
   const [dialogData, setDialogData] = useState({
     type: "",
@@ -228,34 +280,46 @@ export const DialogAdd = ({
   const { post } = useInforComite();
 
   const userName = JSON.parse(localStorage.getItem("user") || "Usuario");
-  
 
   // Reset form when dialog closes
   useEffect(() => {
     if (!dialogOpen) {
       setDialogData({
-        type: "", subtype: "", specific_type: "", specific_resource: "",
-        freq: "", intensity: "", surface: "", desc: "", img: "", nombre: "",
+        type: "",
+        subtype: "",
+        specific_type: "",
+        specific_resource: "",
+        freq: "",
+        intensity: "",
+        surface: "",
+        desc: "",
+        img: "",
+        nombre: "",
       });
       setActiveStep(0);
       setError("");
     }
   }, [dialogOpen]);
 
-  const handleData = useCallback((e) => {
-    const { name, value } = e.target;
-    setDialogData(prev => ({ ...prev, [name]: value }));
-    // Clear error when user makes changes
-    if (error) setError("");
-  }, [error]);
+  const handleData = useCallback(
+    (e) => {
+      const { name, value } = e.target;
+      setDialogData((prev) => ({ ...prev, [name]: value }));
+      // Clear error when user makes changes
+      if (error) setError("");
+    },
+    [error],
+  );
 
   const getSpecificOptions = useMemo(() => {
     if (dialogData.type === "Amenaza") {
       return SUBTYPE_OPTIONS[dialogData.subtype] || [];
     }
     if (dialogData.type === "Recurso") {
-      if (dialogData.subtype === "Equipamientos") return SUBTYPE_OPTIONS.recursos_equipamientos;
-      if (dialogData.subtype === "Recursos") return SUBTYPE_OPTIONS.recursos_materiales;
+      if (dialogData.subtype === "Equipamientos")
+        return SUBTYPE_OPTIONS.recursos_equipamientos;
+      if (dialogData.subtype === "Recursos")
+        return SUBTYPE_OPTIONS.recursos_materiales;
     }
     return [];
   }, [dialogData.type, dialogData.subtype]);
@@ -269,7 +333,11 @@ export const DialogAdd = ({
       setError("Por favor seleccione una subcategoría");
       return false;
     }
-    if (dialogData.type === "Amenaza" && !dialogData.specific_type && getSpecificOptions.length > 0) {
+    if (
+      dialogData.type === "Amenaza" &&
+      !dialogData.specific_type &&
+      getSpecificOptions.length > 0
+    ) {
       setError("Por favor seleccione el tipo específico");
       return false;
     }
@@ -279,24 +347,24 @@ export const DialogAdd = ({
     }
     return true;
   };
-const cleanCoordinate = (coord) => {
-  if (!coord) return null;
-  
-  // Convertir a string si es número
-  let coordStr = coord.toString();
-  
-  // Reemplazar coma por punto (si usa coma como decimal)
-  coordStr = coordStr.replace(',', '.');
-  
-  // Eliminar cualquier caracter que no sea número, punto o signo menos
-  coordStr = coordStr.replace(/[^0-9.-]/g, '');
-  
-  // Convertir a número
-  const num = parseFloat(coordStr);
-  
-  // Validar que sea un número válido
-  return isNaN(num) ? null : num;
-};
+  const cleanCoordinate = (coord) => {
+    if (!coord) return null;
+
+    // Convertir a string si es número
+    let coordStr = coord.toString();
+
+    // Reemplazar coma por punto (si usa coma como decimal)
+    coordStr = coordStr.replace(",", ".");
+
+    // Eliminar cualquier caracter que no sea número, punto o signo menos
+    coordStr = coordStr.replace(/[^0-9.-]/g, "");
+
+    // Convertir a número
+    const num = parseFloat(coordStr);
+
+    // Validar que sea un número válido
+    return isNaN(num) ? null : num;
+  };
 
   const handleSubmit = async () => {
     if (!validateForm()) return;
@@ -304,8 +372,8 @@ const cleanCoordinate = (coord) => {
       setError("No hay un comité seleccionado");
       return;
     }
-const cleanLat = cleanCoordinate(dialogCoords?.lat);
-  const cleanLng = cleanCoordinate(dialogCoords?.lng);
+    const cleanLat = cleanCoordinate(dialogCoords?.lat);
+    const cleanLng = cleanCoordinate(dialogCoords?.lng);
     setLoading(true);
     try {
       const newMarker = {
@@ -318,11 +386,9 @@ const cleanLat = cleanCoordinate(dialogCoords?.lat);
       };
 
       const response = await post("post", "plan", newMarker);
-       handleCloseDialog();
-        setMarkData(prev => [...(Array.isArray(prev) ? prev : []), newMarker]);
+      handleCloseDialog();
+      setMarkData((prev) => [...(Array.isArray(prev) ? prev : []), newMarker]);
       if (response) {
-       
-       
       }
     } catch (err) {
       setError("Error al guardar el marcador. Intente nuevamente.");
@@ -373,7 +439,9 @@ const cleanLat = cleanCoordinate(dialogCoords?.lat);
               onChange={handleData}
               required
             />
-            {dialogData.subtype && <VulnerabilityText type={dialogData.subtype} />}
+            {dialogData.subtype && (
+              <VulnerabilityText type={dialogData.subtype} />
+            )}
           </>
         );
 
@@ -428,17 +496,51 @@ const cleanLat = cleanCoordinate(dialogCoords?.lat);
     if (!dialogData.type) return null;
     return CONFIG[dialogData.type.toLowerCase()]?.icon;
   };
+  // Convertir props.comiteAdds a un array separado por coma
+  const comiteArray = props.comiteAdds
+    ? props.comiteAdds.split(",").map((item) => item.trim())
+    : [];
+
+  // Verificar si el usuario pertenece al comité
+  const userBelongsToComite = comiteArray.includes(userName.ci);
+
+  // Validaciones
+  if (props.comiteAdds == null || props.comiteAdds.length === 0) {
+    return (
+      <Snackbar
+        open={true}
+        autoHideDuration={6000}
+        message="No existe información"
+      />
+    );
+  }
+
+  if (!userBelongsToComite) {
+    return (
+      <Snackbar
+        open={true}
+        autoHideDuration={6000}
+        message="No se puede agregar marcador de información en el comité, ya que el usuario no pertenece al Comité"
+      />
+    );
+  }
 
   return (
-    <Dialog 
-      open={dialogOpen} 
-      onClose={handleCloseDialog} 
-      maxWidth="md" 
+    <Dialog
+      open={dialogOpen}
+      onClose={handleCloseDialog}
+      maxWidth="md"
       fullWidth
       PaperProps={{ sx: { borderRadius: 2 } }}
     >
-      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+      <DialogTitle
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           {getDialogIcon()}
           <Typography variant="h6">{getDialogTitle()}</Typography>
         </Box>
@@ -450,9 +552,10 @@ const cleanLat = cleanCoordinate(dialogCoords?.lat);
       <DialogContent>
         <Box sx={{ pt: 2 }}>
           {/* Información de ubicación */}
-          <Paper variant="outlined" sx={{ p: 2, mb: 3, bgcolor: '#f8f9fa' }}>
+          <Paper variant="outlined" sx={{ p: 2, mb: 3, bgcolor: "#f8f9fa" }}>
             <Typography variant="body2" color="textSecondary">
-              📍 <strong>Ubicación:</strong> {dialogCoords?.lat}, {dialogCoords?.lng}
+              📍 <strong>Ubicación:</strong> {dialogCoords?.lat},{" "}
+              {dialogCoords?.lng}
             </Typography>
             <Typography variant="body2" color="textSecondary">
               🏢 <strong>Comité:</strong> {comite || "No seleccionado"}
@@ -486,7 +589,7 @@ const cleanLat = cleanCoordinate(dialogCoords?.lat);
             onChange={handleData}
             required
           />
-          
+
           <FormField
             name="img"
             label="URL de imagen (opcional)"
@@ -503,7 +606,11 @@ const cleanLat = cleanCoordinate(dialogCoords?.lat);
           )}
 
           {/* Requisitos */}
-          <Typography variant="caption" color="textSecondary" sx={{ display: 'block', mt: 2 }}>
+          <Typography
+            variant="caption"
+            color="textSecondary"
+            sx={{ display: "block", mt: 2 }}
+          >
             * Campos obligatorios
           </Typography>
         </Box>

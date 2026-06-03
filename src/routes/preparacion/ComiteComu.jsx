@@ -23,10 +23,7 @@ export default function ComiteComunitario() {
   const [selectInfo, setSelectInfo] = useState(null);
   const [selectComite, setComite] = useState(null);
 
-  
-console.log(selectInfo)
   // data to pcomite to send
-
   const { errorGet, loadingGet, dataC, read } = useInforComite();
   const getBrigada = useInforComite();
   const getPlan = useInforComite();
@@ -41,7 +38,7 @@ console.log(selectInfo)
         const dataP = await dataSector();
         // 2. Guardar datos completos
         setData(dataP);
-    
+
         // 3. Extraer barrios
         if (dataP) {
           const barrios = dataP
@@ -153,7 +150,6 @@ console.log(selectInfo)
             getComite={read}
             getBrigada={getBrigada}
             loading={loadingParroq}
-           
 
             //fireData={eventInfo}
           />
