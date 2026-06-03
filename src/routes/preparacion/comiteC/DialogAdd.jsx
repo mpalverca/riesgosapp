@@ -497,33 +497,40 @@ export const DialogAdd = ({
     return CONFIG[dialogData.type.toLowerCase()]?.icon;
   };
   // Convertir props.comiteAdds a un array separado por coma
-  const comiteArray = props.comiteAdds
-    ? props.comiteAdds.split(",").map((item) => item.trim())
-    : [];
+const comiteArray = props.comiteAdds
+  ? props.comiteAdds.split(",").map((item) => item.trim())
+  : [];
 
-  // Verificar si el usuario pertenece al comité
-  const userBelongsToComite = comiteArray.includes(userName.ci);
+// Verificar si el usuario tiene CI válido
+const hasValidCI = userName?.ci && userName.ci !== "";
 
-  // Validaciones
-  if (props.comiteAdds == null || props.comiteAdds.length === 0) {
-    return (
-      <Snackbar
-        open={true}
-        autoHideDuration={6000}
-        message="No existe información"
-      />
-    );
-  }
+// Verificar si el usuario pertenece al comité (solo si tiene CI válido)
+const userBelongsToComite = hasValidCI && comiteArray.includes(userName.ci);
 
-  if (!userBelongsToComite || !userName.ci) {
-    return (
-      <Snackbar
-        open={true}
-        autoHideDuration={6000}
-        message="No se puede agregar marcador de información en el comité, ya que el usuario no pertenece al Comité"
-      />
-    );
-  }
+// Validación 1: No existe información de comité
+if (!props.comiteAdds || props.comiteAdds.trim() === "") {
+  return (
+    <Snackbar
+      open={true}
+      autoHideDuration={6000}
+      message="No existe información"
+    />
+  );
+}
+
+// Validación 2: El usuario no tiene CI o no pertenece al comité
+if (!hasValidCI || !userBelongsToComite) {
+  return (
+    <Snackbar
+      open={true}
+      autoHideDuration={6000}
+      message="No se puede agregar marcador de información en el comité, ya que el usuario no pertenece al Comité"
+    />
+  );
+}
+
+// Si llegamos aquí, el usuario está autorizado
+console.log("Usuario autorizado:", userName.ci);
 
   return (
     <Dialog
