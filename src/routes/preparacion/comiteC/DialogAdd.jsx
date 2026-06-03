@@ -279,7 +279,7 @@ export const DialogAdd = ({
   const [activeStep, setActiveStep] = useState(0);
   const { post } = useInforComite();
 
-  const userName = JSON.parse(localStorage.getItem("user") || "Usuario");
+  const userName = JSON.parse(localStorage.getItem("user") || null);
 
   // Reset form when dialog closes
   useEffect(() => {
