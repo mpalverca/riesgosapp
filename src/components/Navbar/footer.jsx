@@ -12,8 +12,9 @@ export default function Footer() {
           py: 1,
           px: 2,
           mt: "auto",
-          background: "linear-gradient(45deg, #FF5733 20%, #FFD700 90%)",
-          color: "white",
+          //background: "linear-gradient(45deg, #FF5733 20%, #FFD700 90%)",
+          backgroundColor: "white",
+         // color: "white",
           boxShadow: "0 -2px 10px rgba(0,0,0,0.1)",
         }}
       >

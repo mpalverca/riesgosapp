@@ -95,7 +95,8 @@ export default function ResponsiveNavBar() {
       position="static"
       style={{
        // position: "fixed",
-        background: "linear-gradient(45deg, #FF5733 20%, #FFD700 90%)",
+       // background: "linear-gradient(45deg, #FF5733 20%, #FFD700 90%)",
+        //backgroundColor: "#01ffdb",
       }}
     >
       <Container maxWidth="xl">

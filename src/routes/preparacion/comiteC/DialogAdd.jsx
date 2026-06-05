@@ -5,20 +5,13 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  FormControl,
-  InputLabel,
   MenuItem,
-  Select,
   TextField,
   Typography,
   Alert,
   CircularProgress,
-  Stepper,
-  Step,
-  StepLabel,
   Paper,
   IconButton,
-  InputAdornment,
   Snackbar,
 } from "@mui/material";
 import { useState, useEffect, useCallback, useMemo } from "react";
@@ -116,6 +109,12 @@ const SUBTYPE_OPTIONS = {
   ],
 };
 
+const detailLogird = [
+  "Es el evento, fenómeno, actividad humana o condición latente que puede causarla muerte, lesiones, daños materiales, interrupción de la actividad social y económica, incremento de la vulnerabilidad, degradación ambiental, y pérdidas e impactos de diverso tipos (LOGIRD - Art 5). Las amenazas pueden ser naturales, socio-naturales, antrópicas o tecnológicas.",
+  "Son las características y circunstancias de las comunidades, territorios o infraestructura que los hace susceptibles a los efectos dañinos de un evento adverso. Estas características y circunstancias pueden ser físicas, económicas, culturales, sociales, entre otras. La vulnerabilidad se analiza desde el nivel de organización y participación comunitaria (LOGIRD - Art 5). Las comunidades organizadas tienen mayor capacidad para prevenir y responder ante emergencias.",
+  "Hace referencia a la disponibilidad y uso de conocimientos, medios y sistemas de gestión en las instituciones, personas, comunidades, nacionalidades, pueblos o colectivos para manejar las condiciones adversas, tanto en períodos normales como durante crisis (LOGIRD - Art 5). Incluye la capacidad de anticipar, prevenir, responder y recuperarse de los efectos de los desastres . Los recursos pueden ser equipamientos o materiales.",
+];
+
 // Componente de texto de vulnerabilidad
 const VulnerabilityText = ({ type }) => {
   const texts = {
@@ -177,8 +176,13 @@ const FormField = ({
 // Componente de parámetros para amenazas
 const AmenazaParams = ({ data, onChange }) => (
   <Box sx={{ mt: 2 }}>
-    <Typography variant="subtitle2" gutterBottom>
+    <Typography variant="subtitle1" gutterBottom>
       Parámetros de evaluación
+    </Typography>
+    <Typography variant="subtitle2" align="justify" gutterBottom>
+      Metodologia Tomada de la Guia departamental para la elaboración de los
+      planes de contingencia y respuesta ante emergencias y desastres del
+      Gobierno Autónomo Descentralizado Provincial de Tungurahua
     </Typography>
     <FormField
       name="freq"
@@ -204,6 +208,21 @@ const AmenazaParams = ({ data, onChange }) => (
       value={data.freq}
       onChange={onChange}
     />
+    <Typography
+      variant="caption"
+      color="textSecondary"
+      align="justify"
+      sx={{ mt: 1, display: "block" }}
+    >
+      Para enfocar el análisis de riesgo se debe reunir, además de la
+      información disponible sobre las amenazas, la cronología de los desastres
+      ocurridos en el pasado, esta información se puede obtener de fuentes
+      oficiales o ins titucionales, con observaciones de campo, con revisión de
+      información científica disponible y de la memoria histórica de la
+      comunidad y de los demás actores del territorio. <br />
+      Los datos obtenidos mediante este análisis, permiten con siderar tanto los
+      eventos del pasado como la recurrencia de los mismos.
+    </Typography>
     <FormField
       name="intensity"
       label="Magnitud/Intensidad"
@@ -228,6 +247,15 @@ const AmenazaParams = ({ data, onChange }) => (
       value={data.intensity}
       onChange={onChange}
     />
+    <Typography
+      variant="caption"
+      color="textSecondary"
+      align="justify"
+      sx={{ mt: 1, display: "block" }}
+    >
+      El término hace referencia a la medida cuantitativa y cualitativa de la
+      severidad de un fenómeno en un sitio espe cífico.
+    </Typography>
     <FormField
       name="surface"
       label="Territorio Afectado"
@@ -251,6 +279,17 @@ const AmenazaParams = ({ data, onChange }) => (
       value={data.surface}
       onChange={onChange}
     />
+    <Typography
+      variant="caption"
+      color="textSecondary"
+      align="justify"
+      sx={{ mt: 1, display: "block" }}
+    >
+      El territorio es el elemento físico compuesto por las porciones de tierra,
+      los ríos, los mares, golfos, puertos, canales, bahías, entre otros, que se
+      encuentran dentro del comité, los cuales presentan diferentes afectaciones
+      frente a la ocurrencia de fenómenos amenazantes.
+    </Typography>
   </Box>
 );
 
@@ -280,12 +319,12 @@ export const DialogAdd = ({
   const { post } = useInforComite();
 
   const userName = JSON.parse(localStorage.getItem("user") || null);
-
+console.log(props.polyData)
   // Reset form when dialog closes
   useEffect(() => {
     if (!dialogOpen) {
       setDialogData({
-        type: "",
+        type: props.polyData?.length > 0 ? "Amenaza" : "",
         subtype: "",
         specific_type: "",
         specific_resource: "",
@@ -366,37 +405,56 @@ export const DialogAdd = ({
     return isNaN(num) ? null : num;
   };
 
-  const handleSubmit = async () => {
-    if (!validateForm()) return;
-    if (!comite) {
-      setError("No hay un comité seleccionado");
-      return;
-    }
-    const cleanLat = cleanCoordinate(dialogCoords?.lat);
-    const cleanLng = cleanCoordinate(dialogCoords?.lng);
-    setLoading(true);
-    try {
-      const newMarker = {
-        ...dialogData,
-        lat: cleanLat,
-        lng: cleanLng,
-        comite,
-        by: userName,
-        created_at: new Date().toISOString(),
-      };
-
-      const response = await post("post", "plan", newMarker);
-      handleCloseDialog();
-      setMarkData((prev) => [...(Array.isArray(prev) ? prev : []), newMarker]);
-      if (response) {
+ const handleSubmit = async () => {
+  if (!validateForm()) return;
+  if (!comite) {
+    setError("No hay un comité seleccionado");
+    return;
+  }
+  const cleanLat = cleanCoordinate(dialogCoords?.lat);
+  const cleanLng = cleanCoordinate(dialogCoords?.lng);
+  setLoading(true);
+  try {
+    // Formatear polyData correctamente
+    let formattedPolygon = null;
+    if (props.polyData && Array.isArray(props.polyData) && props.polyData.length > 0) {
+      // Si polyData ya es un array, asegurar el formato correcto
+      if (Array.isArray(props.polyData[0]) && Array.isArray(props.polyData[0][0])) {
+        // Ya está en formato [[[lat,lng]]]
+        formattedPolygon = props.polyData;
+      } else if (Array.isArray(props.polyData[0]) && typeof props.polyData[0][0] === 'number') {
+        // Está en formato [[lat,lng], [lat,lng]] - convertir a triple array
+        formattedPolygon = [props.polyData];
+      } else {
+        formattedPolygon = props.polyData;
       }
-    } catch (err) {
-      setError("Error al guardar el marcador. Intente nuevamente.");
-      console.error(err);
-    } finally {
-      setLoading(false);
     }
-  };
+
+    const newMarker = {
+      ...dialogData,
+      lat: cleanLat,
+      lng: cleanLng,
+      comite,
+      by: userName,
+      polygon: formattedPolygon, // Guardar como array, no como string
+      created_at: new Date().toISOString(),
+    };
+
+    console.log("Enviando marcador con polígono:", newMarker);
+
+    const response = await post("post", "plan", newMarker);
+    handleCloseDialog();
+    setMarkData((prev) => [...(Array.isArray(prev) ? prev : []), newMarker]);
+    if (response) {
+      // Éxito
+    }
+  } catch (err) {
+    setError("Error al guardar el marcador. Intente nuevamente.");
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const renderDynamicFields = () => {
     switch (dialogData.type) {
@@ -497,40 +555,40 @@ export const DialogAdd = ({
     return CONFIG[dialogData.type.toLowerCase()]?.icon;
   };
   // Convertir props.comiteAdds a un array separado por coma
-const comiteArray = props.comiteAdds
-  ? props.comiteAdds.split(",").map((item) => item.trim())
-  : [];
+  const comiteArray = props.comiteAdds
+    ? props.comiteAdds.split(",").map((item) => item.trim())
+    : [];
 
-// Verificar si el usuario tiene CI válido
-const hasValidCI = userName?.ci && userName.ci !== "";
+  // Verificar si el usuario tiene CI válido
+  const hasValidCI = userName?.ci && userName.ci !== "";
 
-// Verificar si el usuario pertenece al comité (solo si tiene CI válido)
-const userBelongsToComite = hasValidCI && comiteArray.includes(userName.ci);
+  // Verificar si el usuario pertenece al comité (solo si tiene CI válido)
+  const userBelongsToComite = hasValidCI && comiteArray.includes(userName.ci);
 
-// Validación 1: No existe información de comité
-if (!props.comiteAdds || props.comiteAdds.trim() === "") {
-  return (
-    <Snackbar
-      open={true}
-      autoHideDuration={6000}
-      message="No existe información"
-    />
-  );
-}
+  // Validación 1: No existe información de comité
+  if (!props.comiteAdds || props.comiteAdds.trim() === "") {
+    return (
+      <Snackbar
+        open={true}
+        autoHideDuration={5000}
+        message="No existe información de comité "
+      />
+    );
+  }
 
-// Validación 2: El usuario no tiene CI o no pertenece al comité
-if (!hasValidCI || !userBelongsToComite) {
-  return (
-    <Snackbar
-      open={true}
-      autoHideDuration={6000}
-      message="No se puede agregar marcador de información en el comité, ya que el usuario no pertenece al Comité"
-    />
-  );
-}
+  // Validación 2: El usuario no tiene CI o no pertenece al comité
+  if (!hasValidCI || !userBelongsToComite) {
+    return (
+      <Snackbar
+        open={true}
+        autoHideDuration={5000}
+        message="No se puede agregar marcador de información en el comité, ya que el usuario no pertenece al Comité"
+      />
+    );
+  }
 
-// Si llegamos aquí, el usuario está autorizado
-console.log("Usuario autorizado:", userName.ci);
+  // Si llegamos aquí, el usuario está autorizado
+  //console.log("Usuario autorizado:", userName.ci);
 
   return (
     <Dialog
@@ -551,7 +609,7 @@ console.log("Usuario autorizado:", userName.ci);
           {getDialogIcon()}
           <Typography variant="h6">{getDialogTitle()}</Typography>
         </Box>
-        <IconButton edge="end" onClick={handleCloseDialog} size="small">
+        <IconButton edge="end" onClick={props.handleEditPol} size="small">
           <CloseIcon />
         </IconButton>
       </DialogTitle>
@@ -583,6 +641,25 @@ console.log("Usuario autorizado:", userName.ci);
             onChange={handleData}
             required
           />
+          <Typography
+            variant="caption"
+            color="textSecondary"
+            align="justify"
+            sx={{ mt: 1, display: "block" }}
+          >
+            {dialogData.type === "Amenaza"
+              ? detailLogird[0]
+              : dialogData.type === "Vulnerabilidad"
+                ? detailLogird[1]
+                : dialogData.type === "Recurso"
+                  ? detailLogird[2]
+                  : null}
+          </Typography>
+          {dialogData.type === "Amenaza" ? (
+            <Button onClick={props.handleEditPol} variant="outlined">
+              Editar Polígono de amenaza
+            </Button>
+          ) : null}
 
           {/* Campos dinámicos según el tipo */}
           {dialogData.type && renderDynamicFields()}

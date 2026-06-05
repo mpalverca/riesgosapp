@@ -8,125 +8,78 @@ import {
   LayersControl,
   LayerGroup,
   useMapEvents,
+  FeatureGroup,
 } from "react-leaflet";
+import { EditControl } from "react-leaflet-draw";
+import "leaflet-draw/dist/leaflet.draw.css";
 import "leaflet/dist/leaflet.css";
-import { Box, Button, Tooltip, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import L from "leaflet";
 import { DialogAdd } from "./DialogAdd";
 import { useInforComite } from "./crud";
 
-import warningIcon from "leaflet/dist/images/marker-icon.png";
-import shieldIcon from "leaflet/dist/images/marker-icon.png";
-import wrenchIcon from "leaflet/dist/images/marker-icon.png";
-
-// Configuración de iconos de Leaflet
+// Configuración de Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
-  iconUrl: require("leaflet/dist/images/marker-icon.png"),
-  shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+  iconRetinaUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
+  iconUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+  shadowUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
 });
 
-// Función para crear iconos con emojis
-const createEmojiMarker = (emoji, color, bgColor = "white") => {
-  return L.divIcon({
-    html: `<div style="
-      background-color: ${bgColor};
-      border-radius: 50%;
-      border: 3px solid ${color};
-      width: 30px;
-      height: 30px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    ">${emoji}</div>`,
-    iconSize: [30, 30],
-    iconAnchor: [15, 30],
-    popupAnchor: [0, -30],
-    className: "custom-emoji-marker",
-  });
-};
-
 // Constantes
-const CENTER_POSITION = [-3.9939, -79.2042];
+const CENTER = [-3.9939, -79.2042];
 const COLORS = {
   BAJA: "#28a745",
   MEDIA: "#ffc107",
   ALTA: "#ff0000",
-  SELECTED: "#3538dcff",
-  DEFAULT: "#a9a9aaff",
+  SELECTED: "#3538dc",
+  DEFAULT: "#a9a9a9",
 };
-const FREQ_OPTIONS = [
-  {
-    value: 1,
-    label:
-      "🟢 Baja - Evento que se presenta al menos una vez en un período de tiempo entre 5 a 20 años.",
+const OPTIONS = {
+  freq: {
+    1: "🟢 Baja - 5-20 años",
+    2: "🟡 Media - 3-5 años",
+    3: "🔴 Alta - 1-3 años",
   },
-  {
-    value: 2,
-    label:
-      "🟡 Media - Evento que se presenta por lo menos una vez en un período de tiempo entre 3 y 5 años.",
+  intensity: {
+    1: "🟢 Baja - Sin fallecidos",
+    2: "🟡 Media - Pocos fallecidos",
+    3: "🔴 Alta - Numerosos fallecidos",
   },
-  {
-    value: 3,
-    label:
-      "🔴 Alta - Evento que se presenta más de una vez en el año  o por lo menos una vez en un periodo de 1 a  3 años.",
-  },
-];
-const INTENSITY_OPTIONS = [
-  {
-    value: 1,
-    label:
-      "🟢 Baja - Sin personas  fallecidas,mínima afectación en el territorio, sin afectación en las redes de servicios públicos, no hay interrupción en las actividades económicas.",
-  },
-  {
-    value: 2,
-    label:
-      "🟡 Media - Pocas personas fallecidas,  afectaciones en las redes de servicios públicos, suspensión temporal de actividades económicas,pocas viviendas destruidas y varias viviendas averiadas.",
-  },
-  {
-    value: 3,
-    label:
-      "🔴 Alta - Numerosas personas fallecidas, , suspensión de servicios públicos básicos y de actividades económicas durante varios meses y un gran número de viviendas destruidas.",
-  },
-];
-const SURFACE_OPTIONS = [
-  {
-    value: 1,
-    label:
-      "🟢 Baja - Menos del 50% del territorio presenta algún tipo de afectación",
-  },
-  {
-    value: 2,
-    label: "🟡 Media - Entre el 50% y 80% del territorio presenta afectación",
-  },
-  {
-    value: 3,
-    label: "🔴 Alta - Más del 80% de su territorio se encuentra afectado",
-  },
-];
+  surface: { 1: "🟢 Baja - <50%", 2: "🟡 Media - 50-80%", 3: "🔴 Alta - >80%" },
+};
 
-// Funciones helper usando los arrays
-const getLabelByValue = (options, value) => {
-  const option = options.find((opt) => opt.value === value);
-  return option ? option.label : "No disponible";
+const getLabel = (type, value) => OPTIONS[type]?.[value] || "No disponible";
+const createEmojiMarker = (emoji, color) =>
+  L.divIcon({
+    html: `<div style="background:${color}20; border:3px solid ${color}; border-radius:50%; width:30px; height:30px; display:flex; align-items:center; justify-content:center; font-size:18px; box-shadow:0 2px 4px rgba(0,0,0,0.3)">${emoji}</div>`,
+    iconSize: [30, 30],
+    iconAnchor: [15, 30],
+    popupAnchor: [0, -30],
+    className: "custom-marker",
+  });
+
+const MARKER_ICONS = {
+  Amenaza: createEmojiMarker("⚠️", "#d32f2f"),
+  Vulnerabilidad: createEmojiMarker("🛡️", "#ff9800"),
+  Recurso: createEmojiMarker("🔧", "#4caf50"),
 };
-// Hook personalizado para obtener usuario
+
+// Hooks personalizados
 const useUser = () => {
   const [user, setUser] = useState(null);
-
   useEffect(() => {
-    const userData = localStorage.getItem("user");
-    if (userData) setUser(JSON.parse(userData));
+    const data = localStorage.getItem("user");
+    if (data) setUser(JSON.parse(data));
   }, []);
-
   return user;
 };
 
-// Componente para manejar eventos del mapa
-const MapEventHandlers = ({ onMapClick }) => {
+// Componentes
+const MapEvents = ({ onMapClick }) => {
   useMapEvents({
     dblclick: (e) => onMapClick(e.latlng),
     contextmenu: (e) => {
@@ -137,22 +90,18 @@ const MapEventHandlers = ({ onMapClick }) => {
   return null;
 };
 
-// Componente de localización
-const LocationMarker = () => {
-  const [userLocation, setUserLocation] = useState(null);
+const LocationBtn = () => {
+  const [pos, setPos] = useState(null);
   const map = useMapEvents({
     locationfound: (e) => {
-      setUserLocation(e.latlng);
+      setPos(e.latlng);
       map.flyTo(e.latlng, 13);
     },
   });
-
-  const handleLocate = () => map.locate({ setView: true, maxZoom: 15 });
-
   return (
     <>
       <Button
-        onClick={handleLocate}
+        onClick={() => map.locate({ setView: true, maxZoom: 15 })}
         variant="contained"
         size="small"
         sx={{
@@ -166,9 +115,9 @@ const LocationMarker = () => {
       >
         Mi Ubicación
       </Button>
-      {userLocation && (
-        <Marker position={userLocation}>
-          <Popup>Tu ubicación actual</Popup>
+      {pos && (
+        <Marker position={pos}>
+          <Popup>Tu ubicación</Popup>
         </Marker>
       )}
     </>
@@ -180,293 +129,138 @@ const MapBase = (props) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogCoords, setDialogCoords] = useState(null);
   const [markData, setMarkData] = useState([]);
+  const [polygon, setPolygon] = useState(null);
+  const [isDrawing, setIsDrawing] = useState(false);
   const user = useUser();
   const { read, dataC } = useInforComite();
 
-
-
-  // Cargar datos iniciales
+  // Cargar datos
   useEffect(() => {
-    const comiteName = props.comiteInfo?.data?.[0]?.comite;
-    if (comiteName) {
-      read("read", "plan", comiteName);
-    }
-  }, [props.comiteInfo?.data?.[0]?.comite]);
+    const comite = props.comiteInfo?.data?.[0]?.comite;
+    if (comite) read("read", "plan", comite);
+  }, [props.comiteInfo?.data?.[0]?.comite, read]);
 
-  // Actualizar markData cuando dataC cambie
   useEffect(() => {
-    if (dataC?.data && Array.isArray(dataC.data)) {
-      setMarkData(dataC.data);
-      //console.log("Datos actualizados:", dataC);
-    }
+    if (dataC?.data) setMarkData(dataC.data);
   }, [dataC]);
+
   // Handlers
   const handleOpenDialog = useCallback((latlng) => {
     if (!latlng) return;
-    setDialogCoords({
-      lat: latlng.lat.toFixed(6),
-      lng: latlng.lng.toFixed(6),
-    });
+    setDialogCoords({ lat: latlng.lat.toFixed(6), lng: latlng.lng.toFixed(6) });
     setDialogOpen(true);
   }, []);
 
-  const handleCloseDialog = useCallback(() => {
+  const handleEditPolygon = useCallback(() => {
     setDialogOpen(false);
-    setDialogCoords(null);
+    setIsDrawing(true);
+    setPolygon(null);
   }, []);
 
-  const formatDate = useCallback((dateString) => {
-    if (!dateString) return "Fecha no disponible";
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return "Fecha inválida";
-
-    return date.toLocaleString("es-ES", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+  const onPolygonCreate = useCallback((e) => {
+    if (e.layerType === "polygon") {
+      const coords = e.layer.getLatLngs()[0].map((p) => [p.lat, p.lng]);
+      setPolygon([coords]);
+      setIsDrawing(false);
+      setDialogOpen(true);
+    }
   }, []);
 
-  // Función para obtener color según puntaje
-  const getColorByTotal = useCallback((total) => {
-    const value = total || 0;
-    if (value <= 3.9) return COLORS.BAJA;
-    if (value <= 6.9) return COLORS.MEDIA;
-    return COLORS.ALTA;
-  }, []);
-
-  // Función para normalizar texto
-  const normalizeText = useCallback((text) => {
-    if (!text) return "";
-    return text
-      .trim()
-      .toLowerCase()
-      .replace(/[^\w\s]/g, "")
-      .replace(/\s+/g, " ");
-  }, []);
-
-  // Verificar coincidencia de sectores
-  const isSectorMatch = useCallback(
-    (sector1, sector2) => {
-      if (!sector1 || !sector2) return false;
-      const norm1 = normalizeText(sector1);
-      const norm2 = normalizeText(sector2);
-      return norm1 === norm2 || norm1.includes(norm2) || norm2.includes(norm1);
-    },
-    [normalizeText],
+  const normalizeText = useCallback(
+    (text) =>
+      text
+        ?.trim()
+        .toLowerCase()
+        .replace(/[^\w\s]/g, "")
+        .replace(/\s+/g, " ") || "",
+    [],
   );
+  const getColor = useCallback((total) => {
+    const t = total || 0;
+    return t <= 3.9 ? COLORS.BAJA : t <= 6.9 ? COLORS.MEDIA : COLORS.ALTA;
+  }, []);
 
-  // Renderizar polígonos
-  const renderPolygons = useMemo(() => {
-    if (!props.data?.length) {
-      console.log("No hay datos de polígonos");
-      return null;
-    }
+  // Renderizar polígonos de sectores
+  const sectorPolygons = useMemo(() => {
+    if (!props.data?.length) return null;
 
-    // Mapa de sectores con puntajes
-    const sectoresMap = new Map();
-
-    // Verificar si hay información de selección
-    if (
-      props.seletedInfo?.resultados &&
-      Array.isArray(props.seletedInfo.resultados)
-    ) {
-      props.seletedInfo.resultados.forEach((resultado) => {
-        if (resultado.sector) {
-          const sectorKey = normalizeText(resultado.sector);
-          sectoresMap.set(sectorKey, {
-            total: resultado.total || 0,
-            sector: resultado.sector,
-            estado: resultado.estado,
-            comite: resultado.comite,
-          });
-        }
-      });
-    }
-
-    // console.log("Cantidad de polígonos a procesar:", props.data.length);
+    const sectorMap = new Map();
+    props.seletedInfo?.resultados?.forEach((r) => {
+      if (r.sector) sectorMap.set(normalizeText(r.sector), r);
+    });
 
     return props.data
       .flatMap((item, idx) => {
-        try {
-          if (!item?.geometry?.coordinates) return null;
+        if (!item?.geometry?.coordinates) return null;
+        const props_ = item.properties || {};
+        const name = props_.SECTOR || props_.sector || "";
+        const matched = sectorMap.get(normalizeText(name));
+        const isSelected = props_.BARRIO === props.selectedParroq;
 
-          const sect = item.properties || {};
-          const sectorName = (sect.SECTOR || sect.sector || "").trim();
-          const sectorKey = normalizeText(sectorName);
-          const matchedSector = sectoresMap.get(sectorKey);
-          const isSelected = sect.BARRIO === props.selectedParroq;
-          // Determinar color del polígono con más opciones
-          let color, fillOpacity, weight, borderColor;
-         // console.log(matchedSector);
-          if (matchedSector) {
-            // Prioridad alta - usar color según puntaje
-            color = getColorByTotal(matchedSector.total);
-            fillOpacity = 0.6;
-            weight = 3;
-            borderColor = color;
-            // console.log(
-            //   `Sector ${sectorName} - Priorizado: Total ${matchedSector.total} - Color: ${color}`,
-            // );
-          } else if (isSelected) {
-            // Seleccionado pero sin priorización
-            color = COLORS.SELECTED;
-            fillOpacity = 0.5;
-            weight = 3;
-            borderColor = COLORS.SELECTED;
-            // console.log(`Sector ${sectorName} - Seleccionado`);
-          } else {
-            // Default
-            color = COLORS.DEFAULT;
-            fillOpacity = 0.2;
-            weight = 1.5;
-            borderColor = COLORS.DEFAULT;
-            //console.log(`Sector ${sectorName} - Default`);
-          }
+        const color = matched
+          ? getColor(matched.total)
+          : isSelected
+            ? COLORS.SELECTED
+            : COLORS.DEFAULT;
+        const style = {
+          color,
+          fillColor: color,
+          fillOpacity: matched ? 0.6 : isSelected ? 0.5 : 0.2,
+          weight: matched || isSelected ? 3 : 1.5,
+          opacity: 0.9,
+        };
 
-          const polygonStyle = {
-            color: borderColor,
-            fillColor: color,
-            fillOpacity: fillOpacity,
-            weight: weight,
-            opacity: 0.9,
-            dashArray: matchedSector ? null : "3", // Borde punteado para no priorizados
-          };
+        const coords = item.geometry.coordinates;
+        let polygons = [];
+        if (item.geometry.type === "MultiPolygon") polygons = coords;
+        else if (item.geometry.type === "Polygon") polygons = [coords];
+        else polygons = [coords];
 
-          // Procesar coordenadas
-          const coordinates = item.geometry.coordinates;
-          let polygons = [];
+        return polygons.map((poly, i) => {
+          const ring = poly[0] || poly;
+          if (!ring?.length) return null;
+          const leafletCoords = ring.map((c) => [c[1], c[0]]);
 
-          if (item.geometry.type === "MultiPolygon") {
-            polygons = coordinates;
-          } else if (item.geometry.type === "Polygon") {
-            polygons = [coordinates];
-          } else if (Array.isArray(coordinates[0]?.[0]?.[0])) {
-            polygons = coordinates;
-          } else {
-            polygons = [coordinates];
-          }
-
-          return polygons.map((polygon, polyIdx) => {
-            const ring = polygon[0] || polygon;
-            if (!ring?.length) return null;
-
-             const leafletCoords = ring.map((coord) => [coord[1], coord[0]]);
-
-            return (
-              <Polygon
-                key={`${item.id || idx}-${polyIdx}`}
-                positions={leafletCoords}
-                pathOptions={polygonStyle}
-                eventHandlers={{
-                  click: () => {
-                    console.log("Polígono clickeado:", sectorName);
-                    props.onGetParroqData?.(sect.BARRIO);
-                  },
-                  mouseover: (e) => {
-                    const target = e.target;
-                    target.setStyle({
-                      fillOpacity: 0.8,
-                      weight: matchedSector ? 4 : 3,
-                    });
-                    target.bringToFront();
-                  },
-                  mouseout: (e) => {
-                    const target = e.target;
-                    target.setStyle(polygonStyle);
-                  },
-                }}
-              >
-                <Popup>
-                  <div style={{ minWidth: 250, maxWidth: 300 }}>
-                    <h4 style={{ margin: "0 0 10px 0", color: "#1976d2" }}>
-                      {sectorName || "Sector sin nombre"}
-                    </h4>
-                    <div style={{ fontSize: 13 }}>
+          return (
+            <Polygon
+              key={`${idx}-${i}`}
+              positions={leafletCoords}
+              pathOptions={style}
+              eventHandlers={{
+                click: () => props.onGetParroqData?.(props_.BARRIO),
+                mouseover: (e) =>
+                  e.target.setStyle({ fillOpacity: 0.8, weight: 4 }),
+                mouseout: (e) => e.target.setStyle(style),
+              }}
+            >
+              <Popup>
+                <div style={{ minWidth: 250 }}>
+                  <h4 style={{ color: "#1976d2" }}>{name || "Sector"}</h4>
+                  <p>
+                    <strong>Parroquia:</strong> {props_.PARROQUIA || "N/A"}
+                  </p>
+                  <p>
+                    <strong>Barrio:</strong> {props_.BARRIO || "N/A"}
+                  </p>
+                  {matched && (
+                    <>
+                      <hr />
                       <p>
-                        <strong>Parroquia:</strong> {sect.PARROQUIA || "N/A"}
+                        <strong>Puntaje:</strong>{" "}
+                        <span style={{ color, fontWeight: "bold" }}>
+                          {matched.total}
+                        </span>
                       </p>
                       <p>
-                        <strong>Barrio:</strong> {sect.BARRIO || "N/A"}
+                        <strong>Estado:</strong> {matched.estado || "N/A"}
                       </p>
-
-                      {matchedSector && (
-                        <>
-                          <div
-                            style={{
-                              borderTop: "2px solid #1976d2",
-                              marginTop: "8px",
-                              paddingTop: "8px",
-                            }}
-                          >
-                            <strong style={{ color: "#1976d2" }}>
-                              📊 Priorización:
-                            </strong>
-                          </div>
-                          <p>
-                            <strong>Puntaje Total:</strong>{" "}
-                            <span
-                              style={{
-                                fontWeight: "bold",
-                                color: color,
-                                fontSize: "16px",
-                              }}
-                            >
-                              {matchedSector.total}
-                            </span>
-                          </p>
-                          <p>
-                            <strong>Nivel:</strong>{" "}
-                            <span
-                              style={{
-                                fontWeight: "bold",
-                                color: color,
-                              }}
-                            >
-                              {matchedSector.total <= 3.9
-                                ? "🟢 BAJA"
-                                : matchedSector.total <= 6.9
-                                  ? "🟡 MEDIA"
-                                  : "🔴 ALTA"}
-                            </span>
-                          </p>
-                          <p>
-                            <strong>Estado:</strong>{" "}
-                            {matchedSector.estado || "N/A"}
-                          </p>
-                          {matchedSector.comite && (
-                            <p>
-                              <strong>Comité:</strong> {matchedSector.comite}
-                            </p>
-                          )}
-                        </>
-                      )}
-
-                      {!matchedSector && isSelected && (
-                        <div
-                          style={{
-                            borderTop: "2px solid #ff9800",
-                            marginTop: "8px",
-                            paddingTop: "8px",
-                          }}
-                        >
-                          <strong style={{ color: "#ff9800" }}>
-                            ⚠️ Sin datos de priorización
-                          </strong>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </Popup>
-              </Polygon>
-            );
-          });
-        } catch (error) {
-          console.error("Error en polígono:", error);
-          return null;
-        }
+                    </>
+                  )}
+                </div>
+              </Popup>
+            </Polygon>
+          );
+        });
       })
       .filter(Boolean);
   }, [
@@ -474,177 +268,110 @@ const MapBase = (props) => {
     props.seletedInfo,
     props.selectedParroq,
     props.onGetParroqData,
-    getColorByTotal,
     normalizeText,
+    getColor,
   ]);
 
-  // Convertir string de polígono a coordenadas
-  const convertPolygonStringToLeaflet = useCallback((polygonString) => {
-    if (!polygonString) return null;
+  // Renderizar polígono del comité
+  const comitePolygon = useMemo(() => {
+    const data = props.comiteInfo?.data?.[0];
+    if (!data?.poligono) return null;
     try {
-      const parsed = JSON.parse(polygonString);
-      const ring = parsed[0];
-      if (!ring?.length) return null;
-      return ring.map((coord) => [coord[1], coord[0]]);
-    } catch (error) {
-      console.error("Error al convertir polígono:", error);
+      const coords = JSON.parse(data.poligono)[0]?.map((c) => [c[1], c[0]]);
+      if (!coords) return null;
+      return (
+        <Polygon
+          positions={coords}
+          pathOptions={{
+            color: "#1976d2",
+            fillColor: "#1976d2",
+            fillOpacity: 0.4,
+            weight: 2.5,
+          }}
+          eventHandlers={{
+            click: () => props.onPolygonClick?.(data),
+            mouseover: (e) => e.target.setStyle({ fillOpacity: 0.7 }),
+            mouseout: (e) => e.target.setStyle({ fillOpacity: 0.4 }),
+          }}
+        >
+          <Popup>
+            <h3>{data.comite}</h3>
+            <p>
+              Estado: {data.Estado} | Fase: {data.Fase}
+            </p>
+          </Popup>
+        </Polygon>
+      );
+    } catch {
       return null;
     }
-  }, []);
-
-  // Renderizar polígono del comité
-  const renderComite = useMemo(() => {
-    if (!props.comiteInfo?.data?.[0]) return null;
-
-    const comiteData = props.comiteInfo.data[0];
-    const polygonCoords = convertPolygonStringToLeaflet(comiteData.poligono);
-    if (!polygonCoords) return null;
-
-    const polygonStyle = {
-      color: "#1976d2",
-      fillColor: "#1976d2",
-      fillOpacity: 0.4,
-      weight: 2.5,
-    };
-
-    return (
-      <Polygon
-        positions={polygonCoords}
-        pathOptions={polygonStyle}
-        eventHandlers={{
-          click: () => props.onPolygonClick?.(comiteData),
-          mouseover: (e) =>
-            e.target.setStyle({ fillOpacity: 0.7, weight: 3.5 }),
-          mouseout: (e) => e.target.setStyle(polygonStyle),
-        }}
-      >
-        <Popup>
-          <div style={{ minWidth: 250 }}>
-            <h3 style={{ margin: "0 0 10px 0", color: "#1976d2" }}>
-              {comiteData.comite || "Comité Comunitario"}
-            </h3>
-            <div style={{ fontSize: 13 }}>
-              <p>
-                <strong>Estado:</strong> {comiteData.Estado || "N/A"}
-              </p>
-              <p>
-                <strong>Fase:</strong> {comiteData.Fase || "N/A"}
-              </p>
-            </div>
-          </div>
-        </Popup>
-      </Polygon>
-    );
-  }, [props.comiteInfo, convertPolygonStringToLeaflet, props.onPolygonClick]);
+  }, [props.comiteInfo, props.onPolygonClick]);
 
   // Renderizar marcadores
-  const renderMarker = useMemo(() => {
-    if (!markData?.length) return null;
-    const markerIcons = {
-      Amenaza: createEmojiMarker("⚠️", "#d32f2f", "#ffebee"),
-      Vulnerabilidad: createEmojiMarker("🛡️", "#ff9800", "#fff3e0"),
-      Recurso: createEmojiMarker("🔧", "#4caf50", "#e8f5e8"),
-    };
-    return markData
-      .map((item, idx) => {
-        const lat = parseFloat(item.lat);
-        const lng = parseFloat(item.lng);
-        if (isNaN(lat) || isNaN(lng)) return null;
-        //console.log("Marcador:", { lat, lng, item });
-        return (
-          <Marker
-            key={item.id || idx}
-            position={[lat, lng]}
-            icon={markerIcons[item.type] || markerIcons.default}
-          >
-            <Popup>
-              <Box
-                sx={{
-                  maxHeight: "60vh",
-                  overflowY: "auto",
-                  maxWidth: "450px",
-                }}
-              >
-                <h3 style={{ margin: "0 0 10px 0", color: "#d32f2f" }}>
-                  {item.row} - {item.type || "N/A"}
-                </h3>
-                <p>
-                  <strong>Fecha:</strong> {formatDate(item.created_at)}
-                </p>
-                {item.img && (
-                  <div style={{ marginTop: "10px" }}>
-                    <img
-                      src={item.img}
-                      alt={`Imagen de ${item.type || "afectación"}`}
-                      style={{
-                        width: "100%",
-                        height: "auto",
-                        maxHeight: "200px",
-                        objectFit: "contain",
-                        borderRadius: "4px",
-                        border: "1px solid #ddd",
-                        cursor: "pointer",
-                      }}
-                    />
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        display: "block",
-                        textAlign: "center",
-                        color: "#666",
-                      }}
-                    >
-                      Haz clic para ampliar
-                    </Typography>
-                  </div>
-                )}
-                <p>
-                  <strong>Subtipo:</strong> {item.subtype || "No disponible"}
-                </p>
-                <p>
-                  <strong>Amenaza:</strong>{" "}
-                  {item.specific_type || "No disponible"}
-                </p>
-                <p>
-                  <strong>Descripción:</strong> {item.desc || "No disponible"}
-                </p>
-                {item.type === "Amenaza" && (
-                  <div
-                    style={{
-                      marginTop: "10px",
-                      padding: "10px",
-                      backgroundColor: "#f5f5f5",
-                      borderRadius: "4px",
-                    }}
-                  >
-                    <Typography variant="subtitle2" gutterBottom>
-                      <strong>📊 Parámetros de la Amenaza:</strong>
-                    </Typography>
-                    <div style={{ marginLeft: "10px" }}>
-                      <p style={{ margin: "5px 0" }}>
-                        <strong>🔄 Frecuencia:</strong>{" "}
-                        {getLabelByValue(FREQ_OPTIONS, item.freq)}
-                      </p>
-                      <p style={{ margin: "5px 0" }}>
-                        <strong>💥 Intensidad:</strong>{" "}
-                        {getLabelByValue(INTENSITY_OPTIONS, item.intensity)}
-                      </p>
-                      <p style={{ margin: "5px 0" }}>
-                        <strong>🗺️ Superficie Afectada:</strong>{" "}
-                        {getLabelByValue(SURFACE_OPTIONS, item.surface)}
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </Box>
-            </Popup>
-          </Marker>
-        );
-      })
-      .filter(Boolean);
-  }, [markData, formatDate]);
+  const markers = useMemo(() => {
+    if (!markData.length) return null;
+    return markData.map((item, i) => {
+      const lat = parseFloat(item.lat),
+        lng = parseFloat(item.lng);
+      if (isNaN(lat) || isNaN(lng)) return null;
+      return (
+        <Marker
+          key={item.id || i}
+          position={[lat, lng]}
+          icon={MARKER_ICONS[item.type] || MARKER_ICONS.Recurso}
+        >
+          <Popup>
+            <Box sx={{ maxHeight: "60vh", overflow: "auto", maxWidth: 450 }}>
+              <h3 style={{ color: "#d32f2f" }}>{item.type || "N/A"}</h3>
+              <p>
+                <strong>Fecha:</strong>{" "}
+                {new Date(item.created_at).toLocaleString("es-ES")}
+              </p>
+              <p>
+                <strong>Subtipo:</strong> {item.subtype || "N/A"}
+              </p>
+              <p>
+                <strong>Descripción:</strong> {item.desc || "N/A"}
+              </p>
+              {item.type === "Amenaza" && (
+                <div
+                  style={{
+                    background: "#f5f5f5",
+                    padding: 10,
+                    borderRadius: 4,
+                    marginTop: 10,
+                  }}
+                >
+                  <strong>📊 Parámetros:</strong>
+                  <p>🔄 Frecuencia: {getLabel("freq", item.freq)}</p>
+                  <p>💥 Intensidad: {getLabel("intensity", item.intensity)}</p>
+                  <p>🗺️ Superficie: {getLabel("surface", item.surface)}</p>
+                </div>
+              )}
+            </Box>
+          </Popup>
+        </Marker>
+      );
+    });
+  }, [markData]);
 
-  if (props.loading) {
+  // Polígono dibujado
+  const drawnPolygon = useMemo(() => {
+    if (!polygon?.[0]?.length) return null;
+    return (
+      <Polygon
+        positions={polygon[0]}
+        pathOptions={{
+          color: "#4caf50",
+          fillColor: "#4caf50",
+          fillOpacity: 0.4,
+          weight: 3,
+        }}
+      />
+    );
+  }, [polygon]);
+
+  if (props.loading)
     return (
       <Box
         display="flex"
@@ -655,43 +382,75 @@ const MapBase = (props) => {
         Cargando mapa...
       </Box>
     );
-  }
 
   return (
-    <>
-      <MapContainer
-        center={CENTER_POSITION}
-        zoom={10}
-        style={{ height: "80vh", width: "100%" }}
-        doubleClickZoom={false}
+    <MapContainer
+      center={CENTER}
+      zoom={10}
+      style={{ height: "80vh", width: "100%" }}
+      doubleClickZoom={!isDrawing}
+    >
+      {user && <MapEvents onMapClick={handleOpenDialog} />}
+      <LocationBtn />
+      <TileLayer url="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}" />
+
+      <DialogAdd
+        dialogOpen={dialogOpen}
+        handleCloseDialog={() => setDialogOpen(false)}
+        handleEditPol={handleEditPolygon}
+        dialogCoords={dialogCoords}
+        markData={markData}
+        setMarkData={setMarkData}
+        comiteAdds={props.comiteInfo?.data?.[0]?.adders}
+        comite={props.comiteInfo?.data?.[0]?.comite}
+        polyData={polygon}
+      />
+
+      <LayersControl position="topright">
+        <LayersControl.Overlay name="Sectores" checked>
+          <LayerGroup>{sectorPolygons}</LayerGroup>
+        </LayersControl.Overlay>
+        <LayersControl.Overlay name="Marcadores" checked>
+          <LayerGroup>{markers}</LayerGroup>
+        </LayersControl.Overlay>
+        <LayersControl.Overlay name="Comité" checked>
+          <LayerGroup>{comitePolygon}</LayerGroup>
+        </LayersControl.Overlay>
+        {drawnPolygon && <LayerGroup>{drawnPolygon}</LayerGroup>}
+      </LayersControl>
+
+      {isDrawing && (
+        <FeatureGroup>
+          <EditControl
+            position="topright"
+            onCreated={onPolygonCreate}
+            draw={{
+              rectangle: false,
+              polygon: true,
+              polyline: false,
+              circle: false,
+              marker: false,
+              circlemarker: false,
+            }}
+          />
+        </FeatureGroup>
+      )}
+
+      <Button
+        onClick={handleEditPolygon}
+        variant="contained"
+        size="small"
+        sx={{
+          position: "absolute",
+          bottom: 20,
+          left: 10,
+          zIndex: 1000,
+          bgcolor: isDrawing ? "#ff9800" : "#4caf50",
+        }}
       >
-        {user && <MapEventHandlers onMapClick={handleOpenDialog} />}
-        <LocationMarker />
-        <TileLayer url="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}" />
-
-        <DialogAdd
-          dialogOpen={dialogOpen}
-          handleCloseDialog={handleCloseDialog}
-          dialogCoords={dialogCoords}
-          markData={markData}
-          setMarkData={setMarkData}
-          comiteAdds={props.comiteInfo?.data?.[0].adders}
-          comite={props.comiteInfo?.data?.[0]?.comite}
-        />
-
-        <LayersControl position="topright">
-          <LayersControl.Overlay name="Sectores" checked>
-            <LayerGroup>{renderPolygons}</LayerGroup>
-          </LayersControl.Overlay>
-          <LayersControl.Overlay name="Marcadores" checked>
-            <LayerGroup>{renderMarker}</LayerGroup>
-          </LayersControl.Overlay>
-          <LayersControl.Overlay name="Comité" checked>
-            <LayerGroup>{renderComite}</LayerGroup>
-          </LayersControl.Overlay>
-        </LayersControl>
-      </MapContainer>
-    </>
+        {isDrawing ? "✏️ Dibujando..." : "✏️ Editar Polígono"}
+      </Button>
+    </MapContainer>
   );
 };
 

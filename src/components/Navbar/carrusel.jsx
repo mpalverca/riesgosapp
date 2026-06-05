@@ -1,28 +1,85 @@
 // components/MUICarousel.jsx
-import React, { useState, useEffect } from 'react';
-import { Box, Card, CardContent, Typography, Button, IconButton, Container } from '@mui/material';
-import { Circle, CircleOutlined } from '@mui/icons-material';
+import React, { useState, useEffect, useRef } from 'react';
+import { 
+  Box, 
+  Card, 
+  CardContent, 
+  Typography, 
+  Button, 
+  IconButton, 
+  Container,
+  Fade,
+  Stack,
+  Paper
+} from '@mui/material';
+import { 
+  Circle, 
+  CircleOutlined, 
+  NavigateBefore, 
+  NavigateNext,
+  Pause,
+  PlayArrow
+} from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Carousel = ({ 
   slides = [], 
   autoPlay = true, 
   interval = 5000,
   height = 600,
-  showIndicators = true
+  showIndicators = true,
+  showNavigation = true,
+  showCounter = true,
+  pauseOnHover = true,
+  animation = "slide" // slide, fade
 }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(autoPlay);
+  const [isHovered, setIsHovered] = useState(false);
+  const timerRef = useRef(null);
   const navigate = useNavigate();
 
-  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % slides.length);
-  //const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
-  const goToSlide = (index) => setCurrentSlide(index);
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % slides.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+  };
+
+  const goToSlide = (index) => {
+    setCurrentSlide(index);
+    // Reiniciar timer automático al cambiar manualmente
+    if (autoPlay && isPlaying) {
+      resetTimer();
+    }
+  };
+
+  const resetTimer = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+    if (autoPlay && isPlaying && !(pauseOnHover && isHovered)) {
+      timerRef.current = setInterval(nextSlide, interval);
+    }
+  };
+
+  const toggleAutoPlay = () => {
+    setIsPlaying(!isPlaying);
+  };
 
   useEffect(() => {
     if (!autoPlay || slides.length <= 1) return;
-    const timer = setInterval(nextSlide, interval);
-    return () => clearInterval(timer);
-  }, [currentSlide, autoPlay, interval, slides.length]);
+    
+    if (isPlaying && !(pauseOnHover && isHovered)) {
+      timerRef.current = setInterval(nextSlide, interval);
+    }
+    
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [currentSlide, autoPlay, interval, slides.length, isPlaying, isHovered, pauseOnHover]);
 
   const handleButtonClick = (slide) => {
     if (slide.buttonAction) {
@@ -38,140 +95,327 @@ const Carousel = ({
 
   if (!slides.length) {
     return (
-      <Box height={height} display="flex" alignItems="center" justifyContent="center" bgcolor="grey.100">
-        <Typography variant="h6" color="text.secondary">No hay slides para mostrar</Typography>
+      <Box 
+        height={height} 
+        display="flex" 
+        alignItems="center" 
+        justifyContent="center" 
+        bgcolor="action.hover"
+        borderRadius={4}
+      >
+        <Typography variant="h6" color="text.secondary">
+          📸 No hay imágenes para mostrar
+        </Typography>
       </Box>
     );
   }
 
   return (
     <Container maxWidth="xl" sx={{ p: 0 }}>
-      <Box sx={{ position: 'relative', width: '100%', height: height, overflow: 'hidden' }}>
-        <Box sx={{ 
-          display: 'flex', 
-          height: '100%',
-          transform: `translateX(-${currentSlide * 100}%)`,
-          transition: 'transform 0.5s ease-in-out'
-        }}>
-          {slides.map((slide, index) => (
-            <Box
-              key={index}
-              sx={{
-                minWidth: '100%',
-                height: '100%',
-                position: 'relative',
-                flexShrink: 0
-              }}
-            >
+      <Box 
+        sx={{ 
+          position: 'relative', 
+          width: '100%', 
+          height: height, 
+          overflow: 'hidden',
+          borderRadius: 4,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+        }}
+        onMouseEnter={() => pauseOnHover && setIsHovered(true)}
+        onMouseLeave={() => pauseOnHover && setIsHovered(false)}
+      >
+        {/* Slides Container */}
+        <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
+          <AnimatePresence mode="wait">
+            {animation === "slide" ? (
               <Box
-                component="img"
-                src={slide.image}
-                alt={slide.alt || `Slide ${index + 1}`}
+                key={currentSlide}
+                component={motion.div}
+                initial={{ x: 300, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: -300, opacity: 0 }}
+                transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
                 sx={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  filter: slide.imageFilter || 'brightness(0.8)',
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
                 }}
-              />
-              
-              <Card sx={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                backgroundColor: 'rgba(214, 209, 201, 0.6)',
-                padding: 2,
-                width: '95%',
-                maxWidth: '800px',
-                textAlign: 'center',
-                border: '1px solid rgba(214, 209, 201, 0.1)'
-              }}>
-                <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                  {slide.title && (
-                    <Typography variant="h4" fontWeight="bold" color="black" gutterBottom>
-                      {slide.title}
-                    </Typography>
-                  )}
-                  
-                  {slide.description && (
-                    <Typography variant="h6" color="text.secondary" paragraph>
-                      {slide.description}
-                    </Typography>
-                  )}
-                  
-                  {slide.buttonText && (
-                    <Button
-                      variant="contained"
-                      size="large"
-                      onClick={() => handleButtonClick(slide)}
-                      sx={{
-                        backgroundColor: "#e28b18ff",
-                        px: 4,
-                        py: 1.5,
-                        fontSize: '1.1rem',
-                        fontWeight: 'bold',
-                        '&:hover': {
-                          backgroundColor: "#d17a0fff",
-                          transform: 'translateY(-2px)',
-                        },
-                      }}
-                    >
-                      {slide.buttonText}
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-            </Box>
-          ))}
+              >
+                <SlideContent 
+                  slide={slides[currentSlide]} 
+                  handleButtonClick={handleButtonClick}
+                />
+              </Box>
+            ) : (
+              <Fade in timeout={500}>
+                <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
+                  <SlideContent 
+                    slide={slides[currentSlide]} 
+                    handleButtonClick={handleButtonClick}
+                  />
+                </Box>
+              </Fade>
+            )}
+          </AnimatePresence>
         </Box>
 
+        {/* Navigation Arrows */}
+        {showNavigation && slides.length > 1 && (
+          <>
+            <IconButton
+              onClick={prevSlide}
+              sx={{
+                position: 'absolute',
+                left: 16,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                backgroundColor: 'rgba(0,0,0,0.5)',
+                color: 'white',
+                zIndex: 2,
+                '&:hover': {
+                  backgroundColor: 'rgba(0,0,0,0.7)',
+                  transform: 'translateY(-50%) scale(1.1)',
+                },
+                transition: 'all 0.3s ease',
+              }}
+            >
+              <NavigateBefore fontSize="large" />
+            </IconButton>
+            
+            <IconButton
+              onClick={nextSlide}
+              sx={{
+                position: 'absolute',
+                right: 16,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                backgroundColor: 'rgba(0,0,0,0.5)',
+                color: 'white',
+                zIndex: 2,
+                '&:hover': {
+                  backgroundColor: 'rgba(0,0,0,0.7)',
+                  transform: 'translateY(-50%) scale(1.1)',
+                },
+                transition: 'all 0.3s ease',
+              }}
+            >
+              <NavigateNext fontSize="large" />
+            </IconButton>
+          </>
+        )}
+
+        {/* Play/Pause Button */}
+        {autoPlay && slides.length > 1 && (
+          <IconButton
+            onClick={toggleAutoPlay}
+            sx={{
+              position: 'absolute',
+              bottom: 16,
+              left: 16,
+              backgroundColor: 'rgba(0,0,0,0.5)',
+              color: 'white',
+              zIndex: 2,
+              '&:hover': {
+                backgroundColor: 'rgba(0,0,0,0.7)',
+              },
+            }}
+            size="small"
+          >
+            {isPlaying ? <Pause fontSize="small" /> : <PlayArrow fontSize="small" />}
+          </IconButton>
+        )}
+
+        {/* Indicators */}
         {showIndicators && slides.length > 1 && (
-          <Box sx={{
-            position: 'absolute',
-            bottom: 16,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            display: 'flex',
-            gap: 1,
-            backgroundColor: 'rgba(240, 240, 240, 0.7)',
-            borderRadius: 3,
-            p: 1,
-          }}>
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{
+              position: 'absolute',
+              bottom: 16,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 2,
+              backgroundColor: 'rgba(0,0,0,0.4)',
+              borderRadius: 3,
+              p: 1,
+              backdropFilter: 'blur(8px)',
+            }}
+          >
             {slides.map((_, index) => (
               <IconButton
                 key={index}
                 onClick={() => goToSlide(index)}
                 size="small"
                 sx={{
-                  color: index === currentSlide ? "#e28b18ff" : "#cfbb9fff",
+                  color: index === currentSlide ? "#e28b18ff" : "rgba(255,255,255,0.6)",
                   p: 0.5,
-                  '&:hover': { color: "#e28b18ff" },
+                  transition: 'all 0.3s ease',
+                  '&:hover': { 
+                    color: "#e28b18ff",
+                    transform: 'scale(1.2)',
+                  },
                 }}
               >
-                {index === currentSlide ? <Circle fontSize="small" /> : <CircleOutlined fontSize="small" />}
+                {index === currentSlide ? (
+                  <Circle fontSize="small" />
+                ) : (
+                  <CircleOutlined fontSize="small" />
+                )}
               </IconButton>
             ))}
-          </Box>
+          </Stack>
         )}
 
-        {slides.length > 1 && (
-          <Box sx={{
-            position: 'absolute',
-            top: 16,
-            right: 16,
-            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-            borderRadius: 3,
-            p: '8px 16px',
-          }}>
-            <Typography variant="body2" color="text.secondary" fontWeight="medium">
-              {currentSlide + 1} / {slides.length}
+        {/* Counter */}
+        {showCounter && slides.length > 1 && (
+          <Paper
+            elevation={0}
+            sx={{
+              position: 'absolute',
+              top: 16,
+              right: 16,
+              backgroundColor: 'rgba(0,0,0,0.6)',
+              backdropFilter: 'blur(8px)',
+              borderRadius: 4,
+              px: 1.5,
+              py: 0.5,
+              zIndex: 2,
+            }}
+          >
+            <Typography variant="body2" color="white" fontWeight="medium">
+              {String(currentSlide + 1).padStart(2, '0')} / {String(slides.length).padStart(2, '0')}
             </Typography>
-          </Box>
+          </Paper>
+        )}
+
+        {/* Progress Bar */}
+        {autoPlay && isPlaying && slides.length > 1 && (
+          <Box
+            component={motion.div}
+            initial={{ width: '0%' }}
+            animate={{ width: '100%' }}
+            transition={{ duration: interval / 1000, ease: "linear" }}
+            key={currentSlide}
+            sx={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              height: '4px',
+              backgroundColor: '#e28b18ff',
+              zIndex: 2,
+            }}
+          />
         )}
       </Box>
     </Container>
   );
 };
+
+// Componente interno para el contenido del slide
+const SlideContent = ({ slide, handleButtonClick }) => (
+  <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
+    <Box
+      component="img"
+      src={slide.image}
+      alt={slide.alt || 'Slide image'}
+      sx={{
+        width: '100%',
+        height: '100%',
+        objectFit: 'cover',
+        filter: slide.imageFilter || 'brightness(0.65)',
+      }}
+    />
+    
+    <Card sx={{
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+      backdropFilter: 'blur(10px)',
+      padding: { xs: 1.5, sm: 3, md: 4 },
+      width: { xs: '90%', sm: '85%', md: '70%' },
+      maxWidth: '800px',
+      textAlign: 'center',
+      borderRadius: 4,
+      boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+      border: '1px solid rgba(255,255,255,0.3)',
+    }}>
+      <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        {slide.title && (
+          <Typography 
+            variant="h4" 
+            component={motion.h4}
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            fontWeight="bold" 
+            color="text.primary" 
+            gutterBottom
+            sx={{ 
+              fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' },
+              textShadow: '1px 1px 2px rgba(0,0,0,0.1)'
+            }}
+          >
+            {slide.title}
+          </Typography>
+        )}
+        
+        {slide.description && (
+          <Typography 
+            variant="body1" 
+            component={motion.p}
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            color="text.secondary" 
+            paragraph
+            sx={{ 
+              fontSize: { xs: '0.9rem', sm: '1rem', md: '1.1rem' },
+              maxWidth: '90%',
+              mx: 'auto'
+            }}
+          >
+            {slide.description}
+          </Typography>
+        )}
+        
+        {slide.buttonText && (
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.4 }}
+          >
+            <Button
+              variant="contained"
+              size="large"
+              onClick={() => handleButtonClick(slide)}
+              sx={{
+                backgroundColor: "#e28b18ff",
+                px: { xs: 3, sm: 4, md: 6 },
+                py: { xs: 1, sm: 1.5 },
+                fontSize: { xs: '0.9rem', sm: '1rem', md: '1.1rem' },
+                fontWeight: 'bold',
+                borderRadius: 4,
+                textTransform: 'none',
+                '&:hover': {
+                  backgroundColor: "#d17a0fff",
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
+                },
+                transition: 'all 0.3s ease',
+              }}
+            >
+              {slide.buttonText}
+            </Button>
+          </motion.div>
+        )}
+      </CardContent>
+    </Card>
+  </Box>
+);
 
 export default Carousel;

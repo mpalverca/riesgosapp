@@ -500,7 +500,7 @@ const CriterioCard = ({ title, value, color, icon, description, formula }) => {
       <CardContent sx={{ p: 1 }}>
         <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
           <Box sx={{ color: color, mr: 1, display: "flex", mb: 5 }}>{icon}</Box>
-          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+          <Typography variant="body1" sx={{ fontWeight: 600 }}>
             {title}
           </Typography>
         </Box>
@@ -510,7 +510,7 @@ const CriterioCard = ({ title, value, color, icon, description, formula }) => {
           sx={{
             fontWeight: 700,
             textAlign: "center",
-            my: 5,
+            my: 2,
             color: color,
           }}
         >
@@ -518,7 +518,7 @@ const CriterioCard = ({ title, value, color, icon, description, formula }) => {
         </Typography>
 
         <Typography
-          variant="body1"
+          variant="body2"
           color="text.secondary"
           sx={{
             display: "block",
@@ -529,7 +529,7 @@ const CriterioCard = ({ title, value, color, icon, description, formula }) => {
           {description}
         </Typography>
 
-        <Divider sx={{ my: 2 }} />
+        <Divider sx={{ my: 1 }} />
 
         <Typography
           variant="body2"
@@ -563,14 +563,15 @@ const TotalCard = ({ total }) => {
       elevation={0}
       sx={{
         borderRadius: 3,
+        height: "100%",
         border: `2px solid ${color.light}`,
         background: `linear-gradient(135deg, ${color.light} 0%, transparent 100%)`,
       }}
     >
-      <CardContent sx={{ p: 3 }}>
+      <CardContent sx={{ p: 1 }}>
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <CalculateIcon sx={{ mr: 1.5, color: color.main }} />
-          <Typography variant="h6" sx={{ fontWeight: 700 }}>
+          <Typography variant="body1" sx={{ fontWeight: 700 }}>
             PUNTAJE TOTAL DE PRIORIZACIÓN
           </Typography>
         </Box>
@@ -582,7 +583,7 @@ const TotalCard = ({ total }) => {
             textAlign: "center",
             //my: 2,
             color: color.main,
-            fontSize: { xs: "3.5rem", sm: "5rem", md: "6rem" },
+            //fontSize: { xs: "3.5rem", sm: "5rem", md: "6rem" },
           }}
         >
           {total || "0"}
@@ -590,7 +591,7 @@ const TotalCard = ({ total }) => {
         <Typography
           variant="body2"
           color="text.secondary"
-          sx={{ textAlign: "center", mb: 3 }}
+          sx={{ textAlign: "center", mb: 1 }}
         >
           Puntaje de priorización (Escala 0-10)
         </Typography>
