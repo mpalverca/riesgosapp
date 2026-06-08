@@ -1,11 +1,9 @@
-
 import {
   Box,
   Typography,
   Paper,
   CircularProgress,
   Alert,
-
   Divider,
   TableContainer,
   TableHead,
@@ -23,6 +21,7 @@ import {
   People as PeopleIcon,
   ListAlt as ListAltIcon,
   FiberManualRecord as FiberManualRecordIcon,
+  Verified,
 } from "@mui/icons-material";
 //import SearchIcon from "@mui/icons-material/Search";
 import Coe_info from "../../components/utils/coe_info.json";
@@ -72,17 +71,17 @@ const SearchTerm = ({
       {member && found && (
         <Box
           sx={{
-            mt: 1,
-            p: 2,
-          bgcolor: "linear-gradient(45deg, #FF5733 20%, #FFD700 90%)",
+            //mt: 1,
+            px: 2,
+            bgcolor: "linear-gradient(45deg, #FF5733 20%, #FFD700 90%)",
             //bgcolor: "#e8f5e9",
             borderRadius: 2,
-          //  border: "1px solid #c8e6c9",
+            //  border: "1px solid #c8e6c9",
             mb: 3,
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-            <CheckCircleIcon color="white" sx={{ mr: 1 }} />
+            <Verified color="#1240da" sx={{ mr: 1, color: "#1240da" }} />
             <Typography variant="h6" fontWeight="bold" color="black">
               Miembro encontrado
             </Typography>
@@ -187,7 +186,13 @@ const SearchTerm = ({
               {/* Encabezado del Componente */}
               <Paper
                 elevation={2}
-                sx={{ p: 2, mb: 3, bgcolor: "#FF5733", color: "white" }}
+                sx={{
+                  p: 2,
+                  mb: 3,
+                  //bgcolor: "#FF5733",
+                  color: "white",
+                  bgcolor: "#3363ff",
+                }}
               >
                 <Typography variant="h5" align="center" fontWeight="bold">
                   {getComponentType(mtt.codigo)}
@@ -203,17 +208,17 @@ const SearchTerm = ({
               </Paper>
 
               {/* Responsable */}
-              <Paper elevation={1} sx={{ p: 2, mb: 3 }}>
+              <Paper elevation={1} sx={{ px: 2, mb: 3 }}>
                 <Typography
                   variant="h6"
-                  color="error"
+                  //color="error"
                   sx={{ mb: 1, fontWeight: "bold" }}
                 >
                   <BusinessIcon sx={{ verticalAlign: "middle", mr: 1 }} />
                   Institución Responsable
                 </Typography>
-                <Divider sx={{ mb: 2 }} />
-                <Box sx={{ p: 2, bgcolor: "#f8f9fa", borderRadius: 1 }}>
+                <Divider sx={{ mb: 1 }} />
+                <Box sx={{ bgcolor: "#f8f9fa", borderRadius: 1 }}>
                   <Typography variant="body1" fontWeight="medium">
                     {mtt.responsable}
                   </Typography>
@@ -221,10 +226,10 @@ const SearchTerm = ({
               </Paper>
 
               {/* Instituciones de Apoyo */}
-              <Paper elevation={1} sx={{ p: 2, mb: 3 }}>
+              <Paper elevation={1} sx={{ px: 2, mb: 3 }}>
                 <Typography
                   variant="h6"
-                  color="error"
+                  //  color="error"
                   sx={{ mb: 1, fontWeight: "bold" }}
                 >
                   <GroupIcon sx={{ verticalAlign: "middle", mr: 1 }} />
@@ -265,10 +270,10 @@ const SearchTerm = ({
 
               {/* Miembros de Apoyo */}
               {Array.isArray(apoyo) && apoyo.length > 0 && (
-                <Paper elevation={1} sx={{ p: 2, mb: 3 }}>
+                <Paper elevation={1} sx={{ px: 2, mb: 2 }}>
                   <Typography
                     variant="h6"
-                    color="error"
+                    // color="error"
                     sx={{ mb: 1, fontWeight: "bold" }}
                   >
                     <PeopleIcon sx={{ verticalAlign: "middle", mr: 1 }} />
@@ -278,7 +283,7 @@ const SearchTerm = ({
                   <Typography
                     variant="body2"
                     color="text.secondary"
-                    sx={{ mb: 2 }}
+                    sx={{ mb: 1 }}
                   >
                     Personal designado para apoyo a la gestión de emergencias
                   </Typography>
@@ -289,7 +294,8 @@ const SearchTerm = ({
                           <TableCell width="50px">#</TableCell>
                           <TableCell>Miembro</TableCell>
                           <TableCell>Institución</TableCell>
-                          <TableCell>Cargo</TableCell>
+                          <TableCell>Cargo Institucional</TableCell>
+                           <TableCell>Cargo COE</TableCell>
                           <TableCell>Contacto</TableCell>
                         </TableRow>
                       </TableHead>
@@ -299,7 +305,8 @@ const SearchTerm = ({
                             <TableCell>{idx + 1}</TableCell>
                             <TableCell>{ap.miembro}</TableCell>
                             <TableCell>{ap.inst}</TableCell>
-                            <TableCell>{ap.cargo}</TableCell>
+                            <TableCell>{ap.cargo}</TableCell>{" "}
+                            <TableCell>{ap.cargo_COE}</TableCell>
                             <TableCell>{ap.telf}</TableCell>
                           </TableRow>
                         ))}
@@ -310,26 +317,26 @@ const SearchTerm = ({
               )}
 
               {/* Misión */}
-              <Paper elevation={1} sx={{ p: 2, mb: 3 }}>
+              <Paper elevation={1} sx={{ px: 2, mb: 2 }}>
                 <Typography
                   variant="h6"
-                  color="error"
+                 // color="error"
                   sx={{ mb: 1, fontWeight: "bold" }}
                 >
                   {/* <TargetIco sx={{ verticalAlign: 'middle', mr: 1 }} /> */}
                   Misión
                 </Typography>
-                <Divider sx={{ mb: 2 }} />
-                <Box sx={{ p: 2, bgcolor: "#f8f9fa", borderRadius: 1 }}>
+                <Divider sx={{ mb: 1 }} />
+                <Box sx={{  bgcolor: "#f8f9fa", borderRadius: 1 }}>
                   <Typography variant="body1">{mtt.mision}</Typography>
                 </Box>
               </Paper>
 
               {/* Funciones Principales */}
-              <Paper elevation={1} sx={{ p: 2, mb: 3 }}>
+              <Paper elevation={1} sx={{ px: 2, mb: 2 }}>
                 <Typography
                   variant="h6"
-                  color="error"
+                 // color="error"
                   sx={{ mb: 1, fontWeight: "bold" }}
                 >
                   <ListAltIcon sx={{ verticalAlign: "middle", mr: 1 }} />
@@ -363,7 +370,7 @@ const SearchTerm = ({
                                     fontSize: 10,
                                     mt: 0.5,
                                     mr: 1.5,
-                                    color: "red",
+                                    color: "#1240da",
                                   }}
                                 />
                                 <Typography variant="body2">{resp}</Typography>
@@ -391,6 +398,5 @@ const SearchTerm = ({
     </Paper>
   );
 };
-
 
 export default SearchTerm;

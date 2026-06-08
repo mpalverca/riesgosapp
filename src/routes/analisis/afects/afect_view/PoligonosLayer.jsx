@@ -5,7 +5,8 @@ import PropTypes from "prop-types";
 
 const POLYGON_COLORS = {
   tipo1: { color: "#ffff00", fillColor: "#ffff00", fillOpacity: 0.2 },
-  tipo2: { color: "#0000ff", fillColor: "#0000ff", fillOpacity: 0.2 },
+  tipo2: { color: "#0000ff", fillColor: "#0000ff", fillOpacity: 0.2 },  
+  tipo3: { color: "rgb(255, 0, 0)", fillColor: "#ff5100", fillOpacity: 0.2 },
 };
 
 const SucepLayer = ({ poligonosData = [], showLayer = false, loading = false }) => {
@@ -20,7 +21,7 @@ const SucepLayer = ({ poligonosData = [], showLayer = false, loading = false }) 
           return item.geom.coordinates.map((polygon, polyIndex) => {
             const polyCoords = polygon[0].map((coord) => [coord[1], coord[0]]);
             const colors =
-              item.tipo === 1 ? POLYGON_COLORS.tipo1 : POLYGON_COLORS.tipo2;
+              item.tipo === 1 ? POLYGON_COLORS.tipo1 :item.tipo === 2 ? POLYGON_COLORS.tipo2 : POLYGON_COLORS.tipo3;
 
             return (
               <Polygon

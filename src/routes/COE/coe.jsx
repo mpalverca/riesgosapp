@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Box,
-  Typography,
-  Paper,
-  Tab,  
-} from "@mui/material";
+import { Box, Typography, Paper, Tab } from "@mui/material";
 // Importa los iconos necesarios al inicio del archivo
 //import SearchIcon from "@mui/icons-material/Search";
 import { useSearchMembers } from "./script";
@@ -33,13 +28,13 @@ const Coe = ({ role, ci, ...props }) => {
         if (storedMember) {
           const parsedMember = JSON.parse(storedMember);
           setMember(parsedMember);
-           //console.log("Miembro cargado desde localStorage:", parsedMember);
+          //console.log("Miembro cargado desde localStorage:", parsedMember);
         }
 
         if (storedApoyo) {
           const parsedApoyo = JSON.parse(storedApoyo);
           setApoyo(parsedApoyo);
-            //console.log("Apoyo cargado desde localStorage:", parsedApoyo);
+          //console.log("Apoyo cargado desde localStorage:", parsedApoyo);
         }
       } catch (error) {
         // console.error("Error parsing localStorage data:", error);
@@ -54,47 +49,47 @@ const Coe = ({ role, ci, ...props }) => {
 
   // useEffect para buscar cuando cambia el CI
   useEffect(() => {
-  const searchMember = async () => {
-    if (!ci || ci.trim() === "") return;
+    const searchMember = async () => {
+      if (!ci || ci.trim() === "") return;
 
-    // Verificar localStorage primero
-    const storedMember = localStorage.getItem("memberD");
-    await memberData.search(ci);
-   
-    //console.log(memberData.member)
-    if (storedMember) {
-      try {
-        const parsedMember = JSON.parse(storedMember);
-        
-        if (String(parsedMember.ci) === String(ci)) {
-          //console.log("Miembro encontrado en localStorage");
-          setMember(parsedMember);
+      // Verificar localStorage primero
+      const storedMember = localStorage.getItem("memberD");
+      await memberData.search(ci);
 
-          const storedApoyo = localStorage.getItem("apoyoD");
-          if (storedApoyo) {
-            setApoyo(JSON.parse(storedApoyo));
+      //console.log(memberData.member)
+      if (storedMember) {
+        try {
+          const parsedMember = JSON.parse(storedMember);
+
+          if (String(parsedMember.ci) === String(ci)) {
+            //console.log("Miembro encontrado en localStorage");
+            setMember(parsedMember);
+
+            const storedApoyo = localStorage.getItem("apoyoD");
+            if (storedApoyo) {
+              setApoyo(JSON.parse(storedApoyo));
+            }
+            return; // 👈 Importante: salir si encontramos en localStorage
           }
-          return; // 👈 Importante: salir si encontramos en localStorage
+        } catch (error) {
+          console.error("Error parsing stored member:", error);
+          localStorage.removeItem("memberD");
+          localStorage.removeItem("apoyoD");
         }
-      } catch (error) {
-        console.error("Error parsing stored member:", error);
-        localStorage.removeItem("memberD");
-        localStorage.removeItem("apoyoD");
       }
-    }
 
-    // Solo buscar si no encontramos en localStorage
-    await memberData.search(ci); // 👈 Usar search directamente
-  };
+      // Solo buscar si no encontramos en localStorage
+      await memberData.search(ci); // 👈 Usar search directamente
+    };
 
-  searchMember();
-}, [ci, memberData.search]); // 👈 Dependencia: ci y la función search// Dependencia solo en ci
+    searchMember();
+  }, [ci, memberData.search]); // 👈 Dependencia: ci y la función search// Dependencia solo en ci
 
   // useEffect para actualizar cuando memberData cambia (nueva búsqueda)
   useEffect(() => {
     //console.log(memberData?.member,)
     if (memberData?.member && Object.keys(memberData.member).length > 0) {
-    //   console.log("Actualizando estado con datos de la búsqueda");
+      //   console.log("Actualizando estado con datos de la búsqueda");
       setMember(memberData.member);
 
       if (memberData?.apoyo) {
@@ -113,7 +108,7 @@ const Coe = ({ role, ci, ...props }) => {
 
   useEffect(() => {
     if (apoyo && Object.keys(apoyo).length > 0) {
-       // console.log("Guardando apoyo en localStorage");
+      // console.log("Guardando apoyo en localStorage");
       localStorage.setItem("apoyoD", JSON.stringify(apoyo));
     }
   }, [apoyo]);
@@ -127,14 +122,16 @@ const Coe = ({ role, ci, ...props }) => {
       <Typography
         variant="h4"
         gutterBottom
-        color="white"
+       // color="white"
         align="center"
-        sx={{ background: "linear-gradient(45deg, #FF5733 20%, #FFD700 90%)",
-          borderRadius:2,
-          borderColor:"red",
-          p:2,
-          m:2
-         }}
+        sx={{
+          //background: "linear-gradient(45deg, #FF5733 20%, #FFD700 90%)",
+          borderRadius: 2,
+          border: "2px solid #1240da",
+          //borderColor: "red",
+          p: 2,
+          m: 2,
+        }}
       >
         🚨 Comité Operativo de Emergencias (COE) - MTT/GT
       </Typography>
@@ -145,7 +142,7 @@ const Coe = ({ role, ci, ...props }) => {
             <Tab label="Descripción de Mesa" value="1" />
             <Tab label="Estado del cantón" value="2" />
             <Tab label="Recursos" value="3" />
-            <Tab label="Acciones" value="4" />
+          
           </TabList>
         </Box>
 
@@ -174,13 +171,10 @@ const Coe = ({ role, ci, ...props }) => {
           </Paper>
         </TabPanel>
 
-        <TabPanel value="4">
-          <Typography>En desarrollo...</Typography>
-        </TabPanel>
+       
       </TabContext>
     </Box>
   );
 };
 
 export default Coe;
-
