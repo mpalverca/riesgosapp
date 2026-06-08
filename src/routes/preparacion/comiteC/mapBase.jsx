@@ -220,7 +220,7 @@ const MapBase = (props) => {
           const ring = poly[0] || poly;
           if (!ring?.length) return null;
           const leafletCoords = ring.map((c) => [c[1], c[0]]);
-
+       
           return (
             <Polygon
               key={`${idx}-${i}`}
@@ -309,51 +309,93 @@ const MapBase = (props) => {
 
   // Renderizar marcadores
   const markers = useMemo(() => {
-    if (!markData.length) return null;
-    return markData.map((item, i) => {
-      const lat = parseFloat(item.lat),
-        lng = parseFloat(item.lng);
-      if (isNaN(lat) || isNaN(lng)) return null;
-      return (
-        <Marker
-          key={item.id || i}
-          position={[lat, lng]}
-          icon={MARKER_ICONS[item.type] || MARKER_ICONS.Recurso}
-        >
-          <Popup>
-            <Box sx={{ maxHeight: "60vh", overflow: "auto", maxWidth: 450 }}>
-              <h3 style={{ color: "#d32f2f" }}>{item.type || "N/A"}</h3>
-              <p>
-                <strong>Fecha:</strong>{" "}
-                {new Date(item.created_at).toLocaleString("es-ES")}
-              </p>
-              <p>
-                <strong>Subtipo:</strong> {item.subtype || "N/A"}
-              </p>
-              <p>
-                <strong>Descripción:</strong> {item.desc || "N/A"}
-              </p>
-              {item.type === "Amenaza" && (
-                <div
-                  style={{
-                    background: "#f5f5f5",
-                    padding: 10,
-                    borderRadius: 4,
-                    marginTop: 10,
-                  }}
-                >
-                  <strong>📊 Parámetros:</strong>
-                  <p>🔄 Frecuencia: {getLabel("freq", item.freq)}</p>
-                  <p>💥 Intensidad: {getLabel("intensity", item.intensity)}</p>
-                  <p>🗺️ Superficie: {getLabel("surface", item.surface)}</p>
-                </div>
-              )}
-            </Box>
-          </Popup>
-        </Marker>
-      );
-    });
-  }, [markData]);
+  if (!markData.length) return null;
+
+  // Función para convertir string de polígono a coordenadas
+  const convertToPolygonArray = (str) => {
+    if (!str || typeof str !== 'string') return null;
+    
+    const parts = str.split(",").map(Number);
+    const coords = [];
+    
+    for (let i = 0; i < parts.length - 1; i += 2) {
+      if (!isNaN(parts[i]) && !isNaN(parts[i + 1])) {
+        coords.push([parts[i], parts[i + 1]]);
+      }
+    }
+    
+    return coords.length ? [coords] : null;
+  };
+
+  return markData.map((item, i) => {
+    const lat = parseFloat(item.lat);
+    const lng = parseFloat(item.lng);
+    
+    if (isNaN(lat) || isNaN(lng)) return null;
+
+    // Renderizar polígono si existe
+    if (item.polygon) {
+      const polygonCoords = convertToPolygonArray(item.polygon);
+      if (polygonCoords) {
+        return (
+          <Polygon
+            key={`poly-${item.id || i}`}
+            positions={polygonCoords}
+            pathOptions={{
+              color: "#af4f4c",
+              fillColor: "#af4f4c",
+              fillOpacity: 0.3,
+              weight: 2
+            }}
+          >
+            <Popup>
+          <Box sx={{ maxHeight: "60vh", overflow: "auto", maxWidth: 450 }}>
+            <h3 style={{ color: "#d32f2f" }}>{item.type || "N/A"}</h3>
+            <p><strong>Fecha:</strong> {new Date(item.created_at).toLocaleString("es-ES")}</p>
+            <p><strong>Subtipo:</strong> {item.subtype || "N/A"}</p>
+            <p><strong>Descripción:</strong> {item.desc || "N/A"}</p>
+            {item.type === "Amenaza" && (
+              <div style={{ background: "#f5f5f5", padding: 10, borderRadius: 4, marginTop: 10 }}>
+                <strong>📊 Parámetros:</strong>
+                <p>🔄 Frecuencia: {getLabel("freq", item.freq)}</p>
+                <p>💥 Intensidad: {getLabel("intensity", item.intensity)}</p>
+                <p>🗺️ Superficie: {getLabel("surface", item.surface)}</p>
+              </div>
+            )}
+          </Box>
+        </Popup>
+          </Polygon>
+        );
+      }
+    }
+
+    // Renderizar marker
+    return (
+      <Marker
+        key={`marker-${item.id || i}`}
+        position={[lat, lng]}
+        icon={MARKER_ICONS[item.type] || MARKER_ICONS.Recurso}
+      >
+        <Popup>
+          <Box sx={{ maxHeight: "60vh", overflow: "auto", maxWidth: 450 }}>
+            <h3 style={{ color: "#d32f2f" }}>{item.type || "N/A"}</h3>
+            <p><strong>Fecha:</strong> {new Date(item.created_at).toLocaleString("es-ES")}</p>
+            <p><strong>Subtipo:</strong> {item.subtype || "N/A"}</p>
+            <p><strong>Descripción:</strong> {item.desc || "N/A"}</p>
+            {item.type === "Amenaza" && (
+              <div style={{ background: "#f5f5f5", padding: 10, borderRadius: 4, marginTop: 10 }}>
+                <strong>📊 Parámetros:</strong>
+                <p>🔄 Frecuencia: {getLabel("freq", item.freq)}</p>
+                <p>💥 Intensidad: {getLabel("intensity", item.intensity)}</p>
+                <p>🗺️ Superficie: {getLabel("surface", item.surface)}</p>
+              </div>
+            )}
+          </Box>
+        </Popup>
+      </Marker>
+    );
+  }).filter(Boolean);
+}, [markData]);
 
   // Polígono dibujado
   const drawnPolygon = useMemo(() => {
