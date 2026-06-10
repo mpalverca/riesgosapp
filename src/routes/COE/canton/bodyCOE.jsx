@@ -101,7 +101,7 @@ function BodyCOE({ mtt, member }) {
   const handleRefreshLayer = useCallback(
     async (layer) => {
       try {
-        console.log(`🔄 Recargando capa INDIVIDUAL: ${layer}`);
+      //  console.log(`🔄 Recargando capa INDIVIDUAL: ${layer}`);
 
         if (layer === "afectaciones") {
           await reqAfect.searchGet(mtt, "Afectaciones");

@@ -34,55 +34,55 @@ export default function Preparacion() {
     {
       id: 1,
       route: "plancontingencia",
-      primary: "Plan de contingencia",
-      secondary:
+      title: "Plan de contingencia para eventos de concentración masiva",
+       description :
         "El plan contingencia es un manual de actividades a realizar por el organizador de un evento de concentración masiva, contiene tanto a los actores, como a la locación donde se realizara el evento, los recursos humanos y materiales a utilizar",
       icon: <EditNoteIcon />,
      color: "#2196f3",
       badge: "Actualizado",
       badgeColor: "success",
-      description: "Elaboración de plan de contingencia para eventos masivos",
+      secondary: "Elaboración de plan de contingencia para eventos masivos",
     },
     {
       id: 2,
       route: "planfamiliar",
-      primary: "Plan Familiar de emergencia",
-      secondary:
+      title: "Plan Familiar de emergencia",
+      description:
         "El Plan Familiar de Emergencias es un conjunto de actividades que deben realizar las familias, nos permite identificar y reducir riesgos que se generan en la familia, en el entorno social o natural.",
       icon: <House />,
       color: "#f39821",
       badge: "Actualizado",
       badgeColor: "success",
-      description: "Elaboración de plan familiar de emergencia",
+      secondary: "Elaboración de plan familiar de emergencia",
     },
     {
       id: 3,
       route: "zonas_seguras",
-      primary: "Zonas seguras",
-      secondary:
+      title: "Zonas seguras",
+      description :
         "zonas seguras son ubicaciones o espacios dodne se tiene o se peude realizar concentracion publico",
       icon: <Flag />,
       color: "#418141",
       badge: "Actualizado",
       badgeColor: "success",
-      description: "revisar zonas seguras",
+      secondary: "revisar zonas seguras",
     },
     {
       id: 4,
       route: "alojamientos_temporales",
-      primary: "Alojamientos Temporales",
+      title: "Alojamientos Temporales",
       icon: <Apartment />,
-      secondary:
+      description:
         "los lojamientos temporales son espacios para persoans que han sido afectadas por un evento natural o antropico",
       color: "#b6b44b",
       badge: "Actualizado",
       badgeColor: "success",
-      description: "zonas destinadas a alojamientos temporales",
+      secondary: "zonas destinadas a alojamientos temporales",
     },
     {
       id: 5,
       route: "comite_comunitario",
-      primary: "Comites Comunitarios",
+      title: "Comites Comunitarios",
       icon: <People />,
 
       secondary: "Los comites comunitarios son espacios de personas",
@@ -94,7 +94,7 @@ export default function Preparacion() {
     {
       id: 6,
       route: "comite_comunitario_parroquial",
-      primary: "Comites Comunitarios parroquiales",
+      title: "Comites Comunitarios parroquiales",
       icon: <People />,
       secondary: "Los comites comunitarios son organización de personas",
       color: "#21f333",

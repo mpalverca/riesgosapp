@@ -10,6 +10,7 @@ import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
 import { VisualRecursos } from "./recursos/Req_mtt";
 import SearchTerm from "./memberPage";
+import BodyPlenaria from "./canton/bodyPlenaria";
 
 const Coe = ({ role, ci, ...props }) => {
   const [value, setValue] = React.useState("1");
@@ -116,13 +117,12 @@ const Coe = ({ role, ci, ...props }) => {
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
-
   return (
     <Box sx={{ p: 1, margin: "0 auto" }}>
       <Typography
         variant="h4"
         gutterBottom
-       // color="white"
+        // color="white"
         align="center"
         sx={{
           //background: "linear-gradient(45deg, #FF5733 20%, #FFD700 90%)",
@@ -142,7 +142,6 @@ const Coe = ({ role, ci, ...props }) => {
             <Tab label="Descripción de Mesa" value="1" />
             <Tab label="Estado del cantón" value="2" />
             <Tab label="Recursos" value="3" />
-          
           </TabList>
         </Box>
 
@@ -161,17 +160,20 @@ const Coe = ({ role, ci, ...props }) => {
 
         <TabPanel value="2">
           <Paper elevation={3} sx={{ p: 1, mb: 1, borderRadius: 1 }}>
-            <BodyCOE mtt={member?.mtt} member={member} />
+            {member?.cargoCOE === "Presidente" ? (
+              <BodyPlenaria mtt={member?.mtt} member={member} />
+            ) : (
+              <BodyCOE mtt={member?.mtt} member={member} />
+            )}
           </Paper>
         </TabPanel>
-
-        <TabPanel value="3">
-          <Paper elevation={3} sx={{ p: 1, mb: 1, borderRadius: 1 }}>
-            <VisualRecursos mtt={member?.mtt} />
-          </Paper>
-        </TabPanel>
-
-       
+        {member?.cargoCOE === "Presidente" ? null : (
+          <TabPanel value="3">
+            <Paper elevation={3} sx={{ p: 1, mb: 1, borderRadius: 1 }}>
+              <VisualRecursos mtt={member?.mtt} />
+            </Paper>
+          </TabPanel>
+        )}
       </TabContext>
     </Box>
   );

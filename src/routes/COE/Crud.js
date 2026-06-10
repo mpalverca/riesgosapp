@@ -90,11 +90,11 @@ export const useGetInfo = () => {
     setData(null);
     try {
       const response = await fetch(
-        `${url_GetAll}?mtt=${mtt}&sheet=${tipe}&tipo=edit&row=${row}$data=${dEdit}`,
+        `${url_GetAll}?mtt=${mtt}&sheet=${tipe}&tipo=edit&row=${row}&data=${JSON.stringify(dEdit)}`,
       );
-      //const data = await response.json();
-      //setData(data);
-      //console.log("Datos MTT:", dataMtt);
+      const data = await response.json();
+      setData(data);
+      console.log("Datos MTT:", data);
     } catch (err) {
       setError(err.message || "Error de conexión");
     } finally {

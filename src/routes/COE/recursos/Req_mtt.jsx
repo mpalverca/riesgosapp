@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import {
   RadioGroup,
   FormControlLabel,
@@ -8,313 +8,269 @@ import {
   Typography,
   Paper,
   CircularProgress,
-  Alert
+  Alert,
+  Skeleton
 } from "@mui/material";
 import { useRecursos } from "./script";
-import { TableRH, } from "./tablesView";
+import { TableRH } from "./tablesView";
 
-// Definir tablas primero para que estén disponibles
-const recursosHumanos = {
-  PMH: "PERSONAL MÉDICO HOSPITALARIO",
-  PAH: "PERSONAL PARA ATENCIÓN PRE HOSPITALARIA",
-  PAR: "PERSONAL PARA ACCIONES DE RESCATE",
-  PPCS: "PERSONAL PATRULLAS DE CAMINO Y SEGURIDAD VIAL",
-  PCF: "PERSONAL DE COMBATE FUEGO",
-  PT: "PERSONAL DE TELECOMUNICACIONES",
-  PED: "PERSONAL PARA EVALUACIÓN DE DAÑOS",
-  PSSC: "PERSONAL DE SALA DE SITUACIONES Y CONTIGENCIA",
-  PMOSV: "PERSONAL PARA MANTENER EL ORDEN Y SEGURIDAD VIAL",
-  SRCT: "SUPERVISORES DE REGULACIÓN Y CONTROL TURISTICO",
-  PUM: "PERSONAL DE UNIDADES DE MONITOREO",
-  PAL: "PERSONAL DE APOYO LOGISTICO",
-  PO: "PERSONAL OPERATIVO",
-  CH: "CHOFERES",
-  OMP: "OPERADORES DE MAQUINARIA PESADA",
-  AM: "AYUDANTES DE MAQUINARIA",
-  PSCB: "PERSONAL PARA SEGURIDAD Y CUSTODIO DE BIENES",
-  CEBA: "CONTROL DE EXPENDIO DE BEBIDAS ALCOHOLICAS",
-  V: "VOLUNTARIOS",
-  VCR: "VOLUNTARIO CRUZ ROJA",
-  OT: "OTROS (Evaluadores de llamadas y video vigilancia)",
-  Tps: "TOTAL PARCIAL INSTITUCIONAL"
+// Configuración centralizada de recursos
+const RESOURCES_CONFIG = {
+  recursos_humanos: {
+    label: "Recursos Humanos",
+    tables: {
+      PMH: "PERSONAL MÉDICO HOSPITALARIO",
+      PAH: "PERSONAL PARA ATENCIÓN PRE HOSPITALARIA",
+      PAR: "PERSONAL PARA ACCIONES DE RESCATE",
+      PPCS: "PERSONAL PATRULLAS DE CAMINO Y SEGURIDAD VIAL",
+      PCF: "PERSONAL DE COMBATE FUEGO",
+      PT: "PERSONAL DE TELECOMUNICACIONES",
+      PED: "PERSONAL PARA EVALUACIÓN DE DAÑOS",
+      PSSC: "PERSONAL DE SALA DE SITUACIONES Y CONTIGENCIA",
+      PMOSV: "PERSONAL PARA MANTENER EL ORDEN Y SEGURIDAD VIAL",
+      SRCT: "SUPERVISORES DE REGULACIÓN Y CONTROL TURISTICO",
+      PUM: "PERSONAL DE UNIDADES DE MONITOREO",
+      PAL: "PERSONAL DE APOYO LOGISTICO",
+      PO: "PERSONAL OPERATIVO",
+      CH: "CHOFERES",
+      OMP: "OPERADORES DE MAQUINARIA PESADA",
+      AM: "AYUDANTES DE MAQUINARIA",
+      PSCB: "PERSONAL PARA SEGURIDAD Y CUSTODIO DE BIENES",
+      CEBA: "CONTROL DE EXPENDIO DE BEBIDAS ALCOHOLICAS",
+      V: "VOLUNTARIOS",
+      VCR: "VOLUNTARIO CRUZ ROJA",
+      OT: "OTROS",
+      Tps: "TOTAL PARCIAL INSTITUCIONAL"
+    }
+  },
+  parque_automotor: {
+    label: "Parque Automotor",
+    tables: {
+      Amb: "AMBULANCIAS",
+      Vh_r: "VEHÍCULOS DE RESCATE",
+      Vh_H: "VEHÍCULOS HOWO",
+      Ptr: "PATRULLEROS",
+      Cm: "CAMIONETAS",
+      Cam: "CAMIÓN",
+      Bss: "BUSES",
+      Trls: "TRAILER",
+      Mt: "MOTOS",
+      Tq: "TANQUEROS",
+      Mb: "MOTOBOMBAS",
+      Vh_a_e: "VEHICULO DE APOYO Y EVALUACIÓN",
+      M_p: "MAQUINARIA PESADA",
+      Hhs: "HIDROSUCCIONADOR",
+      Eq_p_v: "EQUIPO PARA PATRULLAJE DE VIAS",
+      R_c_s: "ROLLOS DE CINTA DE SEGURIDAD",
+      Wich: "WINCHA",
+      I_C_H: "INSTALACIONES / CUARTELES / HOSPITALES",
+      C_v_v: "CAMARAS DE VIDEO VIGILANCIA",
+      Tps: "TOTAL PARCIAL INSTITUCIONAL"
+    }
+  },
+  recursos_materiales: {
+    label: "Recursos Materiales",
+    tables: {
+      Cu: "CUERDAS",
+      CS: "CHALECO SALVAVIDAS",
+      CPM: "CAMILLAS",
+      Esc: "ESCALERAS",
+      T_r: "TABLAS RÍGIDAS",
+      Eq_r: "EQUIPOS DE RESCATE",
+      Eq_r_esp: "EQUIPOS RESCATE ESPACIOS CONFINADOS",
+      KIT_PA: "KITS DE PRIMEROS AUXILIOS",
+      T_o: "TANQUES DE OXIGENO",
+      Eq_cf: "EQUIPOS COMBATE FUEGO",
+      Btf: "BATEFUEGOS",
+      Asd: "ASADONES",
+      Rs: "RASTRILLOS",
+      Eq_in_Fs: "EQUIPOS INCENDIOS FORESTALES",
+      Eq_resp: "EQUIPOS DE RESPIRACIÓN",
+      MTo: "MOTOSIERRA",
+      Mch: "MACHETES",
+      RS: "RADIOS",
+      Ca: "CARPAS",
+      Frz: "FRAZADAS",
+      Otr: "OTROS",
+      Tps: "TOTAL PARCIAL INSTITUCIONAL"
+    }
+  }
 };
 
-const parqueAutomotor = {
-  Amb: "AMBULANCIAS",
-  Vh_r: "VEHÍCULOS DE RESCATE",
-  Vh_H: "VEHÍCULOS HOWO",
-  Ptr: "PATRULLEROS",
-  Cm: "CAMIONETAS",
-  Cam: "CAMIÓN",
-  Bss: "BUSES",
-  Trls: "TRAILER",
-  Mt: "MOTOS",
-  Tq: "TANQUEROS",
-  Mb: "MOTOBOMBAS",
-  Vh_a_e: "VEHICULO DE APOYO Y EVALUACIÓN",
-  M_p: "MAQUINARIA PESADA",
-  Hhs: "HIDROSUCCIONADOR",
-  Eq_p_v: "EQUIPO PARA PATRULLAJE DE VIAS",
-  R_c_s: "ROLLOS DE CINTA DE SEGURIDAD",
-  Wich: "WINCHA",
-  I_C_H: "INSTALACIONES / CUARTELES / HOSPITALES / CENTROS DE SALUD",
-  C_v_v: "CAMARAS DE VIDEO VIGILANCIA",
-  Tps: "TOTAL PARCIAL INSTITUCIONAL"
-};
-
-const recursosMateriales = {
-  Cu: "CUERDAS",
-  CS: "CHALECO SALVAVIDAS",
-  CPM: "CAMILLAS (PLEGABLES DE ESTRUTURA MDF Y CAMILLA ESTRUCTURA TUBULAR)",
-  Esc: "ESCALERAS",
-  T_r: "TABLAS RÍGIDAS",
-  Eq_r: "EQUIPOS DE RESCATE",
-  Eq_r_esp: "EQUIPOS RESCATE ESPC. CONFINADOS",
-  KIT_PA: "KITS DE PRIMEROS AUXILIOS",
-  T_o: "TANQUES DE OXIGENO",
-  Eq_cf: "EQUIPOS COMBATE FUEGO",
-  Btf: "BATEFUEGOS",
-  Asd: "ASADONES",
-  Rs: "RASTRILLOS",
-  Eq_in_Fs: "EQUIPOS INCENDIOS FORESTALES",
-  Eq_resp: "EQUIPOS DE RESPIRACIÓN",
-  MTo: "MOTOSIERRA",
-  Mch: "MACHETES",
-  RS: "RADIOS",
-  Ca: "CARPAS",
-  Frz: "FRAZADAS",
-  Otr: "OTROS (Conos, vallas de Seguridad)",
-  Tps: "TOTAL PARCIAL INSTITUCIONAL"
-};
-
-const options = [
-  { value: "recursos_humanos", label: "Recursos Humanos" },
-  { value: "parque_automotor", label: "Parque Automotor" },
-  { value: "recursos_materiales", label: "Recursos Materiales" },
+const OPTIONS = [
+  { value: "recursos_humanos", label: "👥 Recursos Humanos" },
+  { value: "parque_automotor", label: "🚗 Parque Automotor" },
+  { value: "recursos_materiales", label: "🔧 Recursos Materiales" }
 ];
 
-// Objeto para mapear opciones a sus tablas de nombres
-const resourceTables = {
-  recursos_humanos: recursosHumanos,
-  parque_automotor: parqueAutomotor,
-  recursos_materiales: recursosMateriales
-};
+// Componente de carga optimizado
+const LoadingState = () => (
+  <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4, gap: 2 }}>
+    <CircularProgress size={32} />
+    <Typography variant="body1" color="textSecondary">
+      Cargando datos...
+    </Typography>
+  </Box>
+);
 
+// Componente de estado vacío
+const EmptyState = ({ message }) => (
+  <Box sx={{ p: 4, textAlign: 'center' }}>
+    <Typography variant="body1" color="textSecondary" gutterBottom>
+      📭 {message}
+    </Typography>
+    <Typography variant="caption" color="textSecondary">
+      Selecciona una categoría para cargar los datos
+    </Typography>
+  </Box>
+);
+
+// Componente de depuración (solo desarrollo)
+const DebugInfo = ({ dataState, loadingCategory }) => {
+  if (process.env.NODE_ENV !== 'development') return null;
+  
+  return (
+    <Box sx={{ mt: 3, p: 2, bgcolor: '#f5f5f5', borderRadius: 1 }}>
+      <Typography variant="caption" color="textSecondary" component="pre" sx={{ fontFamily: 'monospace', fontSize: 11 }}>
+        Debug: RH: {dataState.recursos_humanos.length} | 
+        PA: {dataState.parque_automotor.length} | 
+        RM: {dataState.recursos_materiales.length} | 
+        Cargando: {loadingCategory || 'ninguna'}
+      </Typography>
+    </Box>
+  );
+};
 
 export const VisualRecursos = ({ mtt }) => {
   const [selectedOption, setSelectedOption] = useState("recursos_humanos");
   const { loadingRE, errorRE, dataRE, searchRE } = useRecursos();
   
-  // Almacenamiento separado para cada categoría
-  const [rec_hum, setRecursosHumanos] = useState([]);
-  const [parq_auth, setParqueAh] = useState([]);
-  const [rec_mat, setReqMat] = useState([]);
+  // Estado unificado para los datos
+  const [dataState, setDataState] = useState({
+    recursos_humanos: [],
+    parque_automotor: [],
+    recursos_materiales: []
+  });
   
-  // Estado para controlar qué categoría se está cargando actualmente
   const [loadingCategory, setLoadingCategory] = useState(null);
 
-  // Efecto CORREGIDO: Solo actualizar el estado correspondiente cuando se carga nueva data
+  // Actualizar datos cuando llegan del API
   useEffect(() => {
-    if (!dataRE || !Array.isArray(dataRE) || dataRE.length === 0 || !loadingCategory) {
-      return;
-    }
-
-    console.log(`Guardando ${dataRE.length} registros para ${loadingCategory}`);
+    if (!dataRE || !loadingCategory) return;
     
-    // Guardar los datos en el estado correspondiente a la categoría que se cargó
-    switch (loadingCategory) {
-      case "recursos_humanos":
-        setRecursosHumanos(dataRE);
-        break;
-      case "parque_automotor":
-        setParqueAh(dataRE);
-        break;
-      case "recursos_materiales":
-        setReqMat(dataRE);
-        break;
-      default:
-        break;
-    }
-    
-    // Resetear la categoría de carga
+    setDataState(prev => ({
+      ...prev,
+      [loadingCategory]: dataRE
+    }));
     setLoadingCategory(null);
   }, [dataRE, loadingCategory]);
 
-  // Función para obtener resourceCodes de forma segura
-  const getResourceCodes = (data) => {
-    if (!data || !Array.isArray(data) || data.length === 0) {
-      return [];
-    }
+  // Obtener códigos de recursos únicos
+  const getResourceCodes = useCallback((data) => {
+    if (!data?.length) return [];
     
-    const allResourceCodes = new Set();
-    data.forEach((item) => {
+    const codes = new Set();
+    data.forEach(item => {
       if (item && typeof item === "object") {
-        Object.keys(item).forEach((key) => {
-          if (key !== "_columna" && key !== "MTT" && key !== "hoja") {
-            allResourceCodes.add(key);
+        Object.keys(item).forEach(key => {
+          if (!["_columna", "MTT", "hoja"].includes(key)) {
+            codes.add(key);
           }
         });
       }
     });
-    
-    return Array.from(allResourceCodes).sort();
-  };
+    return Array.from(codes).sort();
+  }, []);
 
-  // Manejar cambio de opción - CORREGIDO
-  const handleOptionChange = (event) => {
+  // Manejar cambio de opción
+  const handleOptionChange = useCallback((event) => {
     const newOption = event.target.value;
     setSelectedOption(newOption);
     
-    // Verificar si ya tenemos datos para esta opción
-    let hasLocalData = false;
-    
-    switch (newOption) {
-      case "recursos_humanos":
-        hasLocalData = rec_hum.length > 0;
-        break;
-      case "parque_automotor":
-        hasLocalData = parq_auth.length > 0;
-        break;
-      case "recursos_materiales":
-        hasLocalData = rec_mat.length > 0;
-        break;
-    }
-    
-    console.log(`Cambiando a ${newOption}:`, {
-      hasLocalData,
-      selectedOption: newOption
-    });
-    
     // Solo buscar si no tenemos datos locales
-    if (!hasLocalData) {
-      console.log(`Buscando datos para ${newOption}...`);
-      setLoadingCategory(newOption); // Marcar qué categoría se está cargando
+    if (dataState[newOption]?.length === 0) {
+      setLoadingCategory(newOption);
       searchRE(mtt, newOption);
     }
-  };
+  }, [dataState, mtt, searchRE]);
 
-  // Obtener datos actuales de forma segura
-  const getCurrentData = () => {
-    switch (selectedOption) {
-      case "recursos_humanos":
-        return rec_hum;
-      case "parque_automotor":
-        return parq_auth;
-      case "recursos_materiales":
-        return rec_mat;
-      default:
-        return [];
-    }
-  };
+  // Obtener datos actuales
+  const currentData = useMemo(() => dataState[selectedOption], [dataState, selectedOption]);
+  const currentConfig = RESOURCES_CONFIG[selectedOption];
+  const isLoading = loadingRE && loadingCategory === selectedOption;
+  const hasError = errorRE && loadingCategory === selectedOption;
+  const hasData = currentData?.length > 0;
 
-  // Verificar si estamos cargando para la categoría actual
-  const isLoadingCurrentCategory = loadingRE && loadingCategory === selectedOption;
-
-  // Renderizar contenido según estado
+  // Renderizar contenido principal
   const renderContent = () => {
-    const currentData = getCurrentData();
-    
-    // Mostrar carga solo si es para la categoría actual
-    if (isLoadingCurrentCategory) {
+    if (isLoading) return <LoadingState />;
+    if (hasError) {
       return (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-          <CircularProgress />
-          <Typography sx={{ ml: 2 }}>Cargando datos...</Typography>
-        </Box>
-      );
-    }
-
-    if (errorRE && loadingCategory === selectedOption) {
-      return (
-        <Alert severity="error" sx={{ m: 2 }}>
+        <Alert severity="error" sx={{ m: 2 }} onClose={() => {}}>
           Error al cargar datos: {errorRE || "Error desconocido"}
         </Alert>
       );
     }
-
-    // Verificar si hay datos para mostrar
-    if (!currentData || currentData.length === 0) {
-      return (
-        <Typography sx={{ p: 3, textAlign: 'center' }}>
-          No hay datos disponibles para {options.find(opt => opt.value === selectedOption)?.label}.
-          <br />
-          <small>Selecciona una opción para cargar los datos.</small>
-        </Typography>
-      );
+    if (!hasData) {
+      return <EmptyState message={`No hay datos disponibles para ${currentConfig?.label || selectedOption}`} />;
     }
 
-    // Obtener resourceCodes para la tabla
     const resourceCodes = getResourceCodes(currentData);
-    const resourceNames = resourceTables[selectedOption];
-    
-    // Renderizar la tabla correspondiente - CORREGIDO
-    switch (selectedOption) {
-      case "recursos_humanos":
-        return (
-          <TableRH 
-            resourceCodes={resourceCodes} 
-            dataRE={currentData} 
-            resourceNames={resourceNames}
-          />
-        );
-      case "parque_automotor":
-        return (
-          <TableRH  // CORRECCIÓN: Usar TablePA en lugar de TableRH
-            resourceCodes={resourceCodes} 
-            dataRE={currentData} 
-            resourceNames={resourceNames}
-          />
-        );
-      case "recursos_materiales":
-        return (
-          <TableRH  // CORRECCIÓN: Usar TableRM en lugar de TableRH
-            resourceCodes={resourceCodes} 
-            dataRE={currentData} 
-            resourceNames={resourceNames}
-          />
-        );
-      default:
-        return <Typography>Selecciona un tipo de recurso</Typography>;
-    }
+    return (
+      <TableRH 
+        resourceCodes={resourceCodes}
+        dataRE={currentData}
+        resourceNames={currentConfig.tables}
+      />
+    );
   };
 
   return (
-    <Box sx={{ p: 1}}>
-      <Typography variant="h6" gutterBottom>
-        Tipo de Recurso {mtt || "No especificado"}
+    <Box sx={{ p: 2 }}>
+      <Typography variant="h6" gutterBottom fontWeight="medium">
+        📊 Recursos para {mtt || "MTT no especificado"}
       </Typography>
       
-      <FormControl component="fieldset">
-        <RadioGroup row value={selectedOption} onChange={handleOptionChange}>
-          {options.map((option) => (
+      <FormControl component="fieldset" sx={{ mb: 2 }}>
+        <RadioGroup 
+          row 
+          value={selectedOption} 
+          onChange={handleOptionChange}
+          sx={{ gap: 1 }}
+        >
+          {OPTIONS.map((option) => (
             <FormControlLabel
               key={option.value}
               value={option.value}
-              control={<Radio />}
+              control={<Radio size="small" />}
               label={option.label}
+              sx={{
+                m: 0,
+                px: 1.5,
+                py: 0.5,
+                borderRadius: 2,
+                transition: 'all 0.2s',
+                '&:hover': { bgcolor: '#f5f5f5' }
+              }}
             />
           ))}
         </RadioGroup>
       </FormControl>
 
-      <Paper sx={{ p: 1, mt: 2 }}>
-        <Typography variant="h5" gutterBottom>
-          {options.find((opt) => opt.value === selectedOption)?.label}
-          {getCurrentData().length > 0 && ` (${getCurrentData().length} registros)`}
-        </Typography>
+      <Paper variant="outlined" sx={{ p: 2, minHeight: 400 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Typography variant="h6" fontWeight="medium">
+            {currentConfig?.label}
+            {hasData && ` (${currentData.length} registros)`}
+          </Typography>
+          {isLoading && <CircularProgress size={20} />}
+        </Box>
         
         {renderContent()}
-        
-        {/* DEBUG: Mostrar estado de las categorías */}
-        {process.env.NODE_ENV === 'development' && (
-          <Box sx={{ mt: 3, p: 2, bgcolor: '#f5f5f5', borderRadius: 1 }}>
-            <Typography variant="caption" color="textSecondary">
-              Debug: RH: {rec_hum.length} | PA: {parq_auth.length} | RM: {rec_mat.length} | 
-              Cargando: {loadingCategory || 'ninguna'}
-            </Typography>
-          </Box>
-        )}
+        <DebugInfo dataState={dataState} loadingCategory={loadingCategory} />
       </Paper>
     </Box>
   );
 };
+
+export default VisualRecursos;

@@ -234,10 +234,16 @@ const LayerStatus = ({ layers, onRefreshLayer, onToggleVisibility }) => {
 // Componente interno para capturar clicks
 const MapClickHandler = ({ onMapClick }) => {
   useMapEvents({
-    click: (e) => onMapClick(e.latlng),
+    dblclick: (e) => onMapClick(e.latlng),
+    contextmenu: (e) => {
+      e.originalEvent?.preventDefault();
+      onMapClick(e.latlng);
+    },
   });
   return null;
 };
+
+
 
 // Componente para centrar el mapa
 const MapCenter = ({ center, zoom }) => {
@@ -302,9 +308,9 @@ function MapMark({
       if (userData) {
         setUser(JSON.parse(userData));
       }
-      console.log("Usuario cargado:", userData)
+     // console.log("Usuario cargado:", userData)
     } catch (error) {
-      console.error("Error al cargar usuario:", error);
+      // console.error("Error al cargar usuario:", error);
     }
   }, []);
   // Función para ocultar/mostrar una capa
@@ -570,6 +576,7 @@ function MapMark({
           ref={mapRef}
           center={mapCenter}
           zoom={mapZoom}
+          doubleClickZoom={false}
           style={{ height: "100%", width: "100%", borderRadius: "8px" }}
         >
           {/* Capa base de Google Maps */}
@@ -674,12 +681,12 @@ function MapMark({
         </MapContainer>
 
         {/* Controles del mapa */}
-        <MapControls
+        {/* <MapControls
           onZoomIn={handleZoomIn}
           onZoomOut={handleZoomOut}
           onLocate={handleLocate}
           onDownload={handleExportMap}
-        />
+        /> */}
 
         {/* Estado de capas activas con controles de recarga y ocultar */}
         {/* <LayerStatus 
