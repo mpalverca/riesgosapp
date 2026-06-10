@@ -516,7 +516,7 @@ for (let index = 0; index < afect.length; index++) {
   );
   yPosition += 5;
   doc.text(
-    `- Reportado por: ${byData?.name || "Sin nombre"} - ${byData?.cargo || "Sin cargo"}`,
+    `- Reportado por: ${byData?.miembro || "Sin nombre"} - ${byData?.cargo || "Sin cargo"}`,
     leftMargin,
     yPosition,
   );
@@ -533,7 +533,7 @@ for (let index = 0; index < afect.length; index++) {
   const imageYPosition = yPosition;
   // Generar la imagen
   checkPageBreak(bottomMargin + 70);
-  try {
+ /*  try {
     const imagemapAF = await captureMap(
       coord?.[0],
       coord?.[1],
@@ -566,7 +566,7 @@ for (let index = 0; index < afect.length; index++) {
       imageYPosition,
     );
     yPosition += 10;
-  }
+  } */
 }
     // Línea divisoria final
     // Campos principales

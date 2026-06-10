@@ -478,7 +478,7 @@ const MapBase = (props) => {
         </FeatureGroup>
       )}
 
-      <Button
+      {/* <Button
         onClick={handleEditPolygon}
         variant="contained"
         size="small"
@@ -491,7 +491,7 @@ const MapBase = (props) => {
         }}
       >
         {isDrawing ? "✏️ Dibujando..." : "✏️ Editar Polígono"}
-      </Button>
+      </Button> */}
     </MapContainer>
   );
 };

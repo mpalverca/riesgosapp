@@ -61,50 +61,7 @@ export default function Alerts() {
     setCoords([...coords, lat, long]);
   };
 
-  const extractCoordinates = (geom) => {
-    if (!geom || !geom.coordinates) return null;
-    try {
-      // Para Point: [lng, lat]
-      if (geom.type === "Point") {
-        if (
-          geom.coordinates.length >= 2 &&
-          !isNaN(geom.coordinates[0]) &&
-          !isNaN(geom.coordinates[1])
-        ) {
-          return { lat: geom.coordinates[1], lng: geom.coordinates[0] };
-        }
-      }
-      // Para Polygon: coordinates[0][0] = primer punto del primer anillo
-      if (
-        geom.type === "Polygon" &&
-        Array.isArray(geom.coordinates[0]) &&
-        Array.isArray(geom.coordinates[0][0]) &&
-        geom.coordinates[0][0].length >= 2
-      ) {
-        const [lng, lat] = geom.coordinates[0][0];
-        if (!isNaN(lat) && !isNaN(lng)) {
-          return { lat, lng };
-        }
-      }
-      // Para MultiPolygon: coordinates[0][0][0] = primer punto del primer anillo del primer polígono
-      if (
-        geom.type === "MultiPolygon" &&
-        Array.isArray(geom.coordinates[0]) &&
-        Array.isArray(geom.coordinates[0][0]) &&
-        Array.isArray(geom.coordinates[0][0][0]) &&
-        geom.coordinates[0][0][0].length >= 2
-      ) {
-        const [lng, lat] = geom.coordinates[0][0][0];
-        if (!isNaN(lat) && !isNaN(lng)) {
-          return { lat, lng };
-        }
-      }
-      return null;
-    } catch (e) {
-      console.error("Error al procesar geometría:", geom, e);
-      return null;
-    }
-  };
+  
   const fechas = afectData.map((item) => new Date(item.date));
   const minFecha = fechas.length
     ? Math.min(...fechas.map((f) => f.getTime()))
@@ -192,7 +149,7 @@ export default function Alerts() {
               loading={loading}
               coords={coords}
               selectedDate={filters.selectedDate}
-              extractCoordinates={extractCoordinates}
+         //     extractCoordinates={extractCoordinates}
               setSelectedDate={setFilters}
               minFecha={minFecha}
               maxFecha={maxFecha}

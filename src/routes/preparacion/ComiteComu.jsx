@@ -96,8 +96,10 @@ export default function ComiteComunitario() {
       <>
         <Typography
           variant="h2"
-          display="flex"
+          //display="flex"
           align="center"
+          alignItems="center"
+          alingContent="center"
           sx={{ alignContent: "center", pt: 2 }}
         >
           Cargando Mapa de Sectores de Loja

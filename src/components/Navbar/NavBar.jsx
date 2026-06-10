@@ -157,7 +157,7 @@ export default function ResponsiveNavBar() {
             >
               {pages.map((page) => {
                 // Lógica específica para COE
-                if (page.name === "COE") {
+                /* if (page.name === "COE") {
                   // ✅ CORREGIDO: Mostrar COE solo si el usuario existe Y tiene rol lider_mtt O user-member
                   const allowedRoles = ["lider_mtt", "user-member"];
                   const hasAccess = user && allowedRoles.includes(user.rol);
@@ -165,7 +165,7 @@ export default function ResponsiveNavBar() {
                   if (!hasAccess) {
                     return null; // No mostrar COE
                   }
-                }
+                } */
                 // Mostrar todas las demás páginas normalmente
                 return (
                   <MenuItem key={page.name} onClick={handleCloseNavMenu}>
@@ -225,7 +225,7 @@ export default function ResponsiveNavBar() {
           >
             {pages.map((page) => {
               // Lógica específica para COE
-              if (page.name === "COE") {
+              /* if (page.name === "COE") {
                 // ✅ CORREGIDO: Mostrar COE solo si el usuario existe Y tiene rol lider_mtt O user-member
                 const allowedRoles = ["lider_mtt", "user-member"];
                 const hasAccess = user && allowedRoles.includes(user.rol);
@@ -233,7 +233,7 @@ export default function ResponsiveNavBar() {
                 if (!hasAccess) {
                   return null; // No mostrar COE
                 }
-              }
+              } */
               return (
                 <Button
                   key={page.name}

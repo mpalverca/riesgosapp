@@ -21,7 +21,6 @@ import {
   PlayArrow
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 
 const Carousel = ({ 
   slides = [], 
@@ -111,7 +110,7 @@ const Carousel = ({
   }
 
   return (
-    <Container maxWidth="xl" sx={{ p: 0 }}>
+    
       <Box 
         sx={{ 
           position: 'relative', 
@@ -121,20 +120,14 @@ const Carousel = ({
           borderRadius: 4,
           boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
         }}
-        onMouseEnter={() => pauseOnHover && setIsHovered(true)}
-        onMouseLeave={() => pauseOnHover && setIsHovered(false)}
+      //  onMouseEnter={() => pauseOnHover && setIsHovered(true)}
+       // onMouseLeave={() => pauseOnHover && setIsHovered(false)}
       >
         {/* Slides Container */}
         <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
-          <AnimatePresence mode="wait">
-            {animation === "slide" ? (
+        
               <Box
                 key={currentSlide}
-                component={motion.div}
-                initial={{ x: 300, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: -300, opacity: 0 }}
-                transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
                 sx={{
                   position: 'absolute',
                   top: 0,
@@ -157,8 +150,8 @@ const Carousel = ({
                   />
                 </Box>
               </Fade>
-            )}
-          </AnimatePresence>
+            
+         
         </Box>
 
         {/* Navigation Arrows */}
@@ -239,7 +232,7 @@ const Carousel = ({
               transform: 'translateX(-50%)',
               zIndex: 2,
               backgroundColor: 'rgba(0,0,0,0.4)',
-              borderRadius: 3,
+              borderRadius: 2,
               p: 1,
               backdropFilter: 'blur(8px)',
             }}
@@ -279,7 +272,7 @@ const Carousel = ({
               right: 16,
               backgroundColor: 'rgba(0,0,0,0.6)',
               backdropFilter: 'blur(8px)',
-              borderRadius: 4,
+              borderRadius: 2,
               px: 1.5,
               py: 0.5,
               zIndex: 2,
@@ -294,107 +287,114 @@ const Carousel = ({
         {/* Progress Bar */}
         {autoPlay && isPlaying && slides.length > 1 && (
           <Box
-            component={motion.div}
-            initial={{ width: '0%' }}
-            animate={{ width: '100%' }}
-            transition={{ duration: interval / 1000, ease: "linear" }}
-            key={currentSlide}
             sx={{
               position: 'absolute',
               bottom: 0,
               left: 0,
               height: '4px',
-              backgroundColor: '#e28b18ff',
+              width: '100%',
+              backgroundColor: 'rgba(226, 139, 24, 0.3)',
               zIndex: 2,
             }}
-          />
+          >
+            <Box
+              sx={{
+                height: '100%',
+                width: '0%',
+               // backgroundColor: 'rgb(24, 37, 226)',
+                animation: `progress ${interval / 1000}s linear forwards`,
+                '@keyframes progress': {
+                  '0%': { width: '0%' },
+                  '100%': { width: '100%' }
+                }
+              }}
+            />
+          </Box>
         )}
       </Box>
-    </Container>
+   
   );
 };
 
 // Componente interno para el contenido del slide
-const SlideContent = ({ slide, handleButtonClick }) => (
-  <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
-    <Box
-      component="img"
-      src={slide.image}
-      alt={slide.alt || 'Slide image'}
-      sx={{
-        width: '100%',
-        height: '100%',
-        objectFit: 'cover',
-        filter: slide.imageFilter || 'brightness(0.65)',
-      }}
-    />
-    
-    <Card sx={{
-      position: 'absolute',
-      top: '50%',
-      left: '50%',
-      transform: 'translate(-50%, -50%)',
-      backgroundColor: 'rgba(255, 255, 255, 0.95)',
-      backdropFilter: 'blur(10px)',
-      padding: { xs: 1.5, sm: 3, md: 4 },
-      width: { xs: '90%', sm: '85%', md: '70%' },
-      maxWidth: '800px',
-      textAlign: 'center',
-      borderRadius: 4,
-      boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
-      border: '1px solid rgba(255,255,255,0.3)',
-    }}>
-      <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        {slide.title && (
-          <Typography 
-            variant="h4" 
-            component={motion.h4}
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            fontWeight="bold" 
-            color="text.primary" 
-            gutterBottom
-            sx={{ 
-              fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' },
-              textShadow: '1px 1px 2px rgba(0,0,0,0.1)'
-            }}
-          >
-            {slide.title}
-          </Typography>
-        )}
-        
-        {slide.description && (
-          <Typography 
-            variant="body1" 
-            component={motion.p}
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            color="text.secondary" 
-            paragraph
-            sx={{ 
-              fontSize: { xs: '0.9rem', sm: '1rem', md: '1.1rem' },
-              maxWidth: '90%',
-              mx: 'auto'
-            }}
-          >
-            {slide.description}
-          </Typography>
-        )}
-        
-        {slide.buttonText && (
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.4 }}
-          >
+const SlideContent = ({ slide, handleButtonClick }) => {
+  const [isCardHovered, setIsCardHovered] = useState(false);
+
+  return (
+    <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
+      <Box
+        component="img"
+        src={slide.image}
+        alt={slide.alt || 'Slide image'}
+        sx={{
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          filter: slide.imageFilter || 'brightness(0.65)',
+        }}
+      />
+      
+      <Card 
+        onMouseEnter={() => setIsCardHovered(true)}
+        onMouseLeave={() => setIsCardHovered(false)}
+        sx={{
+          position: 'absolute',
+          top: '20%',
+          left: '12%',
+          //transform: 'translate(-50%, -50%)',
+          backgroundColor: isCardHovered 
+            ? 'rgba(255, 255, 255, 0.3)' 
+            : 'rgba(255, 255, 255, 0.95)',
+          backdropFilter: 'blur(10px)',
+          padding: { xs: 1.5, sm: 2, md: 2 },
+          width: { xs: '90%', sm: '85%', md: '70%' },
+          textAlign: 'center',
+          borderRadius: 4,
+          boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+          border: '1px solid rgba(255,255,255,0.3)',
+          transition: 'background-color 0.4s ease',
+        }}
+      >
+        <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          {slide.title && (
+            <Typography 
+              variant="h4" 
+              fontWeight="bold" 
+              color={isCardHovered ? "white" : "text.primary"}
+              gutterBottom
+              sx={{ 
+                fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' },
+                textShadow: isCardHovered ? '2px 2px 4px rgba(0,0,0,0.5)' : '1px 1px 2px rgba(0,0,0,0.1)',
+                transition: 'color 0.4s ease, textShadow 0.4s ease',
+              }}
+            >
+              {slide.title}
+            </Typography>
+          )}
+          
+          {slide.description && (
+            <Typography 
+              variant="body1" 
+              color={isCardHovered ? "white" : "text.secondary"}
+              paragraph
+              sx={{ 
+                fontSize: { xs: '0.9rem', sm: '1rem', md: '1.1rem' },
+                maxWidth: '90%',
+                mx: 'auto',
+                transition: 'color 0.4s ease',
+              }}
+            >
+              {slide.description}
+            </Typography>
+          )}
+          
+          {slide.buttonText && (
             <Button
               variant="contained"
               size="large"
               onClick={() => handleButtonClick(slide)}
               sx={{
-                backgroundColor: "#e28b18ff",
+                backgroundColor: "rgb(24, 61, 226)",
                 px: { xs: 3, sm: 4, md: 6 },
                 py: { xs: 1, sm: 1.5 },
                 fontSize: { xs: '0.9rem', sm: '1rem', md: '1.1rem' },
@@ -402,7 +402,7 @@ const SlideContent = ({ slide, handleButtonClick }) => (
                 borderRadius: 4,
                 textTransform: 'none',
                 '&:hover': {
-                  backgroundColor: "#d17a0fff",
+                  backgroundColor: "rgb(15, 18, 209)",
                   transform: 'translateY(-2px)',
                   boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
                 },
@@ -411,11 +411,11 @@ const SlideContent = ({ slide, handleButtonClick }) => (
             >
               {slide.buttonText}
             </Button>
-          </motion.div>
-        )}
-      </CardContent>
-    </Card>
-  </Box>
-);
+          )}
+        </CardContent>
+      </Card>
+    </Box>
+  );
+};
 
 export default Carousel;

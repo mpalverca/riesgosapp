@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Avatar,
   Typography,
@@ -5,96 +6,93 @@ import {
   Chip,
   Card,
   CardContent,
+  Container,
+  Grid,
+  Paper,
+  Fade,
+  useTheme,
+  alpha
 } from "@mui/material";
 import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
 import EditNoteIcon from "@mui/icons-material/EditNote";
 import TerrainIcon from "@mui/icons-material/Terrain";
 import LocalFireDepartmentIcon from "@mui/icons-material/LocalFireDepartment";
+import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
+import AnalyticsIcon from "@mui/icons-material/Analytics";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
-import { WarningAmberOutlined } from "@mui/icons-material";
+import AnalisisCards from "../../components/pages/homePages";
 
 export default function Analisis() {
   const navigate = useNavigate();
   const location = useLocation();
+  const theme = useTheme();
+  const [hoveredId, setHoveredId] = useState(null);
 
   const subRoutes = ["alertmap", "threatmap", "geologia", "fire_camp", "risk"];
   const isAnalisis = subRoutes.some((route) =>
     location.pathname.includes(route)
   );
 
-  // Datos mejorados con más información
   const analisisItems = [
     {
       id: 1,
       route: "alertmap",
-      primary: "Afectaciones",
-      secondary:
-        "Las afectaciones registradas en las distintas etapas del año corresponden a las afectaciones a los servicios básicos como a la propiedad privada",
+      title: "Afectaciones",
+      description:
+        "Registro histórico de afectaciones a servicios básicos y propiedad privada por eventos naturales",
       icon: <EditNoteIcon />,
-      avatarColor: "#2196f3",
+      color: "#2196f3",
       badge: "Actualizado",
-      badgeColor: "success",
-      description: "Registro histórico de afectaciones por eventos naturales",
     },
     {
       id: 2,
       route: "threatmap",
-      primary: "Mapa de Susceptibilidad",
-      secondary:
-        "Es una situación, suceso o hecho que produce alteración en la vida de las personas, de la economía, los sistemas sociales y el ambiente",
+      title: "Sistema de Alcantarillado ",
+      description:
+        "Visualiza el sistema de alcantarillado del cantón Loja, incluyendo su estado actual y vulnerabilidades potenciales",
       icon: <HealthAndSafetyIcon />,
-      avatarColor: "#9c27b0",
-      badge: "Nuevo",
-      badgeColor: "primary",
-      description: "Evaluación de áreas con mayor propensión a riesgos",
+      color: "#9c27b0",
+      badge: "Interactivo",
     },
     {
       id: 3,
       route: "geologia",
-      primary: "Mapa Geológico",
-      secondary:
-        "El mapa geológico está diseñado en base a los estudios que se encuentran en los archivos municipales",
+      title: "Estado de Alcantarillas",
+      description:
+        "Composición geológica y características del suelo basado en estudios municipales",
       icon: <TerrainIcon />,
-      avatarColor: "#4caf50",
-      badge: "Base de datos",
-      badgeColor: "secondary",
-      description: "Composición geológica y características del suelo",
+      color: "#4caf50",
+      badge: "Base datos",
     },
     {
       id: 4,
       route: "fire_camp",
-      primary: "Susceptibilidad a Incendios Forestales",
-      secondary:
-        "La susceptibilidad a incendios forestales muestra el nivel de alerta de cada parroquia del cantón Loja",
-      icon: <LocalFireDepartmentIcon />,
-      avatarColor: "#ff0000ff",
-      badge: "En tiempo real",
-      badgeColor: "warning",
+      title: "Incendios Forestales",
       description:
-        "Monitoreo de riesgo de incendios basado en datos INAMHI y Smartland UTPL",
+        "Monitoreo de susceptibilidad por parroquia con datos INAMHI y Smartland UTPL",
+      icon: <LocalFireDepartmentIcon />,
+      color: "#f44336",
+      badge: "Tiempo real",
     },
     {
       id: 5,
       route: "risk",
-      primary: "Analisis de riesgo de desastres",
-      secondary: "Los riesgos en Canton Loja son de orgien natural o antropico",
-      icon: <WarningAmberOutlined />,
-      avatarColor: "#ffd000ff",
+      title: "Análisis de Riesgo (Predios)",
+      description: "Evaluación personalizada de riesgos para predios particulares",
+      icon: <WarningAmberOutlinedIcon />,
+      color: "#ff9800",
       badge: "Nuevo",
-      badgeColor: "warning",
-      description: "Realizar un analisis de riesgos de predio particular",
     },
     {
       id: 6,
       route: "risk",
-      primary: "Analisis de riesgo de desastres (parroquias)",
-      secondary: "Los riesgos en Canton Loja son de orgien natural o antropico",
-      icon: <WarningAmberOutlined />,
-      avatarColor: "#ffd000ff",
+      title: "Análisis de Riesgo (Parroquias)",
+      description: "Evaluación integral de riesgos a nivel parroquial",
+      icon: <AnalyticsIcon />,
+      color: "#ff9800",
       badge: "Nuevo",
-      badgeColor: "warning",
-      description: "Realizar un analisis de riesgos de predio particular",
     },
+   
   ];
 
   const handleItemClick = (route) => {
@@ -106,129 +104,12 @@ export default function Analisis() {
   }
 
   return (
-    <Box sx={{ pt: 3, mb:10, minHeight: "100vh", bgcolor: "background.default"}}>
-      {/* Header */}
-      <Box sx={{ textAlign: "center", mb: 6 }}>
-        <Typography
-          variant="h3"
-          sx={{
-            fontWeight: "bold",            
-            mb: 1,
-          }}
-        >
-          Sistema de Análisis de Riesgos
-        </Typography>
-        <Typography
-          variant="h6"
-          sx={{
-            color: "text.secondary",
-            maxWidth: "800px",
-            mx: "auto",
-            lineHeight: 1.6,
-          }}
-        >
-          Plataforma integral para el monitoreo y análisis de riesgos naturales
-          en el cantón Loja
-        </Typography>
-      </Box>
-
-      {/* Grid de items */}
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: { xs: "1fr", md: "repeat(2, 1fr)" },
-          gap: 3,
-          maxWidth: "1200px",
-          mx: "auto",
-        }}
-      >
-        {analisisItems.map((item) => (
-          <Card
-            key={item.id}
-            sx={{
-              cursor: "pointer",
-              transition: "all 0.3s ease",
-              "&:hover": {
-                transform: "translateY(-4px)",
-                boxShadow: 6,
-              },
-              height: "100%",
-              display: "flex",
-              flexDirection: "column",
-            }}
-            onClick={() => handleItemClick(item.route)}
-          >
-            <CardContent sx={{ flexGrow: 1, p: 3 }}>
-              <Box sx={{ display: "flex", alignItems: "flex-start", mb: 2 }}>
-                <Avatar
-                  sx={{
-                    bgcolor: item.avatarColor,
-                    width: 60,
-                    height: 60,
-                    mr: 2,
-                  }}
-                >
-                  {item.icon}
-                </Avatar>
-                <Box sx={{ flexGrow: 1 }}>
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                    <Typography variant="h6" sx={{ fontWeight: "bold", mr: 2 }}>
-                      {item.primary}
-                    </Typography>
-                    <Chip
-                      label={item.badge}
-                      color={item.badgeColor}
-                      size="small"
-                    />
-                  </Box>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mb: 1 }}
-                  >
-                    {item.description}
-                  </Typography>
-                </Box>
-              </Box>
-
-              <Typography variant="body1" sx={{ color: "text.primary", mb: 2 }}>
-                {item.secondary}
-              </Typography>
-
-              {/* <Box sx={{ display: "flex", justifyContent: "flex-end", mt: "auto" }}>
-                <IconButton 
-                  color="primary"
-                  sx={{
-                    "&:hover": {
-                      bgcolor: "primary.light",
-                      transform: "scale(1.1)"
-                    }
-                  }}
-                >
-                  <PlaylistAddCheckCircleIcon />
-                </IconButton>
-              </Box> */}
-            </CardContent>
-          </Card>
-        ))}
-      </Box>
-
-      {/* Footer informativo */}
-      <Box
-        sx={{
-          mt: 6,
-          p: 3,
-          bgcolor: "#d67d17ff",
-          color: "white",
-          borderRadius: 2,
-          textAlign: "center",
-        }}
-      >
-        <Typography variant="body1">
-          🎯 Selecciona un módulo para acceder al análisis detallado y
-          herramientas interactivas
-        </Typography>
-      </Box>
-    </Box>
+    <AnalisisCards
+      items={analisisItems}
+      title="Sistema de Análisis de Riesgos"
+      subtitle="Monitoreo y análisis de riesgos naturales en el cantón Loja"
+      footerText="Selecciona un módulo para acceder al análisis detallado"
+      redirectOutletRoutes={subRoutes}
+    />
   );
 }
