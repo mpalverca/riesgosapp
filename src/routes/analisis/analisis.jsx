@@ -28,7 +28,7 @@ export default function Analisis() {
   const theme = useTheme();
   const [hoveredId, setHoveredId] = useState(null);
 
-  const subRoutes = ["alertmap", "threatmap", "geologia", "fire_camp", "risk"];
+  const subRoutes = ["alertmap", "threatmap", "geologia", "fire_camp", "risk","ser_bas"];
   const isAnalisis = subRoutes.some((route) =>
     location.pathname.includes(route)
   );
@@ -56,7 +56,7 @@ export default function Analisis() {
     },
     {
       id: 3,
-      route: "geologia",
+      route: "ser_bas",
       title: "Estado de Alcantarillas",
       description:
         "Composición geológica y características del suelo basado en estudios municipales",

@@ -33,6 +33,7 @@ import Panel from "./pages/panel";
 import { GestionPlan } from "./panel/GestiónPlan";
 import PlanRevisar from "./panel/planRevisar";
 import { Box } from "@mui/material";
+import SerBas from "./analisis/alcantarillado.jsx/alcantarillado";
 
 // CAMBIO: El componente debe empezar con mayúscula
 export default function AppRouter() {
@@ -66,6 +67,7 @@ export default function AppRouter() {
           <Route path="threatmap" element={<Dangermap />} />
           <Route path="geologia" element={<Geologia />} />
           <Route path="fire_camp" element={<FireCamp />} />
+          <Route path="ser_bas" element={<SerBas />} />
           <Route path="risk" element={<RiesgosPage />} />
         </Route>
         <Route path="/preparacion/*" element={<Preparacion />}>
