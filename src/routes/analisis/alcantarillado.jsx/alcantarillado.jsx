@@ -91,7 +91,7 @@ export default function SerBas() {
                 data={data}
                 setSelectSect={setSelectInfo}
                 selectedValue={selectedvalue}
-            setSelectedValue={setSelectedValue}
+                setSelectedValue={setSelectedValue}
                 //fireData={eventInfo}
               />
             </Grid>
