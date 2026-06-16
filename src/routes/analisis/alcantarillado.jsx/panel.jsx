@@ -19,6 +19,7 @@ import {
   CircularProgress,
   Alert,
   Snackbar,
+  Autocomplete,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import ClearAllIcon from "@mui/icons-material/ClearAll";
@@ -28,131 +29,157 @@ import CategoryIcon from "@mui/icons-material/Category";
 
 // Opciones para el select de tipo
 const TIPO_OPTIONS = [
-  { value: "sumidero", label: "Sumidero", description: "Estructuras de drenaje pluvial" },
+  {
+    value: "sumidero",
+    label: "Sumidero",
+    description: "Estructuras de drenaje pluvial",
+  },
   { value: "tuberia", label: "Tubería", description: "Sistemas de tuberías" },
-  { value: "pozo", label: "Pozo de Revisión ", description: "Pozos de Revisión del sistema de Alcantarillado" },
+  {
+    value: "pozo",
+    label: "Pozo de Revisión ",
+    description: "Pozos de Revisión del sistema de Alcantarillado",
+  },
 ];
 
-function Panel({ getData, getAllData, loading = false, error = null }) {
+function Panel({ getData, getAllData, loading = false, error = null,selectedValue, setSelectedValue, ...props }) {
   const [search, setSearch] = useState({
     parroq: "",
     sector: "",
     tipo: "",
   });
-  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
-
-  // Handlers optimizados
-  const handleChange = useCallback((field) => (event) => {
-    setSearch(prev => ({ ...prev, [field]: event.target.value }));
-  }, []);
-
-  const handleSearch = useCallback(() => {
-    if (!search.tipo && !search.parroq && !search.sector) {
-      setSnackbar({ open: true, message: "Selecciona al menos un criterio de búsqueda", severity: "warning" });
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+  const barriosOptions = Array.isArray(props.data) ? props.barData : [];
+const handleSearch = async () => {
+    if (!selectedValue) {
+      console.warn("No hay valor seleccionado");
       return;
     }
-    getData( search.parroq, search.sector,search.tipo);
-  }, [search, getData]);
 
+    try {
+      
+       getData(search.parroq, selectedValue, search.tipo);
+      // No necesitas llamar a props.setSelectSect aquí porque el useEffect lo hará
+    } catch (error) {
+      console.error("Error al buscar sector:", error);
+    }
+  };
+  // Handlers optimizados
+  const handleChange = useCallback(
+    (field) => (event) => {
+      setSearch((prev) => ({ ...prev, [field]: event.target.value }));
+    },
+    [],
+  );
+
+  
   const handleSearchAll = useCallback(() => {
     getAllData();
-    setSnackbar({ open: true, message: "Mostrando todos los registros", severity: "info" });
+    setSnackbar({
+      open: true,
+      message: "Mostrando todos los registros",
+      severity: "info",
+    });
   }, [getData]);
 
   const handleClear = useCallback(() => {
     setSearch({ parroq: "", sector: "", tipo: "" });
-    setSnackbar({ open: true, message: "Filtros limpiados", severity: "success" });
+    setSnackbar({
+      open: true,
+      message: "Filtros limpiados",
+      severity: "success",
+    });
   }, []);
 
-  const handleKeyPress = useCallback((event) => {
-    if (event.key === 'Enter') {
-      handleSearch();
-    }
-  }, [handleSearch]);
+  const handleKeyPress = useCallback(
+    (event) => {
+      if (event.key === "Enter") {
+        handleSearch();
+      }
+    },
+    [handleSearch],
+  );
 
-  const activeFiltersCount = [search.parroq, search.sector, search.tipo].filter(Boolean).length;
+  const activeFiltersCount = [search.parroq, search.sector, search.tipo].filter(
+    Boolean,
+  ).length;
 
   return (
-    <Paper 
-      elevation={3} 
-      sx={{ 
+    <Paper
+      elevation={3}
+      sx={{
         p: { xs: 2, md: 3 },
         borderRadius: 3,
-        background: "linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)"
+        background: "linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)",
       }}
     >
-      <Typography 
-        variant="h5" 
-        component="h1" 
-        gutterBottom 
-        sx={{ 
-          display: "flex", 
-          alignItems: "center", 
+      <Typography
+        variant="h5"
+        component="h1"
+        gutterBottom
+        sx={{
+          display: "flex",
+          alignItems: "center",
           gap: 1,
           color: "#1976d2",
-          fontWeight: 600
+          fontWeight: 600,
         }}
       >
         <LocationOnIcon fontSize="large" />
         Servicios Básicos
         {activeFiltersCount > 0 && (
-          <Chip 
-            label={`${activeFiltersCount} filtro(s) activo(s)`} 
-            size="small" 
-            color="primary" 
+          <Chip
+            label={`${activeFiltersCount} filtro(s) activo(s)`}
+            size="small"
+            color="primary"
             variant="outlined"
             sx={{ ml: 2 }}
           />
         )}
       </Typography>
 
-      <Box component="form" noValidate autoComplete="off" onKeyPress={handleKeyPress}>
+      <Box
+        component="form"
+        noValidate
+        autoComplete="off"
+        onKeyPress={handleKeyPress}
+      >
         <Grid container spacing={2} alignItems="center">
-          {/* Campo Parroquia */}
-          <Grid item size={{ xs: 12, md: 3 }}>
-            <TextField
-              label="Parroquia"
-              name="parroquia"
-              fullWidth
-              size="medium"
-              value={search.parroq}
-              onChange={handleChange("parroq")}
-              placeholder="Ej: San Sebastián"
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <LocationOnIcon color="action" />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{ bgcolor: "white", borderRadius: 1 }}
-            />
-          </Grid>
-
+         
           {/* Campo Sector */}
-          <Grid item size={{ xs: 12, md: 3 }}>
-            <TextField
-              label="Sector"
-              name="sector"
-              fullWidth
-              size="medium"
-              value={search.sector}
-              onChange={handleChange("sector")}
-              placeholder="Ej: Centro"
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <LocationOnIcon color="action" />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{ bgcolor: "white", borderRadius: 1 }}
-            />
+          <Grid item size={{ xs: 12, md: 5 }}>
+            {/* Campo Parroquia */}
+          <Autocomplete
+            options={barriosOptions}
+            value={selectedValue}
+            onChange={(event, newValue) => {
+              setSelectedValue(newValue);
+
+              //if (sectorD) clearSectorData();
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Selecciona un Sector"
+                variant="outlined"
+                fullWidth
+               // helperText="Selecciona un barrio de la lista"
+              />
+            )}
+          />
           </Grid>
 
           {/* Select de Tipo (mejorado con MUI) */}
-          <Grid item size={{ xs: 12, md: 3 }}>
-            <FormControl fullWidth size="medium" sx={{ bgcolor: "white", borderRadius: 1 }}>
+          <Grid item size={{ xs: 12, md: 4 }}>
+            <FormControl
+              fullWidth
+              size="medium"
+              sx={{ bgcolor: "white", borderRadius: 1 }}
+            >
               <InputLabel id="tipo-select-label">
                 <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                   <CategoryIcon fontSize="small" />
@@ -200,11 +227,18 @@ function Panel({ getData, getAllData, loading = false, error = null }) {
                 borderRadius: 2,
                 background: "linear-gradient(45deg, #1976d2 30%, #2196f3 90%)",
                 boxShadow: "0 3px 5px 2px rgba(33, 150, 243, .3)",
-                '&:hover': {
-                  background: "linear-gradient(45deg, #1565c0 30%, #1976d2 90%)",
-                }
+                "&:hover": {
+                  background:
+                    "linear-gradient(45deg, #1565c0 30%, #1976d2 90%)",
+                },
               }}
-              startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <SearchIcon />}
+              startIcon={
+                loading ? (
+                  <CircularProgress size={20} color="inherit" />
+                ) : (
+                  <SearchIcon />
+                )
+              }
             >
               {loading ? "Buscando..." : "Buscar"}
             </Button>
@@ -222,10 +256,10 @@ function Panel({ getData, getAllData, loading = false, error = null }) {
                 borderRadius: 2,
                 borderColor: "#1976d2",
                 color: "#1976d2",
-                '&:hover': {
+                "&:hover": {
                   borderColor: "#1565c0",
-                  backgroundColor: "rgba(25, 118, 210, 0.04)"
-                }
+                  backgroundColor: "rgba(25, 118, 210, 0.04)",
+                },
               }}
               startIcon={<RefreshIcon />}
             >
@@ -245,10 +279,10 @@ function Panel({ getData, getAllData, loading = false, error = null }) {
                 borderRadius: 2,
                 borderColor: "#dc004e",
                 color: "#dc004e",
-                '&:hover': {
+                "&:hover": {
                   borderColor: "#c51162",
-                  backgroundColor: "rgba(220, 0, 78, 0.04)"
-                }
+                  backgroundColor: "rgba(220, 0, 78, 0.04)",
+                },
               }}
               startIcon={<ClearAllIcon />}
             >
@@ -264,16 +298,20 @@ function Panel({ getData, getAllData, loading = false, error = null }) {
               {search.parroq && (
                 <Chip
                   label={`Parroquia: ${search.parroq}`}
-                  onDelete={() => setSearch(prev => ({ ...prev, parroq: "" }))}
+                  onDelete={() =>
+                    setSearch((prev) => ({ ...prev, parroq: "" }))
+                  }
                   size="small"
                   color="primary"
                   variant="outlined"
                 />
               )}
-              {search.sector && (
+              {selectedValue && (
                 <Chip
-                  label={`Sector: ${search.sector}`}
-                  onDelete={() => setSearch(prev => ({ ...prev, sector: "" }))}
+                  label={`Sector: ${selectedValue}`}
+                  onDelete={() =>
+                    setSelectedValue(null)
+                  }
                   size="small"
                   color="primary"
                   variant="outlined"
@@ -281,8 +319,8 @@ function Panel({ getData, getAllData, loading = false, error = null }) {
               )}
               {search.tipo && (
                 <Chip
-                  label={`Tipo: ${TIPO_OPTIONS.find(opt => opt.value === search.tipo)?.label || search.tipo}`}
-                  onDelete={() => setSearch(prev => ({ ...prev, tipo: "" }))}
+                  label={`Tipo: ${TIPO_OPTIONS.find((opt) => opt.value === search.tipo)?.label || search.tipo}`}
+                  onDelete={() => setSearch((prev) => ({ ...prev, tipo: "" }))}
                   size="small"
                   color="primary"
                   variant="outlined"
@@ -304,14 +342,14 @@ function Panel({ getData, getAllData, loading = false, error = null }) {
       <Snackbar
         open={snackbar.open}
         autoHideDuration={3000}
-        onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
+        onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert 
-          severity={snackbar.severity} 
+        <Alert
+          severity={snackbar.severity}
           variant="filled"
           sx={{ width: "100%" }}
-          onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
+          onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
         >
           {snackbar.message}
         </Alert>
