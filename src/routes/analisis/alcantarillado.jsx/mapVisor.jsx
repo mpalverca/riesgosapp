@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -8,6 +8,7 @@ import {
   Polygon,
   LayersControl,
   LayerGroup,
+  useMapEvents,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import {
@@ -23,6 +24,8 @@ import {
   Alert,
 } from "@mui/material";
 import L from "leaflet";
+import { DialogAdd } from "./dialogAdd";
+
 
 // Fix para iconos de Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -33,7 +36,14 @@ L.Icon.Default.mergeOptions({
 });
 
 // ============ FUNCIONES UTILITARIAS ============
-
+const useUser = () => {
+  const [user, setUser] = useState(null);
+  useEffect(() => {
+    const data = localStorage.getItem("user");
+    if (data) setUser(JSON.parse(data));
+  }, []);
+  return user;
+};
 // Parsear coordenadas desde string o array
 const parseCoordinates = (geometry) => {
   if (!geometry) return null;
@@ -142,7 +152,20 @@ const parseDetalle = (detalle) => {
   return {};
 };
 //========sectores====
+const capacidad = [
+  { value: 2, label: "vacio" },
+  { value: 3, label: "medio" },
+  { value: 4, label: "lleno" },
+  { value: 5, label: "Saturado" },
+];
 
+const material = [
+  { value: 1, label: " sin Obstrucción" },
+  { value: 2, label: " Material Organico" },
+  { value: 3, label: " Material Petreo" },
+  { value: 4, label: " Material Inorganico (basura)" },
+  { value: 5, label: " Material Mixto (basura/petreos)" },
+];
 // ============ COMPONENTE PRINCIPAL ============
 const COLORS = {
   BAJA: "#28a745",
@@ -151,21 +174,27 @@ const COLORS = {
   SELECTED: "#3538dc",
   DEFAULT: "#a9a9a9",
 };
-const MapView = ({  dataObj = [], ...props }) => {
-  const safeData = useMemo(() => (Array.isArray(dataObj) ? dataObj : []), [dataObj]);
+const MapView = ({ dataObj = [], ...props }) => {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogCoords, setDialogCoords] = useState(null);
+  const user = useUser();
+  const safeData = useMemo(
+    () => (Array.isArray(dataObj) ? dataObj : []),
+    [dataObj],
+  );
   const normalizeText = useCallback(
-      (text) =>
-        text
-          ?.trim()
-          .toLowerCase()
-          .replace(/[^\w\s]/g, "")
-          .replace(/\s+/g, " ") || "",
-      [],
-    );
-    const getColor = useCallback((total) => {
-      const t = total || 0;
-      return t <= 3.9 ? COLORS.BAJA : t <= 6.9 ? COLORS.MEDIA : COLORS.ALTA;
-    }, []);
+    (text) =>
+      text
+        ?.trim()
+        .toLowerCase()
+        .replace(/[^\w\s]/g, "")
+        .replace(/\s+/g, " ") || "",
+    [],
+  );
+  const getColor = useCallback((total) => {
+    const t = total || 0;
+    return t <= 3.9 ? COLORS.BAJA : t <= 6.9 ? COLORS.MEDIA : COLORS.ALTA;
+  }, []);
 
   const sectorPolygons = useMemo(() => {
     if (!props.data?.length) return null;
@@ -256,6 +285,18 @@ const MapView = ({  dataObj = [], ...props }) => {
     normalizeText,
     getColor,
   ]);
+
+  // Componentes
+  const MapEvents = ({ onMapClick }) => {
+    useMapEvents({
+      dblclick: (e) => onMapClick(e.latlng),
+      contextmenu: (e) => {
+        e.originalEvent?.preventDefault();
+        onMapClick(e.latlng);
+      },
+    });
+    return null;
+  };
   // Procesar elementos con geometría
   const processedData = useMemo(() => {
     return safeData
@@ -299,12 +340,14 @@ const MapView = ({  dataObj = [], ...props }) => {
     const sumideros = markers.filter((m) => m.tipo === "sumidero");
     if (sumideros.length === 0) return null;
 
-    const critical = sumideros.filter((m) => m.detalle.obs*10 >= 70).length;
+    const critical = sumideros.filter((m) => m.detalle.obs * 10 >= 70).length;
     const medium = sumideros.filter(
-      (m) => m.detalle.obs*10 >= 40 && m.detalle.obs*10 < 70,
+      (m) => m.detalle.obs * 10 >= 40 && m.detalle.obs * 10 < 70,
     ).length;
-    const low = sumideros.filter((m) => m.detalle.obs*10 < 40 && m.detalle.obs*10 > 0).length;
-    const optimal = sumideros.filter((m) => m.detalle.obs*10=== 0).length;
+    const low = sumideros.filter(
+      (m) => m.detalle.obs * 10 < 40 && m.detalle.obs * 10 > 0,
+    ).length;
+    const optimal = sumideros.filter((m) => m.detalle.obs * 10 === 0).length;
 
     return { critical, medium, low, optimal, total: sumideros.length };
   }, [markers]);
@@ -318,6 +361,176 @@ const MapView = ({  dataObj = [], ...props }) => {
     const lngSum = valid.reduce((acc, m) => acc + m.coords[0][1], 0);
     return [latSum / valid.length, lngSum / valid.length];
   }, [markers]);
+
+  // Handlers
+  const handleOpenDialog = useCallback((latlng) => {
+    console.log("Mapa clickeado en:", latlng);
+    if (!latlng) return;
+    setDialogCoords({ lat: latlng.lat.toFixed(6), lng: latlng.lng.toFixed(6) });
+    setDialogOpen(true);
+  }, []);
+
+  {
+    /* Tuberías y polígonos */
+  }
+  const tuberiasView = tuberias.map((item, idx) => {
+    if (!item.coords || item.coords.length < 2) return null;
+    // Si son más de 2 puntos, es un polígono
+    if (item.coords.length > 2) {
+      return (
+        <Polygon
+          key={`tuberia-${idx}`}
+          positions={item.coords}
+          color="#2196f3"
+          fillColor="#2196f3"
+          fillOpacity={0.1}
+          weight={2}
+        >
+          <Popup>
+            <Typography variant="subtitle2" fontWeight="bold">
+              📏 Tubería
+            </Typography>
+            <Typography variant="body2">
+              <strong>Material:</strong> {item.tipo_mat || "N/E"}
+            </Typography>
+            <Typography variant="body2">
+              <strong>Capacidad:</strong> {item.capacidad || "N/E"} L
+            </Typography>
+            <Typography variant="body2">
+              <strong>Dimensiones:</strong> {item.dimenciones || "N/E"}
+            </Typography>
+            <Typography variant="body2">
+              <strong>Total:</strong> {item.total || 0}%
+            </Typography>
+            <Typography
+              variant="caption"
+              display="block"
+              sx={{ mt: 1, color: "text.secondary" }}
+            >
+              📅 {item.date || "Fecha no registrada"}
+            </Typography>
+          </Popup>
+        </Polygon>
+      );
+    }
+
+    // Si son 2 puntos, es una línea
+    return (
+      <Polyline
+        key={`tuberia-${idx}`}
+        positions={item.coords}
+        color="#2196f3"
+        weight={3}
+        opacity={0.7}
+      >
+        <Popup>
+          <Typography variant="subtitle2" fontWeight="bold">
+            📏 Tubería
+          </Typography>
+          <Typography variant="body2">
+            <strong>Material:</strong> {item.tipo_mat || "N/E"}
+          </Typography>
+          <Typography variant="body2">
+            <strong>Capacidad:</strong> {item.capacidad || "N/E"} L
+          </Typography>
+          <Typography variant="body2">
+            <strong>Dimensiones:</strong> {item.dimenciones || "N/E"}
+          </Typography>
+          <Typography variant="body2">
+            <strong>Total:</strong> {item.total || 0}%
+          </Typography>
+        </Popup>
+      </Polyline>
+    );
+  });
+
+  {
+    /* Marcadores */
+  }
+  const markaView = markers.map((item, idx) => {
+    if (!item.coords || item.coords.length === 0) return null;
+
+    const position = item.coords[0];
+    const icon = getMarkerIcon(item.tipo, item.detalle.obs * 10);
+    if (!icon) return null;
+
+    const isSumidero = item.tipo === "sumidero";
+    //console.log(position)
+const capacidadB=capacidad.filter(cap=>cap.value===item.detalle.cap)
+const materialB=material.filter(cap=>cap.value===item.detalle.tipo_mat)
+    return (
+      <Marker key={`${item.tipo}-${idx}`} position={position} icon={icon}>
+        <Popup>
+          <Typography variant="subtitle2" fontWeight="bold">
+            {item.rowId} - {item.tipo === "pozo" ? "💧 Pozo" : "🚰 Sumidero"}
+          </Typography>
+
+           
+          {isSumidero && (
+            <>
+              <Typography variant="body2" sx={{ mt: 1 }}>
+                <strong>Espacio utilizado:</strong> {capacidadB[0].label} ({item.detalle.cap*10}%)
+              </Typography>
+              <Typography variant="body2" sx={{ mt: 1 }}>
+                <strong>Material:</strong> {materialB[0].label} ({item.detalle.tipo_mat*10}%)
+              </Typography>
+              <Typography variant="body2" sx={{ mt: 1 }}>
+                <strong>Obstrucción:</strong> {item.detalle.obs * 10}%
+              </Typography>
+
+              <LinearProgress
+                variant="determinate"
+                value={item.detalle.obs * 10}
+                sx={{
+                  mt: 1,
+                  height: 10,
+                  borderRadius: 5,
+                  "& .MuiLinearProgress-bar": {
+                    backgroundColor: getColorByPercentage(
+                      item.detalle.obs * 10,
+                    ),
+                    borderRadius: 5,
+                  },
+                }}
+              />
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ display: "block", mt: 0.5 }}
+              >
+                {item.detalle.obs * 10 === 0
+                  ? "✓ Óptimo"
+                  : item.detalle.obs * 10 >= 70
+                    ? "⚠ Crítico"
+                    : item.detalle.obs * 10 >= 40
+                      ? "◔ Atención media"
+                      : "◔ Atención baja"}
+              </Typography>
+            </>
+          )}
+
+          {item.tipo === "pozo" && (
+            <>
+              <Typography variant="body2">
+                <strong>Profundidad:</strong> {item.prof || "N/E"} m
+              </Typography>
+              <Typography variant="body2">
+                <strong>Material:</strong> {item.tipo_mat || "N/E"}
+              </Typography>
+            </>
+          )}
+
+          <Typography
+            variant="caption"
+            display="block"
+            sx={{ mt: 1, color: "text.secondary" }}
+          >
+            📅 {item.date || "Fecha no registrada"}
+          </Typography>
+        </Popup>
+      </Marker>
+    );
+  });
 
   // ============ RENDER ============
 
@@ -420,176 +633,36 @@ const MapView = ({  dataObj = [], ...props }) => {
             (&gt;70%)
           </Alert>
         )}
+        <DialogAdd
+          dialogOpen={dialogOpen}
+          handleCloseDialog={() => setDialogOpen(false)}
+          dialogCoords={dialogCoords}
+          sector={"Barrio"}
+          capacidad={capacidad}
+          material={material}
+        />
 
         <MapContainer
           center={center}
           zoom={14}
+          doubleClickZoom={false}
           style={{ width: "100%", height: "100%", minHeight: "500px" }}
         >
+          {user && <MapEvents onMapClick={handleOpenDialog} />}
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
 
-          {/* Tuberías y polígonos */}
-          {tuberias.map((item, idx) => {
-            if (!item.coords || item.coords.length < 2) return null;
-            // Si son más de 2 puntos, es un polígono
-            if (item.coords.length > 2) {
-              return (
-                <Polygon
-                  key={`tuberia-${idx}`}
-                  positions={item.coords}
-                  color="#2196f3"
-                  fillColor="#2196f3"
-                  fillOpacity={0.1}
-                  weight={2}
-                >
-                  <Popup>
-                    <Typography variant="subtitle2" fontWeight="bold">
-                      📏 Tubería
-                    </Typography>
-                    <Typography variant="body2">
-                      <strong>Material:</strong> {item.tipo_mat || "N/E"}
-                    </Typography>
-                    <Typography variant="body2">
-                      <strong>Capacidad:</strong> {item.capacidad || "N/E"} L
-                    </Typography>
-                    <Typography variant="body2">
-                      <strong>Dimensiones:</strong> {item.dimenciones || "N/E"}
-                    </Typography>
-                    <Typography variant="body2">
-                      <strong>Total:</strong> {item.total || 0}%
-                    </Typography>
-                    <Typography
-                      variant="caption"
-                      display="block"
-                      sx={{ mt: 1, color: "text.secondary" }}
-                    >
-                      📅 {item.date || "Fecha no registrada"}
-                    </Typography>
-                  </Popup>
-                </Polygon>
-              );
-            }
-
-            // Si son 2 puntos, es una línea
-            return (
-              <Polyline
-                key={`tuberia-${idx}`}
-                positions={item.coords}
-                color="#2196f3"
-                weight={3}
-                opacity={0.7}
-              >
-                <Popup>
-                  <Typography variant="subtitle2" fontWeight="bold">
-                    📏 Tubería
-                  </Typography>
-                  <Typography variant="body2">
-                    <strong>Material:</strong> {item.tipo_mat || "N/E"}
-                  </Typography>
-                  <Typography variant="body2">
-                    <strong>Capacidad:</strong> {item.capacidad || "N/E"} L
-                  </Typography>
-                  <Typography variant="body2">
-                    <strong>Dimensiones:</strong> {item.dimenciones || "N/E"}
-                  </Typography>
-                  <Typography variant="body2">
-                    <strong>Total:</strong> {item.total || 0}%
-                  </Typography>
-                </Popup>
-              </Polyline>
-            );
-          })}
-
-          {/* Marcadores */}
-          {markers.map((item, idx) => {
-            if (!item.coords || item.coords.length === 0) return null;
-
-            const position = item.coords[0];
-            const icon = getMarkerIcon(item.tipo, item.detalle.obs*10);
-            if (!icon) return null;
-
-            const isSumidero = item.tipo === "sumidero";
-            //console.log(position)
- console.log(item)
-            return (
-              <Marker
-                key={`${item.tipo}-${idx}`}
-                position={position}
-                icon={icon}
-               
-              >
-                <Popup>
-                  <Typography variant="subtitle2" fontWeight="bold">
-                    {item.rowId} - {item.tipo === "pozo" ? "💧 Pozo" : "🚰 Sumidero"}
-                  </Typography>
-                  <Typography variant="body2">
-                    <strong>Nombre:</strong>{" "}
-                    {item.nombre || item.label || "Sin nombre"}
-                  </Typography>
-
-                  {isSumidero && (
-                    <>
-                      <Typography variant="body2" sx={{ mt: 1 }}>
-                        <strong>Obstrucción:</strong> {item.detalle.obs*10}%
-                      </Typography>
-                      <LinearProgress
-                        variant="determinate"
-                        value={item.total}
-                        sx={{
-                          mt: 1,
-                          height: 10,
-                          borderRadius: 5,
-                          "& .MuiLinearProgress-bar": {
-                            backgroundColor: getColorByPercentage(item.total),
-                            borderRadius: 5,
-                          },
-                        }}
-                      />
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        sx={{ display: "block", mt: 0.5 }}
-                      >
-                        {item.total === 0
-                          ? "✓ Óptimo"
-                          : item.total >= 70
-                            ? "⚠ Crítico"
-                            : item.total >= 40
-                              ? "◔ Atención media"
-                              : "◔ Atención baja"}
-                      </Typography>
-                    </>
-                  )}
-
-                  {item.tipo === "pozo" && (
-                    <>
-                      <Typography variant="body2">
-                        <strong>Profundidad:</strong> {item.prof || "N/E"} m
-                      </Typography>
-                      <Typography variant="body2">
-                        <strong>Material:</strong> {item.tipo_mat || "N/E"}
-                      </Typography>
-                    </>
-                  )}
-
-                  <Typography
-                    variant="caption"
-                    display="block"
-                    sx={{ mt: 1, color: "text.secondary" }}
-                  >
-                    📅 {item.date || "Fecha no registrada"}
-                  </Typography>
-                </Popup>
-              </Marker>
-            );
-          })}
-
           <LayersControl position="topright">
             <LayersControl.Overlay name="Sectores" checked>
               <LayerGroup>{sectorPolygons}</LayerGroup>
+            </LayersControl.Overlay>
+            <LayersControl.Overlay name="Tuberias" checked>
+              <LayerGroup>{tuberiasView}</LayerGroup>
+            </LayersControl.Overlay>
+            <LayersControl.Overlay name="Sumideros" checked>
+              <LayerGroup>{markaView}</LayerGroup>
             </LayersControl.Overlay>
           </LayersControl>
         </MapContainer>
