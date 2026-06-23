@@ -197,14 +197,15 @@ export default function Panel({
           onChange={handleFilterChange}
           size="small"
         >
-          <MenuItem value="Equipamiento">Equipamiento</MenuItem>
-          <MenuItem value="Vialidad">Vialidad</MenuItem>
+          <MenuItem value="Equipamiento">Equipamiento</MenuItem>                            
+          <MenuItem value="Infraestructura">Infraestructura</MenuItem>
+          <MenuItem value="Márgenes">Márgenes</MenuItem>
+          <MenuItem value="Predio">Predio</MenuItem>
           <MenuItem value="Servicios de AAPP/AALL/AASS">
             Servicios básicos
           </MenuItem>
+          <MenuItem value="Vialidad">Vialidad</MenuItem>
           <MenuItem value="Vivienda">Vivienda</MenuItem>
-          <MenuItem value="Infraestructura">Infraestructura</MenuItem>
-          <MenuItem value="Predio">Predio</MenuItem>
           <MenuItem value="Todos">Todos</MenuItem>
         </Select>
       </FormControl>
