@@ -47,9 +47,9 @@ export default function Analisis() {
     {
       id: 2,
       route: "threatmap",
-      title: "Sistema de Alcantarillado ",
+      title: "Suceptibilidad ",
       description:
-        "Visualiza el sistema de alcantarillado del cantón Loja, incluyendo su estado actual y vulnerabilidades potenciales",
+        "Composición geológica y características del suelo basado en estudios municipales    ",
       icon: <HealthAndSafetyIcon />,
       color: "#9c27b0",
       badge: "Interactivo",
@@ -59,7 +59,7 @@ export default function Analisis() {
       route: "ser_bas",
       title: "Estado de Alcantarillas",
       description:
-        "Composición geológica y características del suelo basado en estudios municipales",
+        "Visualiza el sistema de alcantarillado del cantón Loja, incluyendo su estado actual y vulnerabilidades potenciales",
       icon: <TerrainIcon />,
       color: "#4caf50",
       badge: "Base datos",
