@@ -152,7 +152,7 @@ const SearchTerm = ({
       {error && (
         <Alert severity="error" sx={{ mt: 2, mb: 3 }}>
           <AlertTitle>Error</AlertTitle>
-          {error}
+         Error al buscar el miembro con CI: <strong>{ci}</strong>, puede que el usairo no sea miembro del COE o que la información no esté disponible. Por favor, verifique los datos ingresados y vuelva a intentarlo. Si el problema persiste, contacte al administrador del sistema. 
         </Alert>
       )}
 
