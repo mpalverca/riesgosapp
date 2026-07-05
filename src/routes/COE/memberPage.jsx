@@ -144,15 +144,17 @@ const SearchTerm = ({
       {!loading && !error && ci && !found && (
         <Alert severity="info" sx={{ mt: 2, mb: 3 }}>
           <AlertTitle>No encontrado</AlertTitle>
-          No se encontró ningún miembro con CI: <strong>{ci}</strong>
+          El usuario no pertenece a ningún MTT/GT registrado en el sistema,
+          verifique o solicite autorización
         </Alert>
       )}
 
       {/* Error */}
       {error && (
-        <Alert severity="error" sx={{ mt: 2, mb: 3 }}>
-          <AlertTitle>Error</AlertTitle>
-         Error al buscar el miembro con CI: <strong>{ci}</strong>, puede que el usuario no sea miembro del COE o que la información no esté disponible. Por favor, verifique los datos ingresados y vuelva a intentarlo. Si el problema persiste, contacte al administrador del sistema. 
+        <Alert severity="info" sx={{ mt: 2, mb: 3 }}>
+          <AlertTitle>No encontrado</AlertTitle>
+          El usuario no pertenece a ningún MTT/GT registrado en el sistema,
+          verifique o solicite autorización
         </Alert>
       )}
 
@@ -295,7 +297,7 @@ const SearchTerm = ({
                           <TableCell>Miembro</TableCell>
                           <TableCell>Institución</TableCell>
                           <TableCell>Cargo Institucional</TableCell>
-                           <TableCell>Cargo COE</TableCell>
+                          <TableCell>Cargo COE</TableCell>
                           <TableCell>Contacto</TableCell>
                         </TableRow>
                       </TableHead>
@@ -320,14 +322,14 @@ const SearchTerm = ({
               <Paper elevation={1} sx={{ px: 2, mb: 2 }}>
                 <Typography
                   variant="h6"
-                 // color="error"
+                  // color="error"
                   sx={{ mb: 1, fontWeight: "bold" }}
                 >
                   {/* <TargetIco sx={{ verticalAlign: 'middle', mr: 1 }} /> */}
                   Misión
                 </Typography>
                 <Divider sx={{ mb: 1 }} />
-                <Box sx={{  bgcolor: "#f8f9fa", borderRadius: 1 }}>
+                <Box sx={{ bgcolor: "#f8f9fa", borderRadius: 1 }}>
                   <Typography variant="body1">{mtt.mision}</Typography>
                 </Box>
               </Paper>
@@ -336,7 +338,7 @@ const SearchTerm = ({
               <Paper elevation={1} sx={{ px: 2, mb: 2 }}>
                 <Typography
                   variant="h6"
-                 // color="error"
+                  // color="error"
                   sx={{ mb: 1, fontWeight: "bold" }}
                 >
                   <ListAltIcon sx={{ verticalAlign: "middle", mr: 1 }} />
