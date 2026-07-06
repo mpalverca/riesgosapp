@@ -11,6 +11,7 @@ import TabPanel from "@mui/lab/TabPanel";
 import { VisualRecursos } from "./recursos/Req_mtt";
 import SearchTerm from "./memberPage";
 import BodyPlenaria from "./canton/bodyPlenaria";
+import BodyPlan from "./planAccion/bodyPlan";
 
 const Coe = ({ role, ci, ...props }) => {
   const [value, setValue] = React.useState("1");
@@ -140,8 +141,10 @@ const Coe = ({ role, ci, ...props }) => {
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
           <TabList onChange={handleChange} aria-label="COE tabs">
             <Tab label="Descripción de Mesa" value="1" />
-            <Tab label="Estado del cantón" value="2" />
-            <Tab label="Recursos" value="3" />
+            <Tab label="Estado del Cantón - Loja" value="2" />
+             <Tab label="Plan de Acción Cantonal" value="3" />
+            <Tab label="Recursos" value="4" />
+           
           </TabList>
         </Box>
 
@@ -168,12 +171,17 @@ const Coe = ({ role, ci, ...props }) => {
           </Paper>
         </TabPanel>
         {member?.cargoCOE === "Presidente" ? null : (
-          <TabPanel value="3">
+          <TabPanel value="4">
             <Paper elevation={3} sx={{ p: 1, mb: 1, borderRadius: 1 }}>
               <VisualRecursos mtt={member?.mtt} />
             </Paper>
           </TabPanel>
         )}
+        <TabPanel value="3">
+          <Paper elevation={3} sx={{ p: 1, mb: 1, borderRadius: 1 }}>
+            <BodyPlan mtt={member?.mtt} member={member} />
+          </Paper>
+        </TabPanel>
       </TabContext>
     </Box>
   );
