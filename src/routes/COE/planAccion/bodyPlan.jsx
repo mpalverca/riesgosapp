@@ -7,10 +7,10 @@ import {
   cargarDatosafec,
   cargarDatosParroquia,
 } from "../../analisis/afects/script";
-import MapMark from "../canton/MapsView.jsx";
 import { DialogAccions } from "./inputAcción.jsx";
 import { cargarDatosPol } from "../../../components/maps/script/script.js";
 import PanelAccion from "./Panel.jsx";
+import MapMark from "./Map.jsx";
 
 function BodyPlan({ mtt, member }) {
   // ========== HOOKS ==========
@@ -127,7 +127,7 @@ function BodyPlan({ mtt, member }) {
           conoc_monit: async () => {
             await reqCon_Monit.searchGet(mtt, "Conoc_Monit");
             const data = reqCon_Monit?.dataGet;
-            console.log("Datos Conoc_Monit:", data);
+            
             setCache((prev) => ({ ...prev, conoc_monit: data }));
             return data;
           },
@@ -270,7 +270,10 @@ function BodyPlan({ mtt, member }) {
     };
 
     const data = dataMap[layerKey] || [];
-    return Array.isArray(data) ? data : [];
+
+    //console.log(`Datos obtenidos para capa ${layerKey}:`, data)
+    //return Array.isArray(data) ? data : [];
+    return data
   };
 
   const getLayerCount = (layerKey) => {
@@ -294,16 +297,27 @@ function BodyPlan({ mtt, member }) {
   };
 
   // ========== MANEJADORES DE CLICK ==========
-  const handleClickAF = (coordenate) => {
+  const handleClickCon = (coordenate) => {
     setOpencon(true);
     setCoordinates(coordenate);
   };
 
-  const handleClickAC = (coordenate) => {
+  const handleClickPrev= (coordenate) => {
     setOpenPrev(true);
     setCoordinates(coordenate);
   };
-
+  const handleClickPrep= (coordenate) => {
+    setOpenPrep(true);
+    setCoordinates(coordenate);
+  };
+  const handleClickRes= (coordenate) => {
+    setOpenResp(true);
+    setCoordinates(coordenate);
+  };
+const handleClickRec= (coordenate) => {
+    setOpenRec(true);
+    setCoordinates(coordenate);
+  };
   const handleClickRequerimiento = (coordenate) => {
     console.log("Requerimiento en:", coordenate);
     setCoordinates(coordenate);
@@ -372,7 +386,7 @@ function BodyPlan({ mtt, member }) {
                 />
               ),
               color: "#e6101b",
-              accion: (coords) => handleClickAF(coords),
+              accion: (coords) => handleClickCon(coords),
             },
             {
               key: "prev_mitig",
@@ -389,7 +403,7 @@ function BodyPlan({ mtt, member }) {
                 />
               ),
               color: "#ff8c00",
-              accion: (coords) => handleClickAC(coords),
+              accion: (coords) => handleClickPrev(coords),
             },
             {
               key: "preparacion",

@@ -128,13 +128,13 @@ const Coe = ({ role, ci, ...props }) => {
         sx={{
           //background: "linear-gradient(45deg, #FF5733 20%, #FFD700 90%)",
           borderRadius: 2,
-          border: "2px solid #1240da",
+         // border: "1px solid #1240da",
           //borderColor: "red",
-          p: 2,
-          m: 2,
+        //  p: 1,
+         // m: 1,
         }}
       >
-        🚨 Comité Operativo de Emergencias (COE) - MTT/GT
+        {/* 🚨 */} Comité Operativo de Emergencias (COE) - MTT/GT
       </Typography>
 
       <TabContext value={value}>
