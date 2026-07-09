@@ -270,7 +270,8 @@ function BodyPlan({ mtt, member }) {
     };
 
     const data = dataMap[layerKey] || [];
-    return Array.isArray(data) ? data : [];
+    //return Array.isArray(data) ? data : [];
+    return data;
   };
 
   const getLayerCount = (layerKey) => {
