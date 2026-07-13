@@ -119,8 +119,7 @@ function BodyPlan({ mtt, member }) {
   const handleRefreshLayer = useCallback(
     async (layer) => {
       try {
-        console.log(`🔄 Recargando capa: ${layer}`);
-
+       
         // Mapeo de capas a sus funciones de carga
         const layerActions = {
           // Capas de análisis

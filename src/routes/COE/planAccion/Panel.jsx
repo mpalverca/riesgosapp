@@ -1,8 +1,31 @@
-import { Box, Grid, Typography, Paper, Alert } from "@mui/material";
+import { Box, Grid, Typography, Paper, Alert, Divider } from "@mui/material";
 import Panels from "../../../components/panels/Panels";
 import { Layers as LayersIcon } from "@mui/icons-material";
 import LayerGroup from "../canton/body_accion/LayerGroup";
 import LayerControl from "../canton/body_accion/LayerControl";
+
+// ========== FUNCIÓN AUXILIAR PARA EXTRAER DATOS ==========
+const extractDataArray = (data) => {
+  // Si es null o undefined
+  if (!data) return [];
+
+  // Si ya es un array, devolverlo
+  if (Array.isArray(data)) return data;
+
+  // Si es un objeto con propiedad 'datos' que es array
+  if (data.datos && Array.isArray(data.datos)) return data.datos;
+
+  // Si es un objeto con propiedad 'data' que es array
+  if (data.data && Array.isArray(data.data)) return data.data;
+
+  // Si es un objeto plano, devolverlo como array de un elemento o array vacío
+  if (typeof data === "object") {
+    // Si tiene keys, podría ser un objeto con datos
+    return Object.keys(data).length > 0 ? [data] : [];
+  }
+
+  return [];
+};
 
 // ========== CONFIGURACIONES DE CAPAS ==========
 const LAYER_CONFIGS = {
@@ -136,25 +159,37 @@ const StatusIndicator = ({ activeLayersCount, totalLayers }) => (
   </Paper>
 );
 
-const ParroquiaDetails = ({ data, getLayerData, getLayerCount }) => (
-  <>
-    <Typography variant="caption" color="text.secondary">
-      Total de parroquias cargadas: {getLayerCount("parroquia")}
-      <br />
-    </Typography>
-    {getLayerData("parroquia").map((item, index) => (
-      <Typography key={index} variant="caption" color="text.secondary">
-        {item.DPA_DESPAR}
+const ParroquiaDetails = ({ getLayerData, getLayerCount }) => {
+  const data = extractDataArray(getLayerData("parroquia"));
+
+  return (
+    <>
+      <Typography variant="caption" color="text.secondary">
+        Total de parroquias cargadas: {data.length}
         <br />
       </Typography>
-    ))}
-  </>
-);
+      {data.slice(0, 5).map((item, index) => (
+        <Typography key={index} variant="caption" color="text.secondary">
+          {item.DPA_DESPAR || item.nombre || `Parroquia ${index + 1}`}
+          <br />
+        </Typography>
+      ))}
+      {data.length > 5 && (
+        <Typography variant="caption" color="text.secondary">
+          ... y {data.length - 5} más
+        </Typography>
+      )}
+    </>
+  );
+};
 
 const ActionDetails = ({ layerKey, getLayerData, getLayerCount }) => {
-  const data = getLayerData(layerKey);
+  const fullData = getLayerData(layerKey);
+  const data = extractDataArray(fullData);
+
+  // Estadísticas de estado
   const vigente = data.filter(
-    (item) => item.estado?.toLowerCase() === "vigente",
+    (item) => item.estado?.toLowerCase() === "vigente" || "En ejecución",
   ).length;
   const finalizada = data.filter((item) => {
     const estado = item.estado?.toLowerCase();
@@ -166,12 +201,22 @@ const ActionDetails = ({ layerKey, getLayerData, getLayerCount }) => {
       <Typography variant="caption" color="text.secondary">
         Registros de Acciones: {data.length}
       </Typography>
-      {getLayerData("conoc_monit").map((item, index) => (
-      <Typography key={index} variant="caption" color="text.secondary">
-        {item.objetivo}
-        <br />
-      </Typography>
-    ))}
+
+      {/* Mostrar objetivo si existe en el objeto principal */}
+      {fullData?.objetivo && (
+   
+          <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{ display: "block", mt: 0.5 }}
+        >
+          {/*  🎯 {fullData.objetivo.substring(0, 100)}... */}
+          {fullData.objetivo}
+        </Typography>
+     
+    
+      )}
+
       <Typography
         variant="caption"
         color="primary"
@@ -179,6 +224,7 @@ const ActionDetails = ({ layerKey, getLayerData, getLayerCount }) => {
       >
         Última actualización: {new Date().toLocaleTimeString()}
       </Typography>
+
       <Typography
         variant="caption"
         color="text.secondary"
@@ -188,11 +234,35 @@ const ActionDetails = ({ layerKey, getLayerData, getLayerCount }) => {
         <strong style={{ color: "#757575" }}> Finalizada:</strong> {finalizada}{" "}
         |<strong> Total:</strong> {data.length}
       </Typography>
+
+
+      {/* Mostrar primeros 3 registros como ejemplo */}
+      {data /* .slice(0, 3) */
+        .map((item, index) => (
+          <div>
+            <Typography
+            key={index}
+            variant="caption"
+            color="text.secondary"
+            sx={{ display: "block", pl: 2 }}
+          >
+            • {item.accion || `Registro ${index + 1}`}
+            <strong> {item.estado && ` (${item.estado})`}</strong>
+          </Typography>
+             <Divider sx={{ my: 1 }} />
+          </div>
+        ))}
+      {/* {data.length > 3 && (
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', pl: 2 }}>
+          ... y {data.length - 3} más
+        </Typography>
+      )} */}
     </>
   );
 };
 const SusceptibilidadDetails = ({ getLayerData, getLayerCount }) => {
-  const data = getLayerData("susceptibilidad");
+  const data = extractDataArray(getLayerData("susceptibilidad"));
+
   const counts = {
     movimientoMasa: 0,
     inundacion: 0,
