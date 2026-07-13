@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 
 const RenderAfect = ({ afectData }) => {
+    
      const renderAfectMarkers = useMemo(() => {
     return afectData
       .map((item, index) => {

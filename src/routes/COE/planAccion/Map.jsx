@@ -55,8 +55,32 @@ import ParroquiaLayer from "../../analisis/afects/afect_view/ParroquiaLayer";
 import SusceptibilidadLayer from "../canton/body_accion/SusceptibilidadLayer";
 import ImageUploadDialog from "../canton/popups/inputs/inputsDialog";
 import { ConMonitView } from "./popups/popPoint";
+import { AccionesView } from "../canton/popups/acciones";
+import { RequireView } from "../canton/popups/recursos";
 
-// Componente de controles personalizados
+// ========== FUNCIÓN AUXILIAR PARA EXTRAER DATOS ==========
+const extractDataArray = (data) => {
+  // Si es null o undefined
+  if (!data) return [];
+  
+  // Si ya es un array, devolverlo
+  if (Array.isArray(data)) return data;
+  
+  // Si es un objeto con propiedad 'datos' que es array
+  if (data.datos && Array.isArray(data.datos)) return data.datos;
+  
+  // Si es un objeto con propiedad 'data' que es array
+  if (data.data && Array.isArray(data.data)) return data.data;
+  
+  // Si es un objeto plano, devolverlo como array de un elemento o array vacío
+  if (typeof data === 'object') {
+    return Object.keys(data).length > 0 ? [data] : [];
+  }
+  
+  return [];
+};
+
+// ========== COMPONENTE DE CONTROLES ==========
 const MapControls = ({ onZoomIn, onZoomOut, onLocate, onDownload }) => {
   return (
     <Box
@@ -126,7 +150,7 @@ const MapControls = ({ onZoomIn, onZoomOut, onLocate, onDownload }) => {
   );
 };
 
-// Componente para el estado de carga de capas (actualizado)
+// ========== COMPONENTE DE ESTADO DE CAPAS ==========
 const LayerStatus = ({ layers, onRefreshLayer, onToggleVisibility }) => {
   const activeLayers = layers.filter((l) => l.active && !l.hidden).length;
   const totalLayers = layers.length;
@@ -149,98 +173,12 @@ const LayerStatus = ({ layers, onRefreshLayer, onToggleVisibility }) => {
         minWidth: 200,
       }}
     >
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-          <LayersIcon sx={{ fontSize: 14 }} />
-          <Typography variant="caption">
-            {activeLayers} / {totalLayers} capas visibles
-          </Typography>
-        </Box>
-      </Box>
-
-      {/* Lista de capas activas para control rápido */}
-      <Box sx={{ mt: 1, maxHeight: 150, overflowY: "auto" }}>
-        {layers.map((layer) => (
-          <Box
-            key={layer.key}
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              mb: 0.5,
-              p: 0.25,
-              borderRadius: 1,
-              "&:hover": { bgcolor: "rgba(255,255,255,0.1)" },
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-              <Box
-                sx={{
-                  width: 10,
-                  height: 10,
-                  borderRadius: "50%",
-                  bgcolor: layer.hidden ? "#666" : layer.color || "#999",
-                  opacity: layer.hidden ? 0.5 : 1,
-                }}
-              />
-              <Typography variant="caption" sx={{ fontSize: "0.65rem" }}>
-                {layer.label}
-              </Typography>
-              {layer.count > 0 && (
-                <Chip
-                  label={layer.count}
-                  size="small"
-                  sx={{ height: 16, fontSize: "0.6rem", minWidth: 24 }}
-                />
-              )}
-            </Box>
-
-            <Box sx={{ display: "flex", gap: 0.25 }}>
-              <Tooltip title="Recargar capa">
-                <IconButton
-                  size="small"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onRefreshLayer?.(layer.key);
-                  }}
-                  disabled={layer.isLoading}
-                  sx={{ color: "white", p: 0.25 }}
-                >
-                  <RefreshIcon sx={{ fontSize: 12 }} />
-                </IconButton>
-              </Tooltip>
-
-              <Tooltip title={layer.hidden ? "Mostrar capa" : "Ocultar capa"}>
-                <IconButton
-                  size="small"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onToggleVisibility?.(layer.key);
-                  }}
-                  sx={{ color: "white", p: 0.25 }}
-                >
-                  {layer.hidden ? (
-                    <VisibilityIcon sx={{ fontSize: 12 }} />
-                  ) : (
-                    <VisibilityOffIcon sx={{ fontSize: 12 }} />
-                  )}
-                </IconButton>
-              </Tooltip>
-            </Box>
-          </Box>
-        ))}
-      </Box>
+      
     </Paper>
   );
 };
 
-// Componente interno para capturar clicks
+// ========== COMPONENTE DE CLICK EN MAPA ==========
 const MapClickHandler = ({ onMapClick }) => {
   useMapEvents({
     dblclick: (e) => onMapClick(e.latlng),
@@ -252,7 +190,7 @@ const MapClickHandler = ({ onMapClick }) => {
   return null;
 };
 
-// Componente para centrar el mapa
+// ========== COMPONENTE PARA CENTRAR MAPA ==========
 const MapCenter = ({ center, zoom }) => {
   const map = useMap();
   React.useEffect(() => {
@@ -263,15 +201,15 @@ const MapCenter = ({ center, zoom }) => {
   return null;
 };
 
+// ========== COMPONENTE PRINCIPAL ==========
 function MapMark({
   position,
   zoom,
-
-  dataRes,
-  dataReq,
-  dataCon,
-  dataPrev,
-  dataPrep,
+  dataCon,      // Conocimiento y Monitoreo
+  dataPrev,     // Prevención y Mitigación
+  dataPrep,     // Preparación
+  dataRes,      // Respuesta
+  dataReq,      // Recuperación
   dataPol,
   dataParroquia,
   dataAfectRegister,
@@ -280,9 +218,10 @@ function MapMark({
   layersConfig,
   selectCapa,
   loading,
-  onRefreshLayer, // Nueva prop para recargar capas desde el padre
+  onRefreshLayer,
   children,
 }) {
+  // ========== ESTADOS ==========
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [coordinates, setCoordinates] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
@@ -297,42 +236,43 @@ function MapMark({
   const [mapCenter, setMapCenter] = useState(position);
   const [mapZoom, setMapZoom] = useState(zoom);
   const mapRef = useRef(null);
+ 
   // Estado para ocultar capas individualmente
   const [hiddenLayers, setHiddenLayers] = useState({
-    afectaciones: false,
-    acciones: false,
-    requerimientos: false,
+    conoc_monit: false,
+    prev_mitig: false,
+    preparacion: false,
+    respuesta: false,
+    recuperacion: false,
     poligono: false,
     parroquia: false,
     afect_register: false,
     susceptibilidad: false,
   });
 
-  // para las afect register:
   const [user, setUser] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
-  const [poligonosData, setPoligonosData] = useState([]);
   const [loadingPoligonos, setLoadingPoligonos] = useState(false);
 
   const { getEventIcon, getEventIconPulso, COLOR_PRIORIDAD } = useMapIcons();
-  // Cargar usuario desde localStorage
+
+  // ========== EFECTOS ==========
   useEffect(() => {
     try {
       const userData = localStorage.getItem("user");
       if (userData) {
         setUser(JSON.parse(userData));
       }
-      // console.log("Usuario cargado:", userData)
     } catch (error) {
       // console.error("Error al cargar usuario:", error);
     }
   }, []);
-  // Función para ocultar/mostrar una capa
+
+  // ========== FUNCIONES DE CONTROL ==========
   const handleToggleVisibility = useCallback((layerKey) => {
     setHiddenLayers((prev) => ({ ...prev, [layerKey]: !prev[layerKey] }));
   }, []);
 
-  // Función para recargar una capa específica
   const handleRefreshLayerClick = useCallback(
     (layerKey) => {
       if (onRefreshLayer) {
@@ -347,11 +287,25 @@ function MapMark({
     [onRefreshLayer],
   );
 
-  // Función centralizada para procesar cualquier tipo de marcador
-  const processMarkers = useCallback((rawData) => {
-    if (!rawData || !Array.isArray(rawData)) return [];
+  // ========== PROCESAMIENTO DE DATOS ==========
+  // Extraer arrays de datos usando la función auxiliar
+  const dataConArray = useMemo(() => extractDataArray(dataCon), [dataCon]);
+  const dataPrevArray = useMemo(() => extractDataArray(dataPrev), [dataPrev]);
+  const dataPrepArray = useMemo(() => extractDataArray(dataPrep), [dataPrep]);
+  const dataResArray = useMemo(() => extractDataArray(dataRes), [dataRes]);
+  const dataReqArray = useMemo(() => extractDataArray(dataReq), [dataReq]);
+  const dataPolArray = useMemo(() => extractDataArray(dataPol), [dataPol]);
+  const dataParroquiaArray = useMemo(() => extractDataArray(dataParroquia), [dataParroquia]);
+  const dataAfectRegisterArray = useMemo(() => extractDataArray(dataAfectRegister), [dataAfectRegister]);
+  const dataSusceptibilidadArray = useMemo(() => extractDataArray(dataSusceptibilidad), [dataSusceptibilidad]);
 
-    return rawData
+  // ========== PROCESAR MARCADORES ==========
+  const processMarkers = useCallback((rawData) => {
+    const dataArray = extractDataArray(rawData);
+    
+    if (!dataArray || !Array.isArray(dataArray)) return [];
+
+    return dataArray
       .map((item, index) => {
         if (!item.ubi) return null;
         try {
@@ -367,58 +321,87 @@ function MapMark({
       .filter(Boolean);
   }, []);
 
-  // Memorizar marcadores para evitar cálculos innecesarios
-  const afectaciones = useMemo(
+  const marcadoresCon = useMemo(
     () => processMarkers(dataCon),
     [dataCon, processMarkers],
   );
-console.log(afectaciones)
+  
+ 
 
-  const acciones = useMemo(
+  const marcadoresPrev = useMemo(
     () => processMarkers(dataPrev),
     [dataPrev, processMarkers],
   );
-  const requiere = useMemo(
+  
+  const marcadoresPrep = useMemo(
     () => processMarkers(dataPrep),
     [dataPrep, processMarkers],
   );
+  
+  const marcadoresRes = useMemo(
+    () => processMarkers(dataRes),
+    [dataRes, processMarkers],
+  );
+  
+  const marcadoresReq = useMemo(
+    () => processMarkers(dataReq),
+    [dataReq, processMarkers],
+  );
 
-  // Verificar si hay datos en las capas activas (considerando ocultas)
+  // ========== ESTADO DE CAPAS ACTIVAS ==========
   const activeLayersStatus = useMemo(() => {
     return [
       {
-        key: "afectaciones",
-        label: "Afectaciones",
-        active: selectCapa.afectaciones && !hiddenLayers.afectaciones,
-        hidden: hiddenLayers.afectaciones,
-        count: afectaciones.length,
+        key: "conoc_monit",
+        label: "Conocimiento y Monitoreo",
+        active: selectCapa.conoc_monit && !hiddenLayers.conoc_monit,
+        hidden: hiddenLayers.conoc_monit,
+        count: marcadoresCon.length,
         color: "#e6101b",
         isLoading: loading.loadingAF,
       },
       {
-        key: "acciones",
-        label: "Acciones",
-        active: selectCapa.acciones && !hiddenLayers.acciones,
-        hidden: hiddenLayers.acciones,
-        count: acciones.length,
+        key: "prev_mitig",
+        label: "Prevención y Mitigación",
+        active: selectCapa.prev_mitig && !hiddenLayers.prev_mitig,
+        hidden: hiddenLayers.prev_mitig,
+        count: marcadoresPrev.length,
         color: "#ff8c00",
         isLoading: loading.loadingAC,
       },
       {
-        key: "requerimientos",
-        label: "Requerimientos",
-        active: selectCapa.requerimientos && !hiddenLayers.requerimientos,
-        hidden: hiddenLayers.requerimientos,
-        count: requiere.length,
+        key: "preparacion",
+        label: "Preparación",
+        active: selectCapa.preparacion && !hiddenLayers.preparacion,
+        hidden: hiddenLayers.preparacion,
+        count: marcadoresPrep.length,
         color: "#228b22",
         isLoading: loading.loadingRE,
+      },
+      {
+        key: "respuesta",
+        label: "Respuesta",
+        active: selectCapa.respuesta && !hiddenLayers.respuesta,
+        hidden: hiddenLayers.respuesta,
+        count: marcadoresRes.length,
+        color: "#ff6b00",
+        isLoading: false,
+      },
+      {
+        key: "recuperacion",
+        label: "Recuperación",
+        active: selectCapa.recuperacion && !hiddenLayers.recuperacion,
+        hidden: hiddenLayers.recuperacion,
+        count: marcadoresReq.length,
+        color: "#0066cc",
+        isLoading: false,
       },
       {
         key: "poligono",
         label: "Polígonos",
         active: selectCapa.poligono && !hiddenLayers.poligono,
         hidden: hiddenLayers.poligono,
-        count: dataPol?.length || 0,
+        count: dataPolArray.length,
         color: "#3519d2",
         isLoading: loading.loadingPol,
       },
@@ -427,7 +410,7 @@ console.log(afectaciones)
         label: "Parroquias",
         active: selectCapa.parroquia && !hiddenLayers.parroquia,
         hidden: hiddenLayers.parroquia,
-        count: dataParroquia?.length || 0,
+        count: dataParroquiaArray.length,
         color: "#4caf50",
         isLoading: false,
       },
@@ -436,7 +419,7 @@ console.log(afectaciones)
         label: "Afect. Registradas",
         active: selectCapa.afect_register && !hiddenLayers.afect_register,
         hidden: hiddenLayers.afect_register,
-        count: dataAfectRegister?.length || 0,
+        count: dataAfectRegisterArray.length,
         color: "#ff8c00",
         isLoading: false,
       },
@@ -445,7 +428,7 @@ console.log(afectaciones)
         label: "Susceptibilidad",
         active: selectCapa.susceptibilidad && !hiddenLayers.susceptibilidad,
         hidden: hiddenLayers.susceptibilidad,
-        count: dataSusceptibilidad?.length || 0,
+        count: dataSusceptibilidadArray.length,
         color: "#228b22",
         isLoading: false,
       },
@@ -453,16 +436,19 @@ console.log(afectaciones)
   }, [
     selectCapa,
     hiddenLayers,
-    afectaciones,
-    acciones,
-    requiere,
-    dataPol,
-    dataParroquia,
-    dataAfectRegister,
-    dataSusceptibilidad,
+    marcadoresCon,
+    marcadoresPrev,
+    marcadoresPrep,
+    marcadoresRes,
+    marcadoresReq,
+    dataPolArray,
+    dataParroquiaArray,
+    dataAfectRegisterArray,
+    dataSusceptibilidadArray,
     loading,
   ]);
 
+  // ========== FUNCIONES AUXILIARES ==========
   const parseByField = useCallback((byString) => {
     if (typeof byString !== "string") return byString;
     try {
@@ -491,7 +477,7 @@ console.log(afectaciones)
     }
   }, []);
 
-  // --- HANDLERS ---
+  // ========== HANDLERS ==========
   const handleMapClick = useCallback((latlng) => {
     const mapContainer = document.querySelector(".leaflet-container");
     const rect = mapContainer.getBoundingClientRect();
@@ -639,6 +625,7 @@ console.log(afectaciones)
     [],
   );
 
+  // ========== RENDER ==========
   return (
     <>
       <Box sx={{ position: "relative", height: "90vh", width: "100%" }}>
@@ -649,7 +636,7 @@ console.log(afectaciones)
           doubleClickZoom={false}
           style={{ height: "100%", width: "100%", borderRadius: "8px" }}
         >
-          {/* Capa base de Google Maps */}
+          {/* Capa base */}
           <TileLayer
             url="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
             attribution='&copy; <a href="https://maps.google.com">Google Maps</a>'
@@ -658,7 +645,7 @@ console.log(afectaciones)
           <MapClickHandler onMapClick={handleMapClick} />
           <MapCenter center={mapCenter} zoom={mapZoom} />
 
-          {/* Marcador temporal de selección */}
+          {/* Marcador temporal */}
           {coordinates && (
             <MarkerSimple
               iconMark={
@@ -668,27 +655,93 @@ console.log(afectaciones)
             />
           )}
 
-        { afectaciones.datos?.length > 0 && (
-                    <ConMonitView
-                      afect={afectaciones?.datos}
-                      parseByField={parseByField}
-                      formatDate={formatDate}
-                      mtt={mtt}
-                      polAfect={dataPol}
-                      setOpenDialog={setOpenDialog}
-                      openDialog={openDialog}
-                      setTypeInput={setTypeInput}
-                      files={files}
-                    />
-                  )}
+          {/* ========== CAPAS DE ANÁLISIS ========== */}
 
-          {/* Capa de Afectaciones Registradas */}
+          {/* Capa: Conocimiento y Monitoreo */}
+          {
+           
+           !hiddenLayers.conoc_monit && 
+           marcadoresCon.length > 0 && (
+            <ConMonitView
+              afect={marcadoresCon}
+              parseByField={parseByField}
+              formatDate={formatDate}
+              mtt={mtt}
+              polAfect={dataPolArray}
+              setOpenDialog={setOpenDialog}
+              openDialog={openDialog}
+              setTypeInput={setTypeInput}
+              files={files}
+            />
+          )}
+
+          {/* Capa: Prevención y Mitigación */}
+          {!loading.loadingAC && 
+           selectCapa.prev_mitig && 
+           !hiddenLayers.prev_mitig && 
+           marcadoresPrev.length > 0 && (
+            <AccionesView
+              acciones={marcadoresPrev}
+              formatDate={formatDate}
+              mtt={mtt}
+              polAfect={dataPolArray}
+              setOpenDialog={setOpenDialog}
+              openDialog={openDialog}
+              setTypeInput={setTypeInput}
+            />
+          )}
+
+          {/* Capa: Preparación */}
+          {!loading.loadingRE && 
+           selectCapa.preparacion && 
+           !hiddenLayers.preparacion && 
+           marcadoresPrep.length > 0 && (
+            <RequireView
+              recursos={marcadoresPrep}
+              parseByField={parseByField}
+              formatDate={formatDate}
+              mtt={mtt}
+              setOpenDialog={setOpenDialog}
+              openDialog={openDialog}
+            />
+          )}
+
+          {/* Capa: Respuesta */}
+          {selectCapa.respuesta && 
+           !hiddenLayers.respuesta && 
+           marcadoresRes.length > 0 && (
+            <RequireView
+              recursos={marcadoresRes}
+              parseByField={parseByField}
+              formatDate={formatDate}
+              mtt={mtt}
+              setOpenDialog={setOpenDialog}
+              openDialog={openDialog}
+            />
+          )}
+
+          {/* Capa: Recuperación */}
+          {selectCapa.recuperacion && 
+           !hiddenLayers.recuperacion && 
+           marcadoresReq.length > 0 && (
+            <RequireView
+              recursos={marcadoresReq}
+              parseByField={parseByField}
+              formatDate={formatDate}
+              mtt={mtt}
+              setOpenDialog={setOpenDialog}
+              openDialog={openDialog}
+            />
+          )}
+
+          {/* ========== CAPAS GEOGRÁFICAS ========== */}
+
+          {/* Capa: Afectaciones Registradas */}
           {selectCapa.afect_register &&
             !hiddenLayers.afect_register &&
-            dataAfectRegister &&
-            dataAfectRegister.length > 0 && (
+            dataAfectRegisterArray.length > 0 && (
               <AfectMarkers
-                afectData={dataAfectRegister}
+                afectData={dataAfectRegisterArray}
                 selectedItem={selectedItem}
                 onItemClick={handleItemClick}
                 onGeneratePDF={handleGeneratePDF}
@@ -696,46 +749,44 @@ console.log(afectaciones)
                 getEventIconPulso={getEventIconPulso}
                 COLOR_PRIORIDAD={COLOR_PRIORIDAD}
                 user={user}
-                /* printToPDF={printToPDF} */
               />
             )}
 
-          {/* Capa de Susceptibilidad */}
+          {/* Capa: Susceptibilidad */}
           <SucepLayer
-            poligonosData={dataSusceptibilidad}
+            poligonosData={dataSusceptibilidadArray}
             showLayer={
               selectCapa.susceptibilidad && !hiddenLayers.susceptibilidad
             }
             loading={loadingPoligonos}
           />
 
-          {/* Capa de Parroquias */}
+          {/* Capa: Parroquias */}
           {selectCapa.parroquia &&
             !hiddenLayers.parroquia &&
-            dataParroquia &&
-            dataParroquia.length > 0 && (
-              <ParroquiaLayer parroquia={dataParroquia} />
+            dataParroquiaArray.length > 0 && (
+              <ParroquiaLayer parroquia={dataParroquiaArray} />
             )}
 
           {children}
         </MapContainer>
 
         {/* Controles del mapa */}
-        {/* <MapControls
+        <MapControls
           onZoomIn={handleZoomIn}
           onZoomOut={handleZoomOut}
           onLocate={handleLocate}
           onDownload={handleExportMap}
-        /> */}
+        />
 
-        {/* Estado de capas activas con controles de recarga y ocultar */}
-        {/* <LayerStatus 
+        {/* Estado de capas activas */}
+        <LayerStatus 
           layers={activeLayersStatus} 
           onRefreshLayer={handleRefreshLayerClick}
           onToggleVisibility={handleToggleVisibility}
-        /> */}
+        />
 
-        {/* Indicador de carga al exportar */}
+        {/* Indicador de carga */}
         {isExporting && (
           <Box
             sx={{
@@ -757,7 +808,7 @@ console.log(afectaciones)
           </Box>
         )}
 
-        {/* Panel flotante de recarga rápida (opcional) */}
+        {/* Panel de recarga rápida */}
         <Paper
           elevation={3}
           sx={{
@@ -777,9 +828,11 @@ console.log(afectaciones)
               size="small"
               onClick={() => {
                 const allLayerKeys = [
-                  "afectaciones",
-                  "acciones",
-                  "requerimientos",
+                  "conoc_monit",
+                  "prev_mitig",
+                  "preparacion",
+                  "respuesta",
+                  "recuperacion",
                   "poligono",
                   "parroquia",
                   "afect_register",
@@ -802,19 +855,19 @@ console.log(afectaciones)
         typeInput={typeInput}
         files={files}
         setFiles={setFiles}
-        datapol={dataPol}
+        datapol={dataPolArray}
         dataGeneral={
           typeInput === "poligono"
-            ? dataPol
-            : typeInput === "afectaciones"
-              ? dataCon
-              : typeInput === "acciones"
-                ? dataPrev
-                : dataPrep
+            ? dataPolArray
+            : typeInput === "conoc_monit"
+            ? dataConArray
+            : typeInput === "prev_mitig"
+            ? dataPrevArray
+            : dataPrepArray
         }
       />
 
-      {/* Menú Contextual Popover */}
+      {/* Menú Contextual */}
       <Popover
         open={Boolean(menuAnchor)}
         anchorReference="anchorPosition"
@@ -852,12 +905,8 @@ console.log(afectaciones)
 
           <Stack spacing={1}>
             {layersConfig.map((item) => {
-              // Excluir requerimientos si es necesario
-              if (item.key === "requerimientos") return null;
-
-              // Verificar si el botón debe estar deshabilitado
               const isDisabled =
-                item.key === "afectaciones" && !dataPol?.length;
+                item.key === "conoc_monit" && !dataPolArray.length;
 
               return (
                 <Tooltip
@@ -871,7 +920,7 @@ console.log(afectaciones)
                 >
                   <span>
                     <Button
-                      color={item.key === "afectaciones" ? "error" : "success"}
+                      color={item.key === "conoc_monit" ? "error" : "success"}
                       variant="outlined"
                       startIcon={item.icon}
                       fullWidth
@@ -905,7 +954,7 @@ console.log(afectaciones)
         </Box>
       </Popover>
 
-      {/* Snackbar para notificaciones */}
+      {/* Snackbar */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={3000}

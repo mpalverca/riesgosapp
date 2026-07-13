@@ -9,8 +9,69 @@ import { renderToString } from "react-dom/server";
 import { Marker, Popup } from "react-leaflet";
 import { parseByField } from "../../../utils/utils";
 
+// ========== FUNCIÓN AUXILIAR PARA EXTRAER DATOS ==========
+const extractDataArray = (data) => {
+  // Si es null o undefined
+  if (!data) return [];
+
+  // Si ya es un array, devolverlo
+  if (Array.isArray(data)) return data;
+
+  // Si es un objeto con propiedad 'datos' que es array
+  if (data.datos && Array.isArray(data.datos)) return data.datos;
+
+  // Si es un objeto con propiedad 'data' que es array
+  if (data.data && Array.isArray(data.data)) return data.data;
+
+  // Si es un objeto plano, devolverlo como array de un elemento o array vacío
+  if (typeof data === "object") {
+    return Object.keys(data).length > 0 ? [data] : [];
+  }
+
+  return [];
+};
+
+// ========== FUNCIÓN PARA PROCESAR MARCADORES ==========
+const processMarkers = (rawData) => {
+  const dataArray = extractDataArray(rawData);
+
+  if (!dataArray || !Array.isArray(dataArray)) return [];
+
+  return dataArray
+    .map((item, index) => {
+      if (!item.ubi) return null;
+      try {
+        // Convertir "lat, lng" a objeto { lat, lng }
+        const coords = coordForm(item.ubi);
+        return coords
+          ? { id: item._id || index, position: coords, data: item }
+          : null;
+      } catch (e) {
+        console.warn(`Error procesando marcador ${index}:`, e);
+        return null;
+      }
+    })
+    .filter(Boolean);
+};
+
+// ========== FUNCIÓN PARA CONVERTIR COORDENADAS ==========
+const coordForm = (ubi) => {
+  if (!ubi || typeof ubi !== "string") return null;
+
+  const parts = ubi.split(",").map((part) => part.trim());
+  if (parts.length === 2) {
+    const lat = parseFloat(parts[0]);
+    const lng = parseFloat(parts[1]);
+    if (!isNaN(lat) && !isNaN(lng)) {
+      return { lat, lng };
+    }
+  }
+  return null;
+};
+
+// ========== COMPONENTE PRINCIPAL ==========
 export const ConMonitView = ({
-  acciones,
+  afect, // Datos crudos (puede ser array u objeto con 'datos')
   formatDate,
   mtt,
   polAfect,
@@ -21,12 +82,16 @@ export const ConMonitView = ({
 }) => {
   const [value, setValue] = useState("1");
   const [openEdit, setOpenEdit] = useState(false);
+
+  // Procesar los marcadores
+
   const getEventIcon = useCallback((color) => {
     const circleStyle = {
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      background: color === "Vigente" ? "#602fbb" : "#949393",
+      background:
+        color === "Vigente" || color === "en ejecución" ? "#602fbb" : "#3eb13e",
       borderRadius: "50%",
       width: "24px",
       height: "24px",
@@ -52,19 +117,25 @@ export const ConMonitView = ({
     setValue(newValue);
   };
 
-  console.log(acciones, "acciones")
-
+  // Si no hay marcadores, no renderizar nada
+  if (!afect || afect.length === 0) {
+    return null;
+  }
 
   return (
     <>
-      {acciones.map((marker) => {
+      {afect.map((marker) => {
         const byData = parseByField(marker.data.by);
-        const event_index = Number(marker.data.event_row); // ej: 5
+        const event_index = Number(marker.data.event_row);
         const pol_row = polAfect?.find((item) => item.row === event_index);
+
+        // Posición para Leaflet [lat, lng]
+        const position = [marker.position[0], marker.position[1]];
+
         return (
           <Marker
             key={marker.id}
-            position={marker.position}
+            position={position}
             icon={getEventIcon(marker.data.estado)}
           >
             <Popup options={{ maxWidth: 300, minWidth: 250 }} maxWidth={500}>
@@ -72,66 +143,87 @@ export const ConMonitView = ({
                 sx={{ height: "60vh", overflowY: "auto", maxWidth: "4700px" }}
               >
                 <h3 style={{ marginTop: 0, color: "#e6101b" }}>
-                  {`Acciones de respuesta` || "Evento"}
+                  {`Conocimiento y monitoreo` || "Evento"}
                 </h3>
                 <h4 style={{ color: "#3519d2" }}>
-                  {` ${marker.data.event}-${marker.data.estado}` || "Evento"}
+                  {` ${marker.data.accion} - ${marker.data.estado}` || "Evento"}
                 </h4>
                 <p>
-                  <strong>Fecha del evento:</strong>{" "}
-                  {formatDate(marker.data.date_event)}
+                  <strong>Fecha del evento:</strong> {marker.data.date}
                 </p>
                 <p>
                   <strong>Última actualización:</strong>{" "}
                   {formatDate(marker.data.date_act)}
                 </p>
-      <p>
-        <strong>Ubicación:</strong> Lat: {marker.position[0].toFixed(6)}, Lng:{" "}
-        {marker.position[1].toFixed(6)}
-      </p>
+                <p>
+                  <strong>Ubicación:</strong> Lat:{" "}
+                  {marker.position[0].toFixed(6)}, Lng:{" "}
+                  {marker.position[1].toFixed(6)}
+                </p>
+                <Divider />
+                {byData && !byData.error && (
+                  <>
+                    <p>
+                      <strong>Reportado por:</strong>
+                    </p>
+                    <ul style={{ paddingLeft: "20px" }}>
+                      <li>
+                        <strong>Nombre:</strong> {byData.miembro}
+                      </li>
+                      <li>
+                        <strong>Cargo:</strong> {byData.cargo}
+                      </li>
+                      <li>
+                        <strong>CI:</strong> {byData.ci}
+                      </li>
+                      {byData.telf && (
+                        <li>
+                          <strong>Contacto:</strong> {byData.telf}
+                        </li>
+                      )}
+                    </ul>
+                  </>
+                )}
 
-                <TabContext value={value}>
-                  <Box
-                    sx={{
-                      borderBottom: 2,
-                      borderColor: "divider",
-                      color: "#228b22",
-                    }}
-                  >
-                    <TabList onChange={handleChange} aria-label="COE tabs">
-                      <Tab label="Acciones" value="1" />
-                      <Tab label="Recursos" value="2" />
-                      <Tab label="Necesidades" value="3" />
-                    </TabList>
-                  </Box>
+                <Typography variant="subtitle2" sx={{ mt: 1, mb: 1 }}>
+                  <strong>Descripción: </strong>
+                  {marker.data.desc || "No disponible"}
+                </Typography>
 
-                  <TabPanel value="1">
-                    {openEdit ? (
-                      <Typography>Abrio editor </Typography>
-                    ) : (
-                      <AccionAF
-                        item={marker.data}
-                        byData={byData}
-                        formatDate={formatDate}
-                        mark={marker.position}
-                      />
-                    )}
-                  </TabPanel>
-                  <TabPanel value="2">
-                    {openEdit ? (
-                      <Typography>Abrio editor </Typography>
-                    ) : (
-                      <RecuMovil item={marker.data} />
-                    )}
-                  </TabPanel>
-                  <TabPanel value="3">
-                    {openEdit ? (
-                      <Typography>Abrio editor </Typography>
-                    ) : (
-                      <Needs item={marker.data} />
-                    )}
-                  </TabPanel>
-                </TabContext>
+                <Typography variant="subtitle2" sx={{ mt: 1, mb: 1 }}>
+                  <strong>Presupuesto requerido: </strong>
+                  {marker.data.cash || "No disponible"}
+                </Typography>
+
+                 <Typography variant="subtitle2" sx={{ mt: 1, mb: 1 }}>
+                  <strong>Instituciones de apoyo: </strong>
+                  {marker.data.inst || "No disponible"}
+                </Typography>
+
+                <Typography variant="subtitle2" sx={{ mt: 1, mb: 1 }}>
+                  <strong>Plazo de ejecución: </strong>
+                  <li>
+                  -  {marker.data.Jun ? "Junio" : null}
+                  </li>
+                  <li>
+                  - {marker.data.Jul ? "Julio" : null}
+                  </li>
+                  <li>
+                  - {marker.data.Ago ? "Agosto" : null}
+                  </li>
+                  <li>
+                  - {marker.data.Sep ? "Septiembre" : null}
+                  </li>
+                  <li>
+                  - {marker.data.Oct ? "Octubre" : null}
+                  </li>
+                  <li>
+                  - {marker.data.Nov ? "Noviembre" : null}
+                  </li>
+                  <li>
+                  - {marker.data.Dic ? "Diciembre" : null}
+                  </li>
+                </Typography>
 
                 {openEdit ? (
                   <Button
@@ -143,36 +235,8 @@ export const ConMonitView = ({
                     Guardar Cambios
                   </Button>
                 ) : null}
-                {/* Mostrar datos de afectación si existen */}
               </Box>
               <Box sx={{ display: "flex", gap: 2 }}>
-              {/*   <Button
-                  fullWidth
-                  variant="outlined"
-                  onClick={() => props.setOpenDialog(true)}
-                >
-                  Registro 
-                </Button> */}
-                {/* <Button
-                  fullWidth
-                  variant="outlined"
-                  color="warning"
-                  onClick={() => {
-                    setTypeInput("Acciones");
-                    generarPDFAccions(
-                      marker.data.event,
-                      marker.position[0],
-                      marker.position[1],
-                      marker.data,
-                      byData,
-                      pol_row,
-                      mtt,
-                      files,
-                    )
-                  }}
-                >
-                  PDF
-                </Button> */}
                 <Button
                   fullWidth
                   disabled
@@ -200,32 +264,11 @@ export const ConMonitView = ({
   );
 };
 
+// ========== COMPONENTES DE DETALLE ==========
+
 const AccionAF = ({ item, byData, mark }) => {
   return (
     <>
-      {byData && !byData.error && (
-        <>
-          <p>
-            <strong>Reportado por:</strong>
-          </p>
-          <ul style={{ paddingLeft: "20px" }}>
-            <li>
-              <strong>Nombre:</strong> {byData.miembro}
-            </li>
-            <li>
-              <strong>Cargo:</strong> {byData.cargo}
-            </li>
-            <li>
-              <strong>CI:</strong> {byData.ci}
-            </li>
-            {byData.telf && (
-              <li>
-                <strong>Contacto:</strong> {byData.telf}
-              </li>
-            )}
-          </ul>
-        </>
-      )}
       <Divider />
       <p>
         <strong>Institución que atiende:</strong>
@@ -243,7 +286,7 @@ const AccionAF = ({ item, byData, mark }) => {
       {item.obs && (
         <>
           <p>
-            <strong>Observacions: </strong>
+            <strong>Observaciones: </strong>
             {item.obs}
           </p>
         </>
@@ -251,7 +294,7 @@ const AccionAF = ({ item, byData, mark }) => {
       {item.detail && (
         <>
           <p>
-            <strong>Observacions: </strong>
+            <strong>Detalle: </strong>
             {item.detail}
           </p>
         </>
@@ -298,7 +341,9 @@ const RecuMovil = ({ item }) => {
 const Needs = ({ item }) => {
   return (
     <>
-      <Typography>Necesidades Identificadas - {item.to_mtt_gt} - {item.state_req} </Typography>
+      <Typography>
+        Necesidades Identificadas - {item.to_mtt_gt} - {item.state_req}
+      </Typography>
       <p>
         <strong>Codigo Requerimiento:</strong> {item.code_req}
       </p>
@@ -308,7 +353,7 @@ const Needs = ({ item }) => {
       <p>
         <strong>Codigo Requerimiento:</strong> {item.need}
       </p>
-     
+
       <Divider />
       <Typography>Acciones de Respuesta - {item.state_requ}</Typography>
       <p>
