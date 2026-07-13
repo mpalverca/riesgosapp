@@ -550,8 +550,8 @@ export async function generarPDF(
         // Espacio disponible para imágenes
         const availableWidth = pageWidth - leftMargin - rightMargin;
         const spacing = 5;
-        const imgWidth =
-          imagesPerRow > 1 ? (availableWidth - spacing) / 2 : availableWidth;
+       // const imgWidth = imagesPerRow > 1 ? (availableWidth - spacing) / 2 : availableWidth;
+       const imgWidth =  (availableWidth - spacing) / 2 
         const imgHeight = 60; // Altura fija por imagen
         const rowHeight = imgHeight + spacing;
 
