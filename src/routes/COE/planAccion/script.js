@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 
 const url_GetAll =
-  "https://script.google.com/macros/s/AKfycbzrK22S5XWDNinm7_wBNL6tzf7cAiO0eND6KTtaC08goiiWof3-BCA6-Q3-8OMCA_fF/exec";
+  "https://script.google.com/macros/s/AKfycbyXoPBBzKzTTRRCV6OeJ2bR155nlgoWXhLUIRsBXLm1rmpd1I6mZAq1Eg0oKYD874YI/exec";
 
 export const usePlanA = () => {
   const [loadingGet, setLoading] = useState(false);
@@ -23,7 +23,8 @@ export const usePlanA = () => {
     setData(null);
     try {
       const response = await fetch(
-        `${url_GetAll}?mtt=${mtt}&sheet=${tipe}&tipo=get`,
+        `${url_GetAll}?tipo=get&sheet=${tipe}&mtt=${mtt}`,
+        
       );
       const data = await response.json();
       setData(data);
