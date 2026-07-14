@@ -45,6 +45,13 @@ import {
   CheckCircle,
   Warning,
   Schedule,
+  AddAlertOutlined,
+  AirplanemodeActive,
+  PrivacyTip,
+  ThumbDownAlt,
+  PrecisionManufacturing,
+  Build,
+  Engineering,
 } from "@mui/icons-material";
 
 // ========== FUNCIÓN AUXILIAR PARA EXTRAER DATOS ==========
@@ -59,27 +66,6 @@ const extractDataArray = (data) => {
   return [];
 };
 
-// ========== FUNCIÓN PARA PROCESAR MARCADORES ==========
-const processMarkers = (rawData) => {
-  const dataArray = extractDataArray(rawData);
-  if (!dataArray || !Array.isArray(dataArray)) return [];
-
-  return dataArray
-    .map((item, index) => {
-      if (!item.ubi) return null;
-      try {
-        const coords = coordForm(item.ubi);
-        return coords
-          ? { id: item._id || index, position: coords, data: item }
-          : null;
-      } catch (e) {
-        console.warn(`Error procesando marcador ${index}:`, e);
-        return null;
-      }
-    })
-    .filter(Boolean);
-};
-
 // ========== FUNCIÓN PARA CONVERTIR COORDENADAS ==========
 const coordForm = (ubi) => {
   if (!ubi || typeof ubi !== "string") return null;
@@ -92,6 +78,40 @@ const coordForm = (ubi) => {
     }
   }
   return null;
+};
+
+// ========== CONFIGURACIÓN DE ICONOS POR TIPO ==========
+const ICON_CONFIG = {
+  "Conocimiento y Monitoreo": {
+    icon: DirectionsWalkIcon,
+    color: "#602fbb",
+    bgGradient: "linear-gradient(135deg, #602fbb, #7c4dff)",
+  },
+  "Prevención y Mitigación": {
+    icon: AddAlertOutlined,
+    color: "#ff8c00",
+    bgGradient: "linear-gradient(135deg, #ff8c00, #ffb347)",
+  },
+  "Preparación": {
+    icon: AirplanemodeActive,
+    color: "#228b22",
+    bgGradient: "linear-gradient(135deg, #228b22, #66bb6a)",
+  },
+  "Respuesta": {
+    icon: PrivacyTip,
+    color: "#ff6b00",
+    bgGradient: "linear-gradient(135deg, #ff6b00, #ff9a3c)",
+  },
+  "Recuperación": {
+    icon: ThumbDownAlt,
+    color: "#0066cc",
+    bgGradient: "linear-gradient(135deg, #0066cc, #4d94ff)",
+  },
+  "default": {
+    icon: DirectionsWalkIcon,
+    color: "#757575",
+    bgGradient: "linear-gradient(135deg, #757575, #bdbdbd)",
+  },
 };
 
 // ========== COMPONENTES DE ESTILOS ==========
@@ -124,11 +144,17 @@ const InfoCard = ({ icon, title, content, color = "primary" }) => (
   <Card
     variant="outlined"
     sx={{
+      mb: 1,
       backgroundColor: "#f8f9fa",
-      borderLeft: `4px solid ${color === "primary" ? "#1976d2" : color === "success" ? "#2e7d32" : color === "warning" ? "#ed6c02" : "#d32f2f"}`,
+      borderLeft: `4px solid ${
+        color === "primary" ? "#1976d2" : 
+        color === "success" ? "#2e7d32" : 
+        color === "warning" ? "#ed6c02" : 
+        color === "error" ? "#d32f2f" : "#1976d2"
+      }`,
     }}
   >
-    <CardContent sx={{ "&:last-child": { pb: 1 } }}>
+    <CardContent sx={{ py: 1, "&:last-child": { pb: 1 } }}>
       <Stack direction="row" spacing={1} alignItems="center">
         {icon}
         <Typography
@@ -160,25 +186,32 @@ const MonthBadge = ({ month, active }) => (
 export const ConMonitView = ({
   afect,
   formatDate,
+  title = "Conocimiento y Monitoreo",
   mtt,
   polAfect,
   setOpenDialog,
   setTypeInput,
   files,
+  acciones, // Para Prevención y Mitigación
+  recursos, // Para Preparación, Respuesta, Recuperación
   ...props
 }) => {
   const [value, setValue] = useState("1");
   const [openEdit, setOpenEdit] = useState(false);
 
-  const getEventIcon = useCallback((color, status) => {
+  // Determinar qué datos usar
+  const dataSource = afect || acciones || recursos || [];
+  
+  // Obtener configuración de icono según el título
+  const iconConfig = ICON_CONFIG[title] || ICON_CONFIG.default;
+  const IconComponent = iconConfig.icon;
+
+  const getEventIcon = useCallback((status) => {
     const circleStyle = {
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      background:
-        status === "Vigente" || status === "en ejecución"
-          ? "linear-gradient(135deg, #602fbb, #7c4dff)"
-          : "linear-gradient(135deg, #3eb13e, #66bb6a)",
+      background: iconConfig.bgGradient,
       borderRadius: "50%",
       width: "32px",
       height: "32px",
@@ -188,12 +221,9 @@ export const ConMonitView = ({
     };
     const html = renderToString(
       <div style={circleStyle}>
-        <DirectionsWalkIcon
+        <IconComponent
           sx={{
-            color:
-              status === "Vigente" || status === "en ejecución"
-                ? "#ffffff"
-                : "#000000",
+            color: "#ffffff",
             fontSize: "18px",
           }}
         />
@@ -205,7 +235,7 @@ export const ConMonitView = ({
       iconSize: [36, 36],
       iconAnchor: [18, 36],
     });
-  }, []);
+  }, [IconComponent, iconConfig.bgGradient]);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -245,25 +275,41 @@ export const ConMonitView = ({
     }
   };
 
-  if (!afect || afect.length === 0) {
+  // Procesar datos si es necesario
+  const processData = (item) => {
+    // Si los datos vienen en formato de marcador procesado
+    if (item.position && item.data) {
+      return item;
+    }
+    // Si los datos vienen crudos
+    if (item.ubi) {
+      const coords = coordForm(item.ubi);
+      return coords ? { id: item._id, position: [coords.lat, coords.lng], data: item } : null;
+    }
+    return null;
+  };
+
+  const processedData = Array.isArray(dataSource) 
+    ? dataSource.map(processData).filter(Boolean)
+    : [];
+
+  if (!processedData || processedData.length === 0) {
     return null;
   }
 
   return (
     <>
-      {afect.map((marker) => {
+      {processedData.map((marker) => {
         const byData = parseByField(marker.data.by);
-        const event_index = Number(marker.data.event_row);
-        const pol_row = polAfect?.find((item) => item.row === event_index);
         const activeMonths = getActiveMonths(marker.data);
         const progress = getProgress(marker.data.estado);
-        const position = [marker.position[0], marker.position[1]];
+        const position = marker.position || [marker.data.lat, marker.data.lng];
 
         return (
           <Marker
-            key={marker.id}
+            key={marker.id || marker.data._id}
             position={position}
-            icon={getEventIcon(marker.data.estado, marker.data.estado)}
+            icon={getEventIcon(marker.data.estado)}
           >
             <Popup
               options={{ maxWidth: 400, minWidth: 350 }}
@@ -295,15 +341,15 @@ export const ConMonitView = ({
                     <Typography
                       variant="h6"
                       sx={{
-                        color: "#e6101b",
+                        color: iconConfig.color,
                         fontWeight: "bold",
                         fontSize: "1.1rem",
                         flex: 1,
                       }}
                     >
-                      🏛️ Conocimiento y Monitoreo
+                      🏛️ {title}
                     </Typography>
-                    <StatusChip status={marker.data.estado} />
+                    <StatusChip status={marker.data.estado || marker.data.status} />
                   </Stack>
                   <Typography
                     variant="subtitle1"
@@ -314,7 +360,7 @@ export const ConMonitView = ({
                       fontSize: "0.95rem",
                     }}
                   >
-                    {`${marker.data.accion || "Acción sin definir"}`}
+                    {`${marker.data.accion || marker.data.nombre || marker.data.titulo || "Acción sin definir"}`}
                   </Typography>
                 </Box>
 
@@ -346,8 +392,8 @@ export const ConMonitView = ({
                           progress === 100
                             ? "#2e7d32"
                             : progress >= 50
-                              ? "#ed6c02"
-                              : "#1976d2",
+                            ? "#ed6c02"
+                            : "#1976d2",
                       },
                     }}
                   />
@@ -359,23 +405,21 @@ export const ConMonitView = ({
                     <InfoCard
                       icon={<CalendarToday fontSize="small" color="primary" />}
                       title="Fecha del evento"
-                      content={marker.data.date}
+                      content={marker.data.date || marker.data.fecha}
                     />
                   </Grid>
                   <Grid item size={{ xs: 6 }}>
                     <InfoCard
                       icon={<AccessTime fontSize="small" color="secondary" />}
                       title="Última actualización"
-                      content={formatDate(marker.data.date_act)}
+                      content={formatDate(marker.data.date_act || marker.data.actualizacion)}
                     />
                   </Grid>
-                  <Grid item size={{ xs: 6 }}>
+                  <Grid item size={{ xs: 12 }}>
                     <InfoCard
                       icon={<LocationOn fontSize="small" color="success" />}
                       title="Ubicación"
-                      content={`Lat: ${marker.position[0].toFixed(
-                        6,
-                      )}, Lng: ${marker.position[1].toFixed(6)}`}
+                      content={`Lat: ${position[0]?.toFixed(6) || "N/A"}, Lng: ${position[1]?.toFixed(6) || "N/A"}`}
                     />
                   </Grid>
                 </Grid>
@@ -401,9 +445,7 @@ export const ConMonitView = ({
                         <Stack direction="row" alignItems="center" spacing={1}>
                           <Person fontSize="small" color="primary" />
                           <Typography variant="body2">
-                            <strong>
-                              {byData.name || "No especificado"}
-                            </strong>
+                            <strong>{byData.name || byData.miembro || "No especificado"}</strong>
                           </Typography>
                         </Stack>
                         <Stack direction="row" alignItems="center" spacing={1}>
@@ -439,7 +481,7 @@ export const ConMonitView = ({
                 <InfoCard
                   icon={<Description fontSize="small" color="info" />}
                   title="Descripción"
-                  content={marker.data.desc || "No disponible"}
+                  content={marker.data.desc || marker.data.descripcion || "No disponible"}
                   color="info"
                 />
 
@@ -450,8 +492,8 @@ export const ConMonitView = ({
                       icon={<AttachMoney fontSize="small" color="success" />}
                       title="Presupuesto"
                       content={
-                        marker.data.cash
-                          ? `$${Number(marker.data.cash).toLocaleString()}`
+                        marker.data.cash || marker.data.presupuesto
+                          ? `$${Number(marker.data.cash || marker.data.presupuesto).toLocaleString()}`
                           : "No disponible"
                       }
                       color="success"
@@ -461,7 +503,7 @@ export const ConMonitView = ({
                     <InfoCard
                       icon={<Business fontSize="small" color="warning" />}
                       title="Instituciones"
-                      content={marker.data.inst || "No disponible"}
+                      content={marker.data.inst || marker.data.instituciones || "No disponible"}
                       color="warning"
                     />
                   </Grid>
@@ -536,15 +578,6 @@ export const ConMonitView = ({
                     Guardar Cambios
                   </Button>
                 )}
-
-                {/* Metadata adicional */}
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  sx={{ display: "block", mt: 1, textAlign: "center" }}
-                >
-                  ID: {marker.id} | Evento #{event_index}
-                </Typography>
               </Box>
             </Popup>
           </Marker>

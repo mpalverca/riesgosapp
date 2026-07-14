@@ -56,106 +56,78 @@ import SusceptibilidadLayer from "../canton/body_accion/SusceptibilidadLayer";
 import ImageUploadDialog from "../canton/popups/inputs/inputsDialog";
 import { ConMonitView } from "./popups/popPoint";
 import { AccionesView } from "../canton/popups/acciones";
-import { RequireView } from "../canton/popups/recursos";
+
+import { DialogAccion } from "./popups/inputAct";
 
 // ========== FUNCIÓN AUXILIAR PARA EXTRAER DATOS ==========
 const extractDataArray = (data) => {
-  // Si es null o undefined
   if (!data) return [];
-  
-  // Si ya es un array, devolverlo
   if (Array.isArray(data)) return data;
-  
-  // Si es un objeto con propiedad 'datos' que es array
   if (data.datos && Array.isArray(data.datos)) return data.datos;
-  
-  // Si es un objeto con propiedad 'data' que es array
   if (data.data && Array.isArray(data.data)) return data.data;
-  
-  // Si es un objeto plano, devolverlo como array de un elemento o array vacío
-  if (typeof data === 'object') {
+  if (typeof data === "object") {
     return Object.keys(data).length > 0 ? [data] : [];
   }
-  
   return [];
 };
 
 // ========== COMPONENTE DE CONTROLES ==========
-const MapControls = ({ onZoomIn, onZoomOut, onLocate, onDownload }) => {
-  return (
-    <Box
-      sx={{
-        position: "absolute",
-        bottom: 20,
-        right: 10,
-        zIndex: 1000,
-        display: "flex",
-        flexDirection: "column",
-        gap: 1,
-      }}
-    >
-      <Tooltip title="Acercar" placement="left">
-        <IconButton
-          onClick={onZoomIn}
-          sx={{
-            bgcolor: "white",
-            boxShadow: 2,
-            "&:hover": { bgcolor: "#f5f5f5" },
-          }}
-          size="small"
-        >
-          <ZoomInIcon />
-        </IconButton>
-      </Tooltip>
-      <Tooltip title="Alejar" placement="left">
-        <IconButton
-          onClick={onZoomOut}
-          sx={{
-            bgcolor: "white",
-            boxShadow: 2,
-            "&:hover": { bgcolor: "#f5f5f5" },
-          }}
-          size="small"
-        >
-          <ZoomOutIcon />
-        </IconButton>
-      </Tooltip>
-      <Tooltip title="Mi ubicación" placement="left">
-        <IconButton
-          onClick={onLocate}
-          sx={{
-            bgcolor: "white",
-            boxShadow: 2,
-            "&:hover": { bgcolor: "#f5f5f5" },
-          }}
-          size="small"
-        >
-          <MyLocationIcon />
-        </IconButton>
-      </Tooltip>
-      <Tooltip title="Exportar mapa" placement="left">
-        <IconButton
-          onClick={onDownload}
-          sx={{
-            bgcolor: "white",
-            boxShadow: 2,
-            "&:hover": { bgcolor: "#f5f5f5" },
-          }}
-          size="small"
-        >
-          <DownloadIcon />
-        </IconButton>
-      </Tooltip>
-    </Box>
-  );
-};
+const MapControls = ({ onZoomIn, onZoomOut, onLocate, onDownload, isExporting }) => (
+  <Box
+    sx={{
+      position: "absolute",
+      bottom: 20,
+      right: 10,
+      zIndex: 1000,
+      display: "flex",
+      flexDirection: "column",
+      gap: 1,
+    }}
+  >
+    <Tooltip title="Acercar" placement="left">
+      <IconButton
+        onClick={onZoomIn}
+        sx={{ bgcolor: "white", boxShadow: 2, "&:hover": { bgcolor: "#f5f5f5" } }}
+        size="small"
+      >
+        <ZoomInIcon />
+      </IconButton>
+    </Tooltip>
+    <Tooltip title="Alejar" placement="left">
+      <IconButton
+        onClick={onZoomOut}
+        sx={{ bgcolor: "white", boxShadow: 2, "&:hover": { bgcolor: "#f5f5f5" } }}
+        size="small"
+      >
+        <ZoomOutIcon />
+      </IconButton>
+    </Tooltip>
+    <Tooltip title="Mi ubicación" placement="left">
+      <IconButton
+        onClick={onLocate}
+        sx={{ bgcolor: "white", boxShadow: 2, "&:hover": { bgcolor: "#f5f5f5" } }}
+        size="small"
+      >
+        <MyLocationIcon />
+      </IconButton>
+    </Tooltip>
+    <Tooltip title="Exportar mapa" placement="left">
+      <IconButton
+        onClick={onDownload}
+        disabled={isExporting}
+        sx={{ bgcolor: "white", boxShadow: 2, "&:hover": { bgcolor: "#f5f5f5" } }}
+        size="small"
+      >
+        {isExporting ? <CircularProgress size={20} /> : <DownloadIcon />}
+      </IconButton>
+    </Tooltip>
+  </Box>
+);
 
 // ========== COMPONENTE DE ESTADO DE CAPAS ==========
-const LayerStatus = ({ layers, onRefreshLayer, onToggleVisibility }) => {
-  const activeLayers = layers.filter((l) => l.active && !l.hidden).length;
-  const totalLayers = layers.length;
-
-  if (totalLayers === 0) return null;
+const LayerStatus = ({ layers, onToggleVisibility }) => {
+  const activeLayers = layers.filter((l) => l.active && !l.hidden);
+  if (!activeLayers.length) return null;
 
   return (
     <Paper
@@ -169,17 +141,55 @@ const LayerStatus = ({ layers, onRefreshLayer, onToggleVisibility }) => {
         color: "white",
         borderRadius: 2,
         px: 1.5,
-        py: 0.75,
-        minWidth: 200,
+        py: 1,
+        minWidth: 180,
+        maxWidth: 280,
+        maxHeight: 200,
+        overflowY: "auto",
       }}
     >
-      
+      <Typography variant="caption" sx={{ display: 'block', mb: 0.5, fontWeight: 'bold' }}>
+        Capas activas ({activeLayers.length}/{layers.length})
+      </Typography>
+      {activeLayers.map((layer) => (
+        <Box
+          key={layer.key}
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            py: 0.25,
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flex: 1 }}>
+            <Box
+              sx={{
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                bgcolor: layer.color,
+                flexShrink: 0,
+              }}
+            />
+            <Typography variant="caption" sx={{ fontSize: '0.65rem' }}>
+              {layer.label} ({layer.count})
+            </Typography>
+          </Box>
+          <IconButton
+            size="small"
+            onClick={() => onToggleVisibility(layer.key)}
+            sx={{ color: 'white', p: 0.25 }}
+          >
+            {layer.hidden ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
+          </IconButton>
+        </Box>
+      ))}
     </Paper>
   );
 };
 
 // ========== COMPONENTE DE CLICK EN MAPA ==========
-const MapClickHandler = ({ onMapClick }) => {
+const MapEvents = ({ onMapClick }) => {
   useMapEvents({
     dblclick: (e) => onMapClick(e.latlng),
     contextmenu: (e) => {
@@ -201,15 +211,31 @@ const MapCenter = ({ center, zoom }) => {
   return null;
 };
 
+// ========== HOOKS ==========
+const useUser = () => {
+  const [user, setUser] = useState(null);
+  useEffect(() => {
+    try {
+      const userData = localStorage.getItem("user");
+      if (userData) {
+        setUser(JSON.parse(userData));
+      }
+    } catch (error) {
+      console.error("Error al cargar usuario:", error);
+    }
+  }, []);
+  return user;
+};
+
 // ========== COMPONENTE PRINCIPAL ==========
 function MapMark({
   position,
   zoom,
-  dataCon,      // Conocimiento y Monitoreo
-  dataPrev,     // Prevención y Mitigación
-  dataPrep,     // Preparación
-  dataRes,      // Respuesta
-  dataReq,      // Recuperación
+  dataCon,
+  dataPrev,
+  dataPrep,
+  dataRes,
+  dataReq,
   dataPol,
   dataParroquia,
   dataAfectRegister,
@@ -221,10 +247,15 @@ function MapMark({
   onRefreshLayer,
   children,
 }) {
+  const user = useUser();
+  const { getEventIcon, getEventIconPulso, COLOR_PRIORIDAD } = useMapIcons();
+
   // ========== ESTADOS ==========
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [coordinates, setCoordinates] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
+  const [openAccion, setOpenAccion] = useState(false);
+  const [dialogCoords, setDialogCoords] = useState(null);
   const [typeInput, setTypeInput] = useState("");
   const [files, setFiles] = useState([]);
   const [snackbar, setSnackbar] = useState({
@@ -236,7 +267,7 @@ function MapMark({
   const [mapCenter, setMapCenter] = useState(position);
   const [mapZoom, setMapZoom] = useState(zoom);
   const mapRef = useRef(null);
- 
+
   // Estado para ocultar capas individualmente
   const [hiddenLayers, setHiddenLayers] = useState({
     conoc_monit: false,
@@ -250,45 +281,10 @@ function MapMark({
     susceptibilidad: false,
   });
 
-  const [user, setUser] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
   const [loadingPoligonos, setLoadingPoligonos] = useState(false);
 
-  const { getEventIcon, getEventIconPulso, COLOR_PRIORIDAD } = useMapIcons();
-
-  // ========== EFECTOS ==========
-  useEffect(() => {
-    try {
-      const userData = localStorage.getItem("user");
-      if (userData) {
-        setUser(JSON.parse(userData));
-      }
-    } catch (error) {
-      // console.error("Error al cargar usuario:", error);
-    }
-  }, []);
-
-  // ========== FUNCIONES DE CONTROL ==========
-  const handleToggleVisibility = useCallback((layerKey) => {
-    setHiddenLayers((prev) => ({ ...prev, [layerKey]: !prev[layerKey] }));
-  }, []);
-
-  const handleRefreshLayerClick = useCallback(
-    (layerKey) => {
-      if (onRefreshLayer) {
-        onRefreshLayer(layerKey);
-        setSnackbar({
-          open: true,
-          message: `Recargando capa...`,
-          severity: "info",
-        });
-      }
-    },
-    [onRefreshLayer],
-  );
-
   // ========== PROCESAMIENTO DE DATOS ==========
-  // Extraer arrays de datos usando la función auxiliar
   const dataConArray = useMemo(() => extractDataArray(dataCon), [dataCon]);
   const dataPrevArray = useMemo(() => extractDataArray(dataPrev), [dataPrev]);
   const dataPrepArray = useMemo(() => extractDataArray(dataPrep), [dataPrep]);
@@ -302,7 +298,6 @@ function MapMark({
   // ========== PROCESAR MARCADORES ==========
   const processMarkers = useCallback((rawData) => {
     const dataArray = extractDataArray(rawData);
-    
     if (!dataArray || !Array.isArray(dataArray)) return [];
 
     return dataArray
@@ -310,9 +305,7 @@ function MapMark({
         if (!item.ubi) return null;
         try {
           const coords = coordForm(item.ubi);
-          return coords
-            ? { id: item._id || index, position: coords, data: item }
-            : null;
+          return coords ? { id: item._id || index, position: coords, data: item } : null;
         } catch (e) {
           console.warn(`Error procesando marcador ${index}:`, e);
           return null;
@@ -321,32 +314,11 @@ function MapMark({
       .filter(Boolean);
   }, []);
 
-  const marcadoresCon = useMemo(
-    () => processMarkers(dataCon),
-    [dataCon, processMarkers],
-  );
-  
- 
-
-  const marcadoresPrev = useMemo(
-    () => processMarkers(dataPrev),
-    [dataPrev, processMarkers],
-  );
-  
-  const marcadoresPrep = useMemo(
-    () => processMarkers(dataPrep),
-    [dataPrep, processMarkers],
-  );
-  
-  const marcadoresRes = useMemo(
-    () => processMarkers(dataRes),
-    [dataRes, processMarkers],
-  );
-  
-  const marcadoresReq = useMemo(
-    () => processMarkers(dataReq),
-    [dataReq, processMarkers],
-  );
+  const marcadoresCon = useMemo(() => processMarkers(dataCon), [dataCon, processMarkers]);
+  const marcadoresPrev = useMemo(() => processMarkers(dataPrev), [dataPrev, processMarkers]);
+  const marcadoresPrep = useMemo(() => processMarkers(dataPrep), [dataPrep, processMarkers]);
+  const marcadoresRes = useMemo(() => processMarkers(dataRes), [dataRes, processMarkers]);
+  const marcadoresReq = useMemo(() => processMarkers(dataReq), [dataReq, processMarkers]);
 
   // ========== ESTADO DE CAPAS ACTIVAS ==========
   const activeLayersStatus = useMemo(() => {
@@ -478,6 +450,12 @@ function MapMark({
   }, []);
 
   // ========== HANDLERS ==========
+  const handleOpenDialog = useCallback((latlng) => {
+    if (!latlng) return;
+    setDialogCoords({ lat: latlng.lat.toFixed(6), lng: latlng.lng.toFixed(6) });
+    setOpenAccion(true);
+  }, []);
+
   const handleMapClick = useCallback((latlng) => {
     const mapContainer = document.querySelector(".leaflet-container");
     const rect = mapContainer.getBoundingClientRect();
@@ -494,6 +472,10 @@ function MapMark({
     });
   }, []);
 
+  const handleToggleVisibility = useCallback((layerKey) => {
+    setHiddenLayers((prev) => ({ ...prev, [layerKey]: !prev[layerKey] }));
+  }, []);
+
   const handleLayerClick = useCallback(
     (item) => {
       if (!coordinates) return;
@@ -503,19 +485,12 @@ function MapMark({
     [coordinates],
   );
 
-  const handleZoomIn = useCallback(() => {
+  const handleZoom = useCallback((delta) => {
     if (mapRef.current) {
       const map = mapRef.current;
-      map.setZoom(map.getZoom() + 1);
-      setMapZoom(map.getZoom() + 1);
-    }
-  }, []);
-
-  const handleZoomOut = useCallback(() => {
-    if (mapRef.current) {
-      const map = mapRef.current;
-      map.setZoom(map.getZoom() - 1);
-      setMapZoom(map.getZoom() - 1);
+      const newZoom = map.getZoom() + delta;
+      map.setZoom(newZoom);
+      setMapZoom(newZoom);
     }
   }, []);
 
@@ -625,6 +600,26 @@ function MapMark({
     [],
   );
 
+  const handleRefreshAll = useCallback(() => {
+    const allLayerKeys = [
+      "conoc_monit",
+      "prev_mitig",
+      "preparacion",
+      "respuesta",
+      "recuperacion",
+      "poligono",
+      "parroquia",
+      "afect_register",
+      "susceptibilidad",
+    ];
+    allLayerKeys.forEach((key) => onRefreshLayer?.(key));
+    setSnackbar({
+      open: true,
+      message: "Recargando todas las capas...",
+      severity: "info",
+    });
+  }, [onRefreshLayer]);
+
   // ========== RENDER ==========
   return (
     <>
@@ -642,8 +637,11 @@ function MapMark({
             attribution='&copy; <a href="https://maps.google.com">Google Maps</a>'
           />
 
-          <MapClickHandler onMapClick={handleMapClick} />
           <MapCenter center={mapCenter} zoom={mapZoom} />
+
+          {/* MapEvents - combinado */}
+          {user && <MapEvents onMapClick={handleOpenDialog} />}
+          <MapEvents onMapClick={handleMapClick} />
 
           {/* Marcador temporal */}
           {coordinates && (
@@ -658,14 +656,12 @@ function MapMark({
           {/* ========== CAPAS DE ANÁLISIS ========== */}
 
           {/* Capa: Conocimiento y Monitoreo */}
-          {
-           
-           !hiddenLayers.conoc_monit && 
-           marcadoresCon.length > 0 && (
+          {selectCapa.conoc_monit && !hiddenLayers.conoc_monit && marcadoresCon.length > 0 && (
             <ConMonitView
               afect={marcadoresCon}
               parseByField={parseByField}
               formatDate={formatDate}
+              title="Conocimiento y Monitoreo"
               mtt={mtt}
               polAfect={dataPolArray}
               setOpenDialog={setOpenDialog}
@@ -675,14 +671,12 @@ function MapMark({
             />
           )}
 
-          {/* Capa: Prevención y Mitigación */}
-          {!loading.loadingAC && 
-           selectCapa.prev_mitig && 
-           !hiddenLayers.prev_mitig && 
-           marcadoresPrev.length > 0 && (
-            <AccionesView
+          {/* Capa: Prevención y Mitigación - Usando AccionesView */}
+          {selectCapa.prev_mitig && !hiddenLayers.prev_mitig && marcadoresPrev.length > 0 && (
+            <ConMonitView
               acciones={marcadoresPrev}
               formatDate={formatDate}
+              title="Prevención y Mitigación"
               mtt={mtt}
               polAfect={dataPolArray}
               setOpenDialog={setOpenDialog}
@@ -691,48 +685,51 @@ function MapMark({
             />
           )}
 
-          {/* Capa: Preparación */}
-          {!loading.loadingRE && 
-           selectCapa.preparacion && 
-           !hiddenLayers.preparacion && 
-           marcadoresPrep.length > 0 && (
-            <RequireView
-              recursos={marcadoresPrep}
-              parseByField={parseByField}
-              formatDate={formatDate}
-              mtt={mtt}
-              setOpenDialog={setOpenDialog}
-              openDialog={openDialog}
-            />
-          )}
+          {/* Capa: Preparación - Usando RequireView */}
+          {
+            selectCapa.preparacion &&
+            !hiddenLayers.preparacion &&
+            marcadoresPrep.length > 0 && (
+              <ConMonitView
+                recursos={marcadoresPrep}
+                parseByField={parseByField}
+                formatDate={formatDate}
+                title="Preparación"
+                mtt={mtt}
+                setOpenDialog={setOpenDialog}
+                openDialog={openDialog}
+              />
+            )}
 
-          {/* Capa: Respuesta */}
-          {selectCapa.respuesta && 
-           !hiddenLayers.respuesta && 
-           marcadoresRes.length > 0 && (
-            <RequireView
-              recursos={marcadoresRes}
-              parseByField={parseByField}
-              formatDate={formatDate}
-              mtt={mtt}
-              setOpenDialog={setOpenDialog}
-              openDialog={openDialog}
-            />
-          )}
+          {/* Capa: Respuesta - Usando RequireView */}
+          {selectCapa.respuesta &&
+            !hiddenLayers.respuesta &&
+            marcadoresRes.length > 0 && (
+              <ConMonitView
+                recursos={marcadoresRes}
+                parseByField={parseByField}
+                formatDate={formatDate}
+                title="Respuesta"
+                mtt={mtt}
+                setOpenDialog={setOpenDialog}
+                openDialog={openDialog}
+              />
+            )}
 
-          {/* Capa: Recuperación */}
-          {selectCapa.recuperacion && 
-           !hiddenLayers.recuperacion && 
-           marcadoresReq.length > 0 && (
-            <RequireView
-              recursos={marcadoresReq}
-              parseByField={parseByField}
-              formatDate={formatDate}
-              mtt={mtt}
-              setOpenDialog={setOpenDialog}
-              openDialog={openDialog}
-            />
-          )}
+          {/* Capa: Recuperación - Usando RequireView */}
+          {selectCapa.recuperacion &&
+            !hiddenLayers.recuperacion &&
+            marcadoresReq.length > 0 && (
+              <ConMonitView
+                recursos={marcadoresReq}
+                parseByField={parseByField}
+                formatDate={formatDate}
+                title="Recuperación"
+                mtt={mtt}
+                setOpenDialog={setOpenDialog}
+                openDialog={openDialog}
+              />
+            )}
 
           {/* ========== CAPAS GEOGRÁFICAS ========== */}
 
@@ -773,16 +770,16 @@ function MapMark({
 
         {/* Controles del mapa */}
         <MapControls
-          onZoomIn={handleZoomIn}
-          onZoomOut={handleZoomOut}
+          onZoomIn={() => handleZoom(1)}
+          onZoomOut={() => handleZoom(-1)}
           onLocate={handleLocate}
           onDownload={handleExportMap}
+          isExporting={isExporting}
         />
 
         {/* Estado de capas activas */}
-        <LayerStatus 
-          layers={activeLayersStatus} 
-          onRefreshLayer={handleRefreshLayerClick}
+        <LayerStatus
+          layers={activeLayersStatus}
           onToggleVisibility={handleToggleVisibility}
         />
 
@@ -826,133 +823,108 @@ function MapMark({
           <Tooltip title="Recargar todas las capas">
             <IconButton
               size="small"
-              onClick={() => {
-                const allLayerKeys = [
-                  "conoc_monit",
-                  "prev_mitig",
-                  "preparacion",
-                  "respuesta",
-                  "recuperacion",
-                  "poligono",
-                  "parroquia",
-                  "afect_register",
-                  "susceptibilidad",
-                ];
-                allLayerKeys.forEach((key) => onRefreshLayer?.(key));
-              }}
+              onClick={handleRefreshAll}
               sx={{ bgcolor: "#f0f0f0" }}
             >
               <RefreshIcon fontSize="small" />
             </IconButton>
           </Tooltip>
         </Paper>
+
+        {/* Menú Contextual */}
+        <Popover
+          open={Boolean(menuAnchor)}
+          anchorReference="anchorPosition"
+          anchorPosition={menuAnchor}
+          onClose={() => setMenuAnchor(null)}
+          PaperProps={{
+            sx: {
+              width: 260,
+              p: 2,
+              borderRadius: 3,
+              boxShadow: 3,
+            },
+          }}
+        >
+          <Box>
+            <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
+              <Typography variant="subtitle1" fontWeight="bold">
+                Nueva acción
+              </Typography>
+              <IconButton size="small" onClick={() => setMenuAnchor(null)}>
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </Box>
+
+            <Typography
+              variant="caption"
+              display="block"
+              color="text.secondary"
+              sx={{ mb: 1 }}
+            >
+              📍 Lat: {coordinates?.lat} | Lng: {coordinates?.lng}
+            </Typography>
+
+            <Divider sx={{ my: 1.5 }} />
+
+            <Stack spacing={1}>
+              {layersConfig.map((item) => {
+                const isDisabled =
+                  item.key === "conoc_monit" && !dataPolArray.length;
+
+                return (
+                  <Tooltip
+                    key={item.key}
+                    title={
+                      isDisabled
+                        ? "Debes cargar primero los polígonos de afectación"
+                        : ""
+                    }
+                    placement="right"
+                  >
+                    <span>
+                      <Button
+                        color={item.key === "conoc_monit" ? "error" : "success"}
+                        variant="outlined"
+                        startIcon={item.icon}
+                        fullWidth
+                        onClick={() => handleLayerClick(item)}
+                        disabled={isDisabled}
+                        sx={{
+                          justifyContent: "flex-start",
+                          textTransform: "none",
+                          opacity: isDisabled ? 0.5 : 1,
+                        }}
+                      >
+                        {item.label}
+                      </Button>
+                    </span>
+                  </Tooltip>
+                );
+              })}
+            </Stack>
+
+            <Divider sx={{ my: 1.5 }} />
+
+            <Button
+              variant="outlined"
+              fullWidth
+              size="small"
+              startIcon={<ContentCopyIcon fontSize="small" />}
+              onClick={handleCopyCoordinates}
+            >
+              Copiar Coordenadas
+            </Button>
+          </Box>
+        </Popover>
       </Box>
 
-      {/* Diálogo de subida de imágenes */}
-      <ImageUploadDialog
-        openDialog={openDialog}
-        setOpenDialog={setOpenDialog}
-        typeInput={typeInput}
-        files={files}
-        setFiles={setFiles}
-        datapol={dataPolArray}
-        dataGeneral={
-          typeInput === "poligono"
-            ? dataPolArray
-            : typeInput === "conoc_monit"
-            ? dataConArray
-            : typeInput === "prev_mitig"
-            ? dataPrevArray
-            : dataPrepArray
-        }
+      <DialogAccion
+        open={openAccion}
+        onClose={() => setOpenAccion(false)}
+        dialogCoords={dialogCoords}
+        mtt={mtt}
       />
-
-      {/* Menú Contextual */}
-      <Popover
-        open={Boolean(menuAnchor)}
-        anchorReference="anchorPosition"
-        anchorPosition={menuAnchor}
-        onClose={() => setMenuAnchor(null)}
-        PaperProps={{
-          sx: {
-            width: 260,
-            p: 2,
-            borderRadius: 3,
-            boxShadow: 3,
-          },
-        }}
-      >
-        <Box>
-          <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
-            <Typography variant="subtitle1" fontWeight="bold">
-              Nueva acción
-            </Typography>
-            <IconButton size="small" onClick={() => setMenuAnchor(null)}>
-              <CloseIcon fontSize="small" />
-            </IconButton>
-          </Box>
-
-          <Typography
-            variant="caption"
-            display="block"
-            color="text.secondary"
-            sx={{ mb: 1 }}
-          >
-            📍 Lat: {coordinates?.lat} | Lng: {coordinates?.lng}
-          </Typography>
-
-          <Divider sx={{ my: 1.5 }} />
-
-          <Stack spacing={1}>
-            {layersConfig.map((item) => {
-              const isDisabled =
-                item.key === "conoc_monit" && !dataPolArray.length;
-
-              return (
-                <Tooltip
-                  key={item.key}
-                  title={
-                    isDisabled
-                      ? "Debes cargar primero los polígonos de afectación"
-                      : ""
-                  }
-                  placement="right"
-                >
-                  <span>
-                    <Button
-                      color={item.key === "conoc_monit" ? "error" : "success"}
-                      variant="outlined"
-                      startIcon={item.icon}
-                      fullWidth
-                      onClick={() => handleLayerClick(item)}
-                      disabled={isDisabled}
-                      sx={{
-                        justifyContent: "flex-start",
-                        textTransform: "none",
-                        opacity: isDisabled ? 0.5 : 1,
-                      }}
-                    >
-                      {item.label}
-                    </Button>
-                  </span>
-                </Tooltip>
-              );
-            })}
-          </Stack>
-
-          <Divider sx={{ my: 1.5 }} />
-
-          <Button
-            variant="outlined"
-            fullWidth
-            size="small"
-            startIcon={<ContentCopyIcon fontSize="small" />}
-            onClick={handleCopyCoordinates}
-          >
-            Copiar Coordenadas
-          </Button>
-        </Box>
-      </Popover>
 
       {/* Snackbar */}
       <Snackbar

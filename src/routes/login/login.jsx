@@ -1,353 +1,410 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import {
+  Box,
+  Container,
+  Paper,
+  TextField,
+  Button,
+  Typography,
+  Alert,
+  CircularProgress,
+  Grid,
+  InputAdornment,
+  IconButton,
+  Divider,
+  Avatar,
+  useMediaQuery,
+  useTheme,
+  Grow,
+} from "@mui/material";
+import {
+  Email,
+  Lock,
+  Visibility,
+  VisibilityOff,
+  Login,
+  AppRegistration,
+  CheckCircle,
+  Error,
+} from "@mui/icons-material";
 import { client } from "../../utils/authkey";
 import validator from "ecuador-validator";
+import RegisterForm from "./singin";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import ErrorIcon from "@mui/icons-material/Error";
 
-const inputStyle = {
-  width: "100%",
-  padding: "12px",
-  margin: "8px 0",
-  borderRadius: "4px",
-  border: "1px solid #ddd",
-  fontSize: "16px",
+// ========== ESTILOS ==========
+const styles = {
+  root: {
+    minHeight: "100vh",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: "#dedce0",
+    padding: "20px",
+  },
+  paper: {
+    padding: "32px",
+    borderRadius: "16px",
+    boxShadow: "0 20px 60px rgba(0,0,0,0.15)",
+    width: "100%",
+    maxWidth: "500px",
+    backgroundColor: "#ffffff",
+  },
+  avatar: {
+    width: 72,
+    height: 72,
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    margin: "0 auto 16px",
+  },
+  submitButton: {
+    height: "48px",
+    borderRadius: "8px",
+    textTransform: "none",
+    fontSize: "16px",
+    fontWeight: 600,
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    "&:hover": {
+      background: "linear-gradient(135deg, #5a67d8 0%, #6b46a1 100%)",
+    },
+    "&:disabled": { background: "#ccc" },
+  },
 };
 
-const buttonStyle = {
-  ...inputStyle,
-  backgroundColor: "#FF5733",
-  color: "white",
-  border: "none",
-  cursor: "pointer",
+// ========== VALIDACIÓN DE CÉDULA ==========
+// ========== VALIDACIÓN DE CÉDULA ==========
+const CedulaValidation = ({ value, onValid, onCheckCI }) => {
+  const [isValid, setIsValid] = useState(null);
+  const [message, setMessage] = useState("");
+  const [isChecking, setIsChecking] = useState(false);
+
+  const checkCIExists = useCallback(
+    async (cedula) => {
+      if (!cedula || cedula.length < 10) return false;
+      setIsChecking(true);
+
+      try {
+        // Verificar si el usuario actual tiene esta cédula
+        const {
+          data: { user },
+          error: userError,
+        } = await client.auth.getUser();
+
+        if (userError) {
+          console.error("Error getting user:", userError);
+          return false;
+        }
+
+        // Si el usuario actual tiene la misma cédula, significa que ya está registrada
+        if (user && user.user_metadata?.ci === cedula) {
+          onCheckCI(true);
+          return true;
+        }
+
+        // No podemos verificar otras cédulas desde el cliente,
+        // así que asumimos que no existe (esto se validará al enviar el formulario)
+        onCheckCI(false);
+        return false;
+      } catch (error) {
+        console.error("Error checking CI:", error);
+        return false;
+      } finally {
+        setIsChecking(false);
+      }
+    },
+    [onCheckCI],
+  );
+
+  const validateCedula = useCallback(
+    async (cedula) => {
+      if (!cedula || cedula.length < 10) {
+        setIsValid(null);
+        setMessage("Ingrese una cédula de 10 dígitos");
+        onValid(false);
+        onCheckCI(false);
+        return;
+      }
+
+      if (cedula.length > 10) {
+        setIsValid(false);
+        setMessage("✗ La cédula debe tener 10 dígitos");
+        onValid(false);
+        return;
+      }
+
+      const isValidCI = validator.ci(cedula.toString());
+      setIsValid(isValidCI);
+
+      if (isValidCI) {
+        // Solo verificamos si la cédula coincide con el usuario actual
+        const exists = await checkCIExists(cedula);
+        if (exists) {
+          setMessage("✗ Esta cédula ya está registrada ");
+          onValid(false);
+          onCheckCI(false);
+        } else {
+          setMessage("✓ Cédula válida");
+          onValid(true);
+          onCheckCI(false);
+        }
+      } else {
+        setMessage("✗ Cédula inválida");
+        onValid(false);
+        onCheckCI(false);
+      }
+    },
+    [checkCIExists, onValid, onCheckCI],
+  );
+
+  useEffect(() => {
+    const timer = setTimeout(() => validateCedula(value), 500);
+    return () => clearTimeout(timer);
+  }, [value, validateCedula]);
+
+  return (
+    <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 0.5 }}>
+      {isChecking && <CircularProgress size={16} />}
+      {!isChecking && isValid !== null && (
+        <Typography
+          variant="caption"
+          sx={{
+            color: isValid ? "success.main" : "error.main",
+            display: "flex",
+            alignItems: "center",
+            gap: 0.5,
+          }}
+        >
+          {isValid ? (
+            <CheckCircleIcon fontSize="small" />
+          ) : (
+            <ErrorIcon fontSize="small" />
+          )}
+          {message}
+        </Typography>
+      )}
+    </Box>
+  );
 };
 
-const LoginForm = ({ switchToRegister, onLoginSuccess }) => {
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+// ========== FORMULARIO DE LOGIN ==========
+const LoginForm = ({ switchToRegister }) => {
+  const isMobile = useMediaQuery(useTheme().breakpoints.down("sm"));
+  const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setForm((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
+    setError(null);
+  };
+
+  const validate = () => {
+    const newErrors = {};
+    if (!form.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      newErrors.email = "Correo electrónico inválido";
+    }
+    if (!form.password || form.password.length < 6) {
+      newErrors.password = "La contraseña debe tener al menos 6 caracteres";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validate()) return;
     setLoading(true);
     setError(null);
 
     try {
-      const { data, error: signInError } = await client.auth.signInWithPassword(
-        {
-          email: formData.email,
-          password: formData.password,
-        },
-      );
+      const { error: signInError } = await client.auth.signInWithPassword({
+        email: form.email,
+        password: form.password,
+      });
 
       if (signInError) {
-        // Manejo específico de errores
         if (signInError.message.includes("Invalid login credentials")) {
-          throw new Error(
-            "Credenciales incorrectas. Verifica tu email y contraseña.",
-          );
-        } else if (signInError.message.includes("Email not confirmed")) {
-          throw new Error("Por favor verifica tu correo electrónico primero.");
-        } else {
-          throw signInError;
+          throw new Error("Credenciales incorrectas");
         }
-      }
-      // Verificar si el usuario está confirmado
-      if (data?.user?.confirmation_sent_at && !data?.user?.email_confirmed_at) {
-        throw new Error(
-          "Por favor verifica tu correo electrónico antes de iniciar sesión.",
-        );
+        if (signInError.message.includes("Email not confirmed")) {
+          throw new Error("Verifica tu correo electrónico primero");
+        }
+        throw signInError;
       }
 
-      // Obtener los datos completos del usuario
       const {
         data: { user },
         error: userError,
       } = await client.auth.getUser();
-      // console.log("User data:", { user });
+
       if (userError) throw userError;
 
-      // Guardar en localStorage
-      const userData = {
-        id: user.id,
-        email: user.email,
-        name: user.user_metadata?.name || "",
-        phone: user.user_metadata?.phone || "",
-        ci: user.user_metadata?.ci || "",
-        rol: user.user_metadata?.role || "user",
-      };
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          id: user.id,
+          email: user.email,
+          name: user.user_metadata?.name || "",
+          phone: user.user_metadata?.phone || "",
+          ci: user.user_metadata?.ci || "",
+          rol: user.user_metadata?.role || "user",
+        }),
+      );
 
-      localStorage.setItem("user", JSON.stringify(userData));
-
-      onLoginSuccess();
-
-      // Redirigir a la URL externa
-      //window.location.href = "https://mpalverca.github.io/riesgosapp/";
       window.location.href = "https://riesgosapp.vercel.app/";
     } catch (error) {
       setError(error.message);
-      console.error("Error de autenticación:", error);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={{ maxWidth: "400px", margin: "0 auto" }}>
-      <h2>Iniciar sesión</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          name="email"
-          placeholder="Correo electrónico"
-          value={formData.email}
-          onChange={handleChange}
-          required
-          style={inputStyle}
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Contraseña"
-          value={formData.password}
-          onChange={handleChange}
-          required
-          style={inputStyle}
-        />
-
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            ...buttonStyle,
-            backgroundColor: loading ? "#ccc" : "#FF5733",
-          }}
-        >
-          {loading ? "Iniciando sesión..." : "Iniciar sesión"}
-        </button>
-
-        <p style={{ textAlign: "center", marginTop: "15px" }}>
-          ¿No tienes cuenta?{" "}
-          <button
+    <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
+      <Grid container spacing={2.5}>
+        {error && (
+          <Grid size={{ xs: 12 }}>
+            <Alert severity="error" onClose={() => setError(null)}>
+              {error}
+            </Alert>
+          </Grid>
+        )}
+        <Grid size={{ xs: 12 }}>
+          <TextField
+            fullWidth
+            required
+            label="Correo electrónico"
+            name="email"
+            type="email"
+            value={form.email}
+            onChange={handleChange}
+            error={!!errors.email}
+            helperText={errors.email}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Email color="primary" />
+                </InputAdornment>
+              ),
+            }}
+            size={isMobile ? "small" : "medium"}
+          />
+        </Grid>
+        <Grid size={{ xs: 12 }}>
+          <TextField
+            fullWidth
+            required
+            label="Contraseña"
+            name="password"
+            type={showPassword ? "text" : "password"}
+            value={form.password}
+            onChange={handleChange}
+            error={!!errors.password}
+            helperText={errors.password}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Lock color="primary" />
+                </InputAdornment>
+              ),
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => setShowPassword(!showPassword)}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+            size={isMobile ? "small" : "medium"}
+          />
+        </Grid>
+        <Grid size={{ xs: 12 }}>
+          <Button
+            fullWidth
+            type="submit"
+            disabled={loading}
+            variant="contained"
+            sx={styles.submitButton}
+          >
+            {loading ? <CircularProgress size={20} /> : "Iniciar sesión"}
+          </Button>
+        </Grid>
+        <Grid size={{ xs: 12 }}>
+          <Divider>
+            <Typography variant="caption" color="text.secondary">
+              ¿No tienes cuenta?
+            </Typography>
+          </Divider>
+          <Button
+            fullWidth
             onClick={switchToRegister}
-            style={{
-              background: "none",
-              border: "none",
-              color: "#FF5733",
-              cursor: "pointer",
-              textDecoration: "underline",
-              padding: 0,
-            }}
+            variant="text"
+            sx={{ mt: 1, color: "#764ba2" }}
           >
-            Regístrate
-          </button>
-        </p>
-      </form>
-    </div>
+            Regístrate aquí
+          </Button>
+        </Grid>
+      </Grid>
+    </Box>
   );
 };
 
-const RegisterForm = ({ switchToLogin, onRegisterSuccess }) => {
-  const [formData, setFormData] = useState({
-    email: "",
-    ci: "",
-    phone: "",
-    password: "",
-    cPassword: "",
-    name: "",
-  });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+// ========== FORMULARIO DE REGISTRO ==========
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const validateForm = () => {
-    if (!validator.ci(formData.ci.toString())) {
-      throw new Error("Cédula ecuatoriana inválida");
-    }
-    if (formData.password !== formData.cPassword) {
-      throw new Error("Las contraseñas no coinciden");
-    }
-    if (formData.password.length < 6) {
-      throw new Error("La contraseña debe tener al menos 6 caracteres");
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    try {
-      validateForm();
-
-      const { error: signUpError } = await client.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          data: {
-            name: formData.name,
-            phone: formData.phone,
-            ci: formData.ci,
-            role: "user",
-          },
-        },
-      });
-
-      if (signUpError) throw signUpError;
-
-      // Guardar en localStorage antes de redirigir
-      const userData = {
-        email: formData.email,
-        name: formData.name,
-        phone: formData.phone,
-        ci: formData.ci,
-        role: "user",
-      };
-      localStorage.setItem("user", JSON.stringify(userData));
-
-      alert("¡Usuario registrado correctamente! Por favor inicia sesión.");
-      onRegisterSuccess();
-      switchToLogin();
-    } catch (error) {
-      setError(error.message);
-      console.error("Error de registro:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div style={{ maxWidth: "400px", margin: "0 auto" }}>
-      <h2>Registro de usuario</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="name"
-          placeholder="Nombre completo"
-          value={formData.name}
-          onChange={handleChange}
-          required
-          style={inputStyle}
-        />
-        <input
-          type="number"
-          name="ci"
-          placeholder="Cédula (ej: 1234567890)"
-          value={formData.ci}
-          onChange={handleChange}
-          maxLength={10}
-          required
-          style={inputStyle}
-        />
-        <input
-          type="tel"
-          name="phone"
-          placeholder="Teléfono (ej: 0999999999)"
-          value={formData.phone}
-          onChange={handleChange}
-          required
-          style={inputStyle}
-        />
-        <input
-          type="email"
-          name="email"
-          placeholder="Correo electrónico"
-          value={formData.email}
-          onChange={handleChange}
-          required
-          style={inputStyle}
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Contraseña"
-          value={formData.password}
-          onChange={handleChange}
-          required
-          style={inputStyle}
-        />
-        <input
-          type="password"
-          name="cPassword"
-          placeholder="Confirmar contraseña"
-          value={formData.cPassword}
-          onChange={handleChange}
-          required
-          style={inputStyle}
-        />
-
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            ...buttonStyle,
-            backgroundColor: loading ? "#ccc" : "#FF5733",
-          }}
-        >
-          {loading ? "Registrando..." : "Registrarse"}
-        </button>
-
-        <p style={{ textAlign: "center", marginTop: "15px" }}>
-          ¿Ya tienes cuenta?{" "}
-          <button
-            onClick={switchToLogin}
-            style={{
-              background: "none",
-              border: "none",
-              color: "#FF5733",
-              cursor: "pointer",
-              textDecoration: "underline",
-              padding: 0,
-            }}
-          >
-            Inicia sesión
-          </button>
-        </p>
-      </form>
-    </div>
-  );
-};
-
+// ========== COMPONENTE PRINCIPAL ==========
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
 
-  // Verificar si ya está autenticado
   useEffect(() => {
     const user = localStorage.getItem("user");
-    if (user) {
-      window.location.href = "https://mpalverca.github.io/riesgosapp/";
-    }
+    if (user) window.location.href = "https://riesgosapp.vercel.app/";
   }, []);
 
   return (
-    <div>
-      {isLogin ? (
-        <LoginForm
-          switchToRegister={() => setIsLogin(false)}
-          onLoginSuccess={() => alert("¡Bienvenido de vuelta!")}
-        />
-      ) : (
-        <RegisterForm
-          switchToLogin={() => setIsLogin(true)}
-          onRegisterSuccess={() => {
-            // Esta función se llama después del registro exitoso
-          }}
-        />
-      )}
-    </div>
+    <Box sx={styles.root}>
+      <Container maxWidth="sm">
+        <Grow in={true} timeout={800}>
+          <Paper elevation={12} sx={styles.paper}>
+            <Box sx={{ textAlign: "center", mb: 3 }}>
+              <Avatar sx={styles.avatar}>
+                {isLogin ? (
+                  <Login fontSize="large" />
+                ) : (
+                  <AppRegistration fontSize="large" />
+                )}
+              </Avatar>
+              <Typography
+                variant="h4"
+                sx={{ fontWeight: 700, color: "#1a1a2e" }}
+              >
+                {isLogin ? "Bienvenido" : "Crear cuenta"}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {isLogin
+                  ? "Ingresa tus credenciales para continuar"
+                  : "Completa el formulario para registrarte"}
+              </Typography>
+            </Box>
+            {isLogin ? (
+              <LoginForm switchToRegister={() => setIsLogin(false)} />
+            ) : (
+              <RegisterForm
+                switchToLogin={() => setIsLogin(true)}
+                CedulaValidation={CedulaValidation}
+                styles={styles}
+              />
+            )}
+          </Paper>
+        </Grow>
+      </Container>
+    </Box>
   );
 };
 

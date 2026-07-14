@@ -36,12 +36,8 @@ export const usePlanA = () => {
     }
   }, []);
 
-  const post = useCallback(async (mtt, tipe, dPost) => {
+  const post = useCallback(async ( tipe, dPost) => {
     // Validaciones
-    if (!mtt) {
-      setError("Ingrese un mesa o grupo de trabajo");
-      return;
-    }
     if (!tipe) {
       setError("Ingrese el tipo de consulta");
       return;
@@ -57,7 +53,7 @@ export const usePlanA = () => {
     setData(null);
     try {
       const response = await fetch(
-        `${url_GetAll}?mtt=${mtt}&sheet=${tipe}&tipo=post&data=${JSON.stringify(dPost)}`,
+        `${url_GetAll}?tipo=post&sheet=${tipe}&data=${JSON.stringify(dPost)}`,
       );
       const data = await response.json();
       setData(data);
