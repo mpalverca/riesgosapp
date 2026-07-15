@@ -201,7 +201,7 @@ export const ConMonitView = ({
 
   // Determinar qué datos usar
   const dataSource = afect || acciones || recursos || [];
-  
+
   // Obtener configuración de icono según el título
   const iconConfig = ICON_CONFIG[title] || ICON_CONFIG.default;
   const IconComponent = iconConfig.icon;
@@ -312,8 +312,8 @@ export const ConMonitView = ({
             icon={getEventIcon(marker.data.estado)}
           >
             <Popup
-              options={{ maxWidth: 400, minWidth: 350 }}
-              maxWidth={500}
+              options={{ maxWidth: 600, minWidth: 450 }}
+              maxWidth={600}
               className="custom-popup"
             >
               <Box
@@ -366,38 +366,7 @@ export const ConMonitView = ({
 
                 <Divider sx={{ mb: 1.5 }} />
 
-                {/* Barra de progreso */}
-                <Box sx={{ mb: 2 }}>
-                  <Stack
-                    direction="row"
-                    justifyContent="space-between"
-                    alignItems="center"
-                  >
-                    <Typography variant="caption" color="text.secondary">
-                      Progreso
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {progress}%
-                    </Typography>
-                  </Stack>
-                  <LinearProgress
-                    variant="determinate"
-                    value={progress}
-                    sx={{
-                      height: 6,
-                      borderRadius: 3,
-                      backgroundColor: "#e0e0e0",
-                      "& .MuiLinearProgress-bar": {
-                        backgroundColor:
-                          progress === 100
-                            ? "#2e7d32"
-                            : progress >= 50
-                            ? "#ed6c02"
-                            : "#1976d2",
-                      },
-                    }}
-                  />
-                </Box>
+             
 
                 {/* Grid de información */}
                 <Grid container spacing={1} sx={{ mb: 2 }}>
@@ -405,7 +374,7 @@ export const ConMonitView = ({
                     <InfoCard
                       icon={<CalendarToday fontSize="small" color="primary" />}
                       title="Fecha del evento"
-                      content={marker.data.date || marker.data.fecha}
+                      content={formatDate(marker.data.fecha || marker.data.date)}
                     />
                   </Grid>
                   <Grid item size={{ xs: 6 }}>
@@ -546,7 +515,7 @@ export const ConMonitView = ({
                 <Box sx={{ display: "flex", gap: 1, mt: 1.5 }}>
                   <Button
                     size="small"
-                    disabled
+                    //disabled
                     variant="outlined"
                     startIcon={<Edit />}
                     onClick={() => setOpenEdit(!openEdit)}

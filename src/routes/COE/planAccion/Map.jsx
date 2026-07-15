@@ -246,6 +246,7 @@ function MapMark({
   loading,
   onRefreshLayer,
   children,
+  member
 }) {
   const user = useUser();
   const { getEventIcon, getEventIconPulso, COLOR_PRIORIDAD } = useMapIcons();
@@ -420,6 +421,12 @@ function MapMark({
     loading,
   ]);
 
+
+  console.log(dataRes)
+  
+  console.log(marcadoresRes)
+
+  console.log(dataResArray)
   // ========== FUNCIONES AUXILIARES ==========
   const parseByField = useCallback((byString) => {
     if (typeof byString !== "string") return byString;
@@ -527,7 +534,7 @@ function MapMark({
       },
     );
   }, []);
-
+console.log(marcadoresReq)
   const handleExportMap = useCallback(() => {
     if (!mapRef.current) {
       setSnackbar({
@@ -830,93 +837,6 @@ function MapMark({
             </IconButton>
           </Tooltip>
         </Paper>
-
-        {/* Menú Contextual */}
-        <Popover
-          open={Boolean(menuAnchor)}
-          anchorReference="anchorPosition"
-          anchorPosition={menuAnchor}
-          onClose={() => setMenuAnchor(null)}
-          PaperProps={{
-            sx: {
-              width: 260,
-              p: 2,
-              borderRadius: 3,
-              boxShadow: 3,
-            },
-          }}
-        >
-          <Box>
-            <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
-              <Typography variant="subtitle1" fontWeight="bold">
-                Nueva acción
-              </Typography>
-              <IconButton size="small" onClick={() => setMenuAnchor(null)}>
-                <CloseIcon fontSize="small" />
-              </IconButton>
-            </Box>
-
-            <Typography
-              variant="caption"
-              display="block"
-              color="text.secondary"
-              sx={{ mb: 1 }}
-            >
-              📍 Lat: {coordinates?.lat} | Lng: {coordinates?.lng}
-            </Typography>
-
-            <Divider sx={{ my: 1.5 }} />
-
-            <Stack spacing={1}>
-              {layersConfig.map((item) => {
-                const isDisabled =
-                  item.key === "conoc_monit" && !dataPolArray.length;
-
-                return (
-                  <Tooltip
-                    key={item.key}
-                    title={
-                      isDisabled
-                        ? "Debes cargar primero los polígonos de afectación"
-                        : ""
-                    }
-                    placement="right"
-                  >
-                    <span>
-                      <Button
-                        color={item.key === "conoc_monit" ? "error" : "success"}
-                        variant="outlined"
-                        startIcon={item.icon}
-                        fullWidth
-                        onClick={() => handleLayerClick(item)}
-                        disabled={isDisabled}
-                        sx={{
-                          justifyContent: "flex-start",
-                          textTransform: "none",
-                          opacity: isDisabled ? 0.5 : 1,
-                        }}
-                      >
-                        {item.label}
-                      </Button>
-                    </span>
-                  </Tooltip>
-                );
-              })}
-            </Stack>
-
-            <Divider sx={{ my: 1.5 }} />
-
-            <Button
-              variant="outlined"
-              fullWidth
-              size="small"
-              startIcon={<ContentCopyIcon fontSize="small" />}
-              onClick={handleCopyCoordinates}
-            >
-              Copiar Coordenadas
-            </Button>
-          </Box>
-        </Popover>
       </Box>
 
       <DialogAccion
@@ -924,6 +844,7 @@ function MapMark({
         onClose={() => setOpenAccion(false)}
         dialogCoords={dialogCoords}
         mtt={mtt}
+        member={member}
       />
 
       {/* Snackbar */}

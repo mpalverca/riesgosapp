@@ -358,6 +358,7 @@ const handleClickRec= (coordenate) => {
             loadingRE: reqPrep?.loadingGet || false,
             loadingPol: reqPol?.loadinPol || false,
           }}
+          member={member}
           dataCon={getLayerData("conoc_monit")}
           dataPrev={getLayerData("prev_mitig")}
           dataPrep={getLayerData("preparacion")}          

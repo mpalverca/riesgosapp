@@ -1,7 +1,9 @@
 import { useCallback, useState } from "react";
 
-const url_GetAll =
-  "https://script.google.com/macros/s/AKfycbyXoPBBzKzTTRRCV6OeJ2bR155nlgoWXhLUIRsBXLm1rmpd1I6mZAq1Eg0oKYD874YI/exec";
+/* const url_GetAll =
+  "https://script.google.com/macros/s/AKfycbyXoPBBzKzTTRRCV6OeJ2bR155nlgoWXhLUIRsBXLm1rmpd1I6mZAq1Eg0oKYD874YI/exec"; */
+  const url_GetAll =
+  "https://script.google.com/macros/s/AKfycbyGlB5jz0VOKql4P4rpcalO1Lny8BswgU7KFo9b_8jAyXm0_Li7Eq4ceL7V84cDl_86/exec"
 
 export const usePlanA = () => {
   const [loadingGet, setLoading] = useState(false);
@@ -68,12 +70,9 @@ export const usePlanA = () => {
     }
   }, []);
 
-  const edit = useCallback(async (mtt, tipe, row, dEdit) => {
+  const edit = useCallback(async ( tipe, row, dEdit) => {
     // Validaciones
-    if (!mtt) {
-      setError("Ingrese un mesa o grupo de trabajo");
-      return;
-    }
+   
     if (!tipe) {
       setError("Ingrese el tipo de consulta");
       return;
@@ -87,7 +86,7 @@ export const usePlanA = () => {
     setData(null);
     try {
       const response = await fetch(
-        `${url_GetAll}?mtt=${mtt}&sheet=${tipe}&tipo=edit&row=${row}&data=${JSON.stringify(dEdit)}`,
+        `${url_GetAll}?tipo=edit&row=${row}&data=${JSON.stringify(dEdit)}`,
       );
       const data = await response.json();
       setData(data);
