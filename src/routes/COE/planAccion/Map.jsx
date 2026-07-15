@@ -421,12 +421,6 @@ function MapMark({
     loading,
   ]);
 
-
-  console.log(dataRes)
-  
-  console.log(marcadoresRes)
-
-  console.log(dataResArray)
   // ========== FUNCIONES AUXILIARES ==========
   const parseByField = useCallback((byString) => {
     if (typeof byString !== "string") return byString;
@@ -534,7 +528,7 @@ function MapMark({
       },
     );
   }, []);
-console.log(marcadoresReq)
+
   const handleExportMap = useCallback(() => {
     if (!mapRef.current) {
       setSnackbar({

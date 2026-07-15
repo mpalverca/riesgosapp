@@ -10,6 +10,32 @@ export const usePlanA = () => {
   const [errorGet, setError] = useState(null);
   const [dataGet, setData] = useState(null);
 
+  const searchAccion = useCallback(async (tipe) => {
+    console.log("is print")
+    // Validaciones
+    
+    if (!tipe) {
+      setError("Ingrese el tipo de consulta");
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    setData(null);
+    try {
+      const response = await fetch(
+        `${url_GetAll}?tipo=get&sheet=${tipe}`,
+      );
+      const data = await response.json();
+      console.log(data)
+      setData(data);
+      //console.log("Datos MTT:", dataMtt);
+    } catch (err) {
+      setError(err.message || "Error de conexión");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const searchGet = useCallback(async (mtt, tipe) => {
     // Validaciones
     if (!mtt) {
@@ -37,6 +63,8 @@ export const usePlanA = () => {
       setLoading(false);
     }
   }, []);
+
+  
 
   const post = useCallback(async ( tipe, dPost) => {
     // Validaciones
@@ -135,6 +163,7 @@ export const usePlanA = () => {
     loadingGet,
     errorGet,
     dataGet,
+    searchAccion,
     searchGet,
     clearGet,
     post,

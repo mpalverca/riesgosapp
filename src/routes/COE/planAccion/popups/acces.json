@@ -1,0 +1,237 @@
+[
+  {
+    "tipo": "Conoc_Monit",
+    "accion": "Identificación y actualización de zonas vulnerables",
+    "desc": "Actualizar y validar la información territorial relacionada con sectores expuestos a inundaciones, movimientos en masa y otras amenazas asociadas al Evento El Niño."
+  },
+  {
+    "tipo": "Conoc_Monit",
+    "accion": "Implementación y fortalecimiento de la red hidrometeorológica cantonal",
+    "desc": "Implementar, operar y mantener estaciones hidrometeorológicas y sensores de monitoreo para el seguimiento de precipitaciones, niveles de agua en ríos y quebradas, con fines de alerta temprana y apoyo a la toma de decisiones."
+  },
+  {
+    "tipo": "Conoc_Monit",
+    "accion": "Implementación del sistema digital de gestión y visualización de afectaciones",
+    "desc": "Desarrollar e implementar una plataforma digital para el registro, georreferenciación, monitoreo y visualización en tiempo real de eventos adversos, afectaciones, necesidades y acciones de respuesta."
+  },
+  {
+    "tipo": "Conoc_Monit",
+    "accion": "Monitoreo de las parroquias rurales de zonas vulnerables",
+    "desc": "Actualizar y validar la información en las parroquias rurales, relacionada con sectores expuestos a inundaciones, movimientos en masa y otras amenazas asociadas al Evento El Niño."
+  },
+  {
+    "tipo": "Conoc_Monit",
+    "accion": "Implementación de estrategia de comunicación y sensibilización sobre riesgos del Fenómeno El Niño",
+    "desc": "Implementación de una estrategia de comunicación orientada a informar, sensibilizar y promover la corresponsabilidad ciudadana frente a los riesgos asociados al Fenómeno El Niño."
+  },
+  {
+    "tipo": "prev_mit",
+    "accion": "Gestión de recursos para asistencia humanitaria",
+    "desc": "Gestionar la disponibilidad de bienes de asistencia humanitaria, insumos y recursos económicos para atención de emergencias."
+  },
+  {
+    "tipo": "prev_mit",
+    "accion": "Fortalecimiento de capacidades comunitarias",
+    "desc": "Implementar procesos de organización, capacitación y acompañamiento a los Comités Comunitarios de Gestión de Riesgos (CCGR), líderes barriales, organizaciones sociales y actores comunitarios, orientados al conocimiento de amenazas, identificación de zonas seguras."
+  },
+  {
+    "tipo": "prev_mit",
+    "accion": "Notificación a la ciudadanía para prevenir colapsos de alcantarillado ante la eventualidad",
+    "desc": "Entrega de Boletas de Notificacion a propietarios, posesionarios para que procedan con la limpieza, desbroce, retiro de maleza,desechos solidos, matriales en desuso, descarga, deposito o disposicion inadecuada de scombros, materiales pétreos, residuos de construcciones y otros desechos en sitios no autorizados."
+  },
+  {
+    "tipo": "prev_mit",
+    "accion": "Limpieza manual de ríos y quebradas",
+    "desc": "Ejecutar actividades periódicas de limpieza manual en ríos y quebradas, mediante el desbroce de vegetación con el fin de reducir el riesgo de desbordamientos."
+  },
+  {
+    "tipo": "prev_mit",
+    "accion": "Manejo preventivo del arbolado urbano prioritario",
+    "desc": "Ejecutar inspecciones técnicas progresivas del arbolado urbano para identificar y mitigar riesgos asociados a la caída de árboles que puedan afectar las áreas verdes, la circulación vehicular y redes de tendido eléctrico mediante la implementación de medidas preventivas de poda."
+  },
+  {
+    "tipo": "prev_mit",
+    "accion": "Gestión de residuos en áreas verdes y cauces naturales",
+    "desc": "Mantener las jornadas rutinarias y progresivas de recolección de residuos sólidos acumulados en las orillas de ríos y quebradas, con el propósito de prevenir y reducir los riesgos asociados a inundaciones."
+  },
+  {
+    "tipo": "prev_mit",
+    "accion": "Difundir mensajes de prevencion mediante el departamento de comunicacion",
+    "desc": "llegar a la comunidad con mensajes de prevencion actuancion y consientizacion"
+  },
+  {
+    "tipo": "prev_mit",
+    "accion": "Socializacion y difusion de la informacion a presidentes y directivas barriales",
+    "desc": "Informar de manera oportuna a los lideres barriales sobre las mingas de limpieza actividades varias de prevencion ante el fenomeno del niño, segun el cronograma de UMAPAL y con el apoyo del departamento de ORNATO"
+  },
+  {
+    "tipo": "prev_mit",
+    "accion": "",
+    "desc": "Terraceo de taludes en plataforma de linea de conduccion del sistema Carigán"
+  },
+  {
+    "tipo": "prev_mit",
+    "accion": "",
+    "desc": "Limpieza de uniades de tratamiento de agua potable"
+  },
+  {
+    "tipo": "prev_mit",
+    "accion": "",
+    "desc": "Inspección técnica de colectores marginales y zonas con antecedentes de socavación"
+  },
+  {
+    "tipo": "prev_mit",
+    "accion": "",
+    "desc": "Retiro preventivo de sedimentos y solidos en pozo de gruesos y canales desarenadores"
+  },
+  {
+    "tipo": "prep",
+    "accion": "Capacitación a equipos parroquiales para levantamiento de información EVIN",
+    "desc": "Fortalecer las capacidades de funcionarios, técnicos y líderes comunitarios para la aplicación de fichas EVIN y levantamiento de información en situaciones de emergencia."
+  },
+  {
+    "tipo": "prep",
+    "accion": "Actualización y validación de alojamientos temporales",
+    "desc": "Verificar condiciones de infraestructura, capacidad operativa y cumplimiento de normativa para alojamientos temporales de emergencia."
+  },
+  {
+    "tipo": "prep",
+    "accion": "Recoleccion de alimentos no perecibles",
+    "desc": "Hacer la recoleccion de alimentos que nos permitan mantener un banco de alimentos a traves de acciones conjuntas y de apoyo comunitario"
+  },
+  {
+    "tipo": "prep",
+    "accion": "Capacitacion a equipos de apoyo para auxilio",
+    "desc": "Fortalecer al personal conformado en grupos de apoyo para atender emergencias humanitarias"
+  },
+  {
+    "tipo": "prep",
+    "accion": "Identificación de predios de suelo municipal para reasentamientos",
+    "desc": "Identificar predios municipales factibles de asignaciòn a sectores afectados"
+  },
+  {
+    "tipo": "prep",
+    "accion": "Identificación de predios para postulaciòn al banco de suelos nacional",
+    "desc": "Identificar predios factibles para postulaciòn a MIT"
+  },
+  {
+    "tipo": "prep",
+    "accion": "Conformación de equipo tècnico para evaluaciones de infraestructura",
+    "desc": "Notificar a los tècnicos delegados para levantamiento de informaciòn en territorio"
+  },
+  {
+    "tipo": "prep",
+    "accion": "Capacitacion e información",
+    "desc": "Capacitaciones en seguridad en el hogar, mantenimiento de estructura e infraestructura a las instituciones, comunidad y conformacion de brigadas de acuerdo a la vulneravilidad de su locación."
+  },
+  {
+    "tipo": "prep",
+    "accion": "Actualización de logística y registro de personal operativo y responsables para atención de emergencias",
+    "desc": "Mantener actualizada la base de datos del personal operativo disponible para emergencias, incluyendo contactos de responsables, funciones y disponibilidad inmediata para brindar el apoyo oportuno durante la emergencia"
+  },
+  {
+    "tipo": "prep",
+    "accion": "Organización y coordinación de recursos logísticos para movilización en emergencias",
+    "desc": "Brindar apoyo para coordinar la disponibilidad de camionetas y un acamión con conductores para atender los requerimientos logísticos requeridos durante la emergencia."
+  },
+  {
+    "tipo": "prep",
+    "accion": "Disponibilidad operativa y control de combustible para la atención de emergencias.",
+    "desc": "Mantener una reserva estratégica en stock de 1000 galones de combustible y aplicar los procedimientos establecidos para su control, asignación y abastecimiento oportuno a vehículos, maquinaria y equipos destinados a la atención de emergencias."
+  },
+  {
+    "tipo": "prep",
+    "accion": "Identificación y registro de partidas presupuestarias que tiene disponible administración central para emergencias",
+    "desc": "Determinar las partidas presupuestarias, bienes, servicios y recursos institucionales que pueden ser utilizados para la atención oportuna de emergencias y desastres."
+  },
+  {
+    "tipo": "prep",
+    "accion": "",
+    "desc": "Adquisición de materiales y accesorios para mantenimiento de sistemas de agua potable; Adquisición de insumos quimicos para el tratamiento del agua"
+  },
+  {
+    "tipo": "prep",
+    "accion": "",
+    "desc": "Limpieza y desazolve preventivo de colectores principales, pozos de revisión, sumideros y rejillas"
+  },
+  {
+    "tipo": "prep",
+    "accion": "",
+    "desc": "Mantenimiento preventivo de equipos hidrosuccionadores y maquinaria operativa"
+  },
+  {
+    "tipo": "resp",
+    "accion": "Coordinación interinstitucional para la respuesta",
+    "desc": "Activar mecanismos de coordinación entre instituciones para movilización de recursos y atención de emergencias."
+  },
+  {
+    "tipo": "resp",
+    "accion": "Coordinación interinstitucional para la respuesta",
+    "desc": "Realizar evaluaciones rápidas de afectaciones y necesidades para orientar la toma de decisiones."
+  },
+  {
+    "tipo": "resp",
+    "accion": "Registro y caracterización de población afectada y damnificada",
+    "desc": "Levantar información de personas y familias afectadas para orientar la asistencia humanitaria y procesos de recuperación."
+  },
+  {
+    "tipo": "resp",
+    "accion": "Instalación y habilitación de alojamientos temporales",
+    "desc": "Implementar alojamientos temporales de emergencia conforme a la normativa vigente."
+  },
+  {
+    "tipo": "resp",
+    "accion": "Entrega de asistencia humanitaria",
+    "desc": "Distribuir bienes de asistencia humanitaria a familias afectadas y damnificadas."
+  },
+  {
+    "tipo": "resp",
+    "accion": "Fortalecimiento del flujo de información para la toma de decisiones",
+    "desc": "Integrar la información proveniente del monitoreo hidrometeorológico, reportes comunitarios, evaluaciones EVIN y registros de afectaciones para generar reportes oportunos dirigidos al COE Cantonal."
+  },
+  {
+    "tipo": "resp",
+    "accion": "Activar de manera inmediata al personal operativo de Agentes de Control Municipal para brindar apoyo en las emergencias derivadas de inundaciones, deslizamientos, colapso de infraestructura y demás eventos asociados al Fenómeno El Niño.",
+    "desc": "Activar y movilizar al personal operativo de Agentes de Control Municipal hacia los sectores afectados por inundaciones, deslizamientos, colapsos estructurales u otros eventos asociados al Fenómeno El Niño, con la finalidad de apoyar las labores de seguridad, control, evacuación y atención inmediata de la población afectada."
+  },
+  {
+    "tipo": "resp",
+    "accion": "Ejecutar operativos de control y seguridad en sectores afectados, garantizando el orden público, la movilidad peatonal y vehicular durante la atención de emergencias.",
+    "desc": "Implementar dispositivos de control y seguridad en sectores afectados o identificados como zonas de peligro, restringiendo el ingreso de personas y vehículos para salvaguardar la integridad de la ciudadanía y facilitar el trabajo de los organismos de respuesta."
+  },
+  {
+    "tipo": "resp",
+    "accion": "Implementar cierres preventivos y control de accesos en áreas consideradas de alto riesgo o declaradas inseguras por los organismos técnicos competentes.",
+    "desc": "Brindar apoyo operativo a las instituciones competentes durante los procesos de evacuación de personas ubicadas en zonas vulnerables o afectadas por eventos adversos, garantizando una movilización ordenada y segura hacia zonas seguras o albergues temporales."
+  },
+  {
+    "tipo": "resp",
+    "accion": "Brindar apoyo logístico y operativo en procesos de evacuación preventiva o emergente de la población ubicada en zonas de riesgo.",
+    "desc": "Colaborar en la organización, seguridad y funcionamiento de los alojamientos temporales habilitados para la atención de personas damnificadas o afectadas por emergencias derivadas del Fenómeno El Niño."
+  },
+  {
+    "tipo": "resp",
+    "accion": "Coordinar permanentemente con el COE Cantonal, Secretaría Nacional de Gestión de Riesgos, Bomberos, Policía Nacional, Fuerzas Armadas y demás instituciones de respuesta para la atención de eventos adversos.",
+    "desc": "Apoyar la difusión de alertas oficiales, recomendaciones y medidas preventivas dirigidas a la ciudadanía mediante perifoneo, recorridos territoriales y otros mecanismos institucionales de comunicación."
+  },
+  {
+    "tipo": "resp",
+    "accion": "Evaluacion de daños en infraestructura.",
+    "desc": "Realizar el levantamiento de informaciòn a travès de la evaluación de estimación de daños de infraestructura afectada, mediante fichas tècnicas"
+  },
+  {
+    "tipo": "resp",
+    "accion": "Minimizar el tiempo de respuesta coordinando de manera oportuna las acciones y despacho de recuarsos de acuedo a la vulnerabilidad.",
+    "desc": "Realizar la evacuación, rescate y traslado de personas afectadas por inundaciones, deslizamientos y colapsos estructurales."
+  },
+  {
+    "tipo": "recup",
+    "accion": "Cierre de alojamientos temporales y retorno seguro",
+    "desc": "Aplicar procedimientos para el cierre de alojamientos temporales y acompañar el retorno o reubicación de la población afectada."
+  },
+  {
+    "tipo": "recup",
+    "accion": "Coordinar en territorio de acuerdo a las copetencias con las instituciones para la toma de desiciones de acciones seguras.",
+    "desc": "Realizar inspecciones estructurales de servicios basicos, determinar condiciones inseguras del entorno y apoyo de sumistro de agua"
+  }
+]
