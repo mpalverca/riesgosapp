@@ -2,8 +2,10 @@ import { useCallback, useState } from "react";
 
 /* const url_GetAll =
   "https://script.google.com/macros/s/AKfycbyXoPBBzKzTTRRCV6OeJ2bR155nlgoWXhLUIRsBXLm1rmpd1I6mZAq1Eg0oKYD874YI/exec"; */
-  const url_GetAll =
+ /*  const url_GetAll =
   "https://script.google.com/macros/s/AKfycbyGlB5jz0VOKql4P4rpcalO1Lny8BswgU7KFo9b_8jAyXm0_Li7Eq4ceL7V84cDl_86/exec"
+ */
+const url_GetAll="https://script.google.com/macros/s/AKfycbwXwx6kcuGTwtx-yrPBukM0FmKwGB8ME3X9y5NzxpANOoPT9pPysYYl1TBwe0Xv121F/exec"
 
 export const usePlanA = () => {
   const [loadingGet, setLoading] = useState(false);
@@ -23,10 +25,9 @@ export const usePlanA = () => {
     setData(null);
     try {
       const response = await fetch(
-        `${url_GetAll}?tipo=get&sheet=${tipe}`,
+        `${url_GetAll}?tipo=get&sheet=opcions`,
       );
       const data = await response.json();
-      console.log(data)
       setData(data);
       //console.log("Datos MTT:", dataMtt);
     } catch (err) {

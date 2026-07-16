@@ -22,7 +22,7 @@ import {
 } from "@mui/material";
 import { useState, useEffect, useMemo } from "react";
 import { usePlanA } from "../script";
-import Access from "./acces.json";
+
 
 // ========== CONFIGURACIÓN ==========
 const MONTHS = [
@@ -72,8 +72,9 @@ export const DialogAccion = ({
   member,
   ...props
 }) => {
-  const { post } = usePlanA();
-
+  const { post, searchGet,dataGet, loadingGet } = usePlanA();
+console.log("dataGet",loadingGet
+  ,dataGet)
   // ========== COORDENADAS ==========
   const cleanCoord = (coord) => {
     if (!coord && coord !== 0) return null;
@@ -97,7 +98,7 @@ export const DialogAccion = ({
   const accionesPorTipo = useMemo(() => {
     // Agrupar acciones por tipo desde el JSON
     const grouped = {};
-    Access.forEach((item) => {
+    dataGet?.datos.forEach((item) => {
       if (!grouped[item.tipo]) grouped[item.tipo] = [];
       grouped[item.tipo].push({
         value: item.accion || item.desc, // Usamos desc como fallback si accion está vacío
@@ -124,7 +125,7 @@ export const DialogAccion = ({
 
   // ========== AUTOCOMPLETAR DESCRIPCIÓN AL SELECCIONAR ACCIÓN ==========
   useEffect(() => {
-    if (data.accion && data.tipe) {
+    if (dataGet?.datos && data.tipe) {
       const selected = accionesOptions.find(
         (item) => item.value === data.accion
       );
@@ -132,7 +133,16 @@ export const DialogAccion = ({
         setData((prev) => ({ ...prev, desc: selected.desc }));
       }
     }
-  }, [data.accion, data.tipe, accionesOptions]);
+  }, [dataGet?.datos, data.tipe, accionesOptions]);
+
+  
+useEffect(()=>{
+    const fetchData = async () => {
+      await searchGet(mtt,"opcions");}
+      fetchData();
+  }, [data.tipe])
+
+
 
   // ========== HANDLERS ==========
   const handleClose = () => {
