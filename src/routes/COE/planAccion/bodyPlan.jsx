@@ -124,32 +124,33 @@ function BodyPlan({ mtt, member }) {
         const layerActions = {
           // Capas de análisis
           conoc_monit: async () => {
-            await reqCon_Monit.searchGet(mtt, "Conoc_Monit");
+            // await reqCon_Monit.searchGet(mtt,"Conoc_Monit");
+            await reqCon_Monit.searchAccion("Conoc_Monit");
             const data = reqCon_Monit?.dataGet;
             
             setCache((prev) => ({ ...prev, conoc_monit: data }));
             return data;
           },
           prev_mitig: async () => {
-            await reqPrev_mitig.searchGet(mtt, "prev_mit");
+            await reqPrev_mitig.searchAccion( "prev_mit");
             const data = reqPrev_mitig?.dataGet;
             setCache((prev) => ({ ...prev, prev_mitig: data }));
             return data;
           },
           preparacion: async () => {
-            await reqPrep.searchGet(mtt, "prep");
+            await reqPrep.searchAccion( "prep");
             const data = reqPrep?.dataGet;
             setCache((prev) => ({ ...prev, preparacion: data }));
             return data;
           },
           respuesta: async () => {
-            await reqRes.searchGet(mtt, "resp");
+            await reqRes.searchAccion( "resp");
             const data = reqRes?.dataGet;
             setCache((prev) => ({ ...prev, respuesta: data }));
             return data;
           },
           recuperacion: async () => {
-            await reqReq.searchGet(mtt, "recup");
+            await reqReq.searchAccion( "recup");
             const data = reqReq?.dataGet;
             setCache((prev) => ({ ...prev, recuperacion: data }));
             return data;

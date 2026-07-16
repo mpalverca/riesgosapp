@@ -663,6 +663,7 @@ function MapMark({
               parseByField={parseByField}
               formatDate={formatDate}
               title="Conocimiento y Monitoreo"
+              sheet="Conoc_Monit"
               mtt={mtt}
               polAfect={dataPolArray}
               setOpenDialog={setOpenDialog}
@@ -678,6 +679,7 @@ function MapMark({
               acciones={marcadoresPrev}
               formatDate={formatDate}
               title="Prevención y Mitigación"
+              sheet="prev_mit"
               mtt={mtt}
               polAfect={dataPolArray}
               setOpenDialog={setOpenDialog}
@@ -696,6 +698,7 @@ function MapMark({
                 parseByField={parseByField}
                 formatDate={formatDate}
                 title="Preparación"
+                sheet="prep"
                 mtt={mtt}
                 setOpenDialog={setOpenDialog}
                 openDialog={openDialog}
@@ -711,6 +714,7 @@ function MapMark({
                 parseByField={parseByField}
                 formatDate={formatDate}
                 title="Respuesta"
+                sheet="resp"
                 mtt={mtt}
                 setOpenDialog={setOpenDialog}
                 openDialog={openDialog}
@@ -726,6 +730,7 @@ function MapMark({
                 parseByField={parseByField}
                 formatDate={formatDate}
                 title="Recuperación"
+                sheet="recup"
                 mtt={mtt}
                 setOpenDialog={setOpenDialog}
                 openDialog={openDialog}

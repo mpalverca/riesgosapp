@@ -19,10 +19,10 @@ import {
   Chip,
   Stack,
   CircularProgress,
+  Alert,
 } from "@mui/material";
 import { useState, useEffect, useMemo } from "react";
 import { usePlanA } from "../script";
-
 
 // ========== CONFIGURACIÓN ==========
 const MONTHS = [
@@ -72,9 +72,8 @@ export const DialogAccion = ({
   member,
   ...props
 }) => {
-  const { post, searchGet,dataGet, loadingGet } = usePlanA();
-console.log("dataGet",loadingGet
-  ,dataGet)
+  const { post, searchAccion, dataGet, loadingGet } = usePlanA();
+
   // ========== COORDENADAS ==========
   const cleanCoord = (coord) => {
     if (!coord && coord !== 0) return null;
@@ -92,40 +91,48 @@ console.log("dataGet",loadingGet
   const [data, setData] = useState(INITIAL_DATA);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [loadingAcciones, setLoadingAcciones] = useState(false);
 
-  // ========== OPCIONES DE ACCIONES DESDE JSON ==========
+  // ========== CARGAR TODAS LAS ACCIONES AL ABRIR ==========
+  useEffect(() => {
+    if (open) {
+      // Resetear formulario
+      setData({ ...INITIAL_DATA, by: member || "", mtt: mtt || "" });
+      setError(null);
+      // Cargar todas las acciones
+      searchAccion("opcions");
+    }
+  }, [open, member, mtt, searchAccion]);
+
+  // ========== OPCIONES DE ACCIONES AGRUPADAS POR TIPO ==========
   const accionesPorTipo = useMemo(() => {
-    // Agrupar acciones por tipo desde el JSON
+    // ✅ Validar que dataGet tenga datos
+    if (!dataGet?.datos || !Array.isArray(dataGet.datos)) {
+      return {};
+    }
+
     const grouped = {};
-    dataGet?.datos.forEach((item) => {
-      if (!grouped[item.tipo]) grouped[item.tipo] = [];
-      grouped[item.tipo].push({
-        value: item.accion || item.desc, // Usamos desc como fallback si accion está vacío
-        label: item.accion || item.desc,
-        desc: item.desc,
+    dataGet.datos.forEach((item) => {
+      const tipo = item.tipo;
+      if (!tipo) return;
+      if (!grouped[tipo]) grouped[tipo] = [];
+      grouped[tipo].push({
+        value: item.accion || item.desc || "",
+        label: item.accion || item.desc || "Sin nombre",
+        desc: item.desc || "",
       });
     });
     return grouped;
-  }, []);
+  }, [dataGet]); // ✅ Dependencia en dataGet para actualizar cuando lleguen los datos
 
-  // ========== OPCIONES PARA EL SELECT DE ACCIÓN ==========
+  // ========== OPCIONES PARA EL SELECT DE ACCIÓN (filtradas por tipo) ==========
   const accionesOptions = useMemo(() => {
     if (!data.tipe) return [];
     return accionesPorTipo[data.tipe] || [];
   }, [data.tipe, accionesPorTipo]);
 
-  // ========== RESET ==========
-  useEffect(() => {
-    if (open) {
-      setData({ ...INITIAL_DATA, by: member || "", mtt: mtt || "" });
-      setError(null);
-    }
-  }, [open, member, mtt]);
-
   // ========== AUTOCOMPLETAR DESCRIPCIÓN AL SELECCIONAR ACCIÓN ==========
   useEffect(() => {
-    if (dataGet?.datos && data.tipe) {
+    if (data.accion && data.tipe) {
       const selected = accionesOptions.find(
         (item) => item.value === data.accion
       );
@@ -133,16 +140,7 @@ console.log("dataGet",loadingGet
         setData((prev) => ({ ...prev, desc: selected.desc }));
       }
     }
-  }, [dataGet?.datos, data.tipe, accionesOptions]);
-
-  
-useEffect(()=>{
-    const fetchData = async () => {
-      await searchGet(mtt,"opcions");}
-      fetchData();
-  }, [data.tipe])
-
-
+  }, [data.accion, data.tipe, accionesOptions]);
 
   // ========== HANDLERS ==========
   const handleClose = () => {
@@ -156,8 +154,8 @@ useEffect(()=>{
     setData((prev) => ({ ...prev, [name]: value }));
     setError(null);
 
-    // Si cambia el tipo, resetear acción y descripción
     if (name === "tipe") {
+      // Resetear acción y descripción al cambiar el tipo
       setData((prev) => ({ ...prev, accion: "", desc: "" }));
     }
   };
@@ -240,18 +238,9 @@ useEffect(()=>{
         </DialogContentText>
 
         {error && (
-          <Paper
-            sx={{
-              p: 1,
-              mt: 1,
-              bgcolor: "#ffebee",
-              border: "1px solid #ef5350",
-            }}
-          >
-            <Typography color="error" variant="body2">
-              {error}
-            </Typography>
-          </Paper>
+          <Alert severity="error" sx={{ mt: 1 }} onClose={() => setError(null)}>
+            {error}
+          </Alert>
         )}
 
         <Paper elevation={3} sx={{ p: 2, mt: 2 }}>
@@ -273,16 +262,16 @@ useEffect(()=>{
                 "select",
                 accionesOptions,
                 {
-                  disabled: !data.tipe || loadingAcciones,
+                  disabled: !data.tipe || loadingGet,
                   helperText: !data.tipe
                     ? "Seleccione un tipo primero"
-                    : loadingAcciones
+                    : loadingGet
                     ? "Cargando acciones..."
                     : accionesOptions.length === 0 && data.tipe
-                    ? "No hay acciones disponibles"
+                    ? "No hay acciones disponibles para este tipo"
                     : "",
                   InputProps: {
-                    endAdornment: loadingAcciones && (
+                    endAdornment: loadingGet && (
                       <CircularProgress size={20} sx={{ mr: 1 }} />
                     ),
                   },
@@ -292,9 +281,9 @@ useEffect(()=>{
 
             {/* Descripción - autocompletada */}
             <Grid item size={{ xs: 12 }}>
-             <Typography about="" variant="body1" textAlign="justify" >
-             <strong>Descripción </strong> {data.desc }
-             </Typography>
+              <Typography variant="body1" textAlign="justify">
+                <strong>Descripción: </strong> {data.desc || "Seleccione una acción"}
+              </Typography>
             </Grid>
 
             <Grid item size={{ xs: 6 }}>
@@ -378,7 +367,7 @@ useEffect(()=>{
       </DialogContent>
 
       <DialogActions>
-        <Button onClick={handleSubmit} disabled={loading} variant="contained">
+        <Button onClick={handleSubmit} disabled={loading || loadingGet} variant="contained">
           {loading ? "Guardando..." : "Añadir"}
         </Button>
         <Button onClick={handleClose} disabled={loading}>

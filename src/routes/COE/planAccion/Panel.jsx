@@ -1,8 +1,9 @@
-import { Box, Grid, Typography, Paper, Alert, Divider } from "@mui/material";
+import { Box, Grid, Typography, Paper, Alert, Divider, Button } from "@mui/material";
 import Panels from "../../../components/panels/Panels";
 import { Layers as LayersIcon } from "@mui/icons-material";
 import LayerGroup from "../canton/body_accion/LayerGroup";
-import LayerControl from "../canton/body_accion/LayerControl";
+import LayerControl from "./popups/layerControl";
+
 
 // ========== FUNCIÓN AUXILIAR PARA EXTRAER DATOS ==========
 const extractDataArray = (data) => {
@@ -198,57 +199,59 @@ const ActionDetails = ({ layerKey, getLayerData, getLayerCount }) => {
 
   return (
     <>
-      <Typography variant="caption" color="text.secondary">
-        Registros de Acciones: {data.length}
-      </Typography>
-
-      {/* Mostrar objetivo si existe en el objeto principal */}
-      {fullData?.objetivo && (
-   
-          <Typography
-          variant="caption"
-          color="text.secondary"
-          sx={{ display: "block", mt: 0.5 }}
-        >
-          {/*  🎯 {fullData.objetivo.substring(0, 100)}... */}
-          {fullData.objetivo}
-        </Typography>
-     
-    
-      )}
-
-      <Typography
+     <Typography
         variant="caption"
         color="primary"
         sx={{ display: "block", cursor: "pointer", mt: 0.5 }}
       >
         Última actualización: {new Date().toLocaleTimeString()}
       </Typography>
+      {/* Mostrar objetivo si existe en el objeto principal */}
+      {fullData?.objetivo && (
+   
+          <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ display: "block", my: 0.5}}
+          textAlign="justify"
+          
+        >
+          {/*  🎯 {fullData.objetivo.substring(0, 100)}... */}
+          <strong>Objetivo: </strong>{fullData.objetivo}
+        </Typography>
+     
+      )}
 
+  
       <Typography
-        variant="caption"
+        variant="body2"
         color="text.secondary"
         sx={{ display: "block", mt: 1 }}
       >
         📊 <strong style={{ color: "#2e7d32" }}>Vigente:</strong> {vigente} |
         <strong style={{ color: "#757575" }}> Finalizada:</strong> {finalizada}{" "}
         |<strong> Total:</strong> {data.length}
+
       </Typography>
-
-
+<Divider sx={{my:1}}/>
       {/* Mostrar primeros 3 registros como ejemplo */}
       {data /* .slice(0, 3) */
         .map((item, index) => (
           <div>
             <Typography
+           
             key={index}
-            variant="caption"
+            variant="body2"
             color="text.secondary"
             sx={{ display: "block", pl: 2 }}
           >
-            • {item.accion || `Registro ${index + 1}`}
-            <strong> {item.estado && ` (${item.estado})`}</strong>
-          </Typography>
+            • {item.accion || `Registro ${index + 1}`} |
+            <strong> {item.estado && `${item.estado}  `}</strong> 
+            <Button
+            //variant="contained"
+            size="small"
+            >{`<<ver>>`} </Button>
+          </Typography>          
              <Divider sx={{ my: 1 }} />
           </div>
         ))}
@@ -378,7 +381,7 @@ const renderLayerControl = (layerKey, props) => {
       }
       color={config.color}
       bgColor={config.bgColor}
-      count={config.getCount(getLayerCount)}
+      count={extractDataArray(getLayerData(layerKey)).length}
       isLoading={config.isLoading(isLoading)}
       isSelected={config.isSelected(selectedCapa)}
       onToggle={config.onToggle(handleLayerToggle)}

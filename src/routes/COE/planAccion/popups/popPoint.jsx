@@ -53,6 +53,7 @@ import {
   Build,
   Engineering,
 } from "@mui/icons-material";
+import { usePlanA } from "../script";
 
 // ========== FUNCIÓN AUXILIAR PARA EXTRAER DATOS ==========
 const extractDataArray = (data) => {
@@ -92,22 +93,22 @@ const ICON_CONFIG = {
     color: "#ff8c00",
     bgGradient: "linear-gradient(135deg, #ff8c00, #ffb347)",
   },
-  "Preparación": {
+  Preparación: {
     icon: AirplanemodeActive,
     color: "#228b22",
     bgGradient: "linear-gradient(135deg, #228b22, #66bb6a)",
   },
-  "Respuesta": {
+  Respuesta: {
     icon: PrivacyTip,
     color: "#ff6b00",
     bgGradient: "linear-gradient(135deg, #ff6b00, #ff9a3c)",
   },
-  "Recuperación": {
+  Recuperación: {
     icon: ThumbDownAlt,
     color: "#0066cc",
     bgGradient: "linear-gradient(135deg, #0066cc, #4d94ff)",
   },
-  "default": {
+  default: {
     icon: DirectionsWalkIcon,
     color: "#757575",
     bgGradient: "linear-gradient(135deg, #757575, #bdbdbd)",
@@ -147,10 +148,15 @@ const InfoCard = ({ icon, title, content, color = "primary" }) => (
       mb: 1,
       backgroundColor: "#f8f9fa",
       borderLeft: `4px solid ${
-        color === "primary" ? "#1976d2" : 
-        color === "success" ? "#2e7d32" : 
-        color === "warning" ? "#ed6c02" : 
-        color === "error" ? "#d32f2f" : "#1976d2"
+        color === "primary"
+          ? "#1976d2"
+          : color === "success"
+            ? "#2e7d32"
+            : color === "warning"
+              ? "#ed6c02"
+              : color === "error"
+                ? "#d32f2f"
+                : "#1976d2"
       }`,
     }}
   >
@@ -187,6 +193,7 @@ export const ConMonitView = ({
   afect,
   formatDate,
   title = "Conocimiento y Monitoreo",
+  sheet,
   mtt,
   polAfect,
   setOpenDialog,
@@ -202,40 +209,44 @@ export const ConMonitView = ({
   // Determinar qué datos usar
   const dataSource = afect || acciones || recursos || [];
 
+  const {deleteRow}=usePlanA()
   // Obtener configuración de icono según el título
   const iconConfig = ICON_CONFIG[title] || ICON_CONFIG.default;
   const IconComponent = iconConfig.icon;
 
-  const getEventIcon = useCallback((status) => {
-    const circleStyle = {
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      background: iconConfig.bgGradient,
-      borderRadius: "50%",
-      width: "32px",
-      height: "32px",
-      boxShadow: "0 2px 12px rgba(0,0,0,0.2)",
-      border: "2px solid white",
-      transition: "all 0.3s ease",
-    };
-    const html = renderToString(
-      <div style={circleStyle}>
-        <IconComponent
-          sx={{
-            color: "#ffffff",
-            fontSize: "18px",
-          }}
-        />
-      </div>,
-    );
-    return divIcon({
-      html,
-      className: "custom-leaflet-icon",
-      iconSize: [36, 36],
-      iconAnchor: [18, 36],
-    });
-  }, [IconComponent, iconConfig.bgGradient]);
+  const getEventIcon = useCallback(
+    (status) => {
+      const circleStyle = {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: iconConfig.bgGradient,
+        borderRadius: "50%",
+        width: "32px",
+        height: "32px",
+        boxShadow: "0 2px 12px rgba(0,0,0,0.2)",
+        border: "2px solid white",
+        transition: "all 0.3s ease",
+      };
+      const html = renderToString(
+        <div style={circleStyle}>
+          <IconComponent
+            sx={{
+              color: "#ffffff",
+              fontSize: "18px",
+            }}
+          />
+        </div>,
+      );
+      return divIcon({
+        html,
+        className: "custom-leaflet-icon",
+        iconSize: [36, 36],
+        iconAnchor: [18, 36],
+      });
+    },
+    [IconComponent, iconConfig.bgGradient],
+  );
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -266,7 +277,7 @@ export const ConMonitView = ({
     switch (status) {
       case "Vigente":
         return 25;
-      case "en ejecución":
+      case "En ejecución":
         return 50;
       case "finalizado":
         return 100;
@@ -284,12 +295,25 @@ export const ConMonitView = ({
     // Si los datos vienen crudos
     if (item.ubi) {
       const coords = coordForm(item.ubi);
-      return coords ? { id: item._id, position: [coords.lat, coords.lng], data: item } : null;
+      return coords
+        ? { id: item._id, position: [coords.lat, coords.lng], data: item }
+        : null;
     }
     return null;
   };
 
-  const processedData = Array.isArray(dataSource) 
+  const hadleDelete = async (row) => {
+    console.log(row);
+    try {
+      await deleteRow(sheet, row);
+      // Opcional: refrescar datos o mostrar snackbar
+    } catch (error) {
+      console.error("Error al eliminar:", error);
+      // Mostrar error
+    }
+  };
+
+  const processedData = Array.isArray(dataSource)
     ? dataSource.map(processData).filter(Boolean)
     : [];
 
@@ -304,12 +328,14 @@ export const ConMonitView = ({
         const activeMonths = getActiveMonths(marker.data);
         const progress = getProgress(marker.data.estado);
         const position = marker.position || [marker.data.lat, marker.data.lng];
-
+        // En el botón:
+        const estado = marker.data.estado; // o el campo que indique el estado
+        const isCompletado = estado === "finalizado" || estado === "Completado";
         return (
           <Marker
             key={marker.id || marker.data._id}
             position={position}
-            icon={getEventIcon(marker.data.estado)}
+            icon={getEventIcon(progress)}
           >
             <Popup
               options={{ maxWidth: 600, minWidth: 450 }}
@@ -349,7 +375,9 @@ export const ConMonitView = ({
                     >
                       🏛️ {title}
                     </Typography>
-                    <StatusChip status={marker.data.estado || marker.data.status} />
+                    <StatusChip
+                      status={marker.data.estado || marker.data.status}
+                    />
                   </Stack>
                   <Typography
                     variant="subtitle1"
@@ -360,13 +388,12 @@ export const ConMonitView = ({
                       fontSize: "0.95rem",
                     }}
                   >
+                    <strong>{marker.data.row}</strong> -{" "}
                     {`${marker.data.accion || marker.data.nombre || marker.data.titulo || "Acción sin definir"}`}
                   </Typography>
                 </Box>
 
                 <Divider sx={{ mb: 1.5 }} />
-
-             
 
                 {/* Grid de información */}
                 <Grid container spacing={1} sx={{ mb: 2 }}>
@@ -374,14 +401,18 @@ export const ConMonitView = ({
                     <InfoCard
                       icon={<CalendarToday fontSize="small" color="primary" />}
                       title="Fecha del evento"
-                      content={formatDate(marker.data.fecha || marker.data.date)}
+                      content={formatDate(
+                        marker.data.fecha || marker.data.date,
+                      )}
                     />
                   </Grid>
                   <Grid item size={{ xs: 6 }}>
                     <InfoCard
                       icon={<AccessTime fontSize="small" color="secondary" />}
                       title="Última actualización"
-                      content={formatDate(marker.data.date_act || marker.data.actualizacion)}
+                      content={formatDate(
+                        marker.data.date_act || marker.data.actualizacion,
+                      )}
                     />
                   </Grid>
                   <Grid item size={{ xs: 12 }}>
@@ -414,7 +445,11 @@ export const ConMonitView = ({
                         <Stack direction="row" alignItems="center" spacing={1}>
                           <Person fontSize="small" color="primary" />
                           <Typography variant="body2">
-                            <strong>{byData.name || byData.miembro || "No especificado"}</strong>
+                            <strong>
+                              {byData.name ||
+                                byData.miembro ||
+                                "No especificado"}
+                            </strong>
                           </Typography>
                         </Stack>
                         <Stack direction="row" alignItems="center" spacing={1}>
@@ -423,12 +458,12 @@ export const ConMonitView = ({
                             {byData.cargo || "Cargo no especificado"}
                           </Typography>
                         </Stack>
-                        <Stack direction="row" alignItems="center" spacing={1}>
+                        {/*<Stack direction="row" alignItems="center" spacing={1}>
                           <Description fontSize="small" color="primary" />
                           <Typography variant="body2">
                             CI: {byData.ci || "No especificado"}
-                          </Typography>
-                        </Stack>
+                          </Typography> 
+                        </Stack>*/}
                         {byData.telf && (
                           <Stack
                             direction="row"
@@ -450,7 +485,21 @@ export const ConMonitView = ({
                 <InfoCard
                   icon={<Description fontSize="small" color="info" />}
                   title="Descripción"
-                  content={marker.data.desc || marker.data.descripcion || "No disponible"}
+                  content={
+                    marker.data.desc ||
+                    marker.data.descripcion ||
+                    "No disponible"
+                  }
+                  color="info"
+                />
+                <InfoCard
+                  icon={<Description fontSize="small" color="info" />}
+                  title="Detalle de intervención"
+                  content={
+                    marker.data.detail ||
+                    marker.data.detail ||
+                    "Detalle de intervención No disponible"
+                  }
                   color="info"
                 />
 
@@ -472,7 +521,11 @@ export const ConMonitView = ({
                     <InfoCard
                       icon={<Business fontSize="small" color="warning" />}
                       title="Instituciones"
-                      content={marker.data.inst || marker.data.instituciones || "No disponible"}
+                      content={
+                        marker.data.inst ||
+                        marker.data.instituciones ||
+                        "No disponible"
+                      }
                       color="warning"
                     />
                   </Grid>
@@ -524,16 +577,20 @@ export const ConMonitView = ({
                     Editar
                   </Button>
                   <Button
-                    size="small"
-                    disabled
-                    variant="outlined"
-                    color="error"
-                    startIcon={<Delete />}
-                    onClick={() => console.log("eliminar archivo")}
-                    sx={{ flex: 1 }}
-                  >
-                    Eliminar
-                  </Button>
+    size="small"
+    variant="outlined"
+    color="error"
+    startIcon={<Delete />}
+    onClick={async () => {
+        if (!isCompletado) {
+            await hadleDelete(marker.data.row); // o marker.data.row sin +6
+        }
+    }}
+    sx={{ flex: 1 }}
+    disabled={isCompletado} // opcional: deshabilitar botón si está completado
+>
+    Eliminar
+</Button>
                 </Box>
                 {openEdit && (
                   <Button
