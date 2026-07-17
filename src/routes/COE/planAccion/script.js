@@ -98,10 +98,10 @@ export const usePlanA = () => {
     }
   }, []);
 
-  const edit = useCallback(async (tipe, row, dEdit) => {
+  const edit = useCallback(async (sheet, row, dEdit) => {
     // Validaciones
 
-    if (!tipe) {
+    if (!sheet) {
       setError("Ingrese el tipo de consulta");
       return;
     }
@@ -114,7 +114,7 @@ export const usePlanA = () => {
     setData(null);
     try {
       const response = await fetch(
-        `${url_GetAll}?tipo=edit&row=${row}&data=${JSON.stringify(dEdit)}`,
+        `${url_GetAll}?tipo=put&sheet=${sheet}&data=${JSON.stringify(dEdit)}`,
       );
       const data = await response.json();
       setData(data);

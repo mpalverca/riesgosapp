@@ -21,8 +21,9 @@ import {
   CircularProgress,
   Alert,
 } from "@mui/material";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { usePlanA } from "../script";
+import DriveManager from "./loadfile";
 
 // ========== CONFIGURACIÓN ==========
 const MONTHS = [
@@ -48,11 +49,21 @@ const VERIFICABLE_OPTIONS = [
   { value: "no", label: "No" },
 ];
 
+const estado_OPTIONS = [
+    { value: "Por activar", label: "Por activar" },
+  { value: "Programado", label: "Programado" },
+  { value: "En ejecucióno", label: "En ejecución" },
+  { value: "Permanente", label: "Permanente" },
+  { value: "Completado", label: "Completado" },  
+  
+ 
+];
+
 const INITIAL_DATA = {
   by: "",
   mtt: "",
   provincia: "Loja",
-  canton: "Loja_",
+  canton: "Loja",
   sector: "",
   desc: "",
   accion: "",
@@ -60,6 +71,7 @@ const INITIAL_DATA = {
   inst: "",
   detail: "",
   verificable: "",
+  estado:" ",
   tipe: "",
 };
 MONTHS.forEach((m) => (INITIAL_DATA[m.key] = false));
@@ -91,6 +103,8 @@ export const DialogAccion = ({
   const [data, setData] = useState(INITIAL_DATA);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+    // Estado para almacenar el enlace del archivo subido (o manual)
+  const [verificableLink, setVerificableLink] = useState('');
 
   // ========== CARGAR TODAS LAS ACCIONES AL ABRIR ==========
   useEffect(() => {
@@ -146,6 +160,7 @@ export const DialogAccion = ({
   const handleClose = () => {
     setData(INITIAL_DATA);
     setError(null);
+    setVerificableLink("")
     onClose();
   };
 
@@ -168,27 +183,53 @@ export const DialogAccion = ({
     MONTHS.filter((m) => data[m.key]).map((m) => m.label);
 
   const handleSubmit = async () => {
-    // Validaciones
+    // Validaciones existentes
     if (!data.tipe) return setError("Seleccione un tipo de acción");
     if (!data.accion) return setError("Seleccione una acción");
     if (!data.sector) return setError("Ingrese un sector");
-    if (getActiveMonths().length === 0)
-      return setError("Seleccione al menos un mes");
+    if (getActiveMonths().length === 0) return setError("Seleccione al menos un mes");
     if (!coordString) return setError("No hay coordenadas disponibles");
+
+    // Si es verificable, debe haber un enlace (subido o manual)
+    if (data.verificable === 'si') {
+      // Si hay un archivo pendiente en DriveManager, lo subimos automáticamente
+      if (driveManagerRef.current) {
+        try {
+          // Intentar subir el archivo si existe, o devolver el enlace manual
+          const link = await driveManagerRef.current.uploadFile();
+          setVerificableLink(link);
+        } catch (err) {
+          setError(err.message || 'Error al subir el archivo');
+          return;
+        }
+      }
+
+      // Después de intentar subir, verificamos que tengamos un enlace
+      if (!verificableLink) {
+        setError('Debe proporcionar un enlace o subir un archivo para acciones verificables');
+        return;
+      }
+    }
 
     setLoading(true);
     setError(null);
 
     try {
-      await post(data.tipe, {
+      // Construir payload incluyendo el enlace (si existe)
+      const payload = {
         ...data,
         date: new Date().toISOString(),
         ubi: coordString,
         meses_activos: getActiveMonths(),
         total_meses: getActiveMonths().length,
-      });
+        verificableUrl: data.verificable === 'si' ? verificableLink : null,
+      };
 
+      console.log(payload)
+
+      await post(data.tipe, payload);
       setData(INITIAL_DATA);
+      setVerificableLink('');
       onClose();
     } catch (err) {
       setError(err.message || "Error al guardar");
@@ -196,6 +237,7 @@ export const DialogAccion = ({
       setLoading(false);
     }
   };
+
 
   // ========== RENDER DE CAMPO ==========
   const renderField = (
@@ -226,6 +268,22 @@ export const DialogAccion = ({
         ))}
     </TextField>
   );
+
+//============manejo de archivos===========
+
+const driveManagerRef = useRef(null); // Referencia al componente DriveManager
+// Cuando se complete la subida desde DriveManager (callback)
+  const handleUploadComplete = (url) => {
+    setVerificableLink(url);
+  };
+
+  // Al cambiar el radio "verificable", limpiamos el enlace si se desmarca
+  useEffect(() => {
+    if (data.verificable !== 'si') {
+      setVerificableLink('');
+      // También podríamos limpiar el estado interno de DriveManager, pero lo haremos al cerrar
+    }
+  }, [data.verificable]);
 
   // ========== RENDER ==========
   return (
@@ -301,10 +359,23 @@ export const DialogAccion = ({
             <Grid item size={{ xs: 12 }}>
               {renderField("detail", "Detalles", "textarea")}
             </Grid>
-
+ <Grid item size={{ xs: 12 }}>
+              {renderField("estado", "Estado", "select", estado_OPTIONS)}
+            </Grid>
             <Grid item size={{ xs: 12 }}>
               {renderField("verificable", "Verificable", "select", VERIFICABLE_OPTIONS)}
             </Grid>
+
+            {/* Mostrar DriveManager solo si verificable === "si" */}
+        {data.verificable === "si" && (
+          <Grid item size={{ xs: 12 }}>
+            <DriveManager
+              ref={driveManagerRef}
+              onUploadComplete={handleUploadComplete}
+              initialLink={verificableLink}
+            />
+          </Grid>
+        )}
 
             {/* Meses */}
             <Grid item size={{ xs: 12 }}>

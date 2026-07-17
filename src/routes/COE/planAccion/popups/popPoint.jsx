@@ -52,6 +52,7 @@ import {
   PrecisionManufacturing,
   Build,
   Engineering,
+  Link,
 } from "@mui/icons-material";
 import { usePlanA } from "../script";
 
@@ -209,7 +210,7 @@ export const ConMonitView = ({
   // Determinar qué datos usar
   const dataSource = afect || acciones || recursos || [];
 
-  const {deleteRow}=usePlanA()
+  const { deleteRow } = usePlanA();
   // Obtener configuración de icono según el título
   const iconConfig = ICON_CONFIG[title] || ICON_CONFIG.default;
   const IconComponent = iconConfig.icon;
@@ -401,9 +402,7 @@ export const ConMonitView = ({
                     <InfoCard
                       icon={<CalendarToday fontSize="small" color="primary" />}
                       title="Fecha del evento"
-                      content={formatDate(
-                        marker.data.fecha || marker.data.date,
-                      )}
+                      content={formatDate(marker.data.date || marker.data.date)}
                     />
                   </Grid>
                   <Grid item size={{ xs: 6 }}>
@@ -415,11 +414,28 @@ export const ConMonitView = ({
                       )}
                     />
                   </Grid>
-                  <Grid item size={{ xs: 12 }}>
+                  <Grid item size={{ xs: 6 }}>
                     <InfoCard
                       icon={<LocationOn fontSize="small" color="success" />}
                       title="Ubicación"
                       content={`Lat: ${position[0]?.toFixed(6) || "N/A"}, Lng: ${position[1]?.toFixed(6) || "N/A"}`}
+                    />
+                  </Grid>
+                  <Grid item size={{ xs: 6 }}>
+                    <InfoCard
+                      icon={<Link fontSize="small" color="success" />}
+                      title="Verificable"
+                      content={
+                        <Typography
+                          component="a"
+                          href={marker.data.verificableUrl}
+                            target="_blank"
+  rel="noopener noreferrer"
+                          sx={{ color: "primary.main", textDecoration: "none" }}
+                        >
+                          DESCARGAR VERIFICABLE
+                        </Typography>
+                      }
                     />
                   </Grid>
                 </Grid>
@@ -577,20 +593,20 @@ export const ConMonitView = ({
                     Editar
                   </Button>
                   <Button
-    size="small"
-    variant="outlined"
-    color="error"
-    startIcon={<Delete />}
-    onClick={async () => {
-        if (!isCompletado) {
-            await hadleDelete(marker.data.row); // o marker.data.row sin +6
-        }
-    }}
-    sx={{ flex: 1 }}
-    disabled={isCompletado} // opcional: deshabilitar botón si está completado
->
-    Eliminar
-</Button>
+                    size="small"
+                    variant="outlined"
+                    color="error"
+                    startIcon={<Delete />}
+                    onClick={async () => {
+                      if (!isCompletado) {
+                        await hadleDelete(marker.data.row); // o marker.data.row sin +6
+                      }
+                    }}
+                    sx={{ flex: 1 }}
+                    disabled={isCompletado} // opcional: deshabilitar botón si está completado
+                  >
+                    Eliminar
+                  </Button>
                 </Box>
                 {openEdit && (
                   <Button
