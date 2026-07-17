@@ -76,7 +76,7 @@ const INITIAL_DATA = {
 };
 MONTHS.forEach((m) => (INITIAL_DATA[m.key] = false));
 
-export const DialogAccion = ({
+export const EditAccion = ({
   open,
   onClose,
   mtt,
@@ -449,4 +449,4 @@ const driveManagerRef = useRef(null); // Referencia al componente DriveManager
   );
 };
 
-export default DialogAccion;
+export default EditAccion;

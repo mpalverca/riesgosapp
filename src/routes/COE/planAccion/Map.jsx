@@ -125,68 +125,7 @@ const MapControls = ({ onZoomIn, onZoomOut, onLocate, onDownload, isExporting })
 );
 
 // ========== COMPONENTE DE ESTADO DE CAPAS ==========
-const LayerStatus = ({ layers, onToggleVisibility }) => {
-  const activeLayers = layers.filter((l) => l.active && !l.hidden);
-  if (!activeLayers.length) return null;
 
-  return (
-    <Paper
-      elevation={2}
-      sx={{
-        position: "absolute",
-        bottom: 20,
-        left: 10,
-        zIndex: 1000,
-        bgcolor: "rgba(0,0,0,0.85)",
-        color: "white",
-        borderRadius: 2,
-        px: 1.5,
-        py: 1,
-        minWidth: 180,
-        maxWidth: 280,
-        maxHeight: 200,
-        overflowY: "auto",
-      }}
-    >
-      <Typography variant="caption" sx={{ display: 'block', mb: 0.5, fontWeight: 'bold' }}>
-        Capas activas ({activeLayers.length}/{layers.length})
-      </Typography>
-      {activeLayers.map((layer) => (
-        <Box
-          key={layer.key}
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            py: 0.25,
-          }}
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flex: 1 }}>
-            <Box
-              sx={{
-                width: 8,
-                height: 8,
-                borderRadius: '50%',
-                bgcolor: layer.color,
-                flexShrink: 0,
-              }}
-            />
-            <Typography variant="caption" sx={{ fontSize: '0.65rem' }}>
-              {layer.label} ({layer.count})
-            </Typography>
-          </Box>
-          <IconButton
-            size="small"
-            onClick={() => onToggleVisibility(layer.key)}
-            sx={{ color: 'white', p: 0.25 }}
-          >
-            {layer.hidden ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
-          </IconButton>
-        </Box>
-      ))}
-    </Paper>
-  );
-};
 
 // ========== COMPONENTE DE CLICK EN MAPA ==========
 const MapEvents = ({ onMapClick }) => {
@@ -436,19 +375,22 @@ function MapMark({
   }, []);
 
   const formatDate = useCallback((dateString) => {
-    if (!dateString) return "No disponible";
-    try {
-      const [datePart] = dateString.split(" ");
-      const [d, m, y] = datePart.split("/");
-      return new Date(y, m - 1, d).toLocaleDateString("es-ES", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      });
-    } catch {
-      return dateString;
-    }
-  }, []);
+  if (!dateString) return "No disponible";
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString; // si no es fecha válida
+    return date.toLocaleString("es-ES", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      // second: "2-digit", // opcional
+    });
+  } catch {
+    return dateString;
+  }
+}, []);
 
   // ========== HANDLERS ==========
   const handleOpenDialog = useCallback((latlng) => {
@@ -783,11 +725,7 @@ function MapMark({
           isExporting={isExporting}
         />
 
-        {/* Estado de capas activas */}
-        <LayerStatus
-          layers={activeLayersStatus}
-          onToggleVisibility={handleToggleVisibility}
-        />
+        
 
         {/* Indicador de carga */}
         {isExporting && (

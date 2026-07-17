@@ -119,14 +119,21 @@ const ICON_CONFIG = {
 // ========== COMPONENTES DE ESTILOS ==========
 const StatusChip = ({ status }) => {
   const statusConfig = {
-    Vigente: { color: "success", icon: <CheckCircle />, label: "Vigente" },
-    "en ejecución": {
+    Vigente: { 
       color: "warning",
       icon: <Schedule />,
-      label: "En ejecución",
+      label: "En ejecución  "||"Por activar" ||  "Programado",
     },
-    finalizado: { color: "info", icon: <Assessment />, label: "Finalizado" },
-    suspendido: { color: "error", icon: <Warning />, label: "Suspendido" },
+    "En ejecución": { 
+      color: "warning",
+      icon: <Schedule />,
+      label: "En ejecución  "||"Por activar" ||  "Programado",
+    },
+    Permanente: {
+      color: "info",
+      icon: <Assessment />,
+      label: "Permanente" || "  Completado",
+    },
   };
 
   const config = statusConfig[status] || statusConfig["Vigente"];
@@ -329,9 +336,10 @@ export const ConMonitView = ({
         const activeMonths = getActiveMonths(marker.data);
         const progress = getProgress(marker.data.estado);
         const position = marker.position || [marker.data.lat, marker.data.lng];
+        console.log(marker.data.verifi, marker.data.verifi == "si");
         // En el botón:
         const estado = marker.data.estado; // o el campo que indique el estado
-        const isCompletado = estado === "finalizado" || estado === "Completado";
+        const isCompletado = estado === "Completado";
         return (
           <Marker
             key={marker.id || marker.data._id}
@@ -374,14 +382,12 @@ export const ConMonitView = ({
                         flex: 1,
                       }}
                     >
-                      🏛️ {title}
+                      {title}- {marker.data.mtt}
                     </Typography>
-                    <StatusChip
-                      status={marker.data.estado || marker.data.status}
-                    />
+                    <StatusChip status={progress} />
                   </Stack>
                   <Typography
-                    variant="subtitle1"
+                    variant="h5"
                     sx={{
                       color: "#3519d2",
                       fontWeight: 600,
@@ -390,7 +396,7 @@ export const ConMonitView = ({
                     }}
                   >
                     <strong>{marker.data.row}</strong> -{" "}
-                    {`${marker.data.accion || marker.data.nombre || marker.data.titulo || "Acción sin definir"}`}
+                    {marker.data.accion || "Acción sin definir"}
                   </Typography>
                 </Box>
 
@@ -418,7 +424,15 @@ export const ConMonitView = ({
                     <InfoCard
                       icon={<LocationOn fontSize="small" color="success" />}
                       title="Ubicación"
-                      content={`Lat: ${position[0]?.toFixed(6) || "N/A"}, Lng: ${position[1]?.toFixed(6) || "N/A"}`}
+                      content={
+                        <Typography>
+                          {position[0]?.toFixed(6) || "N/A"},{" "}
+                          {position[1]?.toFixed(6) || "N/A"}
+                          <br />
+                          <strong>Sector: </strong>
+                          {marker.data.sector}
+                        </Typography>
+                      }
                     />
                   </Grid>
                   <Grid item size={{ xs: 6 }}>
@@ -426,15 +440,22 @@ export const ConMonitView = ({
                       icon={<Link fontSize="small" color="success" />}
                       title="Verificable"
                       content={
-                        <Typography
-                          component="a"
-                          href={marker.data.verificableUrl}
+                        marker.data.verifi === "si" ? (
+                          <Typography
+                            component="a"
+                            href={marker.data.verificableUrl}
                             target="_blank"
-  rel="noopener noreferrer"
-                          sx={{ color: "primary.main", textDecoration: "none" }}
-                        >
-                          DESCARGAR VERIFICABLE
-                        </Typography>
+                            rel="noopener noreferrer"
+                            sx={{
+                              color: "primary.main",
+                              textDecoration: "none",
+                            }}
+                          >
+                            DESCARGAR VERIFICABLE
+                          </Typography>
+                        ) : (
+                          <Typography>No existe verificable</Typography>
+                        )
                       }
                     />
                   </Grid>
@@ -474,12 +495,6 @@ export const ConMonitView = ({
                             {byData.cargo || "Cargo no especificado"}
                           </Typography>
                         </Stack>
-                        {/*<Stack direction="row" alignItems="center" spacing={1}>
-                          <Description fontSize="small" color="primary" />
-                          <Typography variant="body2">
-                            CI: {byData.ci || "No especificado"}
-                          </Typography> 
-                        </Stack>*/}
                         {byData.telf && (
                           <Stack
                             direction="row"
@@ -496,7 +511,6 @@ export const ConMonitView = ({
                     </CardContent>
                   </Card>
                 )}
-
                 {/* Descripción */}
                 <InfoCard
                   icon={<Description fontSize="small" color="info" />}
@@ -526,9 +540,11 @@ export const ConMonitView = ({
                       icon={<AttachMoney fontSize="small" color="success" />}
                       title="Presupuesto"
                       content={
-                        marker.data.cash || marker.data.presupuesto
-                          ? `$${Number(marker.data.cash || marker.data.presupuesto).toLocaleString()}`
-                          : "No disponible"
+                        marker.data.cash
+                          ? marker.data.cash
+                          : Number(marker.data.cash)
+                            ? `$${Number(marker.data.cash).toLocaleString()}`
+                            : "No disponible"
                       }
                       color="success"
                     />

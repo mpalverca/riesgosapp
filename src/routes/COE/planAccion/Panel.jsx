@@ -1,9 +1,16 @@
-import { Box, Grid, Typography, Paper, Alert, Divider, Button } from "@mui/material";
+import {
+  Box,
+  Grid,
+  Typography,
+  Paper,
+  Alert,
+  Divider,
+  Button,
+} from "@mui/material";
 import Panels from "../../../components/panels/Panels";
 import { Layers as LayersIcon } from "@mui/icons-material";
 import LayerGroup from "../canton/body_accion/LayerGroup";
 import LayerControl from "./popups/layerControl";
-
 
 // ========== FUNCIÓN AUXILIAR PARA EXTRAER DATOS ==========
 const extractDataArray = (data) => {
@@ -189,17 +196,27 @@ const ActionDetails = ({ layerKey, getLayerData, getLayerCount }) => {
   const data = extractDataArray(fullData);
 
   // Estadísticas de estado
-  const vigente = data.filter(
-    (item) => item.estado?.toLowerCase() === "vigente" || "En ejecución",
-  ).length;
+  const vigente = data.filter(  (item) => {
+      const estado =item.estado?.toLowerCase()
+     
+      return (
+        estado === "programado" ||
+     estado === "por activar" ||
+      estado ==="en ejecución"
+      )
+    }).length;
   const finalizada = data.filter((item) => {
     const estado = item.estado?.toLowerCase();
-    return estado === "finalizada" || estado === "finalizado";
+    
+    return (
+      estado === "completado" ||      
+      estado === "permanente"
+    );
   }).length;
 
   return (
     <>
-     <Typography
+      <Typography
         variant="caption"
         color="primary"
         sx={{ display: "block", cursor: "pointer", mt: 0.5 }}
@@ -208,51 +225,48 @@ const ActionDetails = ({ layerKey, getLayerData, getLayerCount }) => {
       </Typography>
       {/* Mostrar objetivo si existe en el objeto principal */}
       {fullData?.objetivo && (
-   
-          <Typography
+        <Typography
           variant="body2"
           color="text.secondary"
-          sx={{ display: "block", my: 0.5}}
+          sx={{ display: "block", my: 0.5 }}
           textAlign="justify"
-          
         >
           {/*  🎯 {fullData.objetivo.substring(0, 100)}... */}
-          <strong>Objetivo: </strong>{fullData.objetivo}
+          <strong>Objetivo: </strong>
+          {fullData.objetivo}
         </Typography>
-     
       )}
 
-  
       <Typography
         variant="body2"
         color="text.secondary"
         sx={{ display: "block", mt: 1 }}
       >
         📊 <strong style={{ color: "#2e7d32" }}>Vigente:</strong> {vigente} |
-        <strong style={{ color: "#757575" }}> Finalizada:</strong> {finalizada}{" "}
-        |<strong> Total:</strong> {data.length}
-
+        <strong style={{ color: "#f10909" }}> Finalizada:</strong> {finalizada}{" "}
+        |<strong style={{ color: "#070000" }}> Total:</strong> {data.length}
       </Typography>
-<Divider sx={{my:1}}/>
+      <Divider sx={{ my: 1 }} />
       {/* Mostrar primeros 3 registros como ejemplo */}
       {data /* .slice(0, 3) */
         .map((item, index) => (
           <div>
             <Typography
-           
-            key={index}
-            variant="body2"
-            color="text.secondary"
-            sx={{ display: "block", pl: 2 }}
-          >
-            • {item.accion || `Registro ${index + 1}`} |
-            <strong> {item.estado && `${item.estado}  `}</strong> 
-            <Button
-            //variant="contained"
-            size="small"
-            >{`<<ver>>`} </Button>
-          </Typography>          
-             <Divider sx={{ my: 1 }} />
+              key={index}
+              variant="body2"
+              color="text.secondary"
+              sx={{ display: "block", pl: 2 }}
+            >
+          {item.accion || `Registro ${index + 1}`} |
+              <strong> {item.estado && `${item.estado}  `}</strong>
+              <Button
+                //variant="contained"
+                size="small"
+              >
+                {`<<ver>>`}{" "}
+              </Button>
+            </Typography>
+            <Divider sx={{ my: 1 }} />
           </div>
         ))}
       {/* {data.length > 3 && (
