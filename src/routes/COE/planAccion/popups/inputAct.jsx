@@ -54,9 +54,7 @@ const estado_OPTIONS = [
   { value: "Programado", label: "Programado" },
   { value: "En ejecución", label: "En ejecución" },
   { value: "Permanente", label: "Permanente" },
-  { value: "Completado", label: "Completado" },  
-  
- 
+  { value: "Completado", label: "Completado" },   
 ];
 
 const INITIAL_DATA = {

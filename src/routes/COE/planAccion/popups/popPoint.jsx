@@ -23,9 +23,11 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  MenuItem,
+  TextField,
 } from "@mui/material";
 import { divIcon } from "leaflet";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { renderToString } from "react-dom/server";
 import { Marker, Popup } from "react-leaflet";
 import { parseByField } from "../../../utils/utils";
@@ -55,6 +57,7 @@ import {
   Link,
 } from "@mui/icons-material";
 import { usePlanA } from "../script";
+import DriveManager from "./loadfile";
 
 // ========== FUNCIÓN AUXILIAR PARA EXTRAER DATOS ==========
 const extractDataArray = (data) => {
@@ -119,15 +122,15 @@ const ICON_CONFIG = {
 // ========== COMPONENTES DE ESTILOS ==========
 const StatusChip = ({ status }) => {
   const statusConfig = {
-    Vigente: { 
+    Vigente: {
       color: "warning",
       icon: <Schedule />,
-      label: "En ejecución  "||"Por activar" ||  "Programado",
+      label: "En ejecución  " || "Por activar" || "Programado",
     },
-    "En ejecución": { 
+    "En ejecución": {
       color: "warning",
       icon: <Schedule />,
-      label: "En ejecución  "||"Por activar" ||  "Programado",
+      label: "En ejecución  " || "Por activar" || "Programado",
     },
     Permanente: {
       color: "info",
@@ -329,6 +332,7 @@ export const ConMonitView = ({
     return null;
   }
 
+  
   return (
     <>
       {processedData.map((marker) => {
@@ -336,7 +340,7 @@ export const ConMonitView = ({
         const activeMonths = getActiveMonths(marker.data);
         const progress = getProgress(marker.data.estado);
         const position = marker.position || [marker.data.lat, marker.data.lng];
-        console.log(marker.data.verifi, marker.data.verifi == "si");
+
         // En el botón:
         const estado = marker.data.estado; // o el campo que indique el estado
         const isCompletado = estado === "Completado";
@@ -420,7 +424,7 @@ export const ConMonitView = ({
                       )}
                     />
                   </Grid>
-                  <Grid item size={{ xs: 6 }}>
+                  <Grid item size={{ xs: 12, md: 6 }}>
                     <InfoCard
                       icon={<LocationOn fontSize="small" color="success" />}
                       title="Ubicación"
@@ -435,26 +439,54 @@ export const ConMonitView = ({
                       }
                     />
                   </Grid>
-                  <Grid item size={{ xs: 6 }}>
+
+                  <Grid item size={{ xs: 12, md: 6 }}>
                     <InfoCard
-                      icon={<Link fontSize="small" color="success" />}
-                      title="Verificable"
+                      icon={<Person fontSize="small" color="success" />}
+                      title="Reportado por"
                       content={
-                        marker.data.verifi === "si" ? (
-                          <Typography
-                            component="a"
-                            href={marker.data.verificableUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            sx={{
-                              color: "primary.main",
-                              textDecoration: "none",
-                            }}
-                          >
-                            DESCARGAR VERIFICABLE
-                          </Typography>
-                        ) : (
-                          <Typography>No existe verificable</Typography>
+                        byData &&
+                        !byData.error && (
+                          <>
+                            <Stack spacing={0.5}>
+                              <Stack
+                                direction="row"
+                                alignItems="center"
+                                spacing={1}
+                              >
+                                <Person fontSize="small" color="primary" />
+                                <Typography variant="body2">
+                                  <strong>
+                                    {byData.name ||
+                                      byData.miembro ||
+                                      "No especificado"}
+                                  </strong>
+                                </Typography>
+                              </Stack>
+                              <Stack
+                                direction="row"
+                                alignItems="center"
+                                spacing={1}
+                              >
+                                <Business fontSize="small" color="primary" />
+                                <Typography variant="body2">
+                                  {byData.cargo || "Cargo no especificado"}
+                                </Typography>
+                              </Stack>
+                              {byData.telf && (
+                                <Stack
+                                  direction="row"
+                                  alignItems="center"
+                                  spacing={1}
+                                >
+                                  <Phone fontSize="small" color="primary" />
+                                  <Typography variant="body2">
+                                    {byData.telf}
+                                  </Typography>
+                                </Stack>
+                              )}
+                            </Stack>
+                          </>
                         )
                       }
                     />
@@ -462,55 +494,7 @@ export const ConMonitView = ({
                 </Grid>
 
                 {/* Reportado por */}
-                {byData && !byData.error && (
-                  <Card
-                    variant="outlined"
-                    sx={{
-                      mb: 1.5,
-                      backgroundColor: "#e3f2fd",
-                      borderColor: "#90caf9",
-                    }}
-                  >
-                    <CardContent sx={{ py: 1, "&:last-child": { pb: 1 } }}>
-                      <Typography
-                        variant="subtitle2"
-                        sx={{ color: "#1565c0", fontWeight: "bold", mb: 0.5 }}
-                      >
-                        📋 Reportado por
-                      </Typography>
-                      <Stack spacing={0.5}>
-                        <Stack direction="row" alignItems="center" spacing={1}>
-                          <Person fontSize="small" color="primary" />
-                          <Typography variant="body2">
-                            <strong>
-                              {byData.name ||
-                                byData.miembro ||
-                                "No especificado"}
-                            </strong>
-                          </Typography>
-                        </Stack>
-                        <Stack direction="row" alignItems="center" spacing={1}>
-                          <Business fontSize="small" color="primary" />
-                          <Typography variant="body2">
-                            {byData.cargo || "Cargo no especificado"}
-                          </Typography>
-                        </Stack>
-                        {byData.telf && (
-                          <Stack
-                            direction="row"
-                            alignItems="center"
-                            spacing={1}
-                          >
-                            <Phone fontSize="small" color="primary" />
-                            <Typography variant="body2">
-                              {byData.telf}
-                            </Typography>
-                          </Stack>
-                        )}
-                      </Stack>
-                    </CardContent>
-                  </Card>
-                )}
+
                 {/* Descripción */}
                 <InfoCard
                   icon={<Description fontSize="small" color="info" />}
@@ -522,125 +506,276 @@ export const ConMonitView = ({
                   }
                   color="info"
                 />
-                <InfoCard
-                  icon={<Description fontSize="small" color="info" />}
-                  title="Detalle de intervención"
-                  content={
-                    marker.data.detail ||
-                    marker.data.detail ||
-                    "Detalle de intervención No disponible"
-                  }
-                  color="info"
-                />
-
-                {/* Presupuesto e Instituciones */}
-                <Grid container spacing={1} sx={{ mb: 1 }}>
-                  <Grid item size={{ xs: 6 }}>
-                    <InfoCard
-                      icon={<AttachMoney fontSize="small" color="success" />}
-                      title="Presupuesto"
-                      content={
-                        marker.data.cash
-                          ? marker.data.cash
-                          : Number(marker.data.cash)
-                            ? `$${Number(marker.data.cash).toLocaleString()}`
-                            : "No disponible"
-                      }
-                      color="success"
-                    />
-                  </Grid>
-                  <Grid item size={{ xs: 6 }}>
-                    <InfoCard
-                      icon={<Business fontSize="small" color="warning" />}
-                      title="Instituciones"
-                      content={
-                        marker.data.inst ||
-                        marker.data.instituciones ||
-                        "No disponible"
-                      }
+                {openEdit ? (
+                  <>
+                    <EditData data={marker.data} />
+                    <Button
+                      fullWidth
+                      size="small"
+                      variant="contained"
                       color="warning"
-                    />
-                  </Grid>
-                </Grid>
-
-                {/* Plazos de ejecución */}
-                {activeMonths.length > 0 && (
-                  <Card
-                    variant="outlined"
-                    sx={{
-                      mb: 1.5,
-                      backgroundColor: "#f5f5f5",
-                    }}
-                  >
-                    <CardContent sx={{ py: 1, "&:last-child": { pb: 1 } }}>
-                      <Typography
-                        variant="subtitle2"
-                        sx={{ fontWeight: "bold", mb: 0.5 }}
-                      >
-                        📅 Plazos de ejecución
-                      </Typography>
-                      <Box>
-                        {activeMonths.map((month) => (
-                          <MonthBadge key={month} month={month} active={true} />
-                        ))}
-                      </Box>
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        display="block"
-                        sx={{ mt: 0.5 }}
-                      >
-                        {activeMonths.length} mes(es) activo(s)
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* Acciones */}
-                <Box sx={{ display: "flex", gap: 1, mt: 1.5 }}>
-                  <Button
-                    size="small"
-                    //disabled
-                    variant="outlined"
-                    startIcon={<Edit />}
-                    onClick={() => setOpenEdit(!openEdit)}
-                    sx={{ flex: 1 }}
-                  >
-                    Editar
-                  </Button>
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    color="error"
-                    startIcon={<Delete />}
-                    onClick={async () => {
-                      if (!isCompletado) {
-                        await hadleDelete(marker.data.row); // o marker.data.row sin +6
+                      startIcon={<Save />}
+                      sx={{ mt: 1 }}
+                    >
+                      Guardar Cambios
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <InfoCard
+                      icon={<Description fontSize="small" color="info" />}
+                      title="Detalle de intervención"
+                      content={
+                        marker.data.detail ||
+                        marker.data.detail ||
+                        "Detalle de intervención No disponible"
                       }
-                    }}
-                    sx={{ flex: 1 }}
-                    disabled={isCompletado} // opcional: deshabilitar botón si está completado
-                  >
-                    Eliminar
-                  </Button>
-                </Box>
-                {openEdit && (
-                  <Button
-                    fullWidth
-                    size="small"
-                    variant="contained"
-                    color="warning"
-                    startIcon={<Save />}
-                    sx={{ mt: 1 }}
-                  >
-                    Guardar Cambios
-                  </Button>
+                      color="info"
+                    />
+
+                    {/* Presupuesto e Instituciones */}
+                    <Grid container spacing={1} sx={{ mb: 1 }}>
+                      <Grid item size={{ xs: 6 }}>
+                        <InfoCard
+                          icon={
+                            <AttachMoney fontSize="small" color="success" />
+                          }
+                          title="Presupuesto"
+                          content={
+                            marker.data.cash
+                              ? marker.data.cash
+                              : Number(marker.data.cash)
+                                ? `$${Number(marker.data.cash).toLocaleString()}`
+                                : "No disponible"
+                          }
+                          color="success"
+                        />
+                      </Grid>
+                      <Grid item size={{ xs: 6 }}>
+                        <InfoCard
+                          icon={<Business fontSize="small" color="warning" />}
+                          title="Instituciones"
+                          content={
+                            marker.data.inst ||
+                            marker.data.instituciones ||
+                            "No disponible"
+                          }
+                          color="warning"
+                        />
+                      </Grid>
+                    </Grid>
+                    <Grid item size={{ xs: 6 }}>
+                      <InfoCard
+                        icon={<Link fontSize="small" color="success" />}
+                        title="Verificable"
+                        content={
+                          marker.data.verifi === "si" ? (
+                            <Typography
+                              component="a"
+                              href={marker.data.verificableUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              sx={{
+                                color: "primary.main",
+                                textDecoration: "none",
+                              }}
+                            >
+                              DESCARGAR VERIFICABLE
+                            </Typography>
+                          ) : (
+                            <Typography>No existe verificable</Typography>
+                          )
+                        }
+                      />
+                    </Grid>
+                    {/* Plazos de ejecución */}
+                    {activeMonths.length > 0 && (
+                      <Card
+                        variant="outlined"
+                        sx={{
+                          mb: 1.5,
+                          backgroundColor: "#f5f5f5",
+                        }}
+                      >
+                        <CardContent sx={{ py: 1, "&:last-child": { pb: 1 } }}>
+                          <Typography
+                            variant="subtitle2"
+                            sx={{ fontWeight: "bold", mb: 0.5 }}
+                          >
+                            📅 Plazos de ejecución
+                          </Typography>
+                          <Box>
+                            {activeMonths.map((month) => (
+                              <MonthBadge
+                                key={month}
+                                month={month}
+                                active={true}
+                              />
+                            ))}
+                          </Box>
+                          <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            display="block"
+                            sx={{ mt: 0.5 }}
+                          >
+                            {activeMonths.length} mes(es) activo(s)
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </>
                 )}
+              </Box>
+              {/* Acciones */}
+              <Box sx={{ display: "flex", gap: 1, mt: 1.5 }}>
+                <Button
+                  size="small"
+                  disabled={marker.data.mtt && marker.data.mtt !== mtt}
+                  variant="outlined"
+                  startIcon={<Edit />}
+                  onClick={() => setOpenEdit(!openEdit)}
+                  sx={{ flex: 1 }}
+                >
+                  Editar
+                </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  disabled={marker.data.mtt && marker.data.mtt !== mtt}
+                  color="error"
+                  startIcon={<Delete />}
+                  onClick={async () => {
+                    if (!isCompletado) {
+                      await hadleDelete(marker.data.row); // o marker.data.row sin +6
+                    }
+                  }}
+                  sx={{ flex: 1 }}
+                >
+                  Eliminar
+                </Button>
               </Box>
             </Popup>
           </Marker>
         );
       })}
     </>
+  );
+};
+
+const VERIFICABLE_OPTIONS = [
+  { value: "si", label: "Sí" },
+  { value: "no", label: "No" },
+];
+
+const estado_OPTIONS = [
+  { value: "Por activar", label: "Por activar" },
+  { value: "Programado", label: "Programado" },
+  { value: "En ejecución", label: "En ejecución" },
+  { value: "Permanente", label: "Permanente" },
+  { value: "Completado", label: "Completado" },
+];
+
+const EditData = ({data: dataI}) => {
+  const INITIAL_DATA = {
+    cash: dataI.cash,
+    inst: dataI.inst,
+    detail: dataI.detail,
+    verifi: dataI.verifi,
+    verificableUrl: dataI.verificableUrl,
+    estado: dataI.estado,
+  };
+  const [data, setData] = useState(INITIAL_DATA);
+  const [error, setError] = useState(null);
+   const [verificableLink, setVerificableLink] = useState('');
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setData((prev) => ({ ...prev, [name]: value }));
+    setError(null);
+
+    if (name === "tipe") {
+      // Resetear acción y descripción al cambiar el tipo
+      setData((prev) => ({ ...prev, accion: "", desc: "" }));
+    }
+  };
+  // ========== RENDER DE CAMPO ==========
+  const renderField = (
+    name,
+    label,
+    type = "text",
+    options = [],
+    extraProps = {},
+  ) => (
+    <TextField
+      name={name}
+      label={label}
+      type={type}
+      value={dataI[name] || ""}
+      onChange={handleChange}
+      select={type === "select"}
+      multiline={type === "textarea"}
+      rows={type === "textarea" ? 5 : undefined}
+      fullWidth
+      disabled={name === "by" || name === "desc"}
+      {...extraProps}
+    >
+      {type === "select" &&
+        options.map((opt) => (
+          <MenuItem key={opt.value} value={opt.value}>
+            {opt.label}
+          </MenuItem>
+        ))}
+    </TextField>
+  );
+
+  //============manejo de archivos===========
+  
+  const driveManagerRef = useRef(null); // Referencia al componente DriveManager
+  const handleUploadComplete = (url) => {
+    setVerificableLink(url);
+  };
+  return (
+   <Paper elevation={3} sx={{px:2, py:1}}  >
+
+   <Typography textAlign="center" variant="h6">
+    Editar Contenido de acción
+   </Typography>
+    <Grid container spacing={2}>
+      {/* Tipo */}
+
+      <Grid item size={{ xs: 12 }}>
+        {renderField("cash", "Presupuesto")}
+      </Grid>
+
+      <Grid item size={{ xs: 12 }}>
+        {renderField("inst", "Instituciones de Apoyo")}
+      </Grid>
+
+      <Grid item size={{ xs: 12 }}>
+        {renderField("detail", "Detalles", "textarea")}
+      </Grid>
+      <Grid item size={{ xs: 12 }}>
+        {renderField("estado", "Estado", "select", estado_OPTIONS)}
+      </Grid>
+      <Grid item size={{ xs: 12 }}>
+        {renderField(
+          "verificable",
+          "Verificable",
+          "select",
+          VERIFICABLE_OPTIONS,
+        )}
+      </Grid>
+      {data.verifi === "si" && (
+          <Grid item size={{ xs: 12 }}>
+            <DriveManager
+              ref={driveManagerRef}
+              onUploadComplete={handleUploadComplete}
+              initialLink={verificableLink}
+            />
+          </Grid>
+        )}
+    </Grid>
+   </Paper  >
   );
 };
