@@ -210,7 +210,7 @@ function BodyPlan({ mtt, member }) {
   const handleLayerToggle = useCallback(
     async (layer) => {
       const isActivating = !selectedCapa[layer];
-      console.log(`🖱️ Toggle capa: ${layer} -> Activando: ${isActivating}`);
+      //console.log(`🖱️ Toggle capa: ${layer} -> Activando: ${isActivating}`);
       
       setSelectedCapa((prev) => ({ ...prev, [layer]: isActivating }));
 

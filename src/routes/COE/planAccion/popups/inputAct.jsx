@@ -20,60 +20,25 @@ import {
   Stack,
   CircularProgress,
   Alert,
+  Autocomplete,
 } from "@mui/material";
 import { useState, useEffect, useMemo, useRef } from "react";
 import { usePlanA } from "../script";
 import DriveManager from "./loadfile";
+import InstApoyo from "../../../../components/utils/inst_info_canton.json";
+import { ESTADO_OPTIONS, INITIAL_DATA, MONTHS, TIPO_OPTIONS, VERIFICABLE_OPTIONS } from "./config";
 
-// ========== CONFIGURACIÓN ==========
-const MONTHS = [
-  { key: "Jun", label: "Junio" },
-  { key: "Jul", label: "Julio" },
-  { key: "Ago", label: "Agosto" },
-  { key: "Sep", label: "Septiembre" },
-  { key: "Oct", label: "Octubre" },
-  { key: "Nov", label: "Noviembre" },
-  { key: "Dic", label: "Diciembre" },
-];
 
-const TIPO_OPTIONS = [
-  { value: "Conoc_Monit", label: "Conocimiento y Monitoreo" },
-  { value: "prev_mit", label: "Prevención y Mitigación" },
-  { value: "prep", label: "Preparación" },
-  { value: "resp", label: "Respuesta" },
-  { value: "recup", label: "Recuperación" },
-];
 
-const VERIFICABLE_OPTIONS = [
-  { value: "si", label: "Sí" },
-  { value: "no", label: "No" },
-];
+// Extraer nombres de instituciones (strings)
+const INSTITUCIONES_LIST = InstApoyo.map((item) => 
+  typeof item === 'string' ? item : item.nombre || item.label || ""
+).filter(Boolean);
 
-const estado_OPTIONS = [
-    { value: "Por activar", label: "Por activar" },
-  { value: "Programado", label: "Programado" },
-  { value: "En ejecución", label: "En ejecución" },
-  { value: "Permanente", label: "Permanente" },
-  { value: "Completado", label: "Completado" },   
-];
 
-const INITIAL_DATA = {
-  by: "",
-  mtt: "",
-  provincia: "Loja",
-  canton: "Loja",
-  sector: "",
-  desc: "",
-  accion: "",
-  cash: "",
-  inst: "",
-  detail: "",
-  verifi: "",
-  estado:" ",
-  tipe: "",
-};
 MONTHS.forEach((m) => (INITIAL_DATA[m.key] = false));
 
+// ========== COMPONENTE PRINCIPAL ==========
 export const DialogAccion = ({
   open,
   onClose,
@@ -97,30 +62,31 @@ export const DialogAccion = ({
   const lng = cleanCoord(dialogCoords?.lng);
   const coordString = lat !== null && lng !== null ? `${lat}, ${lng}` : "";
 
-  // ========== ESTADO ==========
+  // ========== ESTADOS ==========
   const [data, setData] = useState(INITIAL_DATA);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-    // Estado para almacenar el enlace del archivo subido (o manual)
-  const [verificableLink, setVerificableLink] = useState('');
+  const [verificableLink, setVerificableLink] = useState("");
+  const [instituciones, setInstituciones] = useState([]); // Array de strings
+  const [inputInstValue, setInputInstValue] = useState("");
 
-  // ========== CARGAR TODAS LAS ACCIONES AL ABRIR ==========
+  const driveManagerRef = useRef(null);
+
+  // ========== CARGAR ACCIONES ==========
   useEffect(() => {
     if (open) {
-      // Resetear formulario
       setData({ ...INITIAL_DATA, by: member || "", mtt: mtt || "" });
+      setInstituciones([]);
+      setInputInstValue("");
+      setVerificableLink("");
       setError(null);
-      // Cargar todas las acciones
       searchAccion("opcions");
     }
   }, [open, member, mtt, searchAccion]);
 
-  // ========== OPCIONES DE ACCIONES AGRUPADAS POR TIPO ==========
+  // ========== OPCIONES DE ACCIONES AGRUPADAS ==========
   const accionesPorTipo = useMemo(() => {
-    // ✅ Validar que dataGet tenga datos
-    if (!dataGet?.datos || !Array.isArray(dataGet.datos)) {
-      return {};
-    }
+    if (!dataGet?.datos || !Array.isArray(dataGet.datos)) return {};
 
     const grouped = {};
     dataGet.datos.forEach((item) => {
@@ -131,25 +97,35 @@ export const DialogAccion = ({
         value: item.accion || item.desc || "",
         label: item.accion || item.desc || "Sin nombre",
         desc: item.desc || "",
+        inst: item.inst || "",
+        responsable: item.responsable || "",
       });
     });
     return grouped;
-  }, [dataGet]); // ✅ Dependencia en dataGet para actualizar cuando lleguen los datos
+  }, [dataGet]);
 
-  // ========== OPCIONES PARA EL SELECT DE ACCIÓN (filtradas por tipo) ==========
   const accionesOptions = useMemo(() => {
     if (!data.tipe) return [];
     return accionesPorTipo[data.tipe] || [];
   }, [data.tipe, accionesPorTipo]);
 
-  // ========== AUTOCOMPLETAR DESCRIPCIÓN AL SELECCIONAR ACCIÓN ==========
+  // ========== AUTOFILL AL SELECCIONAR ACCIÓN ==========
   useEffect(() => {
     if (data.accion && data.tipe) {
       const selected = accionesOptions.find(
         (item) => item.value === data.accion
       );
-      if (selected && selected.desc) {
-        setData((prev) => ({ ...prev, desc: selected.desc }));
+      if (selected) {
+        const instArray = selected.inst
+          ? selected.inst.split(",").map((i) => i.trim()).filter(Boolean)
+          : [];
+
+        setData((prev) => ({
+          ...prev,
+          desc: selected.desc,
+          responsable: selected.responsable,
+        }));
+        setInstituciones(instArray);
       }
     }
   }, [data.accion, data.tipe, accionesOptions]);
@@ -157,8 +133,10 @@ export const DialogAccion = ({
   // ========== HANDLERS ==========
   const handleClose = () => {
     setData(INITIAL_DATA);
+    setInstituciones([]);
+    setInputInstValue("");
+    setVerificableLink("");
     setError(null);
-    setVerificableLink("")
     onClose();
   };
 
@@ -168,8 +146,8 @@ export const DialogAccion = ({
     setError(null);
 
     if (name === "tipe") {
-      // Resetear acción y descripción al cambiar el tipo
       setData((prev) => ({ ...prev, accion: "", desc: "" }));
+      setInstituciones([]);
     }
   };
 
@@ -177,34 +155,48 @@ export const DialogAccion = ({
     setData((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
+
+  const handleAddInstitucion = (newInst) => {
+    if (!newInst || !newInst.trim()) return;
+    const trimmed = newInst.trim();
+    if (instituciones.includes(trimmed)) {
+      setError("La institución ya está agregada");
+      return;
+    }
+    setInstituciones((prev) => [...prev, trimmed]);
+    setInputInstValue("");
+    setError(null);
+  };
+
+  const handleRemoveInstitucion = (instToRemove) => {
+    setInstituciones((prev) => prev.filter((i) => i !== instToRemove));
+  };
+
   const getActiveMonths = () =>
     MONTHS.filter((m) => data[m.key]).map((m) => m.label);
 
   const handleSubmit = async () => {
-    // Validaciones existentes
+    // Validaciones
     if (!data.tipe) return setError("Seleccione un tipo de acción");
     if (!data.accion) return setError("Seleccione una acción");
     if (!data.sector) return setError("Ingrese un sector");
-    if (getActiveMonths().length === 0) return setError("Seleccione al menos un mes");
+    if (getActiveMonths().length === 0)
+      return setError("Seleccione al menos un mes");
     if (!coordString) return setError("No hay coordenadas disponibles");
 
-    // Si es verificable, debe haber un enlace (subido o manual)
-    if (data.verifi === 'si') {
-      // Si hay un archivo pendiente en DriveManager, lo subimos automáticamente
+    // Validar verificable
+    if (data.verifi === "si") {
       if (driveManagerRef.current) {
         try {
-          // Intentar subir el archivo si existe, o devolver el enlace manual
           const link = await driveManagerRef.current.uploadFile();
           setVerificableLink(link);
         } catch (err) {
-          setError(err.message || 'Error al subir el archivo');
+          setError(err.message || "Error al subir el archivo");
           return;
         }
       }
-
-      // Después de intentar subir, verificamos que tengamos un enlace
       if (!verificableLink) {
-        setError('Debe proporcionar un enlace o subir un archivo para acciones verificables');
+        setError("Debe proporcionar un enlace o subir un archivo");
         return;
       }
     }
@@ -213,29 +205,27 @@ export const DialogAccion = ({
     setError(null);
 
     try {
-      // Construir payload incluyendo el enlace (si existe)
       const payload = {
         ...data,
         date: new Date().toISOString(),
         ubi: coordString,
         meses_activos: getActiveMonths(),
         total_meses: getActiveMonths().length,
-        verificableUrl: data.verifi === 'si' ? verificableLink : null,
+        verifi: data.verifi,
+        inst: instituciones.join(', '), // Array de strings
+        verificableUrl: data.verifi === "si" ? verificableLink : null,
       };
 
-      console.log(payload)
+      console.log(payload.inst)
 
       await post(data.tipe, payload);
-      setData(INITIAL_DATA);
-      setVerificableLink('');
-      onClose();
+      handleClose();
     } catch (err) {
       setError(err.message || "Error al guardar");
     } finally {
       setLoading(false);
     }
   };
-
 
   // ========== RENDER DE CAMPO ==========
   const renderField = (
@@ -244,46 +234,35 @@ export const DialogAccion = ({
     type = "text",
     options = [],
     extraProps = {}
-  ) => (
-    <TextField
-      name={name}
-      label={label}
-      type={type}
-      value={data[name] || ""}
-      onChange={handleChange}
-      select={type === "select"}
-      multiline={type === "textarea"}
-      rows={type === "textarea" ? 5 : undefined}
-      fullWidth
-      disabled={name === "by" || name === "desc"}
-      {...extraProps}
-    >
-      {type === "select" &&
-        options.map((opt) => (
-          <MenuItem key={opt.value} value={opt.value}>
-            {opt.label}
-          </MenuItem>
-        ))}
-    </TextField>
-  );
+  ) => {
+    // Asegurar que options sea un array
+    const safeOptions = Array.isArray(options) ? options : [];
 
-//============manejo de archivos===========
-
-const driveManagerRef = useRef(null); // Referencia al componente DriveManager
-// Cuando se complete la subida desde DriveManager (callback)
-  const handleUploadComplete = (url) => {
-    setVerificableLink(url);
+    return (
+      <TextField
+        name={name}
+        label={label}
+        type={type}
+        value={data[name] || ""}
+        onChange={handleChange}
+        select={type === "select"}
+        multiline={type === "textarea"}
+        rows={type === "textarea" ? 5 : undefined}
+        fullWidth
+        disabled={name === "by" || name === "desc"}
+        {...extraProps}
+      >
+        {type === "select" &&
+          safeOptions.map((opt) => (
+            <MenuItem key={opt.value} value={opt.value}>
+              {opt.label}
+            </MenuItem>
+          ))}
+      </TextField>
+    );
   };
 
-  // Al cambiar el radio "verificable", limpiamos el enlace si se desmarca
-  useEffect(() => {
-    if (data.verifi !== 'si') {
-      setVerificableLink('');
-      // También podríamos limpiar el estado interno de DriveManager, pero lo haremos al cerrar
-    }
-  }, [data.verifi]);
-
-  // ========== RENDER ==========
+  // ========== RENDER PRINCIPAL ==========
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
       <DialogTitle>Ingrese Acciones - {mtt}</DialogTitle>
@@ -305,41 +284,88 @@ const driveManagerRef = useRef(null); // Referencia al componente DriveManager
           </Typography>
 
           <Grid container spacing={2}>
-            {/* Tipo */}
             <Grid item size={{ xs: 12 }}>
               {renderField("tipe", "Tipo", "select", TIPO_OPTIONS)}
             </Grid>
 
-            {/* Acción - dinámico según tipo */}
             <Grid item size={{ xs: 12 }}>
-              {renderField(
-                "accion",
-                "Acción",
-                "select",
-                accionesOptions,
-                {
-                  disabled: !data.tipe || loadingGet,
-                  helperText: !data.tipe
-                    ? "Seleccione un tipo primero"
-                    : loadingGet
-                    ? "Cargando acciones..."
-                    : accionesOptions.length === 0 && data.tipe
-                    ? "No hay acciones disponibles para este tipo"
-                    : "",
-                  InputProps: {
-                    endAdornment: loadingGet && (
-                      <CircularProgress size={20} sx={{ mr: 1 }} />
-                    ),
-                  },
-                }
-              )}
+              {renderField("accion", "Acción", "select", accionesOptions, {
+                disabled: !data.tipe || loadingGet,
+                helperText: !data.tipe
+                  ? "Seleccione un tipo primero"
+                  : loadingGet
+                  ? "Cargando acciones..."
+                  : accionesOptions.length === 0 && data.tipe
+                  ? "No hay acciones disponibles para este tipo"
+                  : "",
+                InputProps: {
+                  endAdornment: loadingGet && (
+                    <CircularProgress size={25} sx={{ mr: 1 }} />
+                  ),
+                },
+              })}
             </Grid>
 
-            {/* Descripción - autocompletada */}
+            {/* Descripción */}
             <Grid item size={{ xs: 12 }}>
               <Typography variant="body1" textAlign="justify">
-                <strong>Descripción: </strong> {data.desc || "Seleccione una acción"}
+                <strong>Descripción: </strong>{" "}
+                {data.desc || "Seleccione una acción"}
               </Typography>
+            </Grid>
+
+            {/* Responsable */}
+            <Grid item size={{ xs: 12 }}>
+              <Typography variant="body1" textAlign="justify">
+                <strong>Responsable: </strong>{" "}
+                {data.responsable || "No se identifica responsable"}
+              </Typography>
+            </Grid>
+
+            {/* Instituciones de Apoyo - Autocomplete */}
+            <Grid item size={{ xs: 12 }}>
+              <Autocomplete
+                freeSolo
+                options={INSTITUCIONES_LIST}
+                inputValue={inputInstValue}
+                onInputChange={(_, newValue) => setInputInstValue(newValue || "")}
+                onChange={(_, newValue) => {
+                  if (newValue) {
+                    handleAddInstitucion(newValue);
+                  }
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Instituciones de Apoyo"
+                    placeholder="Escriba y presione Enter para agregar"
+                    helperText="Seleccione o escriba una institución y presione Enter"
+                  />
+                )}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && inputInstValue.trim()) {
+                    e.preventDefault();
+                    handleAddInstitucion(inputInstValue);
+                  }
+                }}
+                clearOnBlur={false}
+                clearOnEscape
+              />
+              
+              {/* Mostrar instituciones seleccionadas como chips */}
+              {instituciones.length > 0 && (
+                <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mt: 1 }}>
+                  {instituciones.map((inst, idx) => (
+                    <Chip
+                      key={idx}
+                      label={inst}
+                      onDelete={() => handleRemoveInstitucion(inst)}
+                      color="primary"
+                      size="small"
+                    />
+                  ))}
+                </Box>
+              )}
             </Grid>
 
             <Grid item size={{ xs: 6 }}>
@@ -351,29 +377,26 @@ const driveManagerRef = useRef(null); // Referencia al componente DriveManager
             </Grid>
 
             <Grid item size={{ xs: 12 }}>
-              {renderField("inst", "Instituciones de Apoyo")}
-            </Grid>
-
-            <Grid item size={{ xs: 12 }}>
               {renderField("detail", "Detalles", "textarea")}
             </Grid>
- <Grid item size={{ xs: 12 }}>
-              {renderField("estado", "Estado", "select", estado_OPTIONS)}
-            </Grid>
+
             <Grid item size={{ xs: 12 }}>
-              {renderField("verificable", "Verificable", "select", VERIFICABLE_OPTIONS)}
+              {renderField("estado", "Estado", "select", ESTADO_OPTIONS)}
             </Grid>
 
-            {/* Mostrar DriveManager solo si verificable === "si" */}
-        {data.verifi === "si" && (
-          <Grid item size={{ xs: 12 }}>
-            <DriveManager
-              ref={driveManagerRef}
-              onUploadComplete={handleUploadComplete}
-              initialLink={verificableLink}
-            />
-          </Grid>
-        )}
+            <Grid item size={{ xs: 12 }}>
+              {renderField("verifi", "Verificable", "select", VERIFICABLE_OPTIONS)}
+            </Grid>
+
+            {data.verifi === "si" && (
+              <Grid item size={{ xs: 12 }}>
+                <DriveManager
+                  ref={driveManagerRef}
+                  onUploadComplete={setVerificableLink}
+                  initialLink={verificableLink}
+                />
+              </Grid>
+            )}
 
             {/* Meses */}
             <Grid item size={{ xs: 12 }}>
@@ -404,10 +427,7 @@ const driveManagerRef = useRef(null); // Referencia al componente DriveManager
                   </Box>
                 )}
 
-                <RadioGroup
-                  row
-                  sx={{ flexWrap: "wrap", gap: 0.5, mt: 1 }}
-                >
+                <RadioGroup row sx={{ flexWrap: "wrap", gap: 0.5, mt: 1 }}>
                   {MONTHS.map((month) => (
                     <FormControlLabel
                       key={month.key}
@@ -436,7 +456,11 @@ const driveManagerRef = useRef(null); // Referencia al componente DriveManager
       </DialogContent>
 
       <DialogActions>
-        <Button onClick={handleSubmit} disabled={loading || loadingGet} variant="contained">
+        <Button
+          onClick={handleSubmit}
+          disabled={loading || loadingGet}
+          variant="contained"
+        >
           {loading ? "Guardando..." : "Añadir"}
         </Button>
         <Button onClick={handleClose} disabled={loading}>

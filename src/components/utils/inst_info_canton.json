@@ -1,0 +1,226 @@
+[
+ 
+  {
+    "value": "Agencia de Regulación y Control del Agua (ARCA)",
+    "label": "Agencia de Regulación y Control del Agua (ARCA)"
+  },
+  {
+    "value": "Agencia de Regulación y Control de las Telecomunicaciones (ARCOTEL)",
+    "label": "Agencia de Regulación y Control de las Telecomunicaciones (ARCOTEL)"
+  },
+  {
+    "value": "Agencia de Regulación y Control Fito y Zoosanitario (ARCFZ)",
+    "label": "Agencia de Regulación y Control Fito y Zoosanitario (ARCFZ)"
+  },
+  {
+    "value": "Agencia Nacional de Regulación, Control y Vigilancia Sanitaria (ARCSA)",
+    "label": "Agencia Nacional de Regulación, Control y Vigilancia Sanitaria (ARCSA)"
+  },
+  {
+    "value": "Agencia Nacional de Tránsito (ANT)",
+    "label": "Agencia Nacional de Tránsito (ANT)"
+  },
+
+  {
+    "value": "Banco de Desarrollo del Ecuador B.P. (BDE)",
+    "label": "Banco de Desarrollo del Ecuador B.P. (BDE)"
+  },
+  
+  {
+    "value": "CASMUL",
+    "label": "Centro de Apoyo Social Municipal (CASMUL)"
+  },
+  {
+    "value": "Comando Conjunto de las Fuerzas Armadas (CCFFAA)",
+    "label": "Comando Conjunto de las Fuerzas Armadas (CCFFAA)"
+  },
+  {
+    "value": "Consejo de Participación Ciudadana y Control Social (CPCCS)",
+    "label": "Consejo de Participación Ciudadana y Control Social (CPCCS)"
+  },
+  {
+    "value": "Consejo Nacional para la Igualdad Intergeneracional (CNII)",
+    "label": "Consejo Nacional para la Igualdad Intergeneracional (CNII)"
+  },
+  {
+    "value": "Corporación Eléctrica del Ecuador (CELEC EP)",
+    "label": "Corporación Eléctrica del Ecuador (CELEC EP)"
+  },
+
+  {
+    "value": "Cuerpo de Bomberos Loja",
+    "label": "Cuerpo de Bomberos Loja"
+  },
+  {
+    "value": "Gestión Ambiental",
+    "label": "Dirección de Gestión Ambiental"
+  },
+  {
+    "value": "Higiene",
+    "label": "Dirección de Higiene"
+  },
+  {
+    "value": "Obras Públicas",
+    "label": "Dirección de Obras Públicas"
+  },
+  {
+    "value": "Planificación",
+    "label": "Dirección de Planificación"
+  },
+  {
+    "value": "Seguridad Ciudadana y Control Público",
+    "label": "Dirección de Seguridad Ciudadana y Control Público"
+  },
+  
+  {
+    "value": "Empresa Eléctrica Regional del Sur S.A. (EERSSA)",
+    "label": "Empresa Eléctrica Regional del Sur S.A. (EERSSA)"
+  },
+
+  {
+    "value": "GAD Cantonal",
+    "label": "GAD Cantonal"
+  },
+  {
+    "value": "GAD Provincial",
+    "label": "GAD Provincial"
+  },
+  {
+    "value": "GAD Parroquial",
+    "label": "GAD Parroquial"
+  },
+  {
+    "value": "Instituto de Fomento a la Creatividad e Innovación (IFCI)",
+    "label": "Instituto de Fomento a la Creatividad e Innovación (IFCI)"
+  },
+  {
+    "value": "Instituto de Investigación Geológico y Energético (IIGE)",
+    "label": "Instituto de Investigación Geológico y Energético (IIGE)"
+  },
+  {
+    "value": "Instituto de Seguridad Social de las Fuerzas Armadas (ISSFA)",
+    "label": "Instituto de Seguridad Social de las Fuerzas Armadas (ISSFA)"
+  },
+  {
+    "value": "Instituto Ecuatoriano de Seguridad Social (IESS)",
+    "label": "Instituto Ecuatoriano de Seguridad Social (IESS)"
+  },
+  {
+    "value": "Instituto Geográfico Militar (IGM)",
+    "label": "Instituto Geográfico Militar (IGM)"
+  },
+  {
+    "value": "Instituto Nacional de Biodiversidad (INABIO)",
+    "label": "Instituto Nacional de Biodiversidad (INABIO)"
+  },
+  {
+    "value": "Instituto Nacional de Donación y Trasplante de Órganos, Tejidos y Células (INDOT)",
+    "label": "Instituto Nacional de Donación y Trasplante de Órganos, Tejidos y Células (INDOT)"
+  },
+  {
+    "value": "Instituto Nacional de Economía Popular y Solidaria (IEPS)",
+    "label": "Instituto Nacional de Economía Popular y Solidaria (IEPS)"
+  },
+  {
+    "value": "Instituto Nacional de Estadística y Censos (INEC)",
+    "label": "Instituto Nacional de Estadística y Censos (INEC)"
+  },
+  {
+    "value": "Instituto Nacional de Evaluación Educativa (INEVAL)",
+    "label": "Instituto Nacional de Evaluación Educativa (INEVAL)"
+  },
+  {
+    "value": "Instituto Nacional de Investigación en Salud Pública Dr. Leopoldo Izquieta Pérez (INSPI)",
+    "label": "Instituto Nacional de Investigación en Salud Pública Dr. Leopoldo Izquieta Pérez (INSPI)"
+  },
+  {
+    "value": "Instituto Nacional de Investigaciones Agropecuarias (INIAP)",
+    "label": "Instituto Nacional de Investigaciones Agropecuarias (INIAP)"
+  },
+  {
+    "value": "Instituto Nacional de Meteorología e Hidrología (INAMHI)",
+    "label": "Instituto Nacional de Meteorología e Hidrología (INAMHI)"
+  },
+  {
+    "value": "Ministerio de Agricultura y Ganadería (MAG)",
+    "label": "Ministerio de Agricultura y Ganadería (MAG)"
+  },
+  
+  {
+    "value": "Ministerio de Cultura y Patrimonio (MC)",
+    "label": "Ministerio de Cultura y Patrimonio (MC)"
+  },
+  {
+    "value": "Ministerio de Defensa Nacional (MIDENA)",
+    "label": "Ministerio de Defensa Nacional (MIDENA)"
+  },
+  {
+    "value": "Ministerio de Desarrollo Urbano y Vivienda (MIDUVI)",
+    "label": "Ministerio de Desarrollo Urbano y Vivienda (MIDUVI)"
+  },
+  {
+    "value": "Ministerio de Economía y Finanzas (MEF)",
+    "label": "Ministerio de Economía y Finanzas (MEF)"
+  },
+  {
+    "value": "MINEDEC",
+    "label": "Ministerio de Educación (MINEDUC)"
+  },
+  {
+    "value": "Ministerio de Energía y Minas",
+    "label": "Ministerio de Energía y Minas"
+  },
+  {
+    "value": "Ministerio de Gobierno (MDG)",
+    "label": "Ministerio de Gobierno (MDG)"
+  },
+  {
+    "value": "Ministerio de Inclusión Económica y Social (MIES)",
+    "label": "Ministerio de Inclusión Económica y Social (MIES)"
+  },
+  {
+    "value": "Ministerio del Ambiente, Agua y Transición Ecológica (MAATE)",
+    "label": "Ministerio del Ambiente, Agua y Transición Ecológica (MAATE)"
+  },
+
+
+  {
+    "value": "Ministerio de Salud Pública (MSP)",
+    "label": "Ministerio de Salud Pública (MSP)"
+  },
+ 
+  {
+    "value": "Ministerio de Transporte y Obras Públicas (MTOP)",
+    "label": "Ministerio de Transporte y Obras Públicas (MTOP)"
+  },
+  
+  
+  {
+    "value": "Servicio Integrado de Seguridad (ECU 911)",
+    "label": "Servicio Integrado de Seguridad (ECU 911)"
+  },
+  
+  {
+    "value": "Cruz Roja Ecuatoriana (CRE)",
+    "label": "Cruz Roja Ecuatoriana (CRE)"
+  },
+ 
+  {
+    "value": "SNGR",
+    "label": "Secretaría Nacional de Gestión de Riesgos (SNGR)"
+  },
+ 
+  {
+    "value": "Agencia Metropolitana de Tránsito",
+    "label": "Agencia Metropolitana de Tránsito"
+  },
+  {
+    "value": "Cuerpo de Ingenieros del Ejército",
+    "label": "Cuerpo de Ingenieros del Ejército"
+  },
+  {
+    "value": "UMAPAL",
+    "label": "Umapal Municipal de Agua Potable y Alcantarillado (UMAPAL)"
+  }
+
+]

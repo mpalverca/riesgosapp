@@ -1,33 +1,18 @@
-import DirectionsWalkIcon from "@mui/icons-material/DirectionsWalk";
-import TabContext from "@mui/lab/TabContext";
-import TabList from "@mui/lab/TabList";
-import TabPanel from "@mui/lab/TabPanel";
+
 import {
   Box,
   Button,
   Chip,
   Divider,
   Grid,
-  Paper,
-  Tab,
   Typography,
-  Avatar,
   Card,
   CardContent,
   Stack,
-  Tooltip,
-  IconButton,
-  LinearProgress,
-  Alert,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  MenuItem,
-  TextField,
+  Snackbar,
 } from "@mui/material";
 import { divIcon } from "leaflet";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import { renderToString } from "react-dom/server";
 import { Marker, Popup } from "react-leaflet";
 import { parseByField } from "../../../utils/utils";
@@ -44,20 +29,16 @@ import {
   Delete,
   Save,
   Assessment,
-  CheckCircle,
-  Warning,
   Schedule,
   AddAlertOutlined,
-  AirplanemodeActive,
-  PrivacyTip,
+  GppGoodOutlined,
+  LocalShippingOutlined,
   ThumbDownAlt,
-  PrecisionManufacturing,
-  Build,
-  Engineering,
   Link,
+  Psychology,
 } from "@mui/icons-material";
 import { usePlanA } from "../script";
-import DriveManager from "./loadfile";
+import EditData from "./editarAct";
 
 // ========== FUNCIÓN AUXILIAR PARA EXTRAER DATOS ==========
 const extractDataArray = (data) => {
@@ -88,35 +69,32 @@ const coordForm = (ubi) => {
 // ========== CONFIGURACIÓN DE ICONOS POR TIPO ==========
 const ICON_CONFIG = {
   "Conocimiento y Monitoreo": {
-    icon: DirectionsWalkIcon,
-    color: "#602fbb",
-    bgGradient: "linear-gradient(135deg, #602fbb, #7c4dff)",
+    icon: Psychology,
+      color: "#0066cc",
+    bgGradient: "linear-gradient(135deg, #0066cc, #4d94ff)",
+    
   },
   "Prevención y Mitigación": {
     icon: AddAlertOutlined,
-    color: "#ff8c00",
-    bgGradient: "linear-gradient(135deg, #ff8c00, #ffb347)",
-  },
-  Preparación: {
-    icon: AirplanemodeActive,
-    color: "#228b22",
+     color: "#228b22",
     bgGradient: "linear-gradient(135deg, #228b22, #66bb6a)",
   },
+  Preparación: {
+    icon: GppGoodOutlined,
+   color: "#ff8c00",
+    bgGradient: "linear-gradient(135deg, #ff8c00, #ffb347)",
+  },
   Respuesta: {
-    icon: PrivacyTip,
-    color: "#ff6b00",
-    bgGradient: "linear-gradient(135deg, #ff6b00, #ff9a3c)",
+    icon: LocalShippingOutlined,
+    color: "#ff1100",
+    bgGradient: "linear-gradient(135deg, #ff0000, #ff9a3c)",
   },
   Recuperación: {
     icon: ThumbDownAlt,
-    color: "#0066cc",
-    bgGradient: "linear-gradient(135deg, #0066cc, #4d94ff)",
+    color: "#602fbb",
+    bgGradient: "linear-gradient(135deg, #602fbb, #7c4dff)",
   },
-  default: {
-    icon: DirectionsWalkIcon,
-    color: "#757575",
-    bgGradient: "linear-gradient(135deg, #757575, #bdbdbd)",
-  },
+  
 };
 
 // ========== COMPONENTES DE ESTILOS ==========
@@ -220,7 +198,7 @@ export const ConMonitView = ({
   // Determinar qué datos usar
   const dataSource = afect || acciones || recursos || [];
 
-  const { deleteRow } = usePlanA();
+  const { deleteRow, dataGet, loadingGet } = usePlanA();
   // Obtener configuración de icono según el título
   const iconConfig = ICON_CONFIG[title] || ICON_CONFIG.default;
   const IconComponent = iconConfig.icon;
@@ -317,6 +295,14 @@ export const ConMonitView = ({
     console.log(row);
     try {
       await deleteRow(sheet, row);
+      <Snackbar
+        open={true}
+        autoHideDuration={6000}
+        severity="error"
+        sx={{ mt: 1 }}
+        message="Acción eliminada, actualiza el cambo de acciones"
+      />;
+
       // Opcional: refrescar datos o mostrar snackbar
     } catch (error) {
       console.error("Error al eliminar:", error);
@@ -332,7 +318,6 @@ export const ConMonitView = ({
     return null;
   }
 
-  
   return (
     <>
       {processedData.map((marker) => {
@@ -508,17 +493,12 @@ export const ConMonitView = ({
                 />
                 {openEdit ? (
                   <>
-                    <EditData data={marker.data} />
-                    <Button
-                      fullWidth
-                      size="small"
-                      variant="contained"
-                      color="warning"
-                      startIcon={<Save />}
-                      sx={{ mt: 1 }}
-                    >
-                      Guardar Cambios
-                    </Button>
+                    <EditData
+                      dataI={marker.data}
+                      close={() => setOpenEdit(false)}
+                      row={marker.data.row}
+                      member={props.member}
+                    />
                   </>
                 ) : (
                   <>
@@ -652,7 +632,7 @@ export const ConMonitView = ({
                   }}
                   sx={{ flex: 1 }}
                 >
-                  Eliminar
+                  {loadingGet ? "Eliminando..." : "Eliminar"}
                 </Button>
               </Box>
             </Popup>
@@ -660,122 +640,5 @@ export const ConMonitView = ({
         );
       })}
     </>
-  );
-};
-
-const VERIFICABLE_OPTIONS = [
-  { value: "si", label: "Sí" },
-  { value: "no", label: "No" },
-];
-
-const estado_OPTIONS = [
-  { value: "Por activar", label: "Por activar" },
-  { value: "Programado", label: "Programado" },
-  { value: "En ejecución", label: "En ejecución" },
-  { value: "Permanente", label: "Permanente" },
-  { value: "Completado", label: "Completado" },
-];
-
-const EditData = ({data: dataI}) => {
-  const INITIAL_DATA = {
-    cash: dataI.cash,
-    inst: dataI.inst,
-    detail: dataI.detail,
-    verifi: dataI.verifi,
-    verificableUrl: dataI.verificableUrl,
-    estado: dataI.estado,
-  };
-  const [data, setData] = useState(INITIAL_DATA);
-  const [error, setError] = useState(null);
-   const [verificableLink, setVerificableLink] = useState('');
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setData((prev) => ({ ...prev, [name]: value }));
-    setError(null);
-
-    if (name === "tipe") {
-      // Resetear acción y descripción al cambiar el tipo
-      setData((prev) => ({ ...prev, accion: "", desc: "" }));
-    }
-  };
-  // ========== RENDER DE CAMPO ==========
-  const renderField = (
-    name,
-    label,
-    type = "text",
-    options = [],
-    extraProps = {},
-  ) => (
-    <TextField
-      name={name}
-      label={label}
-      type={type}
-      value={dataI[name] || ""}
-      onChange={handleChange}
-      select={type === "select"}
-      multiline={type === "textarea"}
-      rows={type === "textarea" ? 5 : undefined}
-      fullWidth
-      disabled={name === "by" || name === "desc"}
-      {...extraProps}
-    >
-      {type === "select" &&
-        options.map((opt) => (
-          <MenuItem key={opt.value} value={opt.value}>
-            {opt.label}
-          </MenuItem>
-        ))}
-    </TextField>
-  );
-
-  //============manejo de archivos===========
-  
-  const driveManagerRef = useRef(null); // Referencia al componente DriveManager
-  const handleUploadComplete = (url) => {
-    setVerificableLink(url);
-  };
-  return (
-   <Paper elevation={3} sx={{px:2, py:1}}  >
-
-   <Typography textAlign="center" variant="h6">
-    Editar Contenido de acción
-   </Typography>
-    <Grid container spacing={2}>
-      {/* Tipo */}
-
-      <Grid item size={{ xs: 12 }}>
-        {renderField("cash", "Presupuesto")}
-      </Grid>
-
-      <Grid item size={{ xs: 12 }}>
-        {renderField("inst", "Instituciones de Apoyo")}
-      </Grid>
-
-      <Grid item size={{ xs: 12 }}>
-        {renderField("detail", "Detalles", "textarea")}
-      </Grid>
-      <Grid item size={{ xs: 12 }}>
-        {renderField("estado", "Estado", "select", estado_OPTIONS)}
-      </Grid>
-      <Grid item size={{ xs: 12 }}>
-        {renderField(
-          "verificable",
-          "Verificable",
-          "select",
-          VERIFICABLE_OPTIONS,
-        )}
-      </Grid>
-      {data.verifi === "si" && (
-          <Grid item size={{ xs: 12 }}>
-            <DriveManager
-              ref={driveManagerRef}
-              onUploadComplete={handleUploadComplete}
-              initialLink={verificableLink}
-            />
-          </Grid>
-        )}
-    </Grid>
-   </Paper  >
   );
 };

@@ -77,7 +77,7 @@ export const usePlanA = () => {
       return;
     }
     //  console.log(dPost)
-    console.log("is print");
+    console.log(dPost)
     setLoading(true);
     setError(null);
     setData(null);
@@ -98,9 +98,9 @@ export const usePlanA = () => {
     }
   }, []);
 
-  const edit = useCallback(async (sheet, row, dEdit) => {
+  const edit = useCallback(async (sheet, dEdit) => {
     // Validaciones
-
+console.log(dEdit)
     if (!sheet) {
       setError("Ingrese el tipo de consulta");
       return;
