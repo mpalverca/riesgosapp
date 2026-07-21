@@ -32,11 +32,12 @@ import {
   Schedule,
   AddAlertOutlined,
   GppGoodOutlined,
-  LocalShippingOutlined,
-  ThumbDownAlt,
+  Favorite,
   Link,
-  Psychology,
+  MonitorHeart,
+  
 } from "@mui/icons-material";
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import { usePlanA } from "../script";
 import EditData from "./editarAct";
 
@@ -69,7 +70,7 @@ const coordForm = (ubi) => {
 // ========== CONFIGURACIÓN DE ICONOS POR TIPO ==========
 const ICON_CONFIG = {
   "Conocimiento y Monitoreo": {
-    icon: Psychology,
+    icon: MonitorHeart,
       color: "#0066cc",
     bgGradient: "linear-gradient(135deg, #0066cc, #4d94ff)",
     
@@ -85,14 +86,14 @@ const ICON_CONFIG = {
     bgGradient: "linear-gradient(135deg, #ff8c00, #ffb347)",
   },
   Respuesta: {
-    icon: LocalShippingOutlined,
+    icon: LocalShippingIcon,
     color: "#ff1100",
     bgGradient: "linear-gradient(135deg, #ff0000, #ff9a3c)",
   },
   Recuperación: {
-    icon: ThumbDownAlt,
+    icon: Favorite,
     color: "#602fbb",
-    bgGradient: "linear-gradient(135deg, #602fbb, #7c4dff)",
+   bgGradient: "linear-gradient(135deg, #602fbb, #7c4dff)",
   },
   
 };
@@ -160,7 +161,7 @@ const InfoCard = ({ icon, title, content, color = "primary" }) => (
           {title}
         </Typography>
       </Stack>
-      <Typography variant="body2" sx={{ mt: 0.5 }}>
+      <Typography variant="body2" sx={{ mt: 0.5 }} textAlign="justify">
         {content || "No disponible"}
       </Typography>
     </CardContent>
@@ -179,7 +180,6 @@ const MonthBadge = ({ month, active }) => (
 
 // ========== COMPONENTE PRINCIPAL ==========
 export const ConMonitView = ({
-  afect,
   formatDate,
   title = "Conocimiento y Monitoreo",
   sheet,
@@ -189,14 +189,13 @@ export const ConMonitView = ({
   setTypeInput,
   files,
   acciones, // Para Prevención y Mitigación
-  recursos, // Para Preparación, Respuesta, Recuperación
   ...props
 }) => {
   const [value, setValue] = useState("1");
   const [openEdit, setOpenEdit] = useState(false);
 
   // Determinar qué datos usar
-  const dataSource = afect || acciones || recursos || [];
+ 
 
   const { deleteRow, dataGet, loadingGet } = usePlanA();
   // Obtener configuración de icono según el título
@@ -209,19 +208,20 @@ export const ConMonitView = ({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+       // color:iconConfig.color,
         background: iconConfig.bgGradient,
         borderRadius: "50%",
-        width: "32px",
-        height: "32px",
-        boxShadow: "0 2px 12px rgba(0,0,0,0.2)",
-        border: "2px solid white",
-        transition: "all 0.3s ease",
+        width: "24px",
+        height: "24px",
+      //  boxShadow: "0 2px 12px rgba(0,0,0,0.2)",
+       // border: "2px solid white",
+        //transition: "all 0.3s ease",
       };
       const html = renderToString(
         <div style={circleStyle}>
           <IconComponent
             sx={{
-              color: "#ffffff",
+             // color: "#ffffff",
               fontSize: "18px",
             }}
           />
@@ -230,8 +230,8 @@ export const ConMonitView = ({
       return divIcon({
         html,
         className: "custom-leaflet-icon",
-        iconSize: [36, 36],
-        iconAnchor: [18, 36],
+        iconSize: [24, 24],
+        iconAnchor: [18, 24],
       });
     },
     [IconComponent, iconConfig.bgGradient],
@@ -310,8 +310,8 @@ export const ConMonitView = ({
     }
   };
 
-  const processedData = Array.isArray(dataSource)
-    ? dataSource.map(processData).filter(Boolean)
+  const processedData = Array.isArray(acciones)
+    ? acciones.map(processData).filter(Boolean)
     : [];
 
   if (!processedData || processedData.length === 0) {
@@ -498,6 +498,7 @@ export const ConMonitView = ({
                       close={() => setOpenEdit(false)}
                       row={marker.data.row}
                       member={props.member}
+                      sheet={sheet}
                     />
                   </>
                 ) : (

@@ -9,14 +9,13 @@ const url_GetAll =
   "https://script.google.com/macros/s/AKfycbwXwx6kcuGTwtx-yrPBukM0FmKwGB8ME3X9y5NzxpANOoPT9pPysYYl1TBwe0Xv121F/exec";
 
 /*  const url_GetAll ="https://script.google.com/macros/s/AKfycbzrK22S5XWDNinm7_wBNL6tzf7cAiO0eND6KTtaC08goiiWof3-BCA6-Q3-8OMCA_fF/exec"
- */ 
+ */
 export const usePlanA = () => {
   const [loadingGet, setLoading] = useState(false);
   const [errorGet, setError] = useState(null);
   const [dataGet, setData] = useState(null);
 
   const searchAccion = useCallback(async (tipe) => {
-
     // Validaciones
 
     if (!tipe) {
@@ -77,7 +76,7 @@ export const usePlanA = () => {
       return;
     }
     //  console.log(dPost)
-    console.log(dPost)
+    console.log(dPost);
     setLoading(true);
     setError(null);
     setData(null);
@@ -98,9 +97,9 @@ export const usePlanA = () => {
     }
   }, []);
 
-  const edit = useCallback(async (sheet, dEdit) => {
+  const edit = useCallback(async (sheet, row ,dEdit) => {
     // Validaciones
-console.log(dEdit)
+   
     if (!sheet) {
       setError("Ingrese el tipo de consulta");
       return;
@@ -114,7 +113,7 @@ console.log(dEdit)
     setData(null);
     try {
       const response = await fetch(
-        `${url_GetAll}?tipo=put&sheet=${sheet}&data=${JSON.stringify(dEdit)}`,
+        `${url_GetAll}?tipo=put&sheet=${sheet}&data=${JSON.stringify({fila:row,...dEdit})}`,
       );
       const data = await response.json();
       setData(data);
@@ -126,31 +125,30 @@ console.log(dEdit)
     }
   }, []);
   const deleteRow = useCallback(async (sheet, row) => {
-  console.log("delete", sheet, row+6);
-  if (!sheet || !row) {
-    setError("Faltan datos para eliminar");
-    return;
-  }
-  setLoading(true);
-  setError(null);
-  try {
-    // ✅ No sumar +6 a menos que sea necesario (verifica el origen del row)
-    const response = await fetch(
-      
-      `${url_GetAll}?tipo=delete&sheet=${sheet}&data=${JSON.stringify({fila:row})}`
-    );
-    const result = await response.json(); // ✅ Esperar la respuesta JSON
-    console.log("Resultado eliminación:", result);
-    // Puedes setear el resultado en data si quieres
-    setData(result);
-    return result; // Devolver el resultado para que el llamador pueda usarlo
-  } catch (err) {
-    setError(err.message || "Error de conexión");
-    throw err; // Re-lanzar para manejar en el componente
-  } finally {
-    setLoading(false);
-  }
-}, []);
+    console.log("delete", sheet, row + 6);
+    if (!sheet || !row) {
+      setError("Faltan datos para eliminar");
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      // ✅ No sumar +6 a menos que sea necesario (verifica el origen del row)
+      const response = await fetch(
+        `${url_GetAll}?tipo=delete&sheet=${sheet}&data=${JSON.stringify({ fila: row })}`,
+      );
+      const result = await response.json(); // ✅ Esperar la respuesta JSON
+      console.log("Resultado eliminación:", result);
+      // Puedes setear el resultado en data si quieres
+      setData(result);
+      return result; // Devolver el resultado para que el llamador pueda usarlo
+    } catch (err) {
+      setError(err.message || "Error de conexión");
+      throw err; // Re-lanzar para manejar en el componente
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   const clearGet = useCallback(() => {
     setData(null);

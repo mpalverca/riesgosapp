@@ -64,8 +64,8 @@ const LAYER_CONFIGS = {
   // Grupo 2: Acciones del MTT
   conoc_monit: {
     label: "Conocimiento y Monitoreo",
-    icon: { bgcolor: "#42e610", borderRadius: "50%" },
-    color: "#10e61b",
+    icon: { bgcolor: "#106de6", borderRadius: "50%" },
+    color: "#1057e6",
     bgColor: "#ffe6e6",
     getCount: (getLayerCount) => getLayerCount("conoc_monit"),
     isLoading: (isLoading) => isLoading("conoc_monit"),
@@ -75,8 +75,8 @@ const LAYER_CONFIGS = {
   },
   prev_mitig: {
     label: "Prevención y Mitigación",
-    icon: { bgcolor: "#ff8c00", borderRadius: "50%" },
-    color: "#ff8c00",
+    icon: { bgcolor: "#3bc30d", borderRadius: "50%" },
+    color: "#0bc527",
     bgColor: "#fff3e0",
     getCount: (getLayerCount) => getLayerCount("prev_mitig"),
     isLoading: (isLoading) => isLoading("prev_mitig"),
@@ -86,8 +86,8 @@ const LAYER_CONFIGS = {
   },
   preparacion: {
     label: "Preparación",
-    icon: { bgcolor: "#ff8c00", borderRadius: "50%" },
-    color: "#ff8c00",
+    icon: { bgcolor: "#dea412f5", borderRadius: "50%" },
+    color: "#ffb300",
     bgColor: "#fff3e0",
     getCount: (getLayerCount) => getLayerCount("preparacion"),
     isLoading: (isLoading) => isLoading("preparacion"),
@@ -97,8 +97,8 @@ const LAYER_CONFIGS = {
   },
   respuesta: {
     label: "Respuesta",
-    icon: { bgcolor: "#ff8c00", borderRadius: "50%" },
-    color: "#ff8c00",
+    icon: { bgcolor: "#ff3c00", borderRadius: "50%" },
+    color: "#ff1100",
     bgColor: "#fff3e0",
     getCount: (getLayerCount) => getLayerCount("respuesta"),
     isLoading: (isLoading) => isLoading("respuesta"),
@@ -108,8 +108,8 @@ const LAYER_CONFIGS = {
   },
   recuperacion: {
     label: "Recuperación",
-    icon: { bgcolor: "#ff8c00", borderRadius: "50%" },
-    color: "#ff8c00",
+    icon: { bgcolor: "#800ddf", borderRadius: "50%" },
+    color: "#c217ed",
     bgColor: "#fff3e0",
     getCount: (getLayerCount) => getLayerCount("recuperacion"),
     isLoading: (isLoading) => isLoading("recuperacion"),

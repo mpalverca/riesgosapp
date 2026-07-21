@@ -1,19 +1,38 @@
-import { Button, Grid, MenuItem, Paper, TextField, Typography } from "@mui/material";
+import {
+  Button,
+  Grid,
+  MenuItem,
+  Paper,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { useRef, useState } from "react";
 import { ESTADO_OPTIONS, MONTHS, VERIFICABLE_OPTIONS } from "./config";
 import DriveManager from "./loadfile";
 import { usePlanA } from "../script";
 import { Save } from "@mui/icons-material";
 
-const EditData = ({ dataI, close, row,member }) => {
+const EditData = ({ dataI, close, row, member, sheet }) => {
   const INITIAL_DATA = {
+    accion: dataI.accion,
+    desc: dataI.desc,
+    mtt: dataI.mtt,
+    ubi: dataI.ubi,
+    responsable: dataI.responsable,
     cash: dataI.cash,
     inst: dataI.inst,
     detail: dataI.detail,
     verifi: dataI.verifi,
     verificableUrl: dataI.verificableUrl,
     estado: dataI.estado,
-    by:member
+    by: member,
+    Jun: dataI.Jun,
+    Jul: dataI.Jul,
+    Ago: dataI.Ago,
+    Sep: dataI.Sep,
+    Oct: dataI.Oct,
+    Nov: dataI.Nov,
+    Dic: dataI.Dic
   };
   const [data, setData] = useState(INITIAL_DATA);
   const [error, setError] = useState(null);
@@ -89,7 +108,7 @@ const EditData = ({ dataI, close, row,member }) => {
     // Validaciones
     // Validar verificable
     if (data.verifi === "si") {
-      console.log("se imprime")
+      console.log("se imprime");
       if (driveManagerRef.current) {
         try {
           const link = await driveManagerRef.current.uploadFile();
@@ -104,7 +123,7 @@ const EditData = ({ dataI, close, row,member }) => {
         return;
       }
     }
-console.log("search")
+    console.log("search");
     setLoading(true);
     setError(null);
 
@@ -112,14 +131,14 @@ console.log("search")
       const payload = {
         ...data,
         dateUpdate: new Date().toISOString(),
-        fila: row,       
+        //fila: row,
         verifi: data.verifi,
         inst: instituciones.join(", "), // Array de strings
         verificableUrl: data.verifi === "si" ? verificableLink : null,
       };
       console.log(payload.inst);
 
-      await edit(data.tipe, payload);
+      await edit(sheet, row, payload);
       handleClose();
     } catch (err) {
       setError(err.message || "Error al guardar");
@@ -166,14 +185,14 @@ console.log("search")
       </Grid>
       <Button
         fullWidth
-         onClick={handleSubmit}
+        onClick={handleSubmit}
         size="small"
         variant="contained"
         color="warning"
         startIcon={<Save />}
         sx={{ mt: 1 }}
       >
-        Guardar Cambios
+        {loadingGet ? "Guardando..." : "Guardar Cambios"}
       </Button>
     </Paper>
   );
