@@ -100,7 +100,7 @@ export const usePlanA = () => {
 
   const edit = useCallback(async (sheet, dEdit) => {
     // Validaciones
-console.log(dEdit)
+
     if (!sheet) {
       setError("Ingrese el tipo de consulta");
       return;
