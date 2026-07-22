@@ -209,8 +209,7 @@ export const DialogAccion = ({
         ...data,
         date: new Date().toISOString(),
         ubi: coordString,
-        meses_activos: getActiveMonths(),
-        total_meses: getActiveMonths().length,
+       
         verifi: data.verifi,
         inst: instituciones.join(', '), // Array de strings
         verificableUrl: data.verifi === "si" ? verificableLink : null,

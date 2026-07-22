@@ -72,7 +72,13 @@ const extractDataArray = (data) => {
 };
 
 // ========== COMPONENTE DE CONTROLES ==========
-const MapControls = ({ onZoomIn, onZoomOut, onLocate, onDownload, isExporting }) => (
+const MapControls = ({
+  onZoomIn,
+  onZoomOut,
+  onLocate,
+  onDownload,
+  isExporting,
+}) => (
   <Box
     sx={{
       position: "absolute",
@@ -87,7 +93,11 @@ const MapControls = ({ onZoomIn, onZoomOut, onLocate, onDownload, isExporting })
     <Tooltip title="Acercar" placement="left">
       <IconButton
         onClick={onZoomIn}
-        sx={{ bgcolor: "white", boxShadow: 2, "&:hover": { bgcolor: "#f5f5f5" } }}
+        sx={{
+          bgcolor: "white",
+          boxShadow: 2,
+          "&:hover": { bgcolor: "#f5f5f5" },
+        }}
         size="small"
       >
         <ZoomInIcon />
@@ -96,7 +106,11 @@ const MapControls = ({ onZoomIn, onZoomOut, onLocate, onDownload, isExporting })
     <Tooltip title="Alejar" placement="left">
       <IconButton
         onClick={onZoomOut}
-        sx={{ bgcolor: "white", boxShadow: 2, "&:hover": { bgcolor: "#f5f5f5" } }}
+        sx={{
+          bgcolor: "white",
+          boxShadow: 2,
+          "&:hover": { bgcolor: "#f5f5f5" },
+        }}
         size="small"
       >
         <ZoomOutIcon />
@@ -105,7 +119,11 @@ const MapControls = ({ onZoomIn, onZoomOut, onLocate, onDownload, isExporting })
     <Tooltip title="Mi ubicación" placement="left">
       <IconButton
         onClick={onLocate}
-        sx={{ bgcolor: "white", boxShadow: 2, "&:hover": { bgcolor: "#f5f5f5" } }}
+        sx={{
+          bgcolor: "white",
+          boxShadow: 2,
+          "&:hover": { bgcolor: "#f5f5f5" },
+        }}
         size="small"
       >
         <MyLocationIcon />
@@ -115,7 +133,11 @@ const MapControls = ({ onZoomIn, onZoomOut, onLocate, onDownload, isExporting })
       <IconButton
         onClick={onDownload}
         disabled={isExporting}
-        sx={{ bgcolor: "white", boxShadow: 2, "&:hover": { bgcolor: "#f5f5f5" } }}
+        sx={{
+          bgcolor: "white",
+          boxShadow: 2,
+          "&:hover": { bgcolor: "#f5f5f5" },
+        }}
         size="small"
       >
         {isExporting ? <CircularProgress size={20} /> : <DownloadIcon />}
@@ -125,7 +147,6 @@ const MapControls = ({ onZoomIn, onZoomOut, onLocate, onDownload, isExporting })
 );
 
 // ========== COMPONENTE DE ESTADO DE CAPAS ==========
-
 
 // ========== COMPONENTE DE CLICK EN MAPA ==========
 const MapEvents = ({ onMapClick }) => {
@@ -185,11 +206,13 @@ function MapMark({
   loading,
   onRefreshLayer,
   children,
-  member
+  member,
+  zoomCoord,
+  shouldZoom,
 }) {
   const user = useUser();
   const { getEventIcon, getEventIconPulso, COLOR_PRIORIDAD } = useMapIcons();
-
+console.log(zoomCoord)
   // ========== ESTADOS ==========
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [coordinates, setCoordinates] = useState(null);
@@ -207,6 +230,8 @@ function MapMark({
   const [mapCenter, setMapCenter] = useState(position);
   const [mapZoom, setMapZoom] = useState(zoom);
   const mapRef = useRef(null);
+
+  ///
 
   // Estado para ocultar capas individualmente
   const [hiddenLayers, setHiddenLayers] = useState({
@@ -231,9 +256,18 @@ function MapMark({
   const dataResArray = useMemo(() => extractDataArray(dataRes), [dataRes]);
   const dataReqArray = useMemo(() => extractDataArray(dataReq), [dataReq]);
   const dataPolArray = useMemo(() => extractDataArray(dataPol), [dataPol]);
-  const dataParroquiaArray = useMemo(() => extractDataArray(dataParroquia), [dataParroquia]);
-  const dataAfectRegisterArray = useMemo(() => extractDataArray(dataAfectRegister), [dataAfectRegister]);
-  const dataSusceptibilidadArray = useMemo(() => extractDataArray(dataSusceptibilidad), [dataSusceptibilidad]);
+  const dataParroquiaArray = useMemo(
+    () => extractDataArray(dataParroquia),
+    [dataParroquia],
+  );
+  const dataAfectRegisterArray = useMemo(
+    () => extractDataArray(dataAfectRegister),
+    [dataAfectRegister],
+  );
+  const dataSusceptibilidadArray = useMemo(
+    () => extractDataArray(dataSusceptibilidad),
+    [dataSusceptibilidad],
+  );
 
   // ========== PROCESAR MARCADORES ==========
   const processMarkers = useCallback((rawData) => {
@@ -245,7 +279,9 @@ function MapMark({
         if (!item.ubi) return null;
         try {
           const coords = coordForm(item.ubi);
-          return coords ? { id: item._id || index, position: coords, data: item } : null;
+          return coords
+            ? { id: item._id || index, position: coords, data: item }
+            : null;
         } catch (e) {
           console.warn(`Error procesando marcador ${index}:`, e);
           return null;
@@ -254,11 +290,26 @@ function MapMark({
       .filter(Boolean);
   }, []);
 
-  const marcadoresCon = useMemo(() => processMarkers(dataCon), [dataCon, processMarkers]);
-  const marcadoresPrev = useMemo(() => processMarkers(dataPrev), [dataPrev, processMarkers]);
-  const marcadoresPrep = useMemo(() => processMarkers(dataPrep), [dataPrep, processMarkers]);
-  const marcadoresRes = useMemo(() => processMarkers(dataRes), [dataRes, processMarkers]);
-  const marcadoresReq = useMemo(() => processMarkers(dataReq), [dataReq, processMarkers]);
+  const marcadoresCon = useMemo(
+    () => processMarkers(dataCon),
+    [dataCon, processMarkers],
+  );
+  const marcadoresPrev = useMemo(
+    () => processMarkers(dataPrev),
+    [dataPrev, processMarkers],
+  );
+  const marcadoresPrep = useMemo(
+    () => processMarkers(dataPrep),
+    [dataPrep, processMarkers],
+  );
+  const marcadoresRes = useMemo(
+    () => processMarkers(dataRes),
+    [dataRes, processMarkers],
+  );
+  const marcadoresReq = useMemo(
+    () => processMarkers(dataReq),
+    [dataReq, processMarkers],
+  );
 
   // ========== ESTADO DE CAPAS ACTIVAS ==========
   const activeLayersStatus = useMemo(() => {
@@ -360,8 +411,6 @@ function MapMark({
     loading,
   ]);
 
-  
-
   // ========== FUNCIONES AUXILIARES ==========
   const parseByField = useCallback((byString) => {
     if (typeof byString !== "string") return byString;
@@ -377,22 +426,22 @@ function MapMark({
   }, []);
 
   const formatDate = useCallback((dateString) => {
-  if (!dateString) return "No disponible";
-  try {
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return dateString; // si no es fecha válida
-    return date.toLocaleString("es-ES", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      // second: "2-digit", // opcional
-    });
-  } catch {
-    return dateString;
-  }
-}, []);
+    if (!dateString) return "No disponible";
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return dateString; // si no es fecha válida
+      return date.toLocaleString("es-ES", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        // second: "2-digit", // opcional
+      });
+    } catch {
+      return dateString;
+    }
+  }, []);
 
   // ========== HANDLERS ==========
   const handleOpenDialog = useCallback((latlng) => {
@@ -601,42 +650,45 @@ function MapMark({
           {/* ========== CAPAS DE ANÁLISIS ========== */}
 
           {/* Capa: Conocimiento y Monitoreo */}
-          {selectCapa.conoc_monit && !hiddenLayers.conoc_monit && marcadoresCon.length > 0 && (
-            <ConMonitView
-              acciones={marcadoresCon}
-              parseByField={parseByField}
-              formatDate={formatDate}
-              title="Conocimiento y Monitoreo"
-              sheet="Conoc_Monit"
-              mtt={mtt}
-              polAfect={dataPolArray}
-              setOpenDialog={setOpenDialog}
-              openDialog={openDialog}
-              setTypeInput={setTypeInput}
-              files={files}
-               member={member}
-            />
-          )}
+          {selectCapa.conoc_monit &&
+            !hiddenLayers.conoc_monit &&
+            marcadoresCon.length > 0 && (
+              <ConMonitView
+                acciones={marcadoresCon}
+                parseByField={parseByField}
+                formatDate={formatDate}
+                title="Conocimiento y Monitoreo"
+                sheet="Conoc_Monit"
+                mtt={mtt}
+                polAfect={dataPolArray}
+                setOpenDialog={setOpenDialog}
+                openDialog={openDialog}
+                setTypeInput={setTypeInput}
+                files={files}
+                member={member}
+              />
+            )}
 
           {/* Capa: Prevención y Mitigación */}
-          {selectCapa.prev_mitig && !hiddenLayers.prev_mitig && marcadoresPrev.length > 0 && (
-            <ConMonitView
-              acciones={marcadoresPrev}
-              formatDate={formatDate}
-              title="Prevención y Mitigación"
-              sheet="prev_mit"
-              mtt={mtt}
-              polAfect={dataPolArray}
-              setOpenDialog={setOpenDialog}
-              openDialog={openDialog}
-              setTypeInput={setTypeInput}
-               member={member}
-            />
-          )}
+          {selectCapa.prev_mitig &&
+            !hiddenLayers.prev_mitig &&
+            marcadoresPrev.length > 0 && (
+              <ConMonitView
+                acciones={marcadoresPrev}
+                formatDate={formatDate}
+                title="Prevención y Mitigación"
+                sheet="prev_mit"
+                mtt={mtt}
+                polAfect={dataPolArray}
+                setOpenDialog={setOpenDialog}
+                openDialog={openDialog}
+                setTypeInput={setTypeInput}
+                member={member}
+              />
+            )}
 
           {/* Capa: Preparación  */}
-          {
-            selectCapa.preparacion &&
+          {selectCapa.preparacion &&
             !hiddenLayers.preparacion &&
             marcadoresPrep.length > 0 && (
               <ConMonitView
@@ -648,7 +700,7 @@ function MapMark({
                 mtt={mtt}
                 setOpenDialog={setOpenDialog}
                 openDialog={openDialog}
-                 member={member}
+                member={member}
               />
             )}
 
@@ -665,7 +717,7 @@ function MapMark({
                 mtt={mtt}
                 setOpenDialog={setOpenDialog}
                 openDialog={openDialog}
-                 member={member}
+                member={member}
               />
             )}
 
@@ -682,7 +734,7 @@ function MapMark({
                 mtt={mtt}
                 setOpenDialog={setOpenDialog}
                 openDialog={openDialog}
-                 member={member}
+                member={member}
               />
             )}
 
@@ -701,7 +753,7 @@ function MapMark({
                 getEventIconPulso={getEventIconPulso}
                 COLOR_PRIORIDAD={COLOR_PRIORIDAD}
                 user={user}
-                 member={member}
+                member={member}
               />
             )}
 
@@ -732,8 +784,6 @@ function MapMark({
           onDownload={handleExportMap}
           isExporting={isExporting}
         />
-
-        
 
         {/* Indicador de carga */}
         {isExporting && (

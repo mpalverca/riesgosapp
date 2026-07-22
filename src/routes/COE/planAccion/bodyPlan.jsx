@@ -11,6 +11,7 @@ import { DialogAccions } from "./inputAcción.jsx";
 import { cargarDatosPol } from "../../../components/maps/script/script.js";
 import PanelAccion from "./Panel.jsx";
 import MapMark from "./Map.jsx";
+import { latLng } from "leaflet";
 
 function BodyPlan({ mtt, member }) {
   // ========== HOOKS ==========
@@ -26,7 +27,7 @@ function BodyPlan({ mtt, member }) {
     "Todos",
     "Todos",
     "Todos",
-    "Todos"
+    "Todos",
   );
 
   // ========== ESTADOS DE CARGA ==========
@@ -75,7 +76,9 @@ function BodyPlan({ mtt, member }) {
   const [openRespuesta, setOpenResp] = useState(false);
   const [openRecuperacion, setOpenRec] = useState(false);
   const [openPrev_mitig, setOpenPrev] = useState(false);
-
+  const [zoomCoord, setZoomCoord] = useState(null);
+  // Estado para controlar si se debe ejecutar el zoom
+  const [shouldZoom, setShouldZoom] = useState(false);
   // ========== FUNCIONES DE CARGA DE DATOS BASE ==========
   const loadParroquiaData = useCallback(async () => {
     if (cache.parroquia) return cache.parroquia;
@@ -119,7 +122,6 @@ function BodyPlan({ mtt, member }) {
   const handleRefreshLayer = useCallback(
     async (layer) => {
       try {
-       
         // Mapeo de capas a sus funciones de carga
         const layerActions = {
           // Capas de análisis
@@ -127,30 +129,30 @@ function BodyPlan({ mtt, member }) {
             // await reqCon_Monit.searchGet(mtt,"Conoc_Monit");
             await reqCon_Monit.searchAccion("Conoc_Monit");
             const data = reqCon_Monit?.dataGet;
-            
+
             setCache((prev) => ({ ...prev, conoc_monit: data }));
             return data;
           },
           prev_mitig: async () => {
-            await reqPrev_mitig.searchAccion( "prev_mit");
+            await reqPrev_mitig.searchAccion("prev_mit");
             const data = reqPrev_mitig?.dataGet;
             setCache((prev) => ({ ...prev, prev_mitig: data }));
             return data;
           },
           preparacion: async () => {
-            await reqPrep.searchAccion( "prep");
+            await reqPrep.searchAccion("prep");
             const data = reqPrep?.dataGet;
             setCache((prev) => ({ ...prev, preparacion: data }));
             return data;
           },
           respuesta: async () => {
-            await reqRes.searchAccion( "resp");
+            await reqRes.searchAccion("resp");
             const data = reqRes?.dataGet;
             setCache((prev) => ({ ...prev, respuesta: data }));
             return data;
           },
           recuperacion: async () => {
-            await reqReq.searchAccion( "recup");
+            await reqReq.searchAccion("recup");
             const data = reqReq?.dataGet;
             setCache((prev) => ({ ...prev, recuperacion: data }));
             return data;
@@ -171,7 +173,8 @@ function BodyPlan({ mtt, member }) {
           },
           susceptibilidad: async () => {
             const newData = await cargarDatosPol();
-            const formattedData = newData?.data?.data || newData?.data || newData;
+            const formattedData =
+              newData?.data?.data || newData?.data || newData;
             setSusceptibilidadData(formattedData);
             setCache((prev) => ({ ...prev, susceptibilidad: formattedData }));
             return formattedData;
@@ -183,7 +186,7 @@ function BodyPlan({ mtt, member }) {
               "Todos",
               "Todos",
               "Todos",
-              "Todos"
+              "Todos",
             );
             const formattedData = newData?.data || newData;
             setCache((prev) => ({ ...prev, afect_register: formattedData }));
@@ -203,7 +206,7 @@ function BodyPlan({ mtt, member }) {
         return null;
       }
     },
-    [mtt, reqCon_Monit, reqPrev_mitig, reqPrep, reqRes, reqReq, reqPol]
+    [mtt, reqCon_Monit, reqPrev_mitig, reqPrep, reqRes, reqReq, reqPol],
   );
 
   // ========== FUNCIÓN DE TOGGLE DE CAPAS ==========
@@ -211,12 +214,13 @@ function BodyPlan({ mtt, member }) {
     async (layer) => {
       const isActivating = !selectedCapa[layer];
       //console.log(`🖱️ Toggle capa: ${layer} -> Activando: ${isActivating}`);
-      
+
       setSelectedCapa((prev) => ({ ...prev, [layer]: isActivating }));
 
       if (isActivating) {
         const currentData = getLayerData(layer);
-        const hasData = currentData && 
+        const hasData =
+          currentData &&
           (Array.isArray(currentData) ? currentData.length > 0 : true);
 
         if (!hasData) {
@@ -224,7 +228,7 @@ function BodyPlan({ mtt, member }) {
         }
       }
     },
-    [selectedCapa, handleRefreshLayer]
+    [selectedCapa, handleRefreshLayer],
   );
 
   // ========== GRUPOS DE RECARGA ==========
@@ -273,7 +277,7 @@ function BodyPlan({ mtt, member }) {
 
     //console.log(`Datos obtenidos para capa ${layerKey}:`, data)
     //return Array.isArray(data) ? data : [];
-    return data
+    return data;
   };
 
   const getLayerCount = (layerKey) => {
@@ -302,19 +306,19 @@ function BodyPlan({ mtt, member }) {
     setCoordinates(coordenate);
   };
 
-  const handleClickPrev= (coordenate) => {
+  const handleClickPrev = (coordenate) => {
     setOpenPrev(true);
     setCoordinates(coordenate);
   };
-  const handleClickPrep= (coordenate) => {
+  const handleClickPrep = (coordenate) => {
     setOpenPrep(true);
     setCoordinates(coordenate);
   };
-  const handleClickRes= (coordenate) => {
+  const handleClickRes = (coordenate) => {
     setOpenResp(true);
     setCoordinates(coordenate);
   };
-const handleClickRec= (coordenate) => {
+  const handleClickRec = (coordenate) => {
     setOpenRec(true);
     setCoordinates(coordenate);
   };
@@ -326,6 +330,18 @@ const handleClickRec= (coordenate) => {
   // ========== ESTADOS DERIVADOS ==========
   const activeLayersCount = Object.values(selectedCapa).filter(Boolean).length;
   const totalLayers = Object.keys(selectedCapa).length;
+
+  //====================== zoom
+
+  const HandleZoomToLocation = (lat, lng) => {
+    setZoomCoord({ lat, lng });
+    // Activar el flag de zoom
+    setShouldZoom(true);
+    // Opcional: Resetear el flag después de un tiempo
+    setTimeout(() => {
+      setShouldZoom(false);
+    }, 100);
+  };
 
   // ========== RENDER ==========
   return (
@@ -345,6 +361,7 @@ const handleClickRec= (coordenate) => {
           getLayerData={getLayerData}
           totalLayers={totalLayers}
           activeLayersCount={activeLayersCount}
+          onZoomCoord={HandleZoomToLocation}
         />
       </Grid>
 
@@ -362,8 +379,8 @@ const handleClickRec= (coordenate) => {
           member={member}
           dataCon={getLayerData("conoc_monit")}
           dataPrev={getLayerData("prev_mitig")}
-          dataPrep={getLayerData("preparacion")}          
-          dataRes={getLayerData("respuesta")}          
+          dataPrep={getLayerData("preparacion")}
+          dataRes={getLayerData("respuesta")}
           dataReq={getLayerData("recuperacion")}
           dataPol={getLayerData("poligono")}
           dataSusceptibilidad={getLayerData("susceptibilidad")}
@@ -426,6 +443,8 @@ const handleClickRec= (coordenate) => {
           ]}
           onRefreshLayer={handleRefreshLayer}
           setCoordinates={setCoordinates}
+          zoomCoord={zoomCoord}
+          shouldZoom={shouldZoom}
         />
       </Grid>
 

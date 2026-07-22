@@ -6,11 +6,14 @@ import {
   Alert,
   Divider,
   Button,
+  Snackbar,
 } from "@mui/material";
 import Panels from "../../../components/panels/Panels";
 import { Layers as LayersIcon } from "@mui/icons-material";
 import LayerGroup from "../canton/body_accion/LayerGroup";
 import LayerControl from "./popups/layerControl";
+import { coordForm } from "../../utils/Coords";
+import { generarPDFAccions } from "./pdf/script_pdf";
 
 // ========== FUNCIÓN AUXILIAR PARA EXTRAER DATOS ==========
 const extractDataArray = (data) => {
@@ -49,7 +52,7 @@ const LAYER_CONFIGS = {
     onToggle: (handleLayerToggle) => () => handleLayerToggle("parroquia"),
     onRefresh: (handleRefreshLayer) => () => handleRefreshLayer("parroquia"),
   },
-  sectorial: {
+  /*  sectorial: {
     label: "Límites Sectoriales",
     icon: { bgcolor: "#4c5baf", borderRadius: 0.5 },
     color: "#4caf50",
@@ -59,7 +62,7 @@ const LAYER_CONFIGS = {
     isSelected: (selectedCapa) => selectedCapa.parroquia,
     onToggle: (handleLayerToggle) => () => handleLayerToggle("parroquia"),
     onRefresh: (handleRefreshLayer) => () => handleRefreshLayer("parroquia"),
-  },
+  }, */
 
   // Grupo 2: Acciones del MTT
   conoc_monit: {
@@ -191,27 +194,25 @@ const ParroquiaDetails = ({ getLayerData, getLayerCount }) => {
   );
 };
 
-const ActionDetails = ({ layerKey, getLayerData, getLayerCount }) => {
+const ActionDetails = ({ label, layerKey, getLayerData, getLayerCount, zoom }) => {
   const fullData = getLayerData(layerKey);
+  console.log(fullData);
   const data = extractDataArray(fullData);
-
   // Estadísticas de estado
-  const vigente = data.filter(  (item) => {
-      const estado =item.estado?.toLowerCase()
-     
-      return (
-        estado === "programado" ||
-     estado === "por activar" ||
-      estado ==="en ejecución"
-      )
-    }).length;
-  const finalizada = data.filter((item) => {
+  const vigente = data.filter((item) => {
     const estado = item.estado?.toLowerCase();
-    
+
     return (
-      estado === "completado" ||      
+      estado === "programado" ||
+      estado === "por activar" ||
+      estado === "en ejecución" ||
       estado === "permanente"
     );
+  }).length;
+  const finalizada = data.filter((item) => {
+    const estado = item.estado?.toLowerCase();
+
+    return estado === "completado";
   }).length;
 
   return (
@@ -223,6 +224,7 @@ const ActionDetails = ({ layerKey, getLayerData, getLayerCount }) => {
       >
         Última actualización: {new Date().toLocaleTimeString()}
       </Typography>
+
       {/* Mostrar objetivo si existe en el objeto principal */}
       {fullData?.objetivo && (
         <Typography
@@ -237,13 +239,31 @@ const ActionDetails = ({ layerKey, getLayerData, getLayerCount }) => {
         </Typography>
       )}
 
+      <Button
+        fullWidth
+        color="success"
+        size="small"
+        disabled={data.length>0?false:true}
+        variant="contained"
+        onClick={() => generarPDFAccions(
+          label,
+          data,
+          vigente,
+          finalizada
+        )
+          
+        }
+      >
+        Descargar PDF
+      </Button>
+
       <Typography
         variant="body2"
         color="text.secondary"
         sx={{ display: "block", mt: 1 }}
       >
         📊 <strong style={{ color: "#2e7d32" }}>Vigente:</strong> {vigente} |
-        <strong style={{ color: "#f10909" }}> Finalizada:</strong> {finalizada}{" "}
+        <strong style={{ color: "#f10909" }}> Completada:</strong> {finalizada}{" "}
         |<strong style={{ color: "#070000" }}> Total:</strong> {data.length}
       </Typography>
       <Divider sx={{ my: 1 }} />
@@ -257,11 +277,12 @@ const ActionDetails = ({ layerKey, getLayerData, getLayerCount }) => {
               color="text.secondary"
               sx={{ display: "block", pl: 2 }}
             >
-          {item.accion || `Registro ${index + 1}`} |
+              {item.accion || `Registro ${index + 1}`} |
               <strong> {item.estado && `${item.estado}  `}</strong>
               <Button
                 //variant="contained"
                 size="small"
+                onClick={() => zoom(item.ubi)}
               >
                 {`<<ver>>`}{" "}
               </Button>
@@ -355,7 +376,7 @@ const SusceptibilidadDetails = ({ getLayerData, getLayerCount }) => {
 };
 
 // ========== RENDER DE CAPAS ==========
-const renderLayerControl = (layerKey, props) => {
+const renderLayerControl = (layerKey, props, zoom) => {
   const config = LAYER_CONFIGS[layerKey];
   if (!config) return null;
 
@@ -381,7 +402,7 @@ const renderLayerControl = (layerKey, props) => {
       "recuperacion",
     ].includes(layerKey)
   ) {
-    children = <ActionDetails layerKey={layerKey} {...props} />;
+    children = <ActionDetails label={config.label} layerKey={layerKey} {...props} zoom={zoom} />;
   } else if (layerKey === "susceptibilidad") {
     children = <SusceptibilidadDetails {...props} />;
   }
@@ -423,6 +444,7 @@ export default function PanelAccion({
   getLayerData,
   totalLayers,
   activeLayersCount,
+  onZoomCoord,
 }) {
   // Props comunes para todos los LayerControls
   const commonProps = {
@@ -432,6 +454,19 @@ export default function PanelAccion({
     selectedCapa,
     handleLayerToggle,
     handleRefreshLayer,
+  };
+
+  const handleZoom = (lat) => {
+    // Validar que las coordenadas sean números válidos
+    const coords = coordForm(lat);
+    console.log("📍 Zoom a coordenadas:", coords);
+
+    // Llamar a la función del padre con las coordenadas
+    if (onZoomCoord && typeof onZoomCoord === "function") {
+      onZoomCoord(coords[0], coords[1]);
+    } else {
+      console.warn("onZoomCoord no está definida como función");
+    }
   };
 
   return (
@@ -445,7 +480,7 @@ export default function PanelAccion({
         </Box>
       }
       body={
-        <Box sx={{ px: 1, py: 1 }}>
+        <Box sx={{ py: 1 }}>
           {/* Grupo 1: Ubicación y Límites */}
           <LayerGroup
             title="1. Ubicación y Límites"
@@ -462,11 +497,11 @@ export default function PanelAccion({
             onRefreshAll={handleRefreshActionsGroup}
             showRefreshAll={true}
           >
-            {renderLayerControl("conoc_monit", commonProps)}
-            {renderLayerControl("prev_mitig", commonProps)}
-            {renderLayerControl("preparacion", commonProps)}
-            {renderLayerControl("respuesta", commonProps)}
-            {renderLayerControl("recuperacion", commonProps)}
+            {renderLayerControl("conoc_monit", commonProps, handleZoom)}
+            {renderLayerControl("prev_mitig", commonProps, handleZoom)}
+            {renderLayerControl("preparacion", commonProps, handleZoom)}
+            {renderLayerControl("respuesta", commonProps, handleZoom)}
+            {renderLayerControl("recuperacion", commonProps, handleZoom)}
           </LayerGroup>
 
           {/* Grupo 3: Capas de análisis */}

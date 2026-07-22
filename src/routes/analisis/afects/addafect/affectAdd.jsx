@@ -28,7 +28,10 @@ const AFECTACIONES = [
   { value: "Infraestructura", label: "Infraestructura" },
   { value: "Márgenes", label: "Márgenes" },
   { value: "Predio", label: "Predio" },
-  { value: "Servicios de AAPP/AALL/AASS", label: "Servicios de AAPP/AALL/AASS" },
+  {
+    value: "Servicios de AAPP/AALL/AASS",
+    label: "Servicios de AAPP/AALL/AASS",
+  },
   { value: "Vialidad", label: "Vialidad" },
   { value: "Vivienda", label: "Vivienda" },
 ];
@@ -44,11 +47,26 @@ const EVENTOS = [
 ];
 
 const PARROQUIAS = [
-  "Chantaco", "Chuquiribamba", "El Cisne", "Gualel", "Jimbilla",
-  "Loja", "Malacatos", "Punzara", "Sagrario", "San Lucas",
-  "Santiago", "San Pedro de Vilcabamba", "San Sebastián", "Sucre",
-  "Taquil", "Quinara", "El Valle", "Vilcabamba", "Yangana"
-].map(p => ({ value: p, label: p }));
+  "Chantaco",
+  "Chuquiribamba",
+  "El Cisne",
+  "Gualel",
+  "Jimbilla",
+  "Loja",
+  "Malacatos",
+  "Punzara",
+  "Sagrario",
+  "San Lucas",
+  "Santiago",
+  "San Pedro de Vilcabamba",
+  "San Sebastián",
+  "Sucre",
+  "Taquil",
+  "Quinara",
+  "El Valle",
+  "Vilcabamba",
+  "Yangana",
+].map((p) => ({ value: p, label: p }));
 
 const ESTADOS = [
   { value: "Atendido", label: "Atendido" },
@@ -119,10 +137,15 @@ export const AffectAdd = ({
     prioridad: "Media",
     radio: "",
     anex_foto: "",
+    depen: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
 
   const userName = JSON.parse(localStorage.getItem("user") || "null");
 
@@ -139,18 +162,22 @@ export const AffectAdd = ({
         estado: "Pendiente",
         prioridad: "Media",
         radio: "",
-      anex_foto: ""
+        anex_foto: "",
+        depen: "",
       });
       setError("");
-      setSnackbar(prev => ({ ...prev, open: false }));
+      setSnackbar((prev) => ({ ...prev, open: false }));
     }
   }, [dialogOpen]);
 
-  const handleData = useCallback((e) => {
-    const { name, value } = e.target;
-    setDialogData((prev) => ({ ...prev, [name]: value }));
-    if (error) setError("");
-  }, [error]);
+  const handleData = useCallback(
+    (e) => {
+      const { name, value } = e.target;
+      setDialogData((prev) => ({ ...prev, [name]: value }));
+      if (error) setError("");
+    },
+    [error],
+  );
 
   // Validación de campos obligatorios
   const validateForm = useCallback(() => {
@@ -191,39 +218,64 @@ export const AffectAdd = ({
     const cleanLng = cleanCoordinate(dialogCoords?.lng);
 
     if (cleanLat === null || cleanLng === null) {
-      setError("Coordenadas inválidas. Por favor, seleccione una ubicación válida.");
+      setError(
+        "Coordenadas inválidas. Por favor, seleccione una ubicación válida.",
+      );
       return;
     }
 
     setLoading(true);
     try {
-      
-
       const newMarker = {
         ...dialogData,
         geom: { type: "Point", coordinates: [cleanLng, cleanLat] },
         date: new Date().toISOString(),
-        depen: userName?.ci || "Anónimo",  // o el campo que uses para dependencia
-      
-        
+        //depen: userName?.ci || "Anónimo",  // o el campo que uses para dependencia
+
         radio: parseFloat(dialogData.radio) || 0,
       };
 
       await crearRegistro(newMarker);
 
-      setSnackbar({ open: true, message: "Afectación guardada con éxito", severity: "success" });
+      setSnackbar({
+        open: true,
+        message: "Afectación guardada con éxito",
+        severity: "success",
+      });
       handleCloseDialog();
       setMarkData((prev) => [...(Array.isArray(prev) ? prev : []), newMarker]);
     } catch (err) {
       setError("Error al guardar el marcador. Intente nuevamente.");
-      setSnackbar({ open: true, message: "Error al guardar", severity: "error" });
+      setSnackbar({
+        open: true,
+        message: "Error al guardar",
+        severity: "error",
+      });
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSnackbarClose = () => setSnackbar(prev => ({ ...prev, open: false }));
+  const handleSnackbarClose = () =>
+    setSnackbar((prev) => ({ ...prev, open: false }));
+
+  const hasValidCI = userName?.ci && userName.ci !== "";
+
+  if (!hasValidCI) {
+    return (
+      <Snackbar open={true} autoHideDuration={5000}>
+        <Alert
+       
+          severity="error"
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          "No se puede ingresar información"
+        </Alert>
+      </Snackbar>
+    );
+  }
 
   return (
     <>
@@ -234,7 +286,13 @@ export const AffectAdd = ({
         fullWidth
         PaperProps={{ sx: { borderRadius: 2, p: 1 } }}
       >
-        <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <DialogTitle
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           <Typography variant="h6">Agregar afectación</Typography>
           <Button onClick={handleCloseDialog} color="inherit" size="small">
             <CloseIcon />
@@ -251,17 +309,20 @@ export const AffectAdd = ({
                 </Grid>
                 <Grid item>
                   <Typography variant="body2" color="textSecondary">
-                    <strong>Coordenadas:</strong> {dialogCoords?.lat || "—"}, {dialogCoords?.lng || "—"}
+                    <strong>Coordenadas:</strong> {dialogCoords?.lat || "—"},{" "}
+                    {dialogCoords?.lng || "—"}
                   </Typography>
                 </Grid>
               </Grid>
             </Paper>
 
             <Divider sx={{ mb: 2 }} />
-            <Typography variant="subtitle2" gutterBottom>📋 Información general</Typography>
+            <Typography variant="subtitle2" gutterBottom>
+              📋 Información general
+            </Typography>
 
             <Grid container spacing={2}>
-              <Grid item size={{xs:12, md:6}}>
+              <Grid item size={{ xs: 12, md: 6 }}>
                 <FormField
                   name="afectacion"
                   label="Afectación"
@@ -272,7 +333,7 @@ export const AffectAdd = ({
                   required
                 />
               </Grid>
-              <Grid item size={{xs:12, md:6}}>
+              <Grid item size={{ xs: 12, md: 6 }}>
                 <FormField
                   name="event"
                   label="Evento"
@@ -283,7 +344,7 @@ export const AffectAdd = ({
                   required
                 />
               </Grid>
-              <Grid item size={{xs:12, md:6}}>
+              <Grid item size={{ xs: 12, md: 6 }}>
                 <FormField
                   name="parroq"
                   label="Parroquia"
@@ -294,7 +355,7 @@ export const AffectAdd = ({
                   required
                 />
               </Grid>
-              <Grid item  size={{xs:12, md:6}}>
+              <Grid item size={{ xs: 12, md: 6 }}>
                 <FormField
                   name="sector"
                   label="Sector"
@@ -307,10 +368,12 @@ export const AffectAdd = ({
             </Grid>
 
             <Divider sx={{ my: 2 }} />
-            <Typography variant="subtitle2" gutterBottom>📝 Descripción y acciones</Typography>
+            <Typography variant="subtitle2" gutterBottom>
+              📝 Descripción y acciones
+            </Typography>
 
             <Grid container spacing={2}>
-              <Grid item  size={{xs:12}}>
+              <Grid item size={{ xs: 12 }}>
                 <FormField
                   name="descripcio"
                   label="Descripción detallada"
@@ -320,7 +383,17 @@ export const AffectAdd = ({
                   required
                 />
               </Grid>
-              <Grid item size={{xs:12}}>
+              <Grid item size={{ xs: 12 }}>
+                <FormField
+                  name="depen"
+                  label="Instituciones que atienden "
+                  type="text"
+                  value={dialogData.depen}
+                  onChange={handleData}
+                  required
+                />
+              </Grid>
+              <Grid item size={{ xs: 12 }}>
                 <FormField
                   name="accions"
                   label="Acciones a realizar"
@@ -333,10 +406,12 @@ export const AffectAdd = ({
             </Grid>
 
             <Divider sx={{ my: 2 }} />
-            <Typography variant="subtitle2" gutterBottom>⚙️ Estado y prioridad</Typography>
+            <Typography variant="subtitle2" gutterBottom>
+              ⚙️ Estado y prioridad
+            </Typography>
 
             <Grid container spacing={2}>
-              <Grid item   size={{xs:12, md:6}}>
+              <Grid item size={{ xs: 12, md: 6 }}>
                 <FormField
                   name="estado"
                   label="Estado"
@@ -347,7 +422,7 @@ export const AffectAdd = ({
                   required
                 />
               </Grid>
-              <Grid item   size={{xs:12, md:6}}>
+              <Grid item size={{ xs: 12, md: 6 }}>
                 <FormField
                   name="prioridad"
                   label="Prioridad"
@@ -358,7 +433,7 @@ export const AffectAdd = ({
                   required
                 />
               </Grid>
-              <Grid item  size={{xs:12, md:6}}>
+              <Grid item size={{ xs: 12, md: 6 }}>
                 <FormField
                   name="radio"
                   label="Radio de afectación (m)"
@@ -368,7 +443,7 @@ export const AffectAdd = ({
                   InputProps={{ inputProps: { min: 0, step: 10 } }}
                 />
               </Grid>
-              <Grid item   size={{xs:12, md:6}}>
+              <Grid item size={{ xs: 12, md: 6 }}>
                 <FormField
                   name="img"
                   label="URL de imagen (opcional)"
@@ -382,12 +457,20 @@ export const AffectAdd = ({
 
             {/* Mensaje de error en el diálogo */}
             {error && (
-              <Alert severity="error" sx={{ mt: 2 }} onClose={() => setError("")}>
+              <Alert
+                severity="error"
+                sx={{ mt: 2 }}
+                onClose={() => setError("")}
+              >
                 {error}
               </Alert>
             )}
 
-            <Typography variant="caption" color="textSecondary" sx={{ display: "block", mt: 2 }}>
+            <Typography
+              variant="caption"
+              color="textSecondary"
+              sx={{ display: "block", mt: 2 }}
+            >
               * Campos obligatorios
             </Typography>
           </Box>
@@ -415,7 +498,11 @@ export const AffectAdd = ({
         onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: "100%" }}>
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>
