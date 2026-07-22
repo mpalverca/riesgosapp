@@ -228,7 +228,7 @@ export default function Panel({
           <MenuItem value="Loja">Loja</MenuItem>
           <MenuItem value="Malacatos">Malacatos</MenuItem>
           <MenuItem value="Punzara">Punzara</MenuItem>
-          <MenuItem value="Taquil">Sagrario</MenuItem>
+          <MenuItem value="Sagrario">Sagrario</MenuItem>
           <MenuItem value="San Lucas">San Lucas</MenuItem>
           <MenuItem value="Santiago">Santiago</MenuItem>
           <MenuItem value="San Pedro de Vilcabamba">

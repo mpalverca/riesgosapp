@@ -6,7 +6,7 @@ import React, {
   useMemo,
   useRef,
 } from "react";
-import { MapContainer, TileLayer } from "react-leaflet";
+import { MapContainer, TileLayer, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import {
   Slider,
@@ -30,6 +30,9 @@ import { useMapIcons } from "./afect_view/useMapIcons.js";
 
 // Estilos CSS de Leaflet
 import "leaflet/dist/leaflet.css";
+import { AffectAdd } from "./addafect/affectAdd.jsx";
+
+
 
 // Configuración de iconos para Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -87,6 +90,12 @@ const MapAfects = ({
   const [selectedItem, setSelectedItem] = useState(null);
   const [poligonosData, setPoligonosData] = useState([]);
   const [loadingPoligonos, setLoadingPoligonos] = useState(false);
+//create
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogCoords, setDialogCoords] = useState(null);
+
+  //
 
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
@@ -206,6 +215,26 @@ const MapAfects = ({
     []
   );
 
+  //event mapclick
+
+  // Componentes
+  const MapEvents = ({ onMapClick }) => {
+    useMapEvents({
+      dblclick: (e) => onMapClick(e.latlng),
+      contextmenu: (e) => {
+        e.originalEvent?.preventDefault();
+        onMapClick(e.latlng);
+      },
+    });
+    return null;
+  };
+  
+  // Handlers
+    const handleOpenDialog = useCallback((latlng) => {
+      if (!latlng) return;
+      setDialogCoords({ lat: latlng.lat.toFixed(6), lng: latlng.lng.toFixed(6) });
+      setDialogOpen(true);
+    }, []);
   
 
   // Calcular posición del mapa
@@ -270,6 +299,7 @@ const MapAfects = ({
       <MapContainer
         center={mapCenter}
         ref={mapRef}
+        doubleClickZoom={false}
         whenCreated={(map) => {
           mapRef.current = map;
           map.on("load", () => {
@@ -297,6 +327,18 @@ const MapAfects = ({
           user={user}
           printToPDF={printToPDF}
         />
+
+        {/* accion para agregar afectación */}
+
+        {user && <MapEvents onMapClick={handleOpenDialog} />}
+        <AffectAdd
+                dialogOpen={dialogOpen}
+                handleCloseDialog={() => setDialogOpen(false)}
+         
+                dialogCoords={dialogCoords}
+          
+   
+              />
 
         <SucepLayer
           poligonosData={poligonosData}
