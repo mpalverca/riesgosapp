@@ -87,6 +87,25 @@ export const cargarDatosParroquia = async () => {
     throw error;
   }
 };
+
+
+export const crearRegistro = async (nuevoRegistro) => {
+  try {
+    // nuevoRegistro debe contener los campos: geom, date, prioridad, event, estado, parroq, afectacion, radio, depen, etc.
+    // Asegúrate de que geom sea un objeto GeoJSON (punto, línea o polígono) o un string en formato WKT según tu columna.
+    const { data, error } = await supabaseAfect
+      .from("bd_loja_1")
+      .insert([nuevoRegistro])
+      .select(); // .select() devuelve el registro insertado
+
+    if (error) throw error;
+    return data[0]; // retorna el registro creado
+  } catch (error) {
+    console.error("Error al crear registro:", error);
+    throw error;
+  }
+};
+
 // Función generarPDF actualizada:
 export async function generarPDF(
   titulo,
@@ -831,3 +850,6 @@ export async function generarPDF(
     alert("Ocurrió un error al generar el reporte");
   }
 }
+
+
+

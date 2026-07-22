@@ -360,6 +360,8 @@ function MapMark({
     loading,
   ]);
 
+  
+
   // ========== FUNCIONES AUXILIARES ==========
   const parseByField = useCallback((byString) => {
     if (typeof byString !== "string") return byString;
@@ -601,7 +603,7 @@ function MapMark({
           {/* Capa: Conocimiento y Monitoreo */}
           {selectCapa.conoc_monit && !hiddenLayers.conoc_monit && marcadoresCon.length > 0 && (
             <ConMonitView
-              afect={marcadoresCon}
+              acciones={marcadoresCon}
               parseByField={parseByField}
               formatDate={formatDate}
               title="Conocimiento y Monitoreo"
@@ -612,10 +614,11 @@ function MapMark({
               openDialog={openDialog}
               setTypeInput={setTypeInput}
               files={files}
+               member={member}
             />
           )}
 
-          {/* Capa: Prevención y Mitigación - Usando AccionesView */}
+          {/* Capa: Prevención y Mitigación */}
           {selectCapa.prev_mitig && !hiddenLayers.prev_mitig && marcadoresPrev.length > 0 && (
             <ConMonitView
               acciones={marcadoresPrev}
@@ -627,16 +630,17 @@ function MapMark({
               setOpenDialog={setOpenDialog}
               openDialog={openDialog}
               setTypeInput={setTypeInput}
+               member={member}
             />
           )}
 
-          {/* Capa: Preparación - Usando RequireView */}
+          {/* Capa: Preparación  */}
           {
             selectCapa.preparacion &&
             !hiddenLayers.preparacion &&
             marcadoresPrep.length > 0 && (
               <ConMonitView
-                recursos={marcadoresPrep}
+                acciones={marcadoresPrep}
                 parseByField={parseByField}
                 formatDate={formatDate}
                 title="Preparación"
@@ -644,15 +648,16 @@ function MapMark({
                 mtt={mtt}
                 setOpenDialog={setOpenDialog}
                 openDialog={openDialog}
+                 member={member}
               />
             )}
 
-          {/* Capa: Respuesta - Usando RequireView */}
+          {/* Capa: Respuesta  */}
           {selectCapa.respuesta &&
             !hiddenLayers.respuesta &&
             marcadoresRes.length > 0 && (
               <ConMonitView
-                recursos={marcadoresRes}
+                acciones={marcadoresRes}
                 parseByField={parseByField}
                 formatDate={formatDate}
                 title="Respuesta"
@@ -660,15 +665,16 @@ function MapMark({
                 mtt={mtt}
                 setOpenDialog={setOpenDialog}
                 openDialog={openDialog}
+                 member={member}
               />
             )}
 
-          {/* Capa: Recuperación - Usando RequireView */}
+          {/* Capa: Recuperación */}
           {selectCapa.recuperacion &&
             !hiddenLayers.recuperacion &&
             marcadoresReq.length > 0 && (
               <ConMonitView
-                recursos={marcadoresReq}
+                acciones={marcadoresReq}
                 parseByField={parseByField}
                 formatDate={formatDate}
                 title="Recuperación"
@@ -676,6 +682,7 @@ function MapMark({
                 mtt={mtt}
                 setOpenDialog={setOpenDialog}
                 openDialog={openDialog}
+                 member={member}
               />
             )}
 
@@ -694,6 +701,7 @@ function MapMark({
                 getEventIconPulso={getEventIconPulso}
                 COLOR_PRIORIDAD={COLOR_PRIORIDAD}
                 user={user}
+                 member={member}
               />
             )}
 
