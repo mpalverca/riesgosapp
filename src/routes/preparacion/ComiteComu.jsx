@@ -1,4 +1,4 @@
-import { Box, Typography, Grid, Tab, Paper } from "@mui/material";
+import { Box, Typography, Grid, Tab, Paper, Radio, Switch } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import Panel from "./comiteC/panel";
 import MapBase from "./comiteC/mapBase";
@@ -22,12 +22,12 @@ export default function ComiteComunitario() {
   const [eventInfo, setDataEvent] = useState([]);
   const [selectInfo, setSelectInfo] = useState(null);
   const [selectComite, setComite] = useState(null);
-
+  const [addActivity,setAddActivity] = useState(false)
   // data to pcomite to send
   const { errorGet, loadingGet, dataC, read } = useInforComite();
   const getBrigada = useInforComite();
   const getPlan = useInforComite();
-
+  
   // Cargar datos iniciales
   useEffect(() => {
     const fetchData = async () => {
@@ -67,7 +67,6 @@ export default function ComiteComunitario() {
         setLoading(false);
       }
     };
-
     fetchData();
   }, []);
   // Cargar datos de parroquia específica
@@ -166,6 +165,12 @@ export default function ComiteComunitario() {
             </Box>
 
             <TabPanel value="1">
+              <>
+              <Box sx={{display: "flex"}}>
+                <Typography>Agregar Actividades</Typography>
+                <Switch />
+                
+              </Box>
               <MapBase
                 data={data}
                 loading={loading}
@@ -182,7 +187,7 @@ export default function ComiteComunitario() {
                   center: [-79.2, -3.99], // Coordenadas de Loja, Ecuador
                   zoom: 10,
                 }}
-              />
+              /></>
             </TabPanel>
             <TabPanel value="2">
               <Paper elevation={3} sx={{ p: 1, mb: 1, borderRadius: 1 }}>

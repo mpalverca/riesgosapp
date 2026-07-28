@@ -339,7 +339,6 @@ export const DialogAdd = ({
       setError("");
     }
   }, [dialogOpen]);
-
   const handleData = useCallback(
     (e) => {
       const { name, value } = e.target;
@@ -349,7 +348,6 @@ export const DialogAdd = ({
     },
     [error],
   );
-
   const getSpecificOptions = useMemo(() => {
     if (dialogData.type === "Amenaza") {
       return SUBTYPE_OPTIONS[dialogData.subtype] || [];
@@ -404,7 +402,6 @@ export const DialogAdd = ({
     // Validar que sea un número válido
     return isNaN(num) ? null : num;
   };
-
   const handleSubmit = async () => {
     if (!validateForm()) return;
     if (!comite) {
@@ -439,7 +436,6 @@ export const DialogAdd = ({
           formattedPolygon = props.polyData;
         }
       }
-
       const newMarker = {
         ...dialogData,
         lat: cleanLat,
@@ -449,7 +445,6 @@ export const DialogAdd = ({
         polygon: formattedPolygon, // Guardar como array, no como string
         created_at: new Date().toISOString(),
       };
-
       console.log("Enviando marcador con polígono:", newMarker);
 
       const response = await post("post", "plan", newMarker);

@@ -131,16 +131,14 @@ export default function Panel({ selectedValue, setSelectedValue, ...props }) {
           "& .MuiAlert-message": { width: "100%" },
         }}
       >
-        <Typography variant="body2">
+        <Typography variant="body2" textAlign="justify">
           <strong>Importante:</strong> La información presentada es de manera
           referencial y deberá asumirse con el mayor cuidado y responsabilidad
           ya que la divulgación inadecuada de la misma está sujeta a acciones y
-          sanciones contempladas en la Ley Organica de Gestión Integral de Riesgos de Desastres (LOGIRD).
+          sanciones contempladas en la Ley Organica de Gestión Integral de
+          Riesgos de Desastres (LOGIRD).
         </Typography>
       </Alert>
-
-      <Divider sx={{ mb: 2 }} />
-
       {/* Barra de búsqueda */}
       <Paper
         elevation={0}
@@ -170,7 +168,7 @@ export default function Panel({ selectedValue, setSelectedValue, ...props }) {
           </Typography>
         </Box>
         <Grid container spacing={2}>
-          <Grid item size={{ xs: 12, md: 6 }}>
+          <Grid item size={{ xs: 12, md: 9 }}>
             <Autocomplete
               options={barriosOptions}
               value={selectedValue}
@@ -192,7 +190,7 @@ export default function Panel({ selectedValue, setSelectedValue, ...props }) {
           </Grid>
           <Grid
             item
-            size={{ xs: 12, md: 6 }}
+            size={{ xs: 12, md: 3 }}
             sx={{ gap: 2, alignContent: "space-between" }}
           >
             <Button
@@ -261,7 +259,7 @@ export default function Panel({ selectedValue, setSelectedValue, ...props }) {
                 }}
               >
                 {" "}
-                <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 600 }}>
+                <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
                   Seleccionar Comité Comunitario
                 </Typography>
                 <Grid container spacing={2}>
@@ -475,6 +473,20 @@ const BarrioResultItem = ({ item, index }) => {
               <strong>Observaciones:</strong> {item.observaciones}
             </Typography>
           </Alert>
+        )}
+        {item.desc && (
+          <>
+            <Typography
+              variant="body1"
+              textAlign="justify"
+              sx={{
+                whiteSpace: "pre-wrap", // Mantiene saltos de línea y espacios
+                wordBreak: "break-word",
+              }}
+            >
+              {item.desc}
+            </Typography>
+          </>
         )}
       </Box>
     </Paper>
