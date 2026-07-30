@@ -22,19 +22,22 @@ import {
   Alert,
   Autocomplete,
 } from "@mui/material";
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { usePlanA } from "../script";
 import DriveManager from "./loadfile";
 import InstApoyo from "../../../../components/utils/inst_info_canton.json";
-import { ESTADO_OPTIONS, INITIAL_DATA, MONTHS, TIPO_OPTIONS, VERIFICABLE_OPTIONS } from "./config";
-
-
+import {
+  ESTADO_OPTIONS,
+  INITIAL_DATA,
+  MONTHS,
+  TIPO_OPTIONS,
+  VERIFICABLE_OPTIONS,
+} from "./config";
 
 // Extraer nombres de instituciones (strings)
-const INSTITUCIONES_LIST = InstApoyo.map((item) => 
-  typeof item === 'string' ? item : item.nombre || item.label || ""
+const INSTITUCIONES_LIST = InstApoyo.map((item) =>
+  typeof item === "string" ? item : item.nombre || item.label || "",
 ).filter(Boolean);
-
 
 MONTHS.forEach((m) => (INITIAL_DATA[m.key] = false));
 
@@ -53,7 +56,10 @@ export const DialogAccion = ({
   const cleanCoord = (coord) => {
     if (!coord && coord !== 0) return null;
     const num = parseFloat(
-      coord.toString().replace(",", ".").replace(/[^0-9.-]/g, "")
+      coord
+        .toString()
+        .replace(",", ".")
+        .replace(/[^0-9.-]/g, ""),
     );
     return isNaN(num) ? null : num;
   };
@@ -113,11 +119,14 @@ export const DialogAccion = ({
   useEffect(() => {
     if (data.accion && data.tipe) {
       const selected = accionesOptions.find(
-        (item) => item.value === data.accion
+        (item) => item.value === data.accion,
       );
       if (selected) {
         const instArray = selected.inst
-          ? selected.inst.split(",").map((i) => i.trim()).filter(Boolean)
+          ? selected.inst
+              .split(",")
+              .map((i) => i.trim())
+              .filter(Boolean)
           : [];
 
         setData((prev) => ({
@@ -155,7 +164,6 @@ export const DialogAccion = ({
     setData((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-
   const handleAddInstitucion = (newInst) => {
     if (!newInst || !newInst.trim()) return;
     const trimmed = newInst.trim();
@@ -175,9 +183,65 @@ export const DialogAccion = ({
   const getActiveMonths = () =>
     MONTHS.filter((m) => data[m.key]).map((m) => m.label);
 
+  // Mapeo de tipos a claves de cache
+  const CACHE_KEY_MAP = {
+    Conoc_Monit: "conoc_monit",
+    prev_mit: "prev_mitig",
+    prep: "preparacion",
+    resp: "respuesta",
+    recup: "recuperacion",
+  };
+
+  // Función para actualizar cache
+  const updateCacheAfterPost = useCallback((tipe, newItem) => {
+  const cacheKey = CACHE_KEY_MAP[tipe];
+  if (!cacheKey) {
+    console.warn(`Tipo no mapeado para cache: ${tipe}`);
+    return;
+  }
+
+  props.setCache((prev) => {
+    // ✅ Asegurar que currentData sea siempre un array
+    let currentData = prev[cacheKey];
+    
+    // Si es null o undefined, inicializar como array vacío
+    if (!currentData) {
+      currentData = [];
+    }
+    
+    // Si no es un array pero tiene datos, convertirlo a array
+    if (!Array.isArray(currentData)) {
+      currentData = currentData?.datos || currentData?.data || [];
+      // Si sigue sin ser array, forzar array vacío
+      if (!Array.isArray(currentData)) {
+        currentData = [];
+      }
+    }
+    
+    // ✅ Agregar nuevo elemento sin duplicados (opcional)
+    const exists = currentData.some(item => item.row === newItem.row || item._id === newItem._id);
+    let updatedData;
+    
+    if (exists) {
+      // Si ya existe, reemplazarlo
+      updatedData = currentData.map(item => 
+        (item.row === newItem.row || item._id === newItem._id) ? newItem : item
+      );
+    } else {
+      // Si no existe, agregarlo
+      updatedData = [...currentData, newItem];
+    }
+    
+    //console.log(`✅ Actualizado cache[${cacheKey}]:`, updatedData);
+    return { ...prev, [cacheKey]: updatedData };
+  });
+}, []);
+
   const handleSubmit = async () => {
     // Validaciones
+
     if (!data.tipe) return setError("Seleccione un tipo de acción");
+
     if (!data.accion) return setError("Seleccione una acción");
     if (!data.sector) return setError("Ingrese un sector");
     if (getActiveMonths().length === 0)
@@ -209,15 +273,25 @@ export const DialogAccion = ({
         ...data,
         date: new Date().toISOString(),
         ubi: coordString,
-       
+
         verifi: data.verifi,
-        inst: instituciones.join(', '), // Array de strings
+        inst: instituciones.join(", "), // Array de strings
         verificableUrl: data.verifi === "si" ? verificableLink : null,
       };
 
-      console.log(payload.inst)
+      const response = await post(data.tipe, payload);
+      const newItem = response?.data || payload;
 
-      await post(data.tipe, payload);
+      // 🔥 Actualizar cache agregando el nuevo elemento
+      updateCacheAfterPost(data.tipe, newItem);
+
+      /* props.setSnackbar({
+      open: true,
+      message: "📁 ¡Archivo cargado exitosamente! Recarga las acciones para visualizar los cambios.",
+      severity: "success",
+     
+    }); */
+
       handleClose();
     } catch (err) {
       setError(err.message || "Error al guardar");
@@ -227,12 +301,13 @@ export const DialogAccion = ({
   };
 
   // ========== RENDER DE CAMPO ==========
+    const MAX_CHARS = 1000;
   const renderField = (
     name,
     label,
     type = "text",
     options = [],
-    extraProps = {}
+    extraProps = {},
   ) => {
     // Asegurar que options sea un array
     const safeOptions = Array.isArray(options) ? options : [];
@@ -242,7 +317,7 @@ export const DialogAccion = ({
         name={name}
         label={label}
         type={type}
-        value={data[name] || ""}
+        value={data[name] || ""} helperText ={`${(data[name] || "").length}/${MAX_CHARS} caracteres`}
         onChange={handleChange}
         select={type === "select"}
         multiline={type === "textarea"}
@@ -250,6 +325,11 @@ export const DialogAccion = ({
         fullWidth
         disabled={name === "by" || name === "desc"}
         {...extraProps}
+         FormHelperTextProps={{
+    sx: {
+      color: (data[name] || "").length > MAX_CHARS * 0.9 ? 'error.main' : 'text.secondary',
+    }
+  }}
       >
         {type === "select" &&
           safeOptions.map((opt) => (
@@ -271,11 +351,7 @@ export const DialogAccion = ({
           Lat: {dialogCoords?.lat || "N/A"}, Lng: {dialogCoords?.lng || "N/A"}
         </DialogContentText>
 
-        {error && (
-          <Alert severity="error" sx={{ mt: 1 }} onClose={() => setError(null)}>
-            {error}
-          </Alert>
-        )}
+        
 
         <Paper elevation={3} sx={{ p: 2, mt: 2 }}>
           <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
@@ -293,10 +369,10 @@ export const DialogAccion = ({
                 helperText: !data.tipe
                   ? "Seleccione un tipo primero"
                   : loadingGet
-                  ? "Cargando acciones..."
-                  : accionesOptions.length === 0 && data.tipe
-                  ? "No hay acciones disponibles para este tipo"
-                  : "",
+                    ? "Cargando acciones..."
+                    : accionesOptions.length === 0 && data.tipe
+                      ? "No hay acciones disponibles para este tipo"
+                      : "",
                 InputProps: {
                   endAdornment: loadingGet && (
                     <CircularProgress size={25} sx={{ mr: 1 }} />
@@ -327,7 +403,9 @@ export const DialogAccion = ({
                 freeSolo
                 options={INSTITUCIONES_LIST}
                 inputValue={inputInstValue}
-                onInputChange={(_, newValue) => setInputInstValue(newValue || "")}
+                onInputChange={(_, newValue) =>
+                  setInputInstValue(newValue || "")
+                }
                 onChange={(_, newValue) => {
                   if (newValue) {
                     handleAddInstitucion(newValue);
@@ -342,7 +420,7 @@ export const DialogAccion = ({
                   />
                 )}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' && inputInstValue.trim()) {
+                  if (e.key === "Enter" && inputInstValue.trim()) {
                     e.preventDefault();
                     handleAddInstitucion(inputInstValue);
                   }
@@ -350,7 +428,7 @@ export const DialogAccion = ({
                 clearOnBlur={false}
                 clearOnEscape
               />
-              
+
               {/* Mostrar instituciones seleccionadas como chips */}
               {instituciones.length > 0 && (
                 <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mt: 1 }}>
@@ -384,7 +462,12 @@ export const DialogAccion = ({
             </Grid>
 
             <Grid item size={{ xs: 12 }}>
-              {renderField("verifi", "Verificable", "select", VERIFICABLE_OPTIONS)}
+              {renderField(
+                "verifi",
+                "Verificable",
+                "select",
+                VERIFICABLE_OPTIONS,
+              )}
             </Grid>
 
             {data.verifi === "si" && (
@@ -417,7 +500,7 @@ export const DialogAccion = ({
                           size="small"
                           onDelete={() =>
                             handleMonthToggle(
-                              MONTHS.find((m) => m.label === month).key
+                              MONTHS.find((m) => m.label === month).key,
                             )
                           }
                         />
@@ -443,7 +526,11 @@ export const DialogAccion = ({
                   ))}
                 </RadioGroup>
 
-                <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ mt: 1 }}
+                >
                   {getActiveMonths().length > 0
                     ? `${getActiveMonths().length} mes(es) seleccionado(s)`
                     : "Seleccione los meses de ejecución"}
@@ -452,6 +539,11 @@ export const DialogAccion = ({
             </Grid>
           </Grid>
         </Paper>
+        {error && (
+          <Alert severity="error" sx={{ mt: 1 }} onClose={() => setError(null)}>
+            {error}
+          </Alert>
+        )}
       </DialogContent>
 
       <DialogActions>

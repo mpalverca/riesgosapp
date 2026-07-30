@@ -386,6 +386,7 @@ function BodyPlan({ mtt, member }) {
           dataSusceptibilidad={getLayerData("susceptibilidad")}
           dataParroquia={getLayerData("parroquia")}
           dataAfectRegister={getLayerData("afect_register")}
+          setCache={setCache}
           selectCapa={selectedCapa}
           mtt={mtt}
           layersConfig={[

@@ -103,6 +103,10 @@ export const usePlanA = () => {
       setError("Ingrese el tipo de consulta");
       return;
     }
+    if (!row) {
+      setError("Ingrese el tipo de consulta");
+      return;
+    }
     if (!dEdit) {
       setError("No existe información");
       return;

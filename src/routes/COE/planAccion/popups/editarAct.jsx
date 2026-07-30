@@ -20,6 +20,7 @@ const EditData = ({ dataI, close, row, member, sheet }) => {
     ubi: dataI.ubi,
     responsable: dataI.responsable,
     cash: dataI.cash,
+    date: dataI.date,
     inst: dataI.inst,
     detail: dataI.detail,
     verifi: dataI.verifi,
@@ -66,18 +67,21 @@ const EditData = ({ dataI, close, row, member, sheet }) => {
     }
   };
   // ========== RENDER DE CAMPO ==========
+    const MAX_CHARS = 1000;
   const renderField = (
     name,
     label,
     type = "text",
     options = [],
     extraProps = {},
+  
   ) => (
     <TextField
       name={name}
       label={label}
       type={type}
       value={data[name] || ""}
+      helperText ={`${(data[name] || "").length}/${MAX_CHARS} caracteres`}
       onChange={handleChange}
       select={type === "select"}
       multiline={type === "textarea"}
@@ -85,6 +89,11 @@ const EditData = ({ dataI, close, row, member, sheet }) => {
       fullWidth
       disabled={name === "by" || name === "desc"}
       {...extraProps}
+       FormHelperTextProps={{
+    sx: {
+      color: (data[name] || "").length > MAX_CHARS * 0.9 ? 'error.main' : 'text.secondary',
+    }
+  }}
     >
       {type === "select" &&
         options.map((opt) => (
@@ -133,11 +142,12 @@ const EditData = ({ dataI, close, row, member, sheet }) => {
         dateUpdate: new Date().toISOString(),
         //fila: row,
         verifi: data.verifi,
-        inst: instituciones.join(", "), // Array de strings
+        
+       // inst: instituciones.join(", "), // Array de strings
         verificableUrl: data.verifi === "si" ? verificableLink : null,
       };
       console.log(payload.inst);
-
+console.log(row)
       await edit(sheet, row, payload);
       handleClose();
     } catch (err) {

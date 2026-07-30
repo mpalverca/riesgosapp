@@ -196,7 +196,7 @@ const ParroquiaDetails = ({ getLayerData, getLayerCount }) => {
 
 const ActionDetails = ({ label, layerKey, getLayerData, getLayerCount, zoom }) => {
   const fullData = getLayerData(layerKey);
-  console.log(fullData);
+ 
   const data = extractDataArray(fullData);
   // Estadísticas de estado
   const vigente = data.filter((item) => {

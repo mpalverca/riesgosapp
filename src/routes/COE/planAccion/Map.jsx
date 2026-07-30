@@ -209,10 +209,11 @@ function MapMark({
   member,
   zoomCoord,
   shouldZoom,
+  ...props
 }) {
   const user = useUser();
   const { getEventIcon, getEventIconPulso, COLOR_PRIORIDAD } = useMapIcons();
-console.log(zoomCoord)
+
   // ========== ESTADOS ==========
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [coordinates, setCoordinates] = useState(null);
@@ -840,6 +841,7 @@ console.log(zoomCoord)
         dialogCoords={dialogCoords}
         mtt={mtt}
         member={member}
+        setCache={props.setCache}
       />
 
       {/* Snackbar */}

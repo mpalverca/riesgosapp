@@ -3,7 +3,7 @@ export const MONTHS = [
   { key: "Jun", label: "Junio" },
   { key: "Jul", label: "Julio" },
   { key: "Ago", label: "Agosto" },
-  { key: "Sep", label: "Septiembre" },
+  { key: "Sept", label: "Septiembre" },
   { key: "Oct", label: "Octubre" },
   { key: "Nov", label: "Noviembre" },
   { key: "Dic", label: "Diciembre" },

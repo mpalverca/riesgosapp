@@ -1,4 +1,3 @@
-
 import {
   Box,
   Button,
@@ -35,9 +34,8 @@ import {
   Favorite,
   Link,
   MonitorHeart,
-  
 } from "@mui/icons-material";
-import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import { usePlanA } from "../script";
 import EditData from "./editarAct";
 
@@ -71,18 +69,17 @@ const coordForm = (ubi) => {
 const ICON_CONFIG = {
   "Conocimiento y Monitoreo": {
     icon: MonitorHeart,
-      color: "#0066cc",
+    color: "#0066cc",
     bgGradient: "linear-gradient(135deg, #0066cc, #4d94ff)",
-    
   },
   "Prevención y Mitigación": {
     icon: AddAlertOutlined,
-     color: "#228b22",
+    color: "#228b22",
     bgGradient: "linear-gradient(135deg, #228b22, #66bb6a)",
   },
   Preparación: {
     icon: GppGoodOutlined,
-   color: "#ff8c00",
+    color: "#ff8c00",
     bgGradient: "linear-gradient(135deg, #ff8c00, #ffb347)",
   },
   Respuesta: {
@@ -93,9 +90,8 @@ const ICON_CONFIG = {
   Recuperación: {
     icon: Favorite,
     color: "#602fbb",
-   bgGradient: "linear-gradient(135deg, #602fbb, #7c4dff)",
+    bgGradient: "linear-gradient(135deg, #602fbb, #7c4dff)",
   },
-  
 };
 
 // ========== COMPONENTES DE ESTILOS ==========
@@ -161,7 +157,15 @@ const InfoCard = ({ icon, title, content, color = "primary" }) => (
           {title}
         </Typography>
       </Stack>
-      <Typography variant="body2" sx={{ mt: 0.5 }} textAlign="justify">
+      <Typography
+        variant="body2"
+        sx={{
+          mt: 0.5,
+          whiteSpace: "pre-wrap", // Mantiene saltos de línea y espacios
+          wordBreak: "break-word",
+        }}
+        textAlign="justify"
+      >
         {content || "No disponible"}
       </Typography>
     </CardContent>
@@ -195,7 +199,6 @@ export const ConMonitView = ({
   const [openEdit, setOpenEdit] = useState(false);
 
   // Determinar qué datos usar
- 
 
   const { deleteRow, dataGet, loadingGet } = usePlanA();
   // Obtener configuración de icono según el título
@@ -208,20 +211,20 @@ export const ConMonitView = ({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-       // color:iconConfig.color,
+        // color:iconConfig.color,
         background: iconConfig.bgGradient,
         borderRadius: "50%",
         width: "24px",
         height: "24px",
-      //  boxShadow: "0 2px 12px rgba(0,0,0,0.2)",
-       // border: "2px solid white",
+        //  boxShadow: "0 2px 12px rgba(0,0,0,0.2)",
+        // border: "2px solid white",
         //transition: "all 0.3s ease",
       };
       const html = renderToString(
         <div style={circleStyle}>
           <IconComponent
             sx={{
-             // color: "#ffffff",
+              // color: "#ffffff",
               fontSize: "18px",
             }}
           />
@@ -328,7 +331,16 @@ export const ConMonitView = ({
 
         // En el botón:
         const estado = marker.data.estado; // o el campo que indique el estado
-        const isCompletado = estado === "Completado";
+        const isCompletado = marker.data.estado === "Completado";
+        const hasVerificable =
+          marker.data.verificableUrl == null &&
+          marker.data.verificableUrl == "";
+        const isSameMtt = marker.data.mtt === mtt;
+
+        console.log(hasVerificable,isSameMtt,isCompletado)
+        // Condición para deshabilitar
+        const isDisabled = isCompletado || !isSameMtt || !hasVerificable;
+        console.log(isDisabled)
         return (
           <Marker
             key={marker.id || marker.data._id}
@@ -623,11 +635,11 @@ export const ConMonitView = ({
                 <Button
                   size="small"
                   variant="outlined"
-                  disabled={marker.data.mtt && marker.data.mtt !== mtt}
+                  disabled={isDisabled}
                   color="error"
                   startIcon={<Delete />}
                   onClick={async () => {
-                    if (!isCompletado) {
+                    if (!isDisabled) {
                       await hadleDelete(marker.data.row); // o marker.data.row sin +6
                     }
                   }}
