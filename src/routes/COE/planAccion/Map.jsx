@@ -448,7 +448,7 @@ function MapMark({
         style={{ height: "100%", width: "100%" }}
       >
         <TileLayer
-          url="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
+          url="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
           attribution="&copy; Google Maps"
         />
         <MapCenter center={mapCenter} zoom={mapZoom} />
