@@ -346,19 +346,19 @@ function MapMark({
 
         {/* Capas de análisis */}
         {selectCapa.conoc_monit && markers.con.length > 0 && (
-          <ConMonitView acciones={markers.con} title="Conocimiento y Monitoreo" sheet="Conoc_Monit" mtt={mtt} polAfect={dataArrays.pol} member={member} />
+          <ConMonitView acciones={markers.con} title="Conocimiento y Monitoreo" sheet="Conoc_Monit" mtt={mtt} polAfect={dataArrays.pol} member={member} formatDate={formatDate} />
         )}
         {selectCapa.prev_mitig && markers.prev.length > 0 && (
-          <ConMonitView acciones={markers.prev} title="Prevención y Mitigación" sheet="prev_mit" mtt={mtt} polAfect={dataArrays.pol} member={member} />
+          <ConMonitView acciones={markers.prev} title="Prevención y Mitigación" sheet="prev_mit" mtt={mtt} polAfect={dataArrays.pol} member={member} formatDate={formatDate}/>
         )}
         {selectCapa.preparacion && markers.prep.length > 0 && (
-          <ConMonitView acciones={markers.prep} title="Preparación" sheet="prep" mtt={mtt} member={member} />
+          <ConMonitView acciones={markers.prep} title="Preparación" sheet="prep" mtt={mtt} member={member} formatDate={formatDate}/>
         )}
         {selectCapa.respuesta && markers.res.length > 0 && (
-          <ConMonitView acciones={markers.res} title="Respuesta" sheet="resp" mtt={mtt} member={member} />
+          <ConMonitView acciones={markers.res} title="Respuesta" sheet="resp" mtt={mtt} member={member} formatDate={formatDate} />
         )}
         {selectCapa.recuperacion && markers.req.length > 0 && (
-          <ConMonitView acciones={markers.req} title="Recuperación" sheet="recup" mtt={mtt} member={member} />
+          <ConMonitView acciones={markers.req} title="Recuperación" sheet="recup" mtt={mtt} member={member} formatDate={formatDate}/>
         )}
 
         {/* Capas geográficas */}

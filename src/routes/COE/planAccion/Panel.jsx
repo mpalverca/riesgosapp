@@ -7,6 +7,7 @@ import {
   Divider,
   Button,
   Snackbar,
+  Chip,
 } from "@mui/material";
 import Panels from "../../../components/panels/Panels";
 import { Layers as LayersIcon } from "@mui/icons-material";
@@ -43,8 +44,8 @@ const LAYER_CONFIGS = {
   // Grupo 1: Ubicación y Límites
   parroquia: {
     label: "Límites parroquiales",
-    icon: { bgcolor: "#4caf50", borderRadius: 0.5 },
-    color: "#4caf50",
+    icon: { bgcolor: "#dde4dd", borderRadius: 0.5 },
+    color: "#dbdfdb",
     bgColor: "#e8f5e9",
     getCount: (getLayerCount) => getLayerCount("parroquia"),
     isLoading: (isLoading) => isLoading("parroquia"),
@@ -52,17 +53,17 @@ const LAYER_CONFIGS = {
     onToggle: (handleLayerToggle) => () => handleLayerToggle("parroquia"),
     onRefresh: (handleRefreshLayer) => () => handleRefreshLayer("parroquia"),
   },
-  /*  sectorial: {
+  sectorial: {
     label: "Límites Sectoriales",
-    icon: { bgcolor: "#4c5baf", borderRadius: 0.5 },
-    color: "#4caf50",
+    icon: { bgcolor: "#919bd6", borderRadius: 0.5 },
+    color: "#6473c4",
     bgColor: "#e8f5e9",
-    getCount: (getLayerCount) => getLayerCount("parroquia"),
-    isLoading: (isLoading) => isLoading("parroquia"),
-    isSelected: (selectedCapa) => selectedCapa.parroquia,
-    onToggle: (handleLayerToggle) => () => handleLayerToggle("parroquia"),
-    onRefresh: (handleRefreshLayer) => () => handleRefreshLayer("parroquia"),
-  }, */
+    getCount: (getLayerCount) => getLayerCount("sectorial"),
+    isLoading: (isLoading) => isLoading("sectorial"),
+    isSelected: (selectedCapa) => selectedCapa.sectorial,
+    onToggle: (handleLayerToggle) => () => handleLayerToggle("sectorial"),
+    onRefresh: (handleRefreshLayer) => () => handleRefreshLayer("sectorial"),
+  },
 
   // Grupo 2: Acciones del MTT
   conoc_monit: {
@@ -194,9 +195,15 @@ const ParroquiaDetails = ({ getLayerData, getLayerCount }) => {
   );
 };
 
-const ActionDetails = ({ label, layerKey, getLayerData, getLayerCount, zoom }) => {
+const ActionDetails = ({
+  label,
+  layerKey,
+  getLayerData,
+  getLayerCount,
+  zoom,
+}) => {
   const fullData = getLayerData(layerKey);
- 
+
   const data = extractDataArray(fullData);
   // Estadísticas de estado
   const vigente = data.filter((item) => {
@@ -243,16 +250,9 @@ const ActionDetails = ({ label, layerKey, getLayerData, getLayerCount, zoom }) =
         fullWidth
         color="success"
         size="small"
-        disabled={data.length>0?false:true}
+        disabled={data.length > 0 ? false : true}
         variant="contained"
-        onClick={() => generarPDFAccions(
-          label,
-          data,
-          vigente,
-          finalizada
-        )
-          
-        }
+        onClick={() => generarPDFAccions(label, data, vigente, finalizada)}
       >
         Descargar PDF
       </Button>
@@ -270,25 +270,27 @@ const ActionDetails = ({ label, layerKey, getLayerData, getLayerCount, zoom }) =
       {/* Mostrar primeros 3 registros como ejemplo */}
       {data /* .slice(0, 3) */
         .map((item, index) => (
-          <div>
+          <Paper elevation={2}>
             <Typography
               key={index}
               variant="body2"
               color="text.secondary"
               sx={{ display: "block", pl: 2 }}
             >
-              {item.accion || `Registro ${index + 1}`} |
-              <strong> {item.estado && `${item.estado}  `}</strong>
-              <Button
+              <strong>{item.responsable}</strong>
+              <br /> {item.accion || `Registro ${index + 1}`} <br />
+              <strong> {item.estado && `${item.estado}  `}</strong> <br />
+              <Chip label={item.ubi} variant="outlined" />
+              {/* <Button
                 //variant="contained"
                 size="small"
                 onClick={() => zoom(item.ubi)}
               >
                 {`<<ver>>`}{" "}
-              </Button>
+              </Button> */}
             </Typography>
             <Divider sx={{ my: 1 }} />
-          </div>
+          </Paper>
         ))}
       {/* {data.length > 3 && (
         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', pl: 2 }}>
@@ -402,7 +404,14 @@ const renderLayerControl = (layerKey, props, zoom) => {
       "recuperacion",
     ].includes(layerKey)
   ) {
-    children = <ActionDetails label={config.label} layerKey={layerKey} {...props} zoom={zoom} />;
+    children = (
+      <ActionDetails
+        label={config.label}
+        layerKey={layerKey}
+        {...props}
+        zoom={zoom}
+      />
+    );
   } else if (layerKey === "susceptibilidad") {
     children = <SusceptibilidadDetails {...props} />;
   }
