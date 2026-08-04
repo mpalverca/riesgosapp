@@ -5,6 +5,7 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@lobo.cyber.ec/ecuador-geo": "^1.0.2",
     "@mui/icons-material": "^7.3.8",
     "@mui/lab": "^7.0.1-beta.21",
     "@mui/material": "^7.3.7",
@@ -22,6 +23,7 @@
     "leaflet": "^1.9.4",
     "leaflet-draw": "^1.0.4",
     "leaflet-easyprint": "^2.1.9",
+    "leaflet-geosearch": "^4.4.0",
     "leaflet-image": "^0.4.0",
     "leaflet-simple-map-screenshoter": "^0.5.0",
     "leaflet.markercluster": "^1.5.3",

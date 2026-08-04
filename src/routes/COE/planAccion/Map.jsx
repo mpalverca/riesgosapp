@@ -1,49 +1,24 @@
-import React, {
-  useState,
-  useMemo,
-  useRef,
-  useCallback,
-  useEffect,
-} from "react";
-import {
-  LayersControl,
-  MapContainer,
-  TileLayer,
-  useMapEvents,
-  useMap,
-} from "react-leaflet";
+// MapMark.jsx - Versión Optimizada
+import React, { useState, useMemo, useRef, useCallback, useEffect } from "react";
+import { MapContainer, TileLayer, useMapEvents, useMap } from "react-leaflet";
 import leafletImage from "leaflet-image";
-import L from "leaflet";
 import {
   Box,
-  Button,
-  Divider,
-  IconButton,
-  Popover,
-  Stack,
-  Typography,
-  Alert,
-  Snackbar,
-  CircularProgress,
-  Tooltip,
-  Chip,
-  Switch,
-  FormControlLabel,
   Paper,
+  IconButton,
+  Tooltip,
+  CircularProgress,
+  Snackbar,
+  Alert,
+  Typography,
 } from "@mui/material";
 import {
   LocationOn as LocationOnIcon,
-  Close as CloseIcon,
-  ContentCopy as ContentCopyIcon,
   MyLocation as MyLocationIcon,
-  Layers as LayersIcon,
   Download as DownloadIcon,
   ZoomIn as ZoomInIcon,
   ZoomOut as ZoomOutIcon,
   Refresh as RefreshIcon,
-  Visibility as VisibilityIcon,
-  VisibilityOff as VisibilityOffIcon,
-  Delete as DeleteIcon,
 } from "@mui/icons-material";
 import { MarkerSimple } from "../../../components/maps/marker";
 import { coordForm } from "../../utils/Coords";
@@ -52,34 +27,55 @@ import { cargardatoformId, generarPDF } from "../../analisis/afects/script";
 import { useMapIcons } from "../../analisis/afects/afect_view/useMapIcons";
 import SucepLayer from "../../analisis/afects/afect_view/PoligonosLayer";
 import ParroquiaLayer from "../../analisis/afects/afect_view/ParroquiaLayer";
-import SusceptibilidadLayer from "../canton/body_accion/SusceptibilidadLayer";
-import ImageUploadDialog from "../canton/popups/inputs/inputsDialog";
 import { ConMonitView } from "./popups/popPoint";
-import { AccionesView } from "../canton/popups/acciones";
-
 import { DialogAccion } from "./popups/inputAct";
+import MapSearchBar from "../../../components/maps/MapSearchBar";
 
-// ========== FUNCIÓN AUXILIAR PARA EXTRAER DATOS ==========
+// ========== UTILIDADES ==========
 const extractDataArray = (data) => {
   if (!data) return [];
   if (Array.isArray(data)) return data;
-  if (data.datos && Array.isArray(data.datos)) return data.datos;
-  if (data.data && Array.isArray(data.data)) return data.data;
-  if (typeof data === "object") {
-    return Object.keys(data).length > 0 ? [data] : [];
-  }
-  return [];
+  if (data?.datos) return data.datos;
+  if (data?.data) return data.data;
+  return Object.keys(data || {}).length > 0 ? [data] : [];
 };
 
-// ========== COMPONENTE DE CONTROLES ==========
-const MapControls = ({
-  onZoomIn,
-  onZoomOut,
-  onLocate,
-  onDownload,
-  isExporting,
-}) => (
-  <Box
+const formatDate = (dateString) => {
+  if (!dateString) return "No disponible";
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString;
+    return date.toLocaleString("es-ES", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch {
+    return dateString;
+  }
+};
+
+const parseByField = (byString) => {
+  if (typeof byString !== "string") return byString;
+  try {
+    const fixed = byString
+      .replace(/(\w+):/g, '"$1":')
+      .replace(/:\s*(\w+)(,|})/g, ': "$1"$2')
+      .replace(/'/g, '"');
+    return JSON.parse(fixed);
+  } catch {
+    return { error: "Info no disponible" };
+  }
+};
+
+// ========== COMPONENTES INTERNOS ==========
+
+// Controles del mapa (simplificado)
+const MapControls = ({ onZoomIn, onZoomOut, onLocate, onDownload, isExporting }) => (
+  <Paper
+    elevation={3}
     sx={{
       position: "absolute",
       bottom: 20,
@@ -87,101 +83,71 @@ const MapControls = ({
       zIndex: 1000,
       display: "flex",
       flexDirection: "column",
-      gap: 1,
+      gap: 0.5,
+      p: 0.5,
+      borderRadius: 3,
+      bgcolor: "white",
+      boxShadow: "0 2px 10px rgba(0,0,0,0.15)",
     }}
   >
-    <Tooltip title="Acercar" placement="left">
-      <IconButton
-        onClick={onZoomIn}
-        sx={{
-          bgcolor: "white",
-          boxShadow: 2,
-          "&:hover": { bgcolor: "#f5f5f5" },
-        }}
-        size="small"
-      >
-        <ZoomInIcon />
-      </IconButton>
-    </Tooltip>
-    <Tooltip title="Alejar" placement="left">
-      <IconButton
-        onClick={onZoomOut}
-        sx={{
-          bgcolor: "white",
-          boxShadow: 2,
-          "&:hover": { bgcolor: "#f5f5f5" },
-        }}
-        size="small"
-      >
-        <ZoomOutIcon />
-      </IconButton>
-    </Tooltip>
-    <Tooltip title="Mi ubicación" placement="left">
-      <IconButton
-        onClick={onLocate}
-        sx={{
-          bgcolor: "white",
-          boxShadow: 2,
-          "&:hover": { bgcolor: "#f5f5f5" },
-        }}
-        size="small"
-      >
-        <MyLocationIcon />
-      </IconButton>
-    </Tooltip>
-    <Tooltip title="Exportar mapa" placement="left">
-      <IconButton
-        onClick={onDownload}
-        disabled={isExporting}
-        sx={{
-          bgcolor: "white",
-          boxShadow: 2,
-          "&:hover": { bgcolor: "#f5f5f5" },
-        }}
-        size="small"
-      >
-        {isExporting ? <CircularProgress size={20} /> : <DownloadIcon />}
-      </IconButton>
-    </Tooltip>
-  </Box>
+    {[
+      { icon: <ZoomInIcon />, title: "Acercar", action: onZoomIn },
+      { icon: <ZoomOutIcon />, title: "Alejar", action: onZoomOut },
+      { icon: <MyLocationIcon />, title: "Mi ubicación", action: onLocate },
+      {
+        icon: isExporting ? <CircularProgress size={18} /> : <DownloadIcon />,
+        title: "Exportar mapa",
+        action: onDownload,
+        disabled: isExporting,
+      },
+    ].map((btn, idx) => (
+      <Tooltip key={idx} title={btn.title} placement="left" arrow>
+        <IconButton
+          onClick={btn.action}
+          disabled={btn.disabled}
+          size="small"
+          sx={{
+            "&:hover": { bgcolor: btn.title === "Mi ubicación" ? "#e7f3ff" : "#f0f2f5" },
+            color: btn.title === "Mi ubicación" ? "#1877f2" : "inherit",
+          }}
+        >
+          {btn.icon}
+        </IconButton>
+      </Tooltip>
+    ))}
+  </Paper>
 );
 
-// ========== COMPONENTE DE ESTADO DE CAPAS ==========
-
-// ========== COMPONENTE DE CLICK EN MAPA ==========
-const MapEvents = ({ onMapClick }) => {
+// Eventos del mapa
+const MapEvents = ({ onDoubleClick, onContextMenu }) => {
   useMapEvents({
-    dblclick: (e) => onMapClick(e.latlng),
+    dblclick: (e) => onDoubleClick?.(e.latlng),
     contextmenu: (e) => {
       e.originalEvent?.preventDefault();
-      onMapClick(e.latlng);
+      onContextMenu?.(e.latlng);
     },
   });
   return null;
 };
 
-// ========== COMPONENTE PARA CENTRAR MAPA ==========
+// Centrar mapa
 const MapCenter = ({ center, zoom }) => {
   const map = useMap();
-  React.useEffect(() => {
-    if (center && zoom) {
-      map.setView(center, zoom);
-    }
+  useEffect(() => {
+    if (center && zoom) map.setView(center, zoom);
   }, [center, zoom, map]);
   return null;
 };
 
-// ========== HOOKS ==========
+// ========== HOOK PERSONALIZADO ==========
 const useUser = () => {
   const [user, setUser] = useState(null);
   useEffect(() => {
     try {
-      const userData = localStorage.getItem("user");
-      if (userData) {
-        setUser(JSON.parse(userData));
-      }
-    } catch (error) {
-      console.error("Error al cargar usuario:", error);
+      const data = localStorage.getItem("user");
+      if (data) setUser(JSON.parse(data));
+    } catch {
+      console.error("Error al cargar usuario");
     }
   }, []);
   return user;
@@ -201,640 +167,235 @@ function MapMark({
   dataAfectRegister,
   dataSusceptibilidad,
   mtt,
-  layersConfig,
   selectCapa,
   loading,
   onRefreshLayer,
   children,
   member,
-  zoomCoord,
-  shouldZoom,
   ...props
 }) {
   const user = useUser();
   const { getEventIcon, getEventIconPulso, COLOR_PRIORIDAD } = useMapIcons();
 
   // ========== ESTADOS ==========
-  const [menuAnchor, setMenuAnchor] = useState(null);
   const [coordinates, setCoordinates] = useState(null);
-  const [openDialog, setOpenDialog] = useState(false);
   const [openAccion, setOpenAccion] = useState(false);
   const [dialogCoords, setDialogCoords] = useState(null);
-  const [typeInput, setTypeInput] = useState("");
-  const [files, setFiles] = useState([]);
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  });
+  const [selectedItem, setSelectedItem] = useState(null);
   const [isExporting, setIsExporting] = useState(false);
   const [mapCenter, setMapCenter] = useState(position);
   const [mapZoom, setMapZoom] = useState(zoom);
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
   const mapRef = useRef(null);
 
-  ///
-
-  // Estado para ocultar capas individualmente
-  const [hiddenLayers, setHiddenLayers] = useState({
-    conoc_monit: false,
-    prev_mitig: false,
-    preparacion: false,
-    respuesta: false,
-    recuperacion: false,
-    poligono: false,
-    parroquia: false,
-    afect_register: false,
-    susceptibilidad: false,
-  });
-
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [loadingPoligonos, setLoadingPoligonos] = useState(false);
-
-  // ========== PROCESAMIENTO DE DATOS ==========
-  const dataConArray = useMemo(() => extractDataArray(dataCon), [dataCon]);
-  const dataPrevArray = useMemo(() => extractDataArray(dataPrev), [dataPrev]);
-  const dataPrepArray = useMemo(() => extractDataArray(dataPrep), [dataPrep]);
-  const dataResArray = useMemo(() => extractDataArray(dataRes), [dataRes]);
-  const dataReqArray = useMemo(() => extractDataArray(dataReq), [dataReq]);
-  const dataPolArray = useMemo(() => extractDataArray(dataPol), [dataPol]);
-  const dataParroquiaArray = useMemo(
-    () => extractDataArray(dataParroquia),
-    [dataParroquia],
-  );
-  const dataAfectRegisterArray = useMemo(
-    () => extractDataArray(dataAfectRegister),
-    [dataAfectRegister],
-  );
-  const dataSusceptibilidadArray = useMemo(
-    () => extractDataArray(dataSusceptibilidad),
-    [dataSusceptibilidad],
-  );
+  // ========== DATOS MEMORIZADOS ==========
+  const dataArrays = useMemo(() => ({
+    con: extractDataArray(dataCon),
+    prev: extractDataArray(dataPrev),
+    prep: extractDataArray(dataPrep),
+    res: extractDataArray(dataRes),
+    req: extractDataArray(dataReq),
+    pol: extractDataArray(dataPol),
+    parroquia: extractDataArray(dataParroquia),
+    afect: extractDataArray(dataAfectRegister),
+    susceptibilidad: extractDataArray(dataSusceptibilidad),
+  }), [dataCon, dataPrev, dataPrep, dataRes, dataReq, dataPol, dataParroquia, dataAfectRegister, dataSusceptibilidad]);
 
   // ========== PROCESAR MARCADORES ==========
   const processMarkers = useCallback((rawData) => {
     const dataArray = extractDataArray(rawData);
-    if (!dataArray || !Array.isArray(dataArray)) return [];
+    if (!dataArray?.length) return [];
 
     return dataArray
       .map((item, index) => {
-        if (!item.ubi) return null;
+        if (!item?.ubi) return null;
         try {
           const coords = coordForm(item.ubi);
-          return coords
-            ? { id: item._id || index, position: coords, data: item }
-            : null;
-        } catch (e) {
-          console.warn(`Error procesando marcador ${index}:`, e);
+          return coords ? { id: item._id || index, position: coords, data: item } : null;
+        } catch {
           return null;
         }
       })
       .filter(Boolean);
   }, []);
 
-  const marcadoresCon = useMemo(
-    () => processMarkers(dataCon),
-    [dataCon, processMarkers],
-  );
-  const marcadoresPrev = useMemo(
-    () => processMarkers(dataPrev),
-    [dataPrev, processMarkers],
-  );
-  const marcadoresPrep = useMemo(
-    () => processMarkers(dataPrep),
-    [dataPrep, processMarkers],
-  );
-  const marcadoresRes = useMemo(
-    () => processMarkers(dataRes),
-    [dataRes, processMarkers],
-  );
-  const marcadoresReq = useMemo(
-    () => processMarkers(dataReq),
-    [dataReq, processMarkers],
-  );
-
-  // ========== ESTADO DE CAPAS ACTIVAS ==========
-  const activeLayersStatus = useMemo(() => {
-    return [
-      {
-        key: "conoc_monit",
-        label: "Conocimiento y Monitoreo",
-        active: selectCapa.conoc_monit && !hiddenLayers.conoc_monit,
-        hidden: hiddenLayers.conoc_monit,
-        count: marcadoresCon.length,
-        color: "#e6101b",
-        isLoading: loading.loadingAF,
-      },
-      {
-        key: "prev_mitig",
-        label: "Prevención y Mitigación",
-        active: selectCapa.prev_mitig && !hiddenLayers.prev_mitig,
-        hidden: hiddenLayers.prev_mitig,
-        count: marcadoresPrev.length,
-        color: "#ff8c00",
-        isLoading: loading.loadingAC,
-      },
-      {
-        key: "preparacion",
-        label: "Preparación",
-        active: selectCapa.preparacion && !hiddenLayers.preparacion,
-        hidden: hiddenLayers.preparacion,
-        count: marcadoresPrep.length,
-        color: "#228b22",
-        isLoading: loading.loadingRE,
-      },
-      {
-        key: "respuesta",
-        label: "Respuesta",
-        active: selectCapa.respuesta && !hiddenLayers.respuesta,
-        hidden: hiddenLayers.respuesta,
-        count: marcadoresRes.length,
-        color: "#ff6b00",
-        isLoading: false,
-      },
-      {
-        key: "recuperacion",
-        label: "Recuperación",
-        active: selectCapa.recuperacion && !hiddenLayers.recuperacion,
-        hidden: hiddenLayers.recuperacion,
-        count: marcadoresReq.length,
-        color: "#0066cc",
-        isLoading: false,
-      },
-      {
-        key: "poligono",
-        label: "Polígonos",
-        active: selectCapa.poligono && !hiddenLayers.poligono,
-        hidden: hiddenLayers.poligono,
-        count: dataPolArray.length,
-        color: "#3519d2",
-        isLoading: loading.loadingPol,
-      },
-      {
-        key: "parroquia",
-        label: "Parroquias",
-        active: selectCapa.parroquia && !hiddenLayers.parroquia,
-        hidden: hiddenLayers.parroquia,
-        count: dataParroquiaArray.length,
-        color: "#4caf50",
-        isLoading: false,
-      },
-      {
-        key: "afect_register",
-        label: "Afect. Registradas",
-        active: selectCapa.afect_register && !hiddenLayers.afect_register,
-        hidden: hiddenLayers.afect_register,
-        count: dataAfectRegisterArray.length,
-        color: "#ff8c00",
-        isLoading: false,
-      },
-      {
-        key: "susceptibilidad",
-        label: "Susceptibilidad",
-        active: selectCapa.susceptibilidad && !hiddenLayers.susceptibilidad,
-        hidden: hiddenLayers.susceptibilidad,
-        count: dataSusceptibilidadArray.length,
-        color: "#228b22",
-        isLoading: false,
-      },
-    ];
-  }, [
-    selectCapa,
-    hiddenLayers,
-    marcadoresCon,
-    marcadoresPrev,
-    marcadoresPrep,
-    marcadoresRes,
-    marcadoresReq,
-    dataPolArray,
-    dataParroquiaArray,
-    dataAfectRegisterArray,
-    dataSusceptibilidadArray,
-    loading,
-  ]);
-
-  // ========== FUNCIONES AUXILIARES ==========
-  const parseByField = useCallback((byString) => {
-    if (typeof byString !== "string") return byString;
-    try {
-      const fixedString = byString
-        .replace(/(\w+):/g, '"$1":')
-        .replace(/:\s*(\w+)(,|})/g, ': "$1"$2')
-        .replace(/'/g, '"');
-      return JSON.parse(fixedString);
-    } catch {
-      return { error: "Info no disponible" };
-    }
-  }, []);
-
-  const formatDate = useCallback((dateString) => {
-    if (!dateString) return "No disponible";
-    try {
-      const date = new Date(dateString);
-      if (isNaN(date.getTime())) return dateString; // si no es fecha válida
-      return date.toLocaleString("es-ES", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        // second: "2-digit", // opcional
-      });
-    } catch {
-      return dateString;
-    }
-  }, []);
+  const markers = useMemo(() => ({
+    con: processMarkers(dataCon),
+    prev: processMarkers(dataPrev),
+    prep: processMarkers(dataPrep),
+    res: processMarkers(dataRes),
+    req: processMarkers(dataReq),
+  }), [dataCon, dataPrev, dataPrep, dataRes, dataReq, processMarkers]);
 
   // ========== HANDLERS ==========
-  const handleOpenDialog = useCallback((latlng) => {
-    if (!latlng) return;
+  const handleMapClick = useCallback((latlng) => {
+    setCoordinates({
+      lat: latlng.lat.toFixed(6),
+      lng: latlng.lng.toFixed(6),
+      latlng,
+    });
+    // Abrir diálogo de acción al hacer doble click
     setDialogCoords({ lat: latlng.lat.toFixed(6), lng: latlng.lng.toFixed(6) });
     setOpenAccion(true);
   }, []);
 
-  const handleMapClick = useCallback((latlng) => {
-    const mapContainer = document.querySelector(".leaflet-container");
-    const rect = mapContainer.getBoundingClientRect();
-
-    setCoordinates({
-      lat: latlng.lat.toFixed(6),
-      lng: latlng.lng.toFixed(6),
-      latlng: latlng,
-    });
-
-    setMenuAnchor({
-      left: rect.left + window.scrollX + 20,
-      top: rect.top + window.scrollY + 20,
-    });
-  }, []);
-
-  const handleToggleVisibility = useCallback((layerKey) => {
-    setHiddenLayers((prev) => ({ ...prev, [layerKey]: !prev[layerKey] }));
-  }, []);
-
-  const handleLayerClick = useCallback(
-    (item) => {
-      if (!coordinates) return;
-      item.accion(coordinates.latlng);
-      setMenuAnchor(null);
-    },
-    [coordinates],
-  );
-
   const handleZoom = useCallback((delta) => {
     if (mapRef.current) {
-      const map = mapRef.current;
-      const newZoom = map.getZoom() + delta;
-      map.setZoom(newZoom);
+      const newZoom = mapRef.current.getZoom() + delta;
+      mapRef.current.setZoom(newZoom);
       setMapZoom(newZoom);
     }
   }, []);
 
   const handleLocate = useCallback(() => {
     if (!navigator.geolocation) {
-      setSnackbar({
-        open: true,
-        message: "Geolocalización no soportada",
-        severity: "error",
-      });
+      setSnackbar({ open: true, message: "Geolocalización no soportada", severity: "error" });
       return;
     }
-
     navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
+      ({ coords }) => {
+        const { latitude, longitude } = coords;
         setMapCenter([latitude, longitude]);
-        setMapZoom(15);
-        if (mapRef.current) {
-          mapRef.current.setView([latitude, longitude], 15);
-        }
-        setSnackbar({
-          open: true,
-          message: "Ubicación encontrada",
-          severity: "success",
-        });
+        setMapZoom(18);
+        mapRef.current?.setView([latitude, longitude], 15);
+        setSnackbar({ open: true, message: "Ubicación encontrada", severity: "success" });
       },
-      () => {
-        setSnackbar({
-          open: true,
-          message: "No se pudo obtener tu ubicación",
-          severity: "error",
-        });
-      },
+      () => setSnackbar({ open: true, message: "No se pudo obtener tu ubicación", severity: "error" })
     );
   }, []);
 
   const handleExportMap = useCallback(() => {
     if (!mapRef.current) {
-      setSnackbar({
-        open: true,
-        message: "El mapa no está listo",
-        severity: "error",
-      });
+      setSnackbar({ open: true, message: "El mapa no está listo", severity: "error" });
       return;
     }
-
     setIsExporting(true);
-    const map = mapRef.current;
-
-    leafletImage(map, (err, canvas) => {
+    leafletImage(mapRef.current, (err, canvas) => {
       setIsExporting(false);
       if (err) {
-        console.error("Error exportando mapa:", err);
-        setSnackbar({
-          open: true,
-          message: "Error al exportar el mapa",
-          severity: "error",
-        });
+        setSnackbar({ open: true, message: "Error al exportar", severity: "error" });
         return;
       }
-
       const link = document.createElement("a");
       link.download = `mapa_${new Date().toISOString().slice(0, 19)}.png`;
       link.href = canvas.toDataURL();
       link.click();
-
-      setSnackbar({
-        open: true,
-        message: "Mapa exportado exitosamente",
-        severity: "success",
-      });
+      setSnackbar({ open: true, message: "Mapa exportado", severity: "success" });
     });
   }, []);
-
-  const handleCopyCoordinates = useCallback(() => {
-    if (coordinates) {
-      navigator.clipboard.writeText(`${coordinates.lat}, ${coordinates.lng}`);
-      setSnackbar({
-        open: true,
-        message: "Coordenadas copiadas",
-        severity: "success",
-      });
-      setMenuAnchor(null);
-    }
-  }, [coordinates]);
-
-  const handleCloseSnackbar = useCallback(() => {
-    setSnackbar((prev) => ({ ...prev, open: false }));
-  }, []);
-
-  const handleItemClick = useCallback(async (itemId) => {
-    try {
-      const itemData = await cargardatoformId(itemId);
-      if (itemData) {
-        setSelectedItem(itemData);
-      }
-    } catch (error) {
-      console.error("Error al cargar datos del item:", error);
-    }
-  }, []);
-
-  const handleGeneratePDF = useCallback(
-    (event, lat, lng, selectedItem, user, printToPDF) => {
-      generarPDF(event, lat, lng, selectedItem, user, printToPDF);
-    },
-    [],
-  );
 
   const handleRefreshAll = useCallback(() => {
-    const allLayerKeys = [
-      "conoc_monit",
-      "prev_mitig",
-      "preparacion",
-      "respuesta",
-      "recuperacion",
-      "poligono",
-      "parroquia",
-      "afect_register",
-      "susceptibilidad",
-    ];
-    allLayerKeys.forEach((key) => onRefreshLayer?.(key));
-    setSnackbar({
-      open: true,
-      message: "Recargando todas las capas...",
-      severity: "info",
-    });
+    const keys = ["conoc_monit", "prev_mitig", "preparacion", "respuesta", "recuperacion", "poligono", "parroquia", "afect_register", "susceptibilidad"];
+    keys.forEach(onRefreshLayer);
+    setSnackbar({ open: true, message: "Recargando capas...", severity: "info" });
   }, [onRefreshLayer]);
+
+  const handleLocationSelect = useCallback((location) => {
+    const { lat, lng } = location;
+    if (lat && lng) {
+      setMapCenter([lat, lng]);
+      setMapZoom(18);
+    }
+  }, []);
+
+  const handleUseCurrentLocation = useCallback(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        ({ coords }) => {
+          setMapCenter([coords.latitude, coords.longitude]);
+          setMapZoom(18);
+        },
+        () => console.error("Error obteniendo ubicación")
+      );
+    }
+  }, []);
+
+  // ========== RENDER CAPAS ==========
+  const renderLayer = (key, markersData, Component, props) => {
+    if (!selectCapa[key] || !markersData?.length) return null;
+    return <Component {...props} acciones={markersData} />;
+  };
 
   // ========== RENDER ==========
   return (
-    <>
-      <Box sx={{ position: "relative", height: "90vh", width: "100%" }}>
-        <MapContainer
-          ref={mapRef}
-          center={mapCenter}
-          zoom={mapZoom}
-          doubleClickZoom={false}
-          style={{ height: "100%", width: "100%", borderRadius: "8px" }}
-        >
-          {/* Capa base */}
-          <TileLayer
-            url="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
-            attribution='&copy; <a href="https://maps.google.com">Google Maps</a>'
-          />
-
-          <MapCenter center={mapCenter} zoom={mapZoom} />
-
-          {/* MapEvents - combinado */}
-          {user && <MapEvents onMapClick={handleOpenDialog} />}
-          <MapEvents onMapClick={handleMapClick} />
-
-          {/* Marcador temporal */}
-          {coordinates && (
-            <MarkerSimple
-              iconMark={
-                <LocationOnIcon sx={{ color: "#e6101b", fontSize: 40 }} />
-              }
-              position={[coordinates.latlng.lat, coordinates.latlng.lng]}
-            />
-          )}
-
-          {/* ========== CAPAS DE ANÁLISIS ========== */}
-
-          {/* Capa: Conocimiento y Monitoreo */}
-          {selectCapa.conoc_monit &&
-            !hiddenLayers.conoc_monit &&
-            marcadoresCon.length > 0 && (
-              <ConMonitView
-                acciones={marcadoresCon}
-                parseByField={parseByField}
-                formatDate={formatDate}
-                title="Conocimiento y Monitoreo"
-                sheet="Conoc_Monit"
-                mtt={mtt}
-                polAfect={dataPolArray}
-                setOpenDialog={setOpenDialog}
-                openDialog={openDialog}
-                setTypeInput={setTypeInput}
-                files={files}
-                member={member}
-              />
-            )}
-
-          {/* Capa: Prevención y Mitigación */}
-          {selectCapa.prev_mitig &&
-            !hiddenLayers.prev_mitig &&
-            marcadoresPrev.length > 0 && (
-              <ConMonitView
-                acciones={marcadoresPrev}
-                formatDate={formatDate}
-                title="Prevención y Mitigación"
-                sheet="prev_mit"
-                mtt={mtt}
-                polAfect={dataPolArray}
-                setOpenDialog={setOpenDialog}
-                openDialog={openDialog}
-                setTypeInput={setTypeInput}
-                member={member}
-              />
-            )}
-
-          {/* Capa: Preparación  */}
-          {selectCapa.preparacion &&
-            !hiddenLayers.preparacion &&
-            marcadoresPrep.length > 0 && (
-              <ConMonitView
-                acciones={marcadoresPrep}
-                parseByField={parseByField}
-                formatDate={formatDate}
-                title="Preparación"
-                sheet="prep"
-                mtt={mtt}
-                setOpenDialog={setOpenDialog}
-                openDialog={openDialog}
-                member={member}
-              />
-            )}
-
-          {/* Capa: Respuesta  */}
-          {selectCapa.respuesta &&
-            !hiddenLayers.respuesta &&
-            marcadoresRes.length > 0 && (
-              <ConMonitView
-                acciones={marcadoresRes}
-                parseByField={parseByField}
-                formatDate={formatDate}
-                title="Respuesta"
-                sheet="resp"
-                mtt={mtt}
-                setOpenDialog={setOpenDialog}
-                openDialog={openDialog}
-                member={member}
-              />
-            )}
-
-          {/* Capa: Recuperación */}
-          {selectCapa.recuperacion &&
-            !hiddenLayers.recuperacion &&
-            marcadoresReq.length > 0 && (
-              <ConMonitView
-                acciones={marcadoresReq}
-                parseByField={parseByField}
-                formatDate={formatDate}
-                title="Recuperación"
-                sheet="recup"
-                mtt={mtt}
-                setOpenDialog={setOpenDialog}
-                openDialog={openDialog}
-                member={member}
-              />
-            )}
-
-          {/* ========== CAPAS GEOGRÁFICAS ========== */}
-
-          {/* Capa: Afectaciones Registradas */}
-          {selectCapa.afect_register &&
-            !hiddenLayers.afect_register &&
-            dataAfectRegisterArray.length > 0 && (
-              <AfectMarkers
-                afectData={dataAfectRegisterArray}
-                selectedItem={selectedItem}
-                onItemClick={handleItemClick}
-                onGeneratePDF={handleGeneratePDF}
-                getEventIcon={getEventIcon}
-                getEventIconPulso={getEventIconPulso}
-                COLOR_PRIORIDAD={COLOR_PRIORIDAD}
-                user={user}
-                member={member}
-              />
-            )}
-
-          {/* Capa: Susceptibilidad */}
-          <SucepLayer
-            poligonosData={dataSusceptibilidadArray}
-            showLayer={
-              selectCapa.susceptibilidad && !hiddenLayers.susceptibilidad
-            }
-            loading={loadingPoligonos}
-          />
-
-          {/* Capa: Parroquias */}
-          {selectCapa.parroquia &&
-            !hiddenLayers.parroquia &&
-            dataParroquiaArray.length > 0 && (
-              <ParroquiaLayer parroquia={dataParroquiaArray} />
-            )}
-
-          {children}
-        </MapContainer>
-
-        {/* Controles del mapa */}
-        <MapControls
-          onZoomIn={() => handleZoom(1)}
-          onZoomOut={() => handleZoom(-1)}
-          onLocate={handleLocate}
-          onDownload={handleExportMap}
-          isExporting={isExporting}
-        />
-
-        {/* Indicador de carga */}
-        {isExporting && (
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              zIndex: 2000,
-              bgcolor: "rgba(0,0,0,0.7)",
-              borderRadius: 2,
-              p: 2,
-              display: "flex",
-              alignItems: "center",
-              gap: 2,
-            }}
-          >
-            <CircularProgress size={24} />
-            <Typography color="white">Exportando mapa...</Typography>
-          </Box>
-        )}
-
-        {/* Panel de recarga rápida */}
-        <Paper
-          elevation={3}
-          sx={{
-            position: "absolute",
-            top: 10,
-            right: 10,
-            zIndex: 1000,
-            bgcolor: "white",
-            borderRadius: 2,
-            p: 1,
-            display: "flex",
-            gap: 0.5,
-          }}
-        >
-          <Tooltip title="Recargar todas las capas">
-            <IconButton
-              size="small"
-              onClick={handleRefreshAll}
-              sx={{ bgcolor: "#f0f0f0" }}
-            >
-              <RefreshIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        </Paper>
+    <Box sx={{ position: "relative", height: "90vh", width: "100%", borderRadius: 2, overflow: "hidden" }}>
+      {/* Barra de búsqueda */}
+      <Box sx={{ position: "absolute", top: 10, left: "50%", transform: "translateX(-50%)", zIndex: 1000, width: { xs: "90%", sm: "70%", md: "50%" } }}>
+        <MapSearchBar onLocationSelect={handleLocationSelect} onUseCurrentLocation={handleUseCurrentLocation} />
       </Box>
 
+      {/* Panel rápido */}
+      <Paper sx={{ position: "absolute", top: 10, right: 10, zIndex: 1000, p: 0.5, borderRadius: 2, bgcolor: "rgba(255,255,255,0.9)", backdropFilter: "blur(8px)" }}>
+        <Tooltip title="Recargar capas" arrow>
+          <IconButton size="small" onClick={handleRefreshAll}>
+            <RefreshIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      </Paper>
+
+      {/* Mapa */}
+      <MapContainer ref={mapRef} center={mapCenter} zoom={mapZoom} doubleClickZoom={false} style={{ height: "100%", width: "100%" }}>
+        <TileLayer url="https://mt1.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}" attribution='&copy; Google Maps' />
+        <MapCenter center={mapCenter} zoom={mapZoom} />
+        <MapEvents onDoubleClick={handleMapClick} />
+
+        {/* Marcador temporal */}
+        {coordinates?.latlng && (
+          <MarkerSimple iconMark={<LocationOnIcon sx={{ color: "#1877f2", fontSize: 40 }} />} position={[coordinates.latlng.lat, coordinates.latlng.lng]} />
+        )}
+
+        {/* Capas de análisis */}
+        {selectCapa.conoc_monit && markers.con.length > 0 && (
+          <ConMonitView acciones={markers.con} title="Conocimiento y Monitoreo" sheet="Conoc_Monit" mtt={mtt} polAfect={dataArrays.pol} member={member} />
+        )}
+        {selectCapa.prev_mitig && markers.prev.length > 0 && (
+          <ConMonitView acciones={markers.prev} title="Prevención y Mitigación" sheet="prev_mit" mtt={mtt} polAfect={dataArrays.pol} member={member} />
+        )}
+        {selectCapa.preparacion && markers.prep.length > 0 && (
+          <ConMonitView acciones={markers.prep} title="Preparación" sheet="prep" mtt={mtt} member={member} />
+        )}
+        {selectCapa.respuesta && markers.res.length > 0 && (
+          <ConMonitView acciones={markers.res} title="Respuesta" sheet="resp" mtt={mtt} member={member} />
+        )}
+        {selectCapa.recuperacion && markers.req.length > 0 && (
+          <ConMonitView acciones={markers.req} title="Recuperación" sheet="recup" mtt={mtt} member={member} />
+        )}
+
+        {/* Capas geográficas */}
+        {selectCapa.afect_register && dataArrays.afect.length > 0 && (
+          <AfectMarkers
+            afectData={dataArrays.afect}
+            selectedItem={selectedItem}
+            onItemClick={setSelectedItem}
+            onGeneratePDF={generarPDF}
+            getEventIcon={getEventIcon}
+            getEventIconPulso={getEventIconPulso}
+            COLOR_PRIORIDAD={COLOR_PRIORIDAD}
+            user={user}
+            member={member}
+          />
+        )}
+        {selectCapa.susceptibilidad && dataArrays.susceptibilidad.length > 0 && (
+          <SucepLayer poligonosData={dataArrays.susceptibilidad} showLayer={true} />
+        )}
+        {selectCapa.parroquia && dataArrays.parroquia.length > 0 && (
+          <ParroquiaLayer parroquia={dataArrays.parroquia} />
+        )}
+
+        {children}
+      </MapContainer>
+
+      {/* Controles */}
+      <MapControls onZoomIn={() => handleZoom(1)} onZoomOut={() => handleZoom(-1)} onLocate={handleLocate} onDownload={handleExportMap} isExporting={isExporting} />
+
+      {/* Snackbar */}
+      <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={() => setSnackbar(prev => ({ ...prev, open: false }))} anchorOrigin={{ vertical: "bottom", horizontal: "center" }}>
+        <Alert severity={snackbar.severity} variant="filled" onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+
+      {/* Diálogo de acción */}
       <DialogAccion
         open={openAccion}
         onClose={() => setOpenAccion(false)}
@@ -842,25 +403,10 @@ function MapMark({
         mtt={mtt}
         member={member}
         setCache={props.setCache}
+        setSnackbar={setSnackbar}
+        snackbar={snackbar}
       />
-
-      {/* Snackbar */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbar.severity}
-          variant="filled"
-          sx={{ width: "100%" }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </>
+    </Box>
   );
 }
 

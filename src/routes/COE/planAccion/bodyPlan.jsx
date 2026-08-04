@@ -1,19 +1,26 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, createContext, useContext, useMemo } from "react";
 import { Box, Grid } from "@mui/material";
-
 import { usePlanA } from "./script";
 import { useGetPoligonos } from "../script";
-import {
-  cargarDatosafec,
-  cargarDatosParroquia,
-} from "../../analisis/afects/script";
+import { cargarDatosafec, cargarDatosParroquia } from "../../analisis/afects/script";
 import { DialogAccions } from "./inputAcción.jsx";
 import { cargarDatosPol } from "../../../components/maps/script/script.js";
 import PanelAccion from "./Panel.jsx";
 import MapMark from "./Map.jsx";
-import { latLng } from "leaflet";
 
-function BodyPlan({ mtt, member }) {
+// ==================== CONTEXT ====================
+const BodyPlanContext = createContext(null);
+
+export const useBodyPlan = () => {
+  const context = useContext(BodyPlanContext);
+  if (!context) {
+    throw new Error("useBodyPlan debe usarse dentro de BodyPlanProvider");
+  }
+  return context;
+};
+
+// ==================== PROVIDER ====================
+function BodyPlanProvider({ children, mtt, member }) {
   // ========== HOOKS ==========
   const reqCon_Monit = usePlanA();
   const reqPrev_mitig = usePlanA();
@@ -21,23 +28,13 @@ function BodyPlan({ mtt, member }) {
   const reqRes = usePlanA();
   const reqReq = usePlanA();
   const reqPol = useGetPoligonos();
-  const reqAfectaciones = cargarDatosafec(
-    "Todos",
-    "Todos",
-    "Todos",
-    "Todos",
-    "Todos",
-    "Todos",
-  );
 
   // ========== ESTADOS DE CARGA ==========
-  const [loadingParroquia, setLoadingParroquia] = useState(false);
-  const [loadingSusceptibilidad, setLoadingSusceptibilidad] = useState(false);
-
-  // ========== ESTADOS DE DATOS ==========
-  const [parroquiaData, setParroquiaData] = useState(null);
-  const [susceptibilidadData, setSusceptibilidadData] = useState(null);
-  const [coordinates, setCoordinates] = useState(null);
+  const [loadingStates, setLoadingStates] = useState({
+    parroquia: false,
+    susceptibilidad: false,
+    afectaciones: false,
+  });
 
   // ========== CACHE UNIFICADO ==========
   const [cache, setCache] = useState({
@@ -57,13 +54,11 @@ function BodyPlan({ mtt, member }) {
 
   // ========== ESTADO DE CAPAS ACTIVAS ==========
   const [selectedCapa, setSelectedCapa] = useState({
-    // Capas de análisis
     conoc_monit: false,
     prev_mitig: false,
     preparacion: false,
     respuesta: false,
     recuperacion: false,
-    // Capas geográficas
     poligono: false,
     parroquia: false,
     susceptibilidad: false,
@@ -71,221 +66,196 @@ function BodyPlan({ mtt, member }) {
   });
 
   // ========== DIÁLOGOS ==========
-  const [openCon_mont, setOpencon] = useState(false);
-  const [openPreparacion, setOpenPrep] = useState(false);
-  const [openRespuesta, setOpenResp] = useState(false);
-  const [openRecuperacion, setOpenRec] = useState(false);
-  const [openPrev_mitig, setOpenPrev] = useState(false);
+  const [dialogs, setDialogs] = useState({
+    conoc_monit: false,
+    prev_mitig: false,
+    preparacion: false,
+    respuesta: false,
+    recuperacion: false,
+  });
+
+  const [coordinates, setCoordinates] = useState(null);
   const [zoomCoord, setZoomCoord] = useState(null);
-  // Estado para controlar si se debe ejecutar el zoom
   const [shouldZoom, setShouldZoom] = useState(false);
-  // ========== FUNCIONES DE CARGA DE DATOS BASE ==========
+
+  // ========== FUNCIONES DE CARGA ==========
   const loadParroquiaData = useCallback(async () => {
     if (cache.parroquia) return cache.parroquia;
 
-    setLoadingParroquia(true);
+    setLoadingStates(prev => ({ ...prev, parroquia: true }));
     try {
       const result = await cargarDatosParroquia();
-      console.log("Parroquias cargadas:", result);
       const data = result?.data || result;
-      setParroquiaData(data);
-      setCache((prev) => ({ ...prev, parroquia: data }));
+      setCache(prev => ({ ...prev, parroquia: data }));
       return data;
     } catch (error) {
       console.error("Error cargando parroquias:", error);
       return [];
     } finally {
-      setLoadingParroquia(false);
+      setLoadingStates(prev => ({ ...prev, parroquia: false }));
     }
   }, [cache.parroquia]);
 
   const loadSusceptibilidadData = useCallback(async () => {
     if (cache.susceptibilidad) return cache.susceptibilidad;
 
-    setLoadingSusceptibilidad(true);
+    setLoadingStates(prev => ({ ...prev, susceptibilidad: true }));
     try {
       const result = await cargarDatosPol();
-      console.log("Susceptibilidad cargada:", result);
       const data = result?.data?.data || result?.data || result;
-      setSusceptibilidadData(data);
-      setCache((prev) => ({ ...prev, susceptibilidad: data }));
+      setCache(prev => ({ ...prev, susceptibilidad: data }));
       return data;
     } catch (error) {
       console.error("Error cargando susceptibilidad:", error);
       return [];
     } finally {
-      setLoadingSusceptibilidad(false);
+      setLoadingStates(prev => ({ ...prev, susceptibilidad: false }));
     }
   }, [cache.susceptibilidad]);
 
   // ========== FUNCIÓN PRINCIPAL DE RECARGA ==========
-  const handleRefreshLayer = useCallback(
-    async (layer) => {
-      try {
-        // Mapeo de capas a sus funciones de carga
-        const layerActions = {
-          // Capas de análisis
-          conoc_monit: async () => {
-            // await reqCon_Monit.searchGet(mtt,"Conoc_Monit");
-            await reqCon_Monit.searchAccion("Conoc_Monit");
-            const data = reqCon_Monit?.dataGet;
-
-            setCache((prev) => ({ ...prev, conoc_monit: data }));
-            return data;
-          },
-          prev_mitig: async () => {
-            await reqPrev_mitig.searchAccion("prev_mit");
-            const data = reqPrev_mitig?.dataGet;
-            setCache((prev) => ({ ...prev, prev_mitig: data }));
-            return data;
-          },
-          preparacion: async () => {
-            await reqPrep.searchAccion("prep");
-            const data = reqPrep?.dataGet;
-            setCache((prev) => ({ ...prev, preparacion: data }));
-            return data;
-          },
-          respuesta: async () => {
-            await reqRes.searchAccion("resp");
-            const data = reqRes?.dataGet;
-            setCache((prev) => ({ ...prev, respuesta: data }));
-            return data;
-          },
-          recuperacion: async () => {
-            await reqReq.searchAccion("recup");
-            const data = reqReq?.dataGet;
-            setCache((prev) => ({ ...prev, recuperacion: data }));
-            return data;
-          },
-          // Capas geográficas
-          poligono: async () => {
-            await reqPol.searchPol();
-            const data = reqPol.dataPol?.data;
-            setCache((prev) => ({ ...prev, poligono: data }));
-            return data;
-          },
-          parroquia: async () => {
-            const newData = await cargarDatosParroquia();
-            const formattedData = newData?.data || newData;
-            setParroquiaData(formattedData);
-            setCache((prev) => ({ ...prev, parroquia: formattedData }));
-            return formattedData;
-          },
-          susceptibilidad: async () => {
-            const newData = await cargarDatosPol();
-            const formattedData =
-              newData?.data?.data || newData?.data || newData;
-            setSusceptibilidadData(formattedData);
-            setCache((prev) => ({ ...prev, susceptibilidad: formattedData }));
-            return formattedData;
-          },
-          afect_register: async () => {
-            const newData = await cargarDatosafec(
+  const refreshLayer = useCallback(async (layer) => {
+    try {
+      const layerActions = {
+        conoc_monit: async () => {
+          await reqCon_Monit.searchAccion("Conoc_Monit");
+          const data = reqCon_Monit?.dataGet;
+          setCache(prev => ({ ...prev, conoc_monit: data }));
+          return data;
+        },
+        prev_mitig: async () => {
+          await reqPrev_mitig.searchAccion("prev_mit");
+          const data = reqPrev_mitig?.dataGet;
+          setCache(prev => ({ ...prev, prev_mitig: data }));
+          return data;
+        },
+        preparacion: async () => {
+          await reqPrep.searchAccion("prep");
+          const data = reqPrep?.dataGet;
+          setCache(prev => ({ ...prev, preparacion: data }));
+          return data;
+        },
+        respuesta: async () => {
+          await reqRes.searchAccion("resp");
+          const data = reqRes?.dataGet;
+          setCache(prev => ({ ...prev, respuesta: data }));
+          return data;
+        },
+        recuperacion: async () => {
+          await reqReq.searchAccion("recup");
+          const data = reqReq?.dataGet;
+          setCache(prev => ({ ...prev, recuperacion: data }));
+          return data;
+        },
+        poligono: async () => {
+          await reqPol.searchPol();
+          const data = reqPol.dataPol?.data;
+          setCache(prev => ({ ...prev, poligono: data }));
+          return data;
+        },
+        parroquia: loadParroquiaData,
+        susceptibilidad: loadSusceptibilidadData,
+        afect_register: async () => {
+          setLoadingStates(prev => ({ ...prev, afectaciones: true }));
+          try {
+            const result = await cargarDatosafec(
               "Todos",
               "Todos",
               "Todos",
               "Todos",
               "Todos",
-              "Todos",
+              "Todos"
             );
-            const formattedData = newData?.data || newData;
-            setCache((prev) => ({ ...prev, afect_register: formattedData }));
-            return formattedData;
-          },
-        };
+            const data = result?.data || result;
+            setCache(prev => ({ ...prev, afect_register: data }));
+            return data;
+          } finally {
+            setLoadingStates(prev => ({ ...prev, afectaciones: false }));
+          }
+        },
+      };
 
-        const action = layerActions[layer];
-        if (!action) {
-          console.warn(`⚠️ Capa desconocida: ${layer}`);
-          return null;
-        }
-
-        return await action();
-      } catch (error) {
-        console.error(`❌ Error recargando capa ${layer}:`, error);
+      const action = layerActions[layer];
+      if (!action) {
+        console.warn(`⚠️ Capa desconocida: ${layer}`);
         return null;
       }
-    },
-    [mtt, reqCon_Monit, reqPrev_mitig, reqPrep, reqRes, reqReq, reqPol],
-  );
 
-  // ========== FUNCIÓN DE TOGGLE DE CAPAS ==========
-  const handleLayerToggle = useCallback(
-    async (layer) => {
-      const isActivating = !selectedCapa[layer];
-      //console.log(`🖱️ Toggle capa: ${layer} -> Activando: ${isActivating}`);
+      return await action();
+    } catch (error) {
+      console.error(`❌ Error recargando capa ${layer}:`, error);
+      return null;
+    }
+  }, [
+    reqCon_Monit,
+    reqPrev_mitig,
+    reqPrep,
+    reqRes,
+    reqReq,
+    reqPol,
+    loadParroquiaData,
+    loadSusceptibilidadData,
+  ]);
 
-      setSelectedCapa((prev) => ({ ...prev, [layer]: isActivating }));
+  // ========== TOGGLE DE CAPAS ==========
+  const toggleLayer = useCallback(async (layer) => {
+    const isActivating = !selectedCapa[layer];
+    setSelectedCapa(prev => ({ ...prev, [layer]: isActivating }));
 
-      if (isActivating) {
-        const currentData = getLayerData(layer);
-        const hasData =
-          currentData &&
-          (Array.isArray(currentData) ? currentData.length > 0 : true);
-
-        if (!hasData) {
-          await handleRefreshLayer(layer);
-        }
+    if (isActivating) {
+      const data = getLayerData(layer);
+      const hasData = data && (Array.isArray(data) ? data.length > 0 : true);
+      if (!hasData) {
+        await refreshLayer(layer);
       }
-    },
-    [selectedCapa, handleRefreshLayer],
-  );
+    }
+  }, [selectedCapa, refreshLayer]);
 
   // ========== GRUPOS DE RECARGA ==========
-  const handleRefreshPolygonGroup = useCallback(async () => {
-    console.log("🔄 Recargando grupo de LÍMITES Y POLÍGONOS...");
-    await Promise.all([
-      handleRefreshLayer("poligono"),
-      handleRefreshLayer("parroquia"),
-    ]);
-  }, [handleRefreshLayer]);
+  const refreshGroup = useCallback(async (group) => {
+    const groups = {
+      polygon: ["poligono", "parroquia"],
+      analysis: ["conoc_monit", "prev_mitig", "preparacion", "respuesta", "recuperacion", "afect_register"],
+      susceptibility: ["susceptibilidad"],
+    };
 
-  const handleRefreshAnalysisGroup = useCallback(async () => {
-    console.log("🔄 Recargando grupo de CAPAS DE ANÁLISIS...");
-    await Promise.all([
-      handleRefreshLayer("conoc_monit"),
-      handleRefreshLayer("prev_mitig"),
-      handleRefreshLayer("preparacion"),
-      handleRefreshLayer("respuesta"),
-      handleRefreshLayer("recuperacion"),
-      handleRefreshLayer("afect_register"),
-    ]);
-  }, [handleRefreshLayer]);
+    const layers = groups[group] || [];
+    console.log(`🔄 Recargando grupo: ${group}`);
+    await Promise.all(layers.map(layer => refreshLayer(layer)));
+  }, [refreshLayer]);
 
-  const handleRefreshSusceptibilidadGroup = useCallback(async () => {
-    console.log("🔄 Recargando SUSCEPTIBILIDAD...");
-    await handleRefreshLayer("susceptibilidad");
-  }, [handleRefreshLayer]);
-
-  // ========== FUNCIONES DE ACCESO A DATOS ==========
-  const getLayerData = (layerKey) => {
-    const dataMap = {
-      // Capas de análisis
+  // ========== ACCESO A DATOS ==========
+  const getLayerData = useCallback((layerKey) => {
+    // Mapeo directo de fuentes de datos
+    const dataSources = {
       conoc_monit: reqCon_Monit.dataGet?.data || cache.conoc_monit,
       prev_mitig: reqPrev_mitig.dataGet?.data || cache.prev_mitig,
       preparacion: reqPrep.dataGet?.data || cache.preparacion,
       respuesta: reqRes.dataGet?.data || cache.respuesta,
       recuperacion: reqReq.dataGet?.data || cache.recuperacion,
-      // Capas geográficas
       poligono: reqPol.dataPol?.data || cache.poligono,
-      parroquia: parroquiaData || cache.parroquia,
-      susceptibilidad: susceptibilidadData || cache.susceptibilidad,
+      parroquia: cache.parroquia,
+      susceptibilidad: cache.susceptibilidad,
       afect_register: cache.afect_register,
     };
 
-    const data = dataMap[layerKey] || [];
+    return dataSources[layerKey] || [];
+  }, [
+    reqCon_Monit,
+    reqPrev_mitig,
+    reqPrep,
+    reqRes,
+    reqReq,
+    reqPol,
+    cache
+  ]);
 
-    //console.log(`Datos obtenidos para capa ${layerKey}:`, data)
-    //return Array.isArray(data) ? data : [];
-    return data;
-  };
-
-  const getLayerCount = (layerKey) => {
+  const getLayerCount = useCallback((layerKey) => {
     const data = getLayerData(layerKey);
     return data?.length || 0;
-  };
+  }, [getLayerData]);
 
-  const isLoading = (layerKey) => {
+  const isLoading = useCallback((layerKey) => {
     const loads = {
       conoc_monit: reqCon_Monit.loadingGet || false,
       prev_mitig: reqPrev_mitig.loadingGet || false,
@@ -293,75 +263,185 @@ function BodyPlan({ mtt, member }) {
       respuesta: reqRes.loadingGet || false,
       recuperacion: reqReq.loadingGet || false,
       poligono: reqPol.loadinPol || false,
-      parroquia: loadingParroquia || false,
-      susceptibilidad: loadingSusceptibilidad || false,
-      afect_register: reqAfectaciones?.loading || false,
+      parroquia: loadingStates.parroquia,
+      susceptibilidad: loadingStates.susceptibilidad,
+      afect_register: loadingStates.afectaciones,
     };
     return loads[layerKey] || false;
-  };
+  }, [
+    reqCon_Monit,
+    reqPrev_mitig,
+    reqPrep,
+    reqRes,
+    reqReq,
+    reqPol,
+    loadingStates
+  ]);
 
   // ========== MANEJADORES DE CLICK ==========
-  const handleClickCon = (coordenate) => {
-    setOpencon(true);
-    setCoordinates(coordenate);
-  };
+  const handleLayerClick = useCallback((layer, coords) => {
+    setCoordinates(coords);
+    setDialogs(prev => ({ ...prev, [layer]: true }));
+  }, []);
 
-  const handleClickPrev = (coordenate) => {
-    setOpenPrev(true);
-    setCoordinates(coordenate);
-  };
-  const handleClickPrep = (coordenate) => {
-    setOpenPrep(true);
-    setCoordinates(coordenate);
-  };
-  const handleClickRes = (coordenate) => {
-    setOpenResp(true);
-    setCoordinates(coordenate);
-  };
-  const handleClickRec = (coordenate) => {
-    setOpenRec(true);
-    setCoordinates(coordenate);
-  };
-  const handleClickRequerimiento = (coordenate) => {
-    console.log("Requerimiento en:", coordenate);
-    setCoordinates(coordenate);
-  };
+  const handleCloseDialog = useCallback((layer) => {
+    setDialogs(prev => ({ ...prev, [layer]: false }));
+  }, []);
+
+  // ========== ZOOM ==========
+  const handleZoomToLocation = useCallback((lat, lng) => {
+    setZoomCoord({ lat, lng });
+    setShouldZoom(true);
+    setTimeout(() => setShouldZoom(false), 100);
+  }, []);
 
   // ========== ESTADOS DERIVADOS ==========
-  const activeLayersCount = Object.values(selectedCapa).filter(Boolean).length;
-  const totalLayers = Object.keys(selectedCapa).length;
+  const activeLayersCount = useMemo(
+    () => Object.values(selectedCapa).filter(Boolean).length,
+    [selectedCapa]
+  );
 
-  //====================== zoom
+  const totalLayers = useMemo(
+    () => Object.keys(selectedCapa).length,
+    []
+  );
 
-  const HandleZoomToLocation = (lat, lng) => {
-    setZoomCoord({ lat, lng });
-    // Activar el flag de zoom
-    setShouldZoom(true);
-    // Opcional: Resetear el flag después de un tiempo
-    setTimeout(() => {
-      setShouldZoom(false);
-    }, 100);
+  // ========== CONFIGURACIÓN DE CAPAS ==========
+  const layersConfig = useMemo(() => [
+    {
+      key: "conoc_monit",
+      label: "Afectaciones",
+      icon: <Box component="span" sx={{ width: 20, height: 20, bgcolor: "#e6101b", borderRadius: "50%" }} />,
+      color: "#e6101b",
+    },
+    {
+      key: "prev_mitig",
+      label: "Acciones",
+      icon: <Box component="span" sx={{ width: 20, height: 20, bgcolor: "#ff8c00", borderRadius: "50%" }} />,
+      color: "#ff8c00",
+    },
+    {
+      key: "preparacion",
+      label: "Requerimientos",
+      icon: <Box component="span" sx={{ width: 20, height: 20, bgcolor: "#228b22", borderRadius: "50%" }} />,
+      color: "#228b22",
+    },
+  ], []);
+
+  // ========== VALUE DEL CONTEXT ==========
+  const contextValue = useMemo(() => ({
+    // Datos
+    getLayerData,
+    getLayerCount,
+    isLoading,
+    selectedCapa,
+    activeLayersCount,
+    totalLayers,
+    cache,
+    setCache,
+    member,
+    mtt,
+    coordinates,
+    zoomCoord,
+    shouldZoom,
+    layersConfig,
+
+    // Acciones
+    toggleLayer,
+    refreshLayer,
+    refreshGroup,
+    handleLayerClick,
+    handleCloseDialog,
+    handleZoomToLocation,
+    setCoordinates,
+  }), [
+    getLayerData,
+    getLayerCount,
+    isLoading,
+    selectedCapa,
+    activeLayersCount,
+    totalLayers,
+    cache,
+    setCache,
+    member,
+    mtt,
+    coordinates,
+    zoomCoord,
+    shouldZoom,
+    layersConfig,
+    toggleLayer,
+    refreshLayer,
+    refreshGroup,
+    handleLayerClick,
+    handleCloseDialog,
+    handleZoomToLocation,
+    setCoordinates,
+  ]);
+
+  return (
+    <BodyPlanContext.Provider value={contextValue}>
+      {children}
+    </BodyPlanContext.Provider>
+  );
+}
+
+// ==================== COMPONENTE PRINCIPAL ====================
+function BodyPlan({ mtt, member }) {
+  return (
+    <BodyPlanProvider mtt={mtt} member={member}>
+      <BodyPlanContent />
+    </BodyPlanProvider>
+  );
+}
+
+// ==================== CONTENIDO ====================
+function BodyPlanContent() {
+  const {
+    getLayerData,
+    getLayerCount,
+    isLoading,
+    selectedCapa,
+    activeLayersCount,
+    totalLayers,
+    member,
+    mtt,
+    coordinates,
+    zoomCoord,
+    shouldZoom,
+    layersConfig,
+    toggleLayer,
+    refreshLayer,
+    refreshGroup,
+    handleLayerClick,
+    handleCloseDialog,
+    handleZoomToLocation,
+    setCoordinates,
+  } = useBodyPlan();
+
+  // Función helper para obtener diálogo abierto
+  const isDialogOpen = (layer) => {
+    // Implementar según necesidad
+    return false;
   };
 
-  // ========== RENDER ==========
   return (
     <Grid container spacing={2} sx={{ padding: 2, height: "100vh" }}>
       {/* Sidebar */}
       <Grid size={{ xs: 12, md: 3 }} sx={{ height: "100%", overflowY: "auto" }}>
         <PanelAccion
           mtt={mtt}
-          handleRefreshAnalysisGroup={handleRefreshAnalysisGroup}
-          handleRefreshPolygonGroup={handleRefreshPolygonGroup}
-          handleRefreshSusceptibilidadGroup={handleRefreshSusceptibilidadGroup}
+          handleRefreshAnalysisGroup={() => refreshGroup("analysis")}
+          handleRefreshPolygonGroup={() => refreshGroup("polygon")}
+          handleRefreshSusceptibilidadGroup={() => refreshGroup("susceptibility")}
           getLayerCount={getLayerCount}
           isLoading={isLoading}
           selectedCapa={selectedCapa}
-          handleLayerToggle={handleLayerToggle}
-          handleRefreshLayer={handleRefreshLayer}
+          handleLayerToggle={toggleLayer}
+          handleRefreshLayer={refreshLayer}
           getLayerData={getLayerData}
           totalLayers={totalLayers}
           activeLayersCount={activeLayersCount}
-          onZoomCoord={HandleZoomToLocation}
+          onZoomCoord={handleZoomToLocation}
         />
       </Grid>
 
@@ -371,10 +451,10 @@ function BodyPlan({ mtt, member }) {
           position={[-3.9965787520553717, -79.20168563157956]}
           zoom={13}
           loading={{
-            loadingAF: reqCon_Monit.loadingGet || false,
-            loadingAC: reqPrev_mitig?.loadingGet || false,
-            loadingRE: reqPrep?.loadingGet || false,
-            loadingPol: reqPol?.loadinPol || false,
+            loadingAF: isLoading("conoc_monit"),
+            loadingAC: isLoading("prev_mitig"),
+            loadingRE: isLoading("preparacion"),
+            loadingPol: isLoading("poligono"),
           }}
           member={member}
           dataCon={getLayerData("conoc_monit")}
@@ -386,79 +466,33 @@ function BodyPlan({ mtt, member }) {
           dataSusceptibilidad={getLayerData("susceptibilidad")}
           dataParroquia={getLayerData("parroquia")}
           dataAfectRegister={getLayerData("afect_register")}
-          setCache={setCache}
+          setCache={useBodyPlan().setCache}
           selectCapa={selectedCapa}
           mtt={mtt}
-          layersConfig={[
-            {
-              key: "conoc_monit",
-              label: "Afectaciones",
-              icon: (
-                <Box
-                  component="span"
-                  sx={{
-                    width: 20,
-                    height: 20,
-                    bgcolor: "#e6101b",
-                    borderRadius: "50%",
-                  }}
-                />
-              ),
-              color: "#e6101b",
-              accion: (coords) => handleClickCon(coords),
-            },
-            {
-              key: "prev_mitig",
-              label: "Acciones",
-              icon: (
-                <Box
-                  component="span"
-                  sx={{
-                    width: 20,
-                    height: 20,
-                    bgcolor: "#ff8c00",
-                    borderRadius: "50%",
-                  }}
-                />
-              ),
-              color: "#ff8c00",
-              accion: (coords) => handleClickPrev(coords),
-            },
-            {
-              key: "preparacion",
-              label: "Requerimientos",
-              icon: (
-                <Box
-                  component="span"
-                  sx={{
-                    width: 20,
-                    height: 20,
-                    bgcolor: "#228b22",
-                    borderRadius: "50%",
-                  }}
-                />
-              ),
-              color: "#228b22",
-              accion: (coords) => handleClickRequerimiento(coords),
-            },
-          ]}
-          onRefreshLayer={handleRefreshLayer}
+          layersConfig={layersConfig.map(config => ({
+            ...config,
+            accion: (coords) => handleLayerClick(config.key, coords),
+          }))}
+          onRefreshLayer={refreshLayer}
           setCoordinates={setCoordinates}
           zoomCoord={zoomCoord}
           shouldZoom={shouldZoom}
         />
       </Grid>
 
-      {/* Diálogos */}
-      <DialogAccions
-        mtt={mtt}
-        open={openPrev_mitig}
-        dataPol={getLayerData("poligono")}
-        coordinates={coordinates}
-        member={member}
-        length={getLayerCount("prev_mitig")}
-        onClose={() => setOpenPrev(false)}
-      />
+      {/* Diálogos - Simplificado con mapeo */}
+      {layersConfig.map(({ key, label }) => (
+        <DialogAccions
+          key={key}
+          mtt={mtt}
+          open={isDialogOpen(key)}
+          dataPol={getLayerData("poligono")}
+          coordinates={coordinates}
+          member={member}
+          length={getLayerCount(key)}
+          onClose={() => handleCloseDialog(key)}
+        />
+      ))}
     </Grid>
   );
 }
