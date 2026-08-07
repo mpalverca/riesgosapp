@@ -8,8 +8,25 @@ import {
   InputLabel,
   MenuItem,
   Divider,
+  Grid,
+  Box,
+  Paper,
 } from "@mui/material";
+import WhatshotIcon from "@mui/icons-material/Whatshot";
+import DomainDisabledIcon from "@mui/icons-material/DomainDisabled";
+import LandscapeIcon from "@mui/icons-material/Landscape";
+import WaterDropIcon from "@mui/icons-material/WaterDrop";
+import WaterIcon from "@mui/icons-material/Water";
+import FloodIcon from "@mui/icons-material/Flood";
 
+const items = [
+  { id: 1, icon: <WhatshotIcon />, label: "Incendio forestal" },
+  { id: 2, icon: <DomainDisabledIcon />, label: "Colapso Estructural" },
+  { id: 3, icon: <LandscapeIcon />, label: "Deslizamiento de tierra" },
+  { id: 4, icon: <WaterDropIcon />, label: "Sequía" },
+  { id: 5, icon: <WaterIcon />, label: "Erosión (Hídrica)" },
+  { id: 6, icon: <FloodIcon />, label: "Inundación " },
+];
 export default function Panel({
   addbar,
   filters,
@@ -21,11 +38,6 @@ export default function Panel({
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    addbar(form.latitud, form.longitud);
   };
 
   const handleFilterChange = (e) => {
@@ -55,6 +67,8 @@ export default function Panel({
           margin: "2px 0",
         }}
       >
+
+        
         <Typography align="justify" variant="body2">
           ⚠️ <strong>Importante:</strong> La información presentada es de manera
           referencial y deberá asumirse con el mayor cuidado y responsabilidad
@@ -63,51 +77,7 @@ export default function Panel({
         </Typography>
       </div>
       <Divider />
-      <Typography align="center" variant="h6">
-        Ubicación
-      </Typography>
-      <form onSubmit={handleSubmit}>
-        <TextField
-          fullWidth
-          type="number"
-          name="latitud"
-          label="Latitud"
-          value={form.latitud}
-          onChange={handleChange}
-          placeholder="Ej: -3.99313"
-          variant="outlined"
-          //margin="normal"
-          size="small"
-        />
-        <TextField
-          sx={{ my: 1 }}
-          fullWidth
-          type="number"
-          name="longitud"
-          label="Longitud"
-          value={form.longitud}
-          onChange={handleChange}
-          placeholder="Ej: -79.20422"
-          variant="outlined"
-          // margin="normal"
-          size="small"
-        />
-        <Button
-          id="search-btn"
-          variant="contained"
-          type="submit"
-          style={{
-            background: "linear-gradient(45deg, #FF5733 20%, #FFD700 90%)",
-            mt: "10px",
-            py: 1,
-          }}
-          fullWidth
-          size="large"
-        >
-          Buscar en Mapa
-        </Button>
-      </form>
-      <Divider sx={{ mt: 2 }} />
+      
       <div
         style={{
           padding: "10px",
@@ -124,6 +94,22 @@ export default function Panel({
           LOGIRD)
         </Typography>
       </div>
+      <Paper elevation={3} sx={{ p: 2, mt: 2, mb: 2 }}>
+        <Typography variant="h6" align="center" gutterBottom>Detalle de afectación</Typography>
+        <Grid container spacing={2}>
+        {items.map((item) => (
+          <Grid item size={{ xs: 12, }} key={item.id}>
+            <Paper elevation={2} sx={{ px: 2, display: "flex", alignItems: "center", gap: 2 }}>
+              <Box sx={{ color: "primary.main", fontSize: 32 }}>
+                {item.icon}
+              </Box>
+              <Typography variant="body1">{item.label}</Typography>
+            </Paper>
+          </Grid>
+        ))}
+      </Grid>
+      </Paper>
+
       <Divider />
       <Typography variant="subtitle1" align="center">
         <strong>Afectaciones Encontradas:</strong>
