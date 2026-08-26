@@ -162,13 +162,13 @@ function LayerControl({
                 </IconButton>
               </Tooltip>
             )}
-            {showHideToggle && (
+            {/* {showHideToggle && (
               <Tooltip title="Ocultar capa">
                 <IconButton size="small" onClick={handleHideToggle}>
                   <VisibilityOffIcon fontSize="small" sx={{ fontSize: 18 }} />
                 </IconButton>
               </Tooltip>
-            )}
+            )} */}
             {children && (
               <Tooltip title="Ver detalles">
                 <IconButton size="small" onClick={() => setExpanded(!expanded)}>

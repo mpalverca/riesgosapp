@@ -34,6 +34,7 @@ import {
   Favorite,
   Link,
   MonitorHeart,
+  Map,
 } from "@mui/icons-material";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import { usePlanA } from "../script";
@@ -128,48 +129,18 @@ const StatusChip = ({ status }) => {
 };
 
 const InfoCard = ({ icon, title, content, color = "primary" }) => (
-  <Card
-    variant="outlined"
-    sx={{
-      mb: 1,
-      backgroundColor: "#f8f9fa",
-      borderLeft: `4px solid ${
-        color === "primary"
-          ? "#1976d2"
-          : color === "success"
-            ? "#2e7d32"
-            : color === "warning"
-              ? "#ed6c02"
-              : color === "error"
-                ? "#d32f2f"
-                : "#1976d2"
-      }`,
-    }}
-  >
-    <CardContent sx={{ py: 1, "&:last-child": { pb: 1 } }}>
-      <Stack direction="row" spacing={1} alignItems="center">
-        {icon}
-        <Typography
-          variant="caption"
-          color="text.secondary"
-          sx={{ fontWeight: "bold" }}
-        >
-          {title}
-        </Typography>
-      </Stack>
-      <Typography
-        variant="body2"
-        sx={{
-          mt: 0.5,
-          whiteSpace: "pre-wrap", // Mantiene saltos de línea y espacios
-          wordBreak: "break-word",
-        }}
-        textAlign="justify"
-      >
-        {content || "No disponible"}
-      </Typography>
-    </CardContent>
-  </Card>
+  <Stack direction="row" spacing={1} alignItems="center">
+    {icon}
+    <Typography
+      variant="body2"
+      //color="text.secondary"
+      sx={{ fontWeight: "bold" }}
+    >
+      {title}
+    </Typography>
+
+    {content || "No disponible"}
+  </Stack>
 );
 
 const MonthBadge = ({ month, active }) => (
@@ -337,10 +308,10 @@ export const ConMonitView = ({
           marker.data.verificableUrl == "";
         const isSameMtt = marker.data.mtt === mtt;
 
-        console.log(hasVerificable,isSameMtt,isCompletado)
+        console.log(hasVerificable, isSameMtt, isCompletado);
         // Condición para deshabilitar
         const isDisabled = isCompletado || !isSameMtt || !hasVerificable;
-        console.log(isDisabled)
+        console.log(isDisabled);
         return (
           <Marker
             key={marker.id || marker.data._id}
@@ -405,104 +376,76 @@ export const ConMonitView = ({
 
                 {/* Grid de información */}
                 <Grid container spacing={1} sx={{ mb: 2 }}>
-                  <Grid item size={{ xs: 6 }}>
+                  <Grid item size={{ xs: 12 }}>
                     <InfoCard
                       icon={<CalendarToday fontSize="small" color="primary" />}
-                      title="Fecha del evento"
+                      title="Fecha de actividad :"
                       content={formatDate(marker.data.date || marker.data.date)}
                     />
                   </Grid>
-                  <Grid item size={{ xs: 6 }}>
-                    <InfoCard
-                      icon={<AccessTime fontSize="small" color="secondary" />}
-                      title="Última actualización"
-                      content={formatDate(
-                        marker.data.date_act || marker.data.actualizacion,
-                      )}
-                    />
-                  </Grid>
-                  <Grid item size={{ xs: 12, md: 6 }}>
+                  {marker.data.dateUpdate && (
+                    <Grid item size={{ xs: 12 }}>
+                      <InfoCard
+                        icon={<AccessTime fontSize="small" color="secondary" />}
+                        title="Última actualización"
+                        content={formatDate(marker.data.dateUpdate)}
+                      />
+                    </Grid>
+                  )}
+                  <Grid item size={{ xs: 12 }}>
                     <InfoCard
                       icon={<LocationOn fontSize="small" color="success" />}
-                      title="Ubicación"
+                      title="Ubicación :"
                       content={
                         <Typography>
                           {position[0]?.toFixed(6) || "N/A"},{" "}
                           {position[1]?.toFixed(6) || "N/A"}
-                          <br />
-                          <strong>Sector: </strong>
-                          {marker.data.sector}
                         </Typography>
                       }
                     />
                   </Grid>
+                  <Grid item size={{ xs: 12 }}>
+                    <InfoCard
+                      icon={<Map fontSize="small" color="success" />}
+                      title="Sector :"
+                      content={<Typography>{marker.data.sector}</Typography>}
+                    />
+                  </Grid>
 
-                  <Grid item size={{ xs: 12, md: 6 }}>
+                  <Grid item size={{ xs: 12 }}>
                     <InfoCard
                       icon={<Person fontSize="small" color="success" />}
-                      title="Reportado por"
+                      title="Reportado por : "
                       content={
                         byData &&
                         !byData.error && (
                           <>
-                            <Stack spacing={0.5}>
-                              <Stack
-                                direction="row"
-                                alignItems="center"
-                                spacing={1}
-                              >
-                                <Person fontSize="small" color="primary" />
-                                <Typography variant="body2">
-                                  <strong>
-                                    {byData.name ||
-                                      byData.miembro ||
-                                      "No especificado"}
-                                  </strong>
-                                </Typography>
-                              </Stack>
-                              <Stack
-                                direction="row"
-                                alignItems="center"
-                                spacing={1}
-                              >
-                                <Business fontSize="small" color="primary" />
-                                <Typography variant="body2">
-                                  {byData.cargo || "Cargo no especificado"}
-                                </Typography>
-                              </Stack>
-                              {byData.telf && (
-                                <Stack
-                                  direction="row"
-                                  alignItems="center"
-                                  spacing={1}
-                                >
-                                  <Phone fontSize="small" color="primary" />
-                                  <Typography variant="body2">
-                                    {byData.telf}
-                                  </Typography>
-                                </Stack>
-                              )}
-                            </Stack>
+                            <Typography variant="body2">
+                              <strong>{byData.miembro}</strong> -
+                              {byData.cargo || "Cargo no especificado"} -
+                              {byData.telf}
+                            </Typography>
                           </>
                         )
                       }
                     />
                   </Grid>
+                  <Grid item size={{ xs: 12 }}>
+                    <InfoCard
+                      icon={<Description fontSize="small" color="info" />}
+                      content={
+                        <Typography variant="body2">
+                          <strong>Descripción : </strong>
+                          {marker.data.desc}
+                        </Typography>
+                      }
+                      color="info"
+                    />
+                  </Grid>
                 </Grid>
 
-                {/* Reportado por */}
-
                 {/* Descripción */}
-                <InfoCard
-                  icon={<Description fontSize="small" color="info" />}
-                  title="Descripción"
-                  content={
-                    marker.data.desc ||
-                    marker.data.descripcion ||
-                    "No disponible"
-                  }
-                  color="info"
-                />
+
                 {openEdit ? (
                   <>
                     <EditData
@@ -515,25 +458,33 @@ export const ConMonitView = ({
                   </>
                 ) : (
                   <>
-                    <InfoCard
-                      icon={<Description fontSize="small" color="info" />}
-                      title="Detalle de intervención"
-                      content={
-                        marker.data.detail ||
-                        marker.data.detail ||
-                        "Detalle de intervención No disponible"
-                      }
-                      color="info"
-                    />
+                  <Divider/>
+                    <Typography variant="body1">
+                      Detalle de intervención
+                    </Typography>
 
                     {/* Presupuesto e Instituciones */}
                     <Grid container spacing={1} sx={{ mb: 1 }}>
-                      <Grid item size={{ xs: 6 }}>
+                      <Grid item size={{ xs: 12 }}>
+                        <InfoCard
+                          icon={<Description fontSize="small" color="info" />}
+                          
+                          content={
+                            <Typography variant="body2">
+                              <strong>Detalle de intervención : </strong>
+                              {marker.data.detail ||
+                                "Detalle de intervención No disponible"}
+                            </Typography>
+                          }
+                          color="info"
+                        />
+                      </Grid>
+                      <Grid item size={{ xs: 12 }}>
                         <InfoCard
                           icon={
                             <AttachMoney fontSize="small" color="success" />
                           }
-                          title="Presupuesto"
+                          title="Presupuesto :"
                           content={
                             marker.data.cash
                               ? marker.data.cash
@@ -544,10 +495,10 @@ export const ConMonitView = ({
                           color="success"
                         />
                       </Grid>
-                      <Grid item size={{ xs: 6 }}>
+                      <Grid item size={{ xs: 12 }}>
                         <InfoCard
                           icon={<Business fontSize="small" color="warning" />}
-                          title="Instituciones"
+                          title="Instituciones :"
                           content={
                             marker.data.inst ||
                             marker.data.instituciones ||
@@ -557,10 +508,10 @@ export const ConMonitView = ({
                         />
                       </Grid>
                     </Grid>
-                    <Grid item size={{ xs: 6 }}>
+                    <Grid item size={{ xs: 12 }}>
                       <InfoCard
                         icon={<Link fontSize="small" color="success" />}
-                        title="Verificable"
+                        title="Verificable :"
                         content={
                           marker.data.verifi === "si" ? (
                             <Typography

@@ -111,7 +111,7 @@ function LayerControl({
             }}
             control={
               <Checkbox
-                checked={isSelected}
+                checked={!isSelected}
                 onChange={onToggle}
                 icon={icon}
                 checkedIcon={React.cloneElement(icon, { sx: { color: color } })}
@@ -136,7 +136,7 @@ function LayerControl({
                       label={`${count}`}
                       //size="small"
                       sx={{
-                        bgcolor: color,
+                        //bgcolor: color,
                        // color: "white",
                         fontWeight: "bold",
                         minWidth: "32px",
@@ -161,13 +161,13 @@ function LayerControl({
                 </IconButton>
               </Tooltip>
             )}
-            {showHideToggle && (
+           {/*  {showHideToggle && (
               <Tooltip title="Ocultar capa">
                 <IconButton size="small" onClick={handleHideToggle}>
                   <VisibilityOffIcon fontSize="small" sx={{ fontSize: 18 }} />
                 </IconButton>
               </Tooltip>
-            )}
+            )} */}
             {children && (
               <Tooltip title="Ver detalles">
                 <IconButton size="small" onClick={() => setExpanded(!expanded)}>
