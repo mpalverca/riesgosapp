@@ -162,7 +162,7 @@ const Coe = ({ role, ci, ...props }) => {
         </TabPanel>
 
         <TabPanel value="2">
-          <Paper elevation={3} sx={{ p: 1, mb: 1, borderRadius: 1 }}>
+          <Paper elevation={3} sx={{ mb: 1, borderRadius: 1 }}>
             {member?.cargoCOE === "Presidente" ? (
               <BodyPlenaria mtt={member?.mtt} member={member} />
             ) : (
@@ -178,7 +178,7 @@ const Coe = ({ role, ci, ...props }) => {
           </TabPanel>
         )}
         <TabPanel value="3">
-          <Paper elevation={3} sx={{ p: 1, mb: 1, borderRadius: 1 }}>
+          <Paper elevation={3} sx={{ mb: 1, borderRadius: 1 }}>
             <BodyPlan mtt={member?.mtt} member={member} />
           </Paper>
         </TabPanel>

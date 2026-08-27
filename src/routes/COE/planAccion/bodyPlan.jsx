@@ -425,7 +425,7 @@ function BodyPlanContent() {
   };
 
   return (
-    <Grid container spacing={2} sx={{ padding: 2, height: "100vh" }}>
+    <Grid container spacing={2} sx={{ padding: 0.5, height: "100vh" }}>
       {/* Sidebar */}
       <Grid size={{ xs: 12, md: 3 }} sx={{ height: "100%", overflowY: "auto" }}>
         <PanelAccion

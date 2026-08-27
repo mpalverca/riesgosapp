@@ -410,7 +410,7 @@ function MapMark({
           left: "50%",
           transform: "translateX(-50%)",
           zIndex: 1000,
-          width: { xs: "90%", sm: "70%", md: "50%" },
+         // width: { xs: "90%", sm: "70%", md: "50%" },
         }}
       >
         <MapSearchBar

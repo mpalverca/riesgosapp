@@ -502,7 +502,7 @@ export default function PanelAccion({
 
           {/* Grupo 2: Acciones del MTT */}
           <LayerGroup
-            title="2. Acciones del MTT"
+            title="2. Acciones del MTT/GT"
             onRefreshAll={handleRefreshActionsGroup}
             showRefreshAll={true}
           >

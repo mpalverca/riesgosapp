@@ -96,37 +96,6 @@ const ICON_CONFIG = {
 };
 
 // ========== COMPONENTES DE ESTILOS ==========
-const StatusChip = ({ status }) => {
-  const statusConfig = {
-    Vigente: {
-      color: "warning",
-      icon: <Schedule />,
-      label: "En ejecución  " || "Por activar" || "Programado",
-    },
-    "En ejecución": {
-      color: "warning",
-      icon: <Schedule />,
-      label: "En ejecución  " || "Por activar" || "Programado",
-    },
-    Permanente: {
-      color: "info",
-      icon: <Assessment />,
-      label: "Permanente" || "  Completado",
-    },
-  };
-
-  const config = statusConfig[status] || statusConfig["Vigente"];
-
-  return (
-    <Chip
-      icon={config.icon}
-      label={config.label}
-      color={config.color}
-      size="small"
-      sx={{ fontWeight: "bold" }}
-    />
-  );
-};
 
 const InfoCard = ({ icon, title, content, color = "primary" }) => (
   <Stack direction="row" spacing={1} alignItems="center">
@@ -236,18 +205,7 @@ export const ConMonitView = ({
   };
 
   // Calcular progreso del evento
-  const getProgress = (status) => {
-    switch (status) {
-      case "Vigente":
-        return 25;
-      case "En ejecución":
-        return 50;
-      case "finalizado":
-        return 100;
-      default:
-        return 0;
-    }
-  };
+  
 
   // Procesar datos si es necesario
   const processData = (item) => {
@@ -297,7 +255,7 @@ export const ConMonitView = ({
       {processedData.map((marker) => {
         const byData = parseByField(marker.data.by);
         const activeMonths = getActiveMonths(marker.data);
-        const progress = getProgress(marker.data.estado);
+       
         const position = marker.position || [marker.data.lat, marker.data.lng];
 
         // En el botón:
@@ -308,15 +266,14 @@ export const ConMonitView = ({
           marker.data.verificableUrl == "";
         const isSameMtt = marker.data.mtt === mtt;
 
-        console.log(hasVerificable, isSameMtt, isCompletado);
         // Condición para deshabilitar
         const isDisabled = isCompletado || !isSameMtt || !hasVerificable;
-        console.log(isDisabled);
+       
         return (
           <Marker
             key={marker.id || marker.data._id}
             position={position}
-            icon={getEventIcon(progress)}
+            icon={getEventIcon()}
           >
             <Popup
               options={{ maxWidth: 600, minWidth: 450 }}
@@ -356,7 +313,13 @@ export const ConMonitView = ({
                     >
                       {title}- {marker.data.mtt}
                     </Typography>
-                    <StatusChip status={progress} />
+                    <Chip
+                      icon={<Schedule />}
+                      label={marker.data.estado}
+                      color="warning"
+                      size="small"
+                      sx={{ fontWeight: "bold" }}
+                    />
                   </Stack>
                   <Typography
                     variant="h5"
@@ -458,7 +421,7 @@ export const ConMonitView = ({
                   </>
                 ) : (
                   <>
-                  <Divider/>
+                    <Divider />
                     <Typography variant="body1">
                       Detalle de intervención
                     </Typography>
@@ -468,7 +431,6 @@ export const ConMonitView = ({
                       <Grid item size={{ xs: 12 }}>
                         <InfoCard
                           icon={<Description fontSize="small" color="info" />}
-                          
                           content={
                             <Typography variant="body2">
                               <strong>Detalle de intervención : </strong>
