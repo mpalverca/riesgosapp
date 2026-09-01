@@ -277,35 +277,29 @@ function BodyPlanProvider({ children, mtt, member }) {
     reqPol,
     loadingStates
   ]);
-
   // ========== MANEJADORES DE CLICK ==========
   const handleLayerClick = useCallback((layer, coords) => {
     setCoordinates(coords);
     setDialogs(prev => ({ ...prev, [layer]: true }));
   }, []);
-
   const handleCloseDialog = useCallback((layer) => {
     setDialogs(prev => ({ ...prev, [layer]: false }));
   }, []);
-
   // ========== ZOOM ==========
   const handleZoomToLocation = useCallback((lat, lng) => {
     setZoomCoord({ lat, lng });
     setShouldZoom(true);
     setTimeout(() => setShouldZoom(false), 100);
   }, []);
-
   // ========== ESTADOS DERIVADOS ==========
   const activeLayersCount = useMemo(
     () => Object.values(selectedCapa).filter(Boolean).length,
     [selectedCapa]
   );
-
   const totalLayers = useMemo(
     () => Object.keys(selectedCapa).length,
     []
   );
-
   // ========== CONFIGURACIÓN DE CAPAS ==========
   const layersConfig = useMemo(() => [
     {
@@ -327,7 +321,6 @@ function BodyPlanProvider({ children, mtt, member }) {
       color: "#228b22",
     },
   ], []);
-
   // ========== VALUE DEL CONTEXT ==========
   const contextValue = useMemo(() => ({
     // Datos
@@ -345,7 +338,6 @@ function BodyPlanProvider({ children, mtt, member }) {
     zoomCoord,
     shouldZoom,
     layersConfig,
-
     // Acciones
     toggleLayer,
     refreshLayer,
@@ -384,7 +376,6 @@ function BodyPlanProvider({ children, mtt, member }) {
     </BodyPlanContext.Provider>
   );
 }
-
 // ==================== COMPONENTE PRINCIPAL ====================
 function BodyPlan({ mtt, member }) {
   return (
@@ -393,7 +384,6 @@ function BodyPlan({ mtt, member }) {
     </BodyPlanProvider>
   );
 }
-
 // ==================== CONTENIDO ====================
 function BodyPlanContent() {
   const {
@@ -417,13 +407,11 @@ function BodyPlanContent() {
     handleZoomToLocation,
     setCoordinates,
   } = useBodyPlan();
-
   // Función helper para obtener diálogo abierto
   const isDialogOpen = (layer) => {
     // Implementar según necesidad
     return false;
   };
-
   return (
     <Grid container spacing={2} sx={{ padding: 0.5, height: "100vh" }}>
       {/* Sidebar */}
@@ -444,7 +432,6 @@ function BodyPlanContent() {
           onZoomCoord={handleZoomToLocation}
         />
       </Grid>
-
       {/* Mapa */}
       <Grid size={{ xs: 12, md: 9 }} sx={{ height: "100%" }}>
         <MapMark
@@ -479,7 +466,6 @@ function BodyPlanContent() {
           shouldZoom={shouldZoom}
         />
       </Grid>
-
       {/* Diálogos - Simplificado con mapeo */}
       {layersConfig.map(({ key, label }) => (
         <DialogAccions

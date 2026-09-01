@@ -112,7 +112,7 @@ function LayerControl({
             }}
             control={
               <Checkbox
-                checked={isSelected}
+                checked={!isSelected}
                 onChange={onToggle}
                 icon={icon}
                 checkedIcon={React.cloneElement(icon, { sx: { color: color } })}
